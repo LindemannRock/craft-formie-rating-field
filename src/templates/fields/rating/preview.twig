@@ -1,0 +1,80 @@
+{% set sizeMap = {
+    'small': '16px',
+    'medium': '20px',
+    'large': '24px',
+    'xlarge': '28px'
+} %}
+
+{% set iconSize = sizeMap[field.ratingSize] ?? '20px' %}
+{% set itemCount = field.maxValue - field.minValue + 1 %}
+
+{# Reduce size if too many items #}
+{% if itemCount >= 7 %}
+    {% set sizeMultiplier = 0.8 %}
+    {% set iconSizeNum = iconSize|replace({'px': ''})|number_format * sizeMultiplier %}
+    {% set iconSize = iconSizeNum ~ 'px' %}
+{% endif %}
+
+<div class="formie-rating-preview" style="display: inline-block;">
+    <div style="display: flex; align-items: center; gap: 4px;">
+        {% if field.ratingType == 'star' %}
+            {# Show star icons #}
+            {% set midValue = ((field.maxValue + field.minValue) / 2)|round %}
+            {% for i in field.minValue..field.maxValue %}
+                <svg width="{{ iconSize }}" height="{{ iconSize }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                          stroke="#f59e0b" stroke-width="2" fill="{% if i <= midValue %}#f59e0b{% else %}none{% endif %}" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            {% endfor %}
+            
+        {% elseif field.ratingType == 'emoji' %}
+            {# Show emoji faces #}
+            {% set emojis = {
+                1: '😢',
+                2: '😕',
+                3: '😐',
+                4: '😊',
+                5: '😍',
+                6: '🤩',
+                7: '🥰',
+                8: '😎',
+                9: '🤗',
+                10: '🥳'
+            } %}
+            {% set midValue = ((field.maxValue + field.minValue) / 2)|round %}
+            {% for i in field.minValue..field.maxValue %}
+                <span style="font-size: {{ iconSize }}; {% if i != midValue %}opacity: 0.5;{% endif %}">
+                    {{ emojis[i] ?? '😐' }}
+                </span>
+            {% endfor %}
+            
+        {% elseif field.ratingType == 'nps' %}
+            {# Show number boxes #}
+            {% set midValue = ((field.maxValue + field.minValue) / 2)|round %}
+            {% for i in field.minValue..field.maxValue %}
+                <span style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: {{ iconSize }};
+                    height: {{ iconSize }};
+                    border: 2px solid {% if i == midValue %}#2d5016{% else %}#e5e7eb{% endif %};
+                    background: {% if i == midValue %}#2d5016{% else %}white{% endif %};
+                    color: {% if i == midValue %}white{% else %}#6b7280{% endif %};
+                    border-radius: 4px;
+                    font-size: {% if field.ratingSize == 'small' %}12px{% elseif field.ratingSize == 'large' %}16px{% elseif field.ratingSize == 'xlarge' %}18px{% else %}14px{% endif %};
+                    font-weight: 500;
+                ">
+                    {{ i }}
+                </span>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    {% if field.showEndpointLabels and field.startLabel and field.endLabel %}
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 14px; color: #6b7280;">
+            <span>{{ field.startLabel }}</span>
+            <span>{{ field.endLabel }}</span>
+        </div>
+    {% endif %}
+</div>

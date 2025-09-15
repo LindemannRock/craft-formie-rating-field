@@ -1,0 +1,23 @@
+<div class="fui-rating-preview" style="display: inline-block;">
+    <!-- Star Rating -->
+    <div v-if="field.settings.ratingType === 'star'" style="display: flex; gap: 4px;">
+        <span v-for="i in 5" :key="i" style="color: #f59e0b; font-size: 20px;">★</span>
+    </div>
+    
+    <!-- Emoji Rating -->
+    <div v-else-if="field.settings.ratingType === 'emoji'" style="display: flex; gap: 4px;">
+        <span style="font-size: 20px;">😢</span>
+        <span style="font-size: 20px;">😕</span>
+        <span style="font-size: 20px;">😐</span>
+        <span style="font-size: 20px;">😊</span>
+        <span style="font-size: 20px;">😍</span>
+    </div>
+    
+    <!-- NPS Rating -->
+    <div v-else-if="field.settings.ratingType === 'nps'" style="display: flex; gap: 4px;">
+        <span v-for="i in 10" :key="i" 
+              style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 4px; font-size: 12px; font-weight: 500;">
+            ${ i }
+        </span>
+    </div>
+</div>

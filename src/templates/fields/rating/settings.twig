@@ -1,0 +1,179 @@
+{% import '_includes/forms' as forms %}
+
+{{ forms.selectField({
+    label: 'Rating Type'|t('formie'),
+    instructions: 'Choose the type of rating display.'|t('formie'),
+    id: 'ratingType',
+    name: 'ratingType',
+    value: field.ratingType,
+    options: [
+        { label: 'Star Rating', value: 'star' },
+        { label: 'Emoji Rating', value: 'emoji' },
+        { label: 'NPS (Number) Rating', value: 'nps' },
+    ],
+}) }}
+
+{{ forms.selectField({
+    label: 'Size'|t('formie'),
+    instructions: 'Choose the size of the rating elements.'|t('formie'),
+    id: 'ratingSize',
+    name: 'ratingSize',
+    value: field.ratingSize,
+    options: [
+        { label: 'Small', value: 'small' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'Large', value: 'large' },
+        { label: 'Extra Large', value: 'xlarge' },
+    ],
+}) }}
+
+<div class="field">
+    <div class="heading">
+        <label>{{ 'Rating Range'|t('formie') }}</label>
+        <div class="instructions">
+            <p>{{ 'Set the minimum and maximum rating values.'|t('formie') }}</p>
+        </div>
+    </div>
+    <div class="flex">
+        <div class="flex-grow">
+            {{ forms.selectField({
+                label: 'Minimum'|t('formie'),
+                id: 'minValue',
+                name: 'minValue',
+                value: field.minValue ?? (field.ratingType == 'nps' ? '0' : '1'),
+                options: [
+                    { label: '0', value: '0' },
+                    { label: '1', value: '1' },
+                ],
+            }) }}
+        </div>
+        <div class="flex-grow">
+            {{ forms.selectField({
+                label: 'Maximum'|t('formie'),
+                id: 'maxValue',
+                name: 'maxValue',
+                value: field.maxValue,
+                options: [
+                    { label: '3', value: '3' },
+                    { label: '4', value: '4' },
+                    { label: '5', value: '5' },
+                    { label: '6', value: '6' },
+                    { label: '7', value: '7' },
+                    { label: '8', value: '8' },
+                    { label: '9', value: '9' },
+                    { label: '10', value: '10' },
+                ],
+            }) }}
+        </div>
+    </div>
+</div>
+
+<div id="halfRatingsContainer" class="{% if field.ratingType != 'star' %}hidden{% endif %}">
+    {{ forms.lightswitchField({
+        label: 'Allow Half Ratings'|t('formie'),
+        instructions: 'Allow users to select half-star ratings (e.g., 3.5 stars).'|t('formie'),
+        id: 'allowHalfRatings',
+        name: 'allowHalfRatings',
+        on: field.allowHalfRatings,
+    }) }}
+</div>
+
+{# Temporarily hidden until styling is finalized #}
+{# {{ forms.lightswitchField({
+    label: 'Show Selected Label'|t('formie'),
+    instructions: 'Display the label of the selected rating value.'|t('formie'),
+    id: 'showSelectedLabel',
+    name: 'showSelectedLabel',
+    on: field.showSelectedLabel,
+}) }} #}
+
+{{ forms.lightswitchField({
+    label: 'Show Endpoint Labels'|t('formie'),
+    instructions: 'Display labels at the start and end of the rating scale.'|t('formie'),
+    id: 'showEndpointLabels',
+    name: 'showEndpointLabels',
+    on: field.showEndpointLabels,
+    toggle: 'endpointLabelsContainer',
+}) }}
+
+<div id="endpointLabelsContainer" class="{% if not field.showEndpointLabels %}hidden{% endif %}">
+    {{ forms.textField({
+        label: 'Start Label'|t('formie'),
+        instructions: 'Label for the lowest rating value.'|t('formie'),
+        id: 'startLabel',
+        name: 'startLabel',
+        value: field.startLabel,
+        placeholder: 'e.g., Not at all likely',
+    }) }}
+
+    {{ forms.textField({
+        label: 'End Label'|t('formie'),
+        instructions: 'Label for the highest rating value.'|t('formie'),
+        id: 'endLabel',
+        name: 'endLabel',
+        value: field.endLabel,
+        placeholder: 'e.g., Extremely likely',
+    }) }}
+</div>
+
+<hr>
+
+<div class="field">
+    <div class="heading">
+        <label>{{ 'Custom Labels'|t('formie') }}</label>
+        <div class="instructions">
+            <p>{{ 'Optionally set custom labels for each rating value. Leave blank to use the numeric value.'|t('formie') }}</p>
+        </div>
+    </div>
+    <div id="customLabelsContainer">
+        {# This will be populated by JavaScript based on min/max values #}
+    </div>
+</div>
+
+{% js %}
+    (function() {
+        const ratingTypeSelect = document.getElementById('ratingType');
+        const halfRatingsContainer = document.getElementById('halfRatingsContainer');
+        const minValueInput = document.getElementById('minValue');
+        const maxValueInput = document.getElementById('maxValue');
+        const customLabelsContainer = document.getElementById('customLabelsContainer');
+        
+        function toggleHalfRatings() {
+            if (ratingTypeSelect.value === 'star') {
+                halfRatingsContainer.classList.remove('hidden');
+            } else {
+                halfRatingsContainer.classList.add('hidden');
+            }
+        }
+        
+        function updateCustomLabels() {
+            const min = parseInt(minValueInput.value) || 1;
+            const max = parseInt(maxValueInput.value) || 5;
+            const existingLabels = {{ field.customLabels|json_encode|raw }};
+            
+            customLabelsContainer.innerHTML = '';
+            
+            for (let i = min; i <= max; i++) {
+                const div = document.createElement('div');
+                div.className = 'flex items-center mb-2';
+                div.innerHTML = `
+                    <label class="w-12">${i}:</label>
+                    <input type="text" 
+                        name="customLabels[${i}]" 
+                        value="${existingLabels[i] || ''}" 
+                        class="text fullwidth"
+                        placeholder="Label for ${i}">
+                `;
+                customLabelsContainer.appendChild(div);
+            }
+        }
+        
+        ratingTypeSelect.addEventListener('change', toggleHalfRatings);
+        minValueInput.addEventListener('change', updateCustomLabels);
+        maxValueInput.addEventListener('change', updateCustomLabels);
+        
+        // Initialize
+        toggleHalfRatings();
+        updateCustomLabels();
+    })();
+{% endjs %}

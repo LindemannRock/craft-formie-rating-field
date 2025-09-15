@@ -1,0 +1,20 @@
+{% set options = field.getRatingOptions() %}
+{% set selectedLabel = '' %}
+{% for option in options %}
+    {% if option.value == value %}
+        {% set selectedLabel = option.label %}
+    {% endif %}
+{% endfor %}
+
+<strong>{{ field.label }}:</strong> 
+{% if value %}
+    {% if field.ratingType == 'star' %}
+        {{ value }} / {{ field.maxValue }} stars
+    {% elseif field.ratingType == 'emoji' %}
+        {{ selectedLabel }} ({{ value }})
+    {% elseif field.ratingType == 'nps' %}
+        {{ value }} / {{ field.maxValue }}
+    {% endif %}
+{% else %}
+    <em>Not rated</em>
+{% endif %}
