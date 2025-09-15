@@ -189,3 +189,5 @@ This plugin is licensed under the MIT License. See [LICENSE](LICENSE) for detail
 ---
 
 Developed by [LindemannRock](https://lindemannrock.com)
+
+Built for use with [Formie](https://verbb.io/craft-plugins/formie) by Verbb
