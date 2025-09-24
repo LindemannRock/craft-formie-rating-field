@@ -37,7 +37,7 @@ Until published on Packagist, install directly from the repository:
 
 ```bash
 cd /path/to/project
-composer config repositories.formie-rating-field vcs https://github.com/LindemannRock/formie-rating-field
+composer config repositories.formie-rating-field vcs https://github.com/LindemannRock/craft-formie-rating-field
 composer require lindemannrock/formie-rating-field:dev-main
 ./craft plugin/install formie-rating-field
 ```
@@ -178,8 +178,8 @@ plugins/formie-rating-field/
 
 ## Support
 
-- **Documentation**: [https://github.com/LindemannRock/formie-rating-field](https://github.com/LindemannRock/formie-rating-field)
-- **Issues**: [https://github.com/LindemannRock/formie-rating-field/issues](https://github.com/LindemannRock/formie-rating-field/issues)
+- **Documentation**: [https://github.com/LindemannRock/craft-formie-rating-field](https://github.com/LindemannRock/craft-formie-rating-field)
+- **Issues**: [https://github.com/LindemannRock/craft-formie-rating-field/issues](https://github.com/LindemannRock/craft-formie-rating-field/issues)
 - **Email**: [support@lindemannrock.com](mailto:support@lindemannrock.com)
 
 ## License

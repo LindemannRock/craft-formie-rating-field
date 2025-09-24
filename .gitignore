@@ -32,8 +32,7 @@ dist/
 !src/web/assets/*/dist/
 
 # Logs
-logs
-*.log
+/logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -89,3 +88,5 @@ web/cpresources/
 *.zip
 releases/
 TODO.md
+/backups/
+FREEMIUM_PLAN.md

@@ -1,5 +1,5 @@
 {
-    "name": "lindemannrock/formie-rating-field",
+    "name": "lindemannrock/craft-formie-rating-field",
     "description": "Rating field for Formie - Provides star rating, emoji rating, and numeric rating field types for Craft CMS Formie plugin",
     "type": "craft-plugin",
     "version": "1.0.0",
@@ -19,6 +19,12 @@
             "homepage": "https://lindemannrock.com"
         }
     ],
+    "support": {
+        "email": "support@lindemannrock.com",
+        "issues": "https://github.com/LindemannRock/craft-formie-rating-field/issues",
+        "source": "https://github.com/LindemannRock/craft-formie-rating-field",
+        "docs": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md"
+    },
     "require": {
         "php": "^8.0.2",
         "craftcms/cms": "^5.0.0",
@@ -34,8 +40,8 @@
         "handle": "formie-rating-field",
         "developer": "LindemannRock",
         "developerUrl": "https://lindemannrock.com",
-        "documentationUrl": "https://github.com/lindemannrock/formie-rating-field/blob/master/README.md",
-        "changelogUrl": "https://github.com/lindemannrock/formie-rating-field/blob/master/CHANGELOG.md",
+        "documentationUrl": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md",
+        "changelogUrl": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/CHANGELOG.md",
         "class": "lindemannrock\\formieratingfield\\FormieRatingField"
     }
 }
