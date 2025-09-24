@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.0...v1.0.1) (2025-09-24)
+
+
+### Bug Fixes
+
+* update repository references and improve .gitignore entries ([65acf0e](https://github.com/LindemannRock/craft-formie-rating-field/commit/65acf0eafa28c6e4e1d0729ce8fb2328d02a49f4))
+
 ## 1.0.0 (2025-09-15)
 
 
