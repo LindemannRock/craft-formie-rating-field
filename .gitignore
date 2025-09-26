@@ -29,7 +29,8 @@ build/
 
 # Exclude dist/ except for plugin assets
 dist/
-!src/web/assets/*/dist/
+!src/web/assets/*/*.min.js
+!src/web/assets/*/*.min.css
 
 # Logs
 /logs/
