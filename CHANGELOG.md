@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.1...v1.0.2) (2025-09-26)
+
+
+### Bug Fixes
+
+* corrupted minified JS file causing syntax errors in production ([a567a64](https://github.com/LindemannRock/craft-formie-rating-field/commit/a567a64791259b730a67228878a901f7423623bd))
+
 ## [1.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.0...v1.0.1) (2025-09-24)
 
 
