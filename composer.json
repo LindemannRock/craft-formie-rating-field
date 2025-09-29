@@ -26,7 +26,7 @@
         "docs": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md"
     },
     "require": {
-        "php": "^8.0.2",
+        "php": "^8.2",
         "craftcms/cms": "^5.0.0",
         "verbb/formie": "^3.0.0"
     },
