@@ -318,24 +318,6 @@ class Rating extends Field implements FieldInterface
     /**
      * @inheritdoc
      */
-    public function getFrontEndInputHtml(\verbb\formie\elements\Form $form, mixed $value, array $renderOptions = []): \Twig\Markup
-    {
-        // Register the asset bundle for front-end rendering
-        Craft::$app->getView()->registerAssetBundle(RatingFieldAsset::class);
-
-        $html = Craft::$app->getView()->renderTemplate(static::getFrontEndInputTemplatePath(), [
-            'field' => $this,
-            'value' => $value,
-            'form' => $form,
-            'options' => $renderOptions,
-        ]);
-
-        return Template::raw($html);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getPreviewInputHtml(): string
     {
         return '<div class="fui-rating-preview">

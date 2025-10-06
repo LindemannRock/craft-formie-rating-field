@@ -71,9 +71,17 @@
 	--fui-rating-animation-duration: var(--rating-animation-duration, 0.3s);
 }
 
-/* Hide the select element immediately to prevent FOUC (Flash of Unstyled Content) */
+/* Visually hide the select but keep it in DOM for error display */
 select[data-rating] {
-	display: none !important;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0,0,0,0);
+	white-space: nowrap;
+	border-width: 0;
 }
 
 /* Show a loading state while JavaScript initializes */

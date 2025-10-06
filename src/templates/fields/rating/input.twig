@@ -7,31 +7,16 @@
 {% set options = field.getRatingOptions() %}
 {% set selectedLabel = '' %}
 {% for option in options %}
-    {% if option.value == value %}
-        {% set selectedLabel = option.label|t('formie') %}
-    {% endif %}
+	{% if option.value == value %}
+		{% set selectedLabel = option.label|t('formie') %}
+	{% endif %}
 {% endfor %}
 
-<select 
-    name="{{ field.getHtmlName() }}"
-    id="{{ field.getHtmlId(form) }}"
-    class="fui-select"
-    data-rating="{{ field.ratingType }}"
-    data-rating-size="{{ field.ratingSize }}"
-    {% if field.showSelectedLabel %}data-rating-show-selected="true"{% endif %}
-    {% if field.showEndpointLabels %}
-        data-rating-show-endpoints="true"
-        {% if field.startLabel %}data-rating-start-label="{{ field.startLabel|t('formie') }}"{% endif %}
-        {% if field.endLabel %}data-rating-end-label="{{ field.endLabel|t('formie') }}"{% endif %}
-    {% endif %}
-    {% if field.required %}required aria-required="true"{% endif %}
-    data-field-config="{{ field.getConfigJson() }}"
-    data-formie-rating-field="true"
->
-    <option value="">{{ field.placeholder ?? 'Choose a rating'|t('formie') }}</option>
-    {% for option in options %}
-        <option value="{{ option.value }}" {% if value is not null and option.value == value %}selected{% endif %}>
-            {{ option.label|t('formie') }}
-        </option>
-    {% endfor %}
+<select name="{{ field.getHtmlName() }}" id="{{ field.getHtmlId(form) }}" class="fui-select" data-rating="{{ field.ratingType }}" data-rating-size="{{ field.ratingSize }}" {% if field.showSelectedLabel %} data-rating-show-selected="true" {% endif %} {% if field.showEndpointLabels %} data-rating-show-endpoints="true" {% if field.startLabel %} data-rating-start-label="{{ field.startLabel|t('formie') }}" {% endif %} {% if field.endLabel %} data-rating-end-label="{{ field.endLabel|t('formie') }}" {% endif %} {% endif %} {% if field.required %} required aria-required="true" {% endif %} data-field-config="{{ field.getConfigJson() }}" data-formie-rating-field="true">
+	<option value="">{{ field.placeholder ?? 'Choose a rating'|t('formie') }}</option>
+	{% for option in options %}
+		<option value="{{ option.value }}" {% if value is not null and option.value == value %} selected {% endif %}>
+			{{ option.label|t('formie') }}
+		</option>
+	{% endfor %}
 </select>
