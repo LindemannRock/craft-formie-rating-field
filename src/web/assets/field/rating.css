@@ -10,7 +10,8 @@
 	/* Star Rating Colors - uses global vars, then fui vars, then fallback */
 	--fui-rating-star-color: var(--rating-star-color, #f59e0b);
 	--fui-rating-star-empty-color: var(--rating-star-empty-color, #e5e7eb);
-	--fui-rating-star-hover-scale: var(--rating-star-hover-scale, 1.1);
+	--fui-rating-star-hover-scale: var(--rating-star-hover-scale, 1.05);
+	--fui-rating-star-selected-scale: var(--rating-star-selected-scale, 1.2);
 
 	/* Star Sizes */
 	--fui-rating-star-size-small: var(--rating-star-size-small, 20px);
@@ -28,6 +29,8 @@
 	--fui-rating-nps-hover-bg: var(--rating-nps-hover-bg, #f9fafb);
 	--fui-rating-nps-hover-border: var(--rating-nps-hover-border, #9ca3af);
 	--fui-rating-nps-selected-hover-bg: var(--rating-nps-selected-hover-bg, #365a1c);
+	--fui-rating-nps-hover-scale: var(--rating-nps-hover-scale, 1.05);
+	--fui-rating-nps-selected-scale: var(--rating-nps-selected-scale, 1.2);
 
 	/* NPS Sizes */
 	--fui-rating-nps-size-small: var(--rating-nps-size-small, 32px);
@@ -42,8 +45,8 @@
 	/* Emoji Rating */
 	--fui-rating-emoji-grayscale: var(--rating-emoji-grayscale, 100%);
 	--fui-rating-emoji-opacity: var(--rating-emoji-opacity, 0.5);
-	--fui-rating-emoji-selected-scale: var(--rating-emoji-selected-scale, 1.1);
-	--fui-rating-emoji-hover-scale: var(--rating-emoji-hover-scale, 1.05);
+    --fui-rating-emoji-hover-scale: var(--rating-emoji-hover-scale, 1.05);
+	--fui-rating-emoji-selected-scale: var(--rating-emoji-selected-scale, 1.2);
 
 	/* Emoji Sizes */
 	--fui-rating-emoji-size-small: var(--rating-emoji-size-small, 24px);
@@ -54,6 +57,7 @@
 	/* General */
 	--fui-rating-transition: var(--rating-transition, all 0.2s ease);
 	--fui-rating-focus-color: var(--rating-focus-color, currentColor);
+	--fui-rating-border-radius: var(--rating-border-radius, 0.25rem);
 	--fui-rating-gap-small: var(--rating-gap-small, 2px);
 	--fui-rating-gap-medium: var(--rating-gap-medium, 4px);
 	--fui-rating-gap-large: var(--rating-gap-large, 6px);
@@ -69,6 +73,8 @@
 	/* Animation */
 	--fui-rating-animation-scale: var(--rating-animation-scale, 1.2);
 	--fui-rating-animation-duration: var(--rating-animation-duration, 0.3s);
+
+    
 }
 
 /* Visually hide the select but keep it in DOM for error display */
@@ -126,7 +132,7 @@ select[data-rating] + .fui-rating-loading {
 .fui-rating-item:focus {
 	outline: 2px solid var(--fui-rating-focus-color, currentColor);
 	outline-offset: 2px;
-	border-radius: 4px;
+	border-radius: var(--fui-rating-border-radius, 0.25rem);
 }
 
 .fui-rating-item:disabled {
@@ -162,9 +168,13 @@ select[data-rating] + .fui-rating-loading {
 	color: var(--fui-rating-star-color, #f59e0b);
 }
 
-.fui-rating-star .fui-rating-item:hover .star-container {
-	transform: scale(var(--fui-rating-star-hover-scale, 1.1));
+/* .fui-rating-star .fui-rating-item:hover .star-container {
+	transform: scale(var(--fui-rating-star-hover-scale, 1.05));
 }
+
+.fui-rating-star .fui-rating-item.fui-rating-selected .star-container {
+	transform: scale(var(--fui-rating-star-selected-scale, var(--fui-rating-animation-scale, 1.2)));
+} */
 
 /* Emoji Rating Styles */
 .fui-rating-emoji .fui-rating-item {
@@ -176,13 +186,13 @@ select[data-rating] + .fui-rating-loading {
 .fui-rating-emoji .fui-rating-item.fui-rating-selected {
 	filter: grayscale(0%);
 	opacity: 1;
-	transform: scale(var(--fui-rating-emoji-selected-scale, 1.1));
+	/* transform: scale(var(--fui-rating-emoji-selected-scale, var(--fui-rating-animation-scale, 1.2))); */
 }
 
 .fui-rating-emoji .fui-rating-item:hover {
 	filter: grayscale(0%);
 	opacity: 0.8;
-	transform: scale(var(--fui-rating-emoji-hover-scale, 1.05));
+	/* transform: scale(var(--fui-rating-emoji-hover-scale, 1.05)); */
 }
 
 /* NPS Rating Styles */
@@ -193,7 +203,7 @@ select[data-rating] + .fui-rating-loading {
 	border: 2px solid var(--fui-rating-nps-border, #e5e7eb);
 	background: var(--fui-rating-nps-bg, white);
 	color: var(--fui-rating-nps-color, #6b7280);
-	border-radius: 4px;
+	border-radius: var(--fui-rating-border-radius, 0.25rem);
 	font-weight: 500;
 	cursor: pointer;
 	transition: var(--fui-rating-transition, all 0.2s ease);
@@ -208,7 +218,7 @@ select[data-rating] + .fui-rating-loading {
 .fui-rating-nps .fui-rating-item:hover {
 	border-color: var(--fui-rating-nps-hover-border, #9ca3af);
 	background: var(--fui-rating-nps-hover-bg, #f9fafb);
-	transform: scale(1.05);
+	/* transform: scale(var(--fui-rating-nps-hover-scale, 1.05)); */
 }
 
 .fui-rating-nps .fui-rating-item.fui-rating-selected:hover {
@@ -705,21 +715,21 @@ select[data-rating] + .fui-rating-loading {
 }
 
 /* Animation for value changes */
-@keyframes rating-pulse {
+/* @keyframes rating-pulse {
 	0% {
 		transform: scale(1);
 	}
 	50% {
-		transform: scale(var(--fui-rating-animation-scale, 1.2));
+		transform: scale(var(--fui-rating-nps-selected-scale, var(--fui-rating-animation-scale, 1.2)));
 	}
 	100% {
 		transform: scale(1);
 	}
 }
 
-.fui-rating-item.fui-rating-selected {
+.fui-rating-nps .fui-rating-item.fui-rating-selected {
 	animation: rating-pulse var(--fui-rating-animation-duration, 0.3s) ease-out;
-}
+} */
 
 /* Accessibility - High Contrast Mode */
 @media (prefers-contrast: high) {

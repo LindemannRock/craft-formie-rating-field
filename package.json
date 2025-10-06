@@ -1,0 +1,14 @@
+{
+  "name": "formie-rating-field",
+  "version": "1.0.0",
+  "description": "Build tools for Formie Rating Field plugin",
+  "scripts": {
+    "minify": "npm run minify:css && npm run minify:js",
+    "minify:css": "cleancss -o src/web/assets/field/rating.min.css src/web/assets/field/rating.css",
+    "minify:js": "terser src/web/assets/field/rating.js -o src/web/assets/field/rating.min.js -c -m"
+  },
+  "devDependencies": {
+    "clean-css-cli": "^5.6.3",
+    "terser": "^5.31.6"
+  }
+}

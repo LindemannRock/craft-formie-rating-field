@@ -132,7 +132,7 @@ window.FormieRating = class FormieRating {
                                 value = i - 0.5;
                             }
                             
-                            this.selectRating(selectElement, value, container);
+                            this.selectRating(selectElement, value, container, starItem);
                         });
                         
                         // Add hover handler for visual feedback
@@ -159,7 +159,7 @@ window.FormieRating = class FormieRating {
                         const starItem = this.createStarItem(value);
                         
                         starItem.addEventListener('click', () => {
-                            this.selectRating(selectElement, option.value, container);
+                            this.selectRating(selectElement, option.value, container, starItem);
                         });
                         
                         visualContainer.appendChild(starItem);
@@ -177,7 +177,7 @@ window.FormieRating = class FormieRating {
                     const originalIndex = options.indexOf(option);
                     const ratingItem = this.createRatingItem(ratingType, option.value, option.text, originalIndex);
                     ratingItem.addEventListener('click', () => {
-                        this.selectRating(selectElement, option.value, container);
+                        this.selectRating(selectElement, option.value, container, ratingItem);
                     });
                     visualContainer.appendChild(ratingItem);
                 });
@@ -296,17 +296,17 @@ window.FormieRating = class FormieRating {
             return item;
         }
 
-        selectRating(selectElement, value, container) {
+        selectRating(selectElement, value, container, clickedItem) {
             // Update select value
             selectElement.value = value;
-            
+
             // Trigger change event
             const event = new Event('change', { bubbles: true });
             selectElement.dispatchEvent(event);
-            
+
             // Update visual state
             this.updateVisualState(container, value);
-            
+
             // Update selected label
             const selectedLabel = container.querySelector('.fui-rating-selected-label');
             if (selectedLabel) {
@@ -339,18 +339,23 @@ window.FormieRating = class FormieRating {
                 container.querySelectorAll('.fui-rating-item').forEach((star) => {
                     const starValue = parseFloat(star.getAttribute('data-value'));
                     const fillElement = star.querySelector('.star-fill');
-                    
+
                     if (!fillElement) return;
-                    
+
+                    // Remove selected class first
+                    star.classList.remove('fui-rating-selected');
+
                     if (starValue <= Math.floor(value)) {
                         // Full star
                         fillElement.style.clipPath = 'none';
                         fillElement.style.opacity = '1';
+                        star.classList.add('fui-rating-selected');
                     } else if (starValue - 0.5 === value) {
                         // Half star - clip from right in RTL
                         const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
                         fillElement.style.clipPath = isRTL ? 'inset(0 0 0 50%)' : 'inset(0 50% 0 0)';
                         fillElement.style.opacity = '1';
+                        star.classList.add('fui-rating-selected');
                     } else {
                         // Empty star
                         fillElement.style.opacity = '0';
