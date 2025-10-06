@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.2...v1.1.0) (2025-10-06)
+
+
+### Features
+
+* add conditions support to rating field ([044dcc9](https://github.com/LindemannRock/craft-formie-rating-field/commit/044dcc944ff0954e2d627c56ca6915387abda907))
+* add CSS custom properties for scaling and border-radius, add conditions support ([48b1234](https://github.com/LindemannRock/craft-formie-rating-field/commit/48b12346877b2214a9c52fe1e8b43db545dd5333))
+
+
+### Bug Fixes
+
+* remove getFrontEndInputHtml override and fix CSS to prevent error display issues ([3d489a0](https://github.com/LindemannRock/craft-formie-rating-field/commit/3d489a0bb6b8fedf2951fc677815b88271d88493))
+* update PHP requirement to ^8.2 in composer.json ([91bb729](https://github.com/LindemannRock/craft-formie-rating-field/commit/91bb729229384dd37dec76f5f11a90cfdfc7fd22))
+
 ## [1.0.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.1...v1.0.2) (2025-09-26)
 
 
