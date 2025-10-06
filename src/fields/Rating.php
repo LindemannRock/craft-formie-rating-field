@@ -710,6 +710,17 @@ class Rating extends Field implements FieldInterface
     /**
      * @inheritdoc
      */
+    public function defineConditionsSchema(): array
+    {
+        return [
+            SchemaHelper::enableConditionsField(),
+            SchemaHelper::conditionsField(),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function settingsAttributes(): array
     {
         $attributes = parent::settingsAttributes();
