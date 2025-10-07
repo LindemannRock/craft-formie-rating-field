@@ -37,6 +37,7 @@
 	--fui-rating-nps-size-medium: var(--rating-nps-size-medium, 40px);
 	--fui-rating-nps-size-large: var(--rating-nps-size-large, 48px);
 	--fui-rating-nps-size-xlarge: var(--rating-nps-size-xlarge, 56px);
+	--fui-rating-nps-font-family: var(--rating-nps-font-family, inherit);
 	--fui-rating-nps-font-small: var(--rating-nps-font-small, 11px);
 	--fui-rating-nps-font-medium: var(--rating-nps-font-medium, 12px);
 	--fui-rating-nps-font-large: var(--rating-nps-font-large, 14px);
@@ -204,6 +205,7 @@ select[data-rating] + .fui-rating-loading {
 	background: var(--fui-rating-nps-bg, white);
 	color: var(--fui-rating-nps-color, #6b7280);
 	border-radius: var(--fui-rating-border-radius, 0.25rem);
+	font-family: var(--fui-rating-nps-font-family, inherit);
 	font-weight: 500;
 	cursor: pointer;
 	transition: var(--fui-rating-transition, all 0.2s ease);
