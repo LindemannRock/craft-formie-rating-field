@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.1.0...v1.2.0) (2025-10-07)
+
+
+### Features
+
+* add font-family CSS variable for NPS rating buttons ([212c2de](https://github.com/LindemannRock/craft-formie-rating-field/commit/212c2de0eb13818792fe1ff24884f63c5d79f7e2))
+
 ## [1.1.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.2...v1.1.0) (2025-10-06)
 
 
