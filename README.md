@@ -12,7 +12,7 @@ A Craft CMS plugin that provides advanced rating field types for Verbb's Formie 
 
 ### Three Rating Types
 - **Star Rating**: Classic star ratings with optional half-star support
-- **Emoji Rating**: Expressive emotion faces (😢 😞 😐 😊 😍)
+- **Emoji Rating**: Expressive emotion faces (😭 😢 😕 😐 😊 😍 🤩 🥰 😎 🤗 🥳) - supports 0-10 scale
 - **NPS Rating**: Net Promoter Score numeric boxes (0-10 scale)
 
 ### Customizable Settings

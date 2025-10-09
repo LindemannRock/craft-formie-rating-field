@@ -283,7 +283,7 @@ window.FormieRating = class FormieRating {
                     break;
                     
                 case 'emoji':
-                    const emojis = ['😢', '😕', '😐', '😊', '😍'];
+                    const emojis = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
                     item.textContent = emojis[Math.min(index, emojis.length - 1)];
                     break;
                     

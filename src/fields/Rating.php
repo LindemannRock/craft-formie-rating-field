@@ -266,7 +266,7 @@ class Rating extends Field implements FieldInterface
                 return $stars . ' (' . $value . '/' . $this->maxValue . ')';
 
             case self::RATING_TYPE_EMOJI:
-                $emojis = ['😢', '😕', '😐', '😊', '😍'];
+                $emojis = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
                 $index = round(($value - $this->minValue) / ($this->maxValue - $this->minValue) * (count($emojis) - 1));
                 $emoji = $emojis[$index] ?? '😐';
                 return $emoji . ' (' . $value . '/' . $this->maxValue . ')';
@@ -327,7 +327,7 @@ class Rating extends Field implements FieldInterface
                 </template>
             </div>
             <div v-else-if="field.settings.ratingType === \'emoji\'" style="display: flex; gap: 4px;">
-                <template v-for="(emoji, index) in [\'😢\', \'😕\', \'😐\', \'😊\', \'😍\', \'🤩\', \'🥰\', \'😎\', \'🤗\', \'🥳\'].slice(0, Math.min((parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 1) + 1, 10))">
+                <template v-for="(emoji, index) in [\'😭\', \'😢\', \'😕\', \'😐\', \'😊\', \'😍\', \'🤩\', \'🥰\', \'😎\', \'🤗\', \'🥳\'].slice(0, Math.min((parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1, 11))">
                     <span :key="index" style="font-size: 20px;">${ emoji }</span>
                 </template>
             </div>
@@ -381,8 +381,8 @@ class Rating extends Field implements FieldInterface
                 $html .= '</div>';
             } elseif ($ratingType == self::RATING_TYPE_EMOJI || $ratingType == 'emoji') {
                 $html .= '<div style="display: flex; gap: 4px; align-items: center;">';
-                $emojis = ['😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
-                $count = min($maxValue - $minValue + 1, 10); // Show the actual range
+                $emojis = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
+                $count = min($maxValue - $minValue + 1, 11); // Show the actual range
                 $mid = floor($count / 2);
                 for ($i = 0; $i < $count; $i++) {
                     $opacity = $i === $mid ? '1' : '0.5';
