@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.1...v1.2.2) (2025-10-09)
+
+
+### Bug Fixes
+
+* smart emoji selection based on rating range size ([6ae1891](https://github.com/LindemannRock/craft-formie-rating-field/commit/6ae1891e0913c632fd9a1e194f4106e7caf883be))
+
 ## [1.2.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.0...v1.2.1) (2025-10-09)
 
 
