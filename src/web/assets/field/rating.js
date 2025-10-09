@@ -175,7 +175,7 @@ window.FormieRating = class FormieRating {
                 orderedOptions.forEach((option, index) => {
                     // Use the original index for emoji selection
                     const originalIndex = options.indexOf(option);
-                    const ratingItem = this.createRatingItem(ratingType, option.value, option.text, originalIndex);
+                    const ratingItem = this.createRatingItem(ratingType, option.value, option.text, originalIndex, options);
                     ratingItem.addEventListener('click', () => {
                         this.selectRating(selectElement, option.value, container, ratingItem);
                     });
@@ -269,30 +269,49 @@ window.FormieRating = class FormieRating {
             return item;
         }
 
-        createRatingItem(type, value, label, index) {
+        createRatingItem(type, value, label, index, options) {
             const item = document.createElement('button');
             item.type = 'button';
             item.className = 'fui-rating-item';
             item.setAttribute('data-value', value);
             item.setAttribute('role', 'radio');
             item.setAttribute('aria-label', label);
-            
+
             switch (type) {
                 case 'star':
                     item.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
                     break;
-                    
+
                 case 'emoji':
-                    const emojis = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
-                    item.textContent = emojis[Math.min(index, emojis.length - 1)];
+                    // Smart emoji selection based on range size
+                    const emojis5 = ['😢', '😕', '😐', '😊', '😍'];
+                    const emojis8 = ['😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎'];
+                    const emojis11 = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
+
+                    // Choose emoji set based on options count
+                    let emojis;
+                    if (options && options.length > 0) {
+                        const count = options.length;
+                        emojis = count <= 5 ? emojis5 : count <= 8 ? emojis8 : emojis11;
+
+                        // Scale the index based on the range
+                        const minValue = parseFloat(options[0].value);
+                        const maxValue = parseFloat(options[options.length - 1].value);
+                        const scaledIndex = Math.round((parseFloat(value) - minValue) / (maxValue - minValue) * (emojis.length - 1));
+                        item.textContent = emojis[Math.min(Math.max(0, scaledIndex), emojis.length - 1)];
+                    } else {
+                        // Fallback
+                        emojis = emojis11;
+                        item.textContent = emojis[Math.min(index, emojis.length - 1)];
+                    }
                     break;
-                    
+
                 case 'nps':
                     item.textContent = value;
                     item.classList.add('fui-rating-nps-item');
                     break;
             }
-            
+
             return item;
         }
 
