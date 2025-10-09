@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.0...v1.2.1) (2025-10-09)
+
+
+### Bug Fixes
+
+* emoji rating to support full 0-10 range with 11 unique emojis ([077ae99](https://github.com/LindemannRock/craft-formie-rating-field/commit/077ae99910c5cc1142ad0971e720f914177bfe22))
+
 ## [1.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.1.0...v1.2.0) (2025-10-07)
 
 
