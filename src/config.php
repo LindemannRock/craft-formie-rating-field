@@ -70,4 +70,18 @@ return [
      * Examples: 'Excellent', 'Very Likely', 'Strongly Agree'
      */
     'defaultEndLabel' => '',
+
+    /**
+     * Emoji render mode
+     * Controls how emoji ratings are rendered across all forms
+     *
+     * Options:
+     * - 'system': Use native platform emojis with improved fallback fonts
+     *             (iOS uses Apple Color Emoji, Android uses Noto, etc.)
+     * - 'webfont': Load Noto Color Emoji from Google Fonts for consistent
+     *              appearance across all platforms
+     *
+     * Default: 'system' (backward compatible)
+     */
+    'emojiRenderMode' => 'system',
 ];

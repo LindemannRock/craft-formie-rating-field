@@ -21,6 +21,7 @@ A Craft CMS plugin that provides advanced rating field types for Verbb's Formie 
 - **Half Ratings**: Enable half-star selections (star type only)
 - **Endpoint Labels**: Add descriptive labels at scale endpoints (e.g., "Poor" / "Excellent")
 - **Custom Labels**: Override numeric values with custom text
+- **Emoji Render Mode**: Choose between system emojis or web font for consistent cross-platform appearance
 - **Plugin Settings**: Configure defaults for all new rating fields
 
 ### Seamless Integration
@@ -88,6 +89,7 @@ return [
     'defaultShowEndpointLabels' => true,
     'defaultStartLabel' => 'Poor',
     'defaultEndLabel' => 'Excellent',
+    'emojiRenderMode' => 'webfont',  // 'system' or 'webfont'
 ];
 ```
 

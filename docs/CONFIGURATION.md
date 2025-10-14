@@ -16,23 +16,26 @@ You can override plugin settings by creating a `formie-rating-field.php` file in
 return [
     // Plugin name shown in Control Panel (optional)
     'pluginName' => 'Custom Rating Field Name',
-    
+
     // Default rating type for new rating fields
     'defaultRatingType' => 'star',
-    
+
     // Default rating size for new rating fields
     'defaultRatingSize' => 'medium',
-    
+
     // Default rating range
     'defaultMinRating' => 1,
     'defaultMaxRating' => 5,
-    
+
     // Default options
     'defaultAllowHalfRatings' => false,
     'defaultShowSelectedLabel' => false,
     'defaultShowEndpointLabels' => false,
     'defaultStartLabel' => '',
     'defaultEndLabel' => '',
+
+    // Emoji render mode
+    'emojiRenderMode' => 'system',  // 'system' or 'webfont'
 ];
 ```
 
@@ -98,6 +101,7 @@ return [
 - **defaultShowEndpointLabels**: Display labels at start/end of rating scale
 - **defaultStartLabel**: Default text for lowest rating (e.g., "Poor", "Not Likely")
 - **defaultEndLabel**: Default text for highest rating (e.g., "Excellent", "Very Likely")
+- **emojiRenderMode**: How emoji ratings are rendered ('system' uses native platform emojis with fallback fonts, 'webfont' loads Noto Color Emoji from Google Fonts for consistent cross-platform appearance)
 
 ### Rating Type Details
 
@@ -106,10 +110,11 @@ return [
 - Supports half-star ratings when enabled
 - Good for general satisfaction surveys
 
-#### Emoji Rating  
+#### Emoji Rating
 - Uses expressive emotion faces
-- Fixed 1-5 scale (😢 😞 😐 😊 😍)
+- Supports 0-10 scale with smart emoji selection (😭 😢 😕 😐 😊 😍 🤩 🥰 😎 🤗 🥳)
 - Great for user experience feedback
+- Choose between system emojis or web font for consistent appearance
 
 #### NPS (Net Promoter Score)
 - Numeric boxes from 0-10
@@ -149,9 +154,10 @@ return [
 return [
     'defaultRatingType' => 'emoji',
     'defaultRatingSize' => 'xlarge',
-    'defaultMinRating' => 1,
-    'defaultMaxRating' => 5,
+    'defaultMinRating' => 0,
+    'defaultMaxRating' => 10,
     'defaultShowEndpointLabels' => false,
+    'emojiRenderMode' => 'webfont',  // Use Google Fonts for consistency
 ];
 ```
 
