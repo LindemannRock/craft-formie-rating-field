@@ -1,6 +1,22 @@
 {# Register the CSS asset for front-end #}
 {% do craft.app.getView().registerAssetBundle('\\lindemannrock\\formieratingfield\\web\\assets\\field\\RatingFieldAsset') %}
 
+{# Check emoji render mode setting and load web font if needed #}
+{% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
+{% if plugin %}
+    {% set emojiMode = plugin.settings.emojiRenderMode ?? 'system' %}
+
+    {% if emojiMode == 'webfont' %}
+        {# Load Noto Color Emoji from Google Fonts #}
+        {% do craft.app.getView().registerCssFile('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap', {
+            position: constant('yii\\web\\View::POS_HEAD')
+        }) %}
+
+        {# Add class to enable webfont styles #}
+        {% do craft.app.getView().registerJs("document.documentElement.classList.add('fui-rating-emoji-webfont');", constant('yii\\web\\View::POS_READY')) %}
+    {% endif %}
+{% endif %}
+
 {# Set default variables if not provided #}
 {% set name = name ?? field.handle %}
 {% set value = value ?? field.defaultValue ?? null %}

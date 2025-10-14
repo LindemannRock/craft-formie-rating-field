@@ -48,6 +48,7 @@
 	--fui-rating-emoji-opacity: var(--rating-emoji-opacity, 0.5);
     --fui-rating-emoji-hover-scale: var(--rating-emoji-hover-scale, 1.05);
 	--fui-rating-emoji-selected-scale: var(--rating-emoji-selected-scale, 1.2);
+	--fui-rating-emoji-font-family: var(--rating-emoji-font-family, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols", sans-serif);
 
 	/* Emoji Sizes */
 	--fui-rating-emoji-size-small: var(--rating-emoji-size-small, 24px);
@@ -179,6 +180,7 @@ select[data-rating] + .fui-rating-loading {
 
 /* Emoji Rating Styles */
 .fui-rating-emoji .fui-rating-item {
+	font-family: var(--fui-rating-emoji-font-family, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols", sans-serif);
 	filter: grayscale(var(--fui-rating-emoji-grayscale, 100%));
 	opacity: var(--fui-rating-emoji-opacity, 0.5);
 	transition: var(--fui-rating-transition, all 0.2s ease);
@@ -194,6 +196,11 @@ select[data-rating] + .fui-rating-loading {
 	filter: grayscale(0%);
 	opacity: 0.8;
 	/* transform: scale(var(--fui-rating-emoji-hover-scale, 1.05)); */
+}
+
+/* Web Font Mode - Use Noto Color Emoji exclusively */
+.fui-rating-emoji-webfont .fui-rating-emoji .fui-rating-item {
+	font-family: "Noto Color Emoji", sans-serif;
 }
 
 /* NPS Rating Styles */
