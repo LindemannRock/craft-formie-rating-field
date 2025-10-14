@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.2...v1.3.0) (2025-10-14)
+
+
+### Features
+
+* add emoji web font support with Noto Color Emoji option ([ae7100b](https://github.com/LindemannRock/craft-formie-rating-field/commit/ae7100b044d312a336fb365339542b7bf395f409))
+
 ## [1.2.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.1...v1.2.2) (2025-10-09)
 
 
