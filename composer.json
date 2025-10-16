@@ -15,15 +15,18 @@
     "license": "proprietary",
     "authors": [
         {
-            "name": "LindemannRock",
-            "homepage": "https://lindemannrock.com"
+            "name": "Bilal Hary Lindemann",
+            "email": "bh@lindemannrock.com",
+            "homepage": "https://lindemannrock.com",
+            "role": "Developer"
         }
     ],
     "support": {
         "email": "support@lindemannrock.com",
         "issues": "https://github.com/LindemannRock/craft-formie-rating-field/issues",
         "source": "https://github.com/LindemannRock/craft-formie-rating-field",
-        "docs": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md"
+        "docs": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md",
+        "rss": "https://github.com/LindemannRock/craft-formie-rating-field/commits/main.atom"
     },
     "require": {
         "php": "^8.2",
