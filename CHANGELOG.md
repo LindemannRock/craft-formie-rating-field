@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.3...v1.3.4) (2025-10-16)
+
+
+### Bug Fixes
+
+* prevent numeric rating labels from being translated ([70a9974](https://github.com/LindemannRock/craft-formie-rating-field/commit/70a99742cfbc5d6b8ee6af799247fb1fc07171c9))
+
 ## [1.3.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.2...v1.3.3) (2025-10-16)
 
 
