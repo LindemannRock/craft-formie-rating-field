@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.4...v1.4.0) (2025-10-16)
+
+
+### Features
+
+* add sentiment-based gradient colors for emoji ratings ([a7f6385](https://github.com/LindemannRock/craft-formie-rating-field/commit/a7f6385433bdf5218a324a9ebd9eb55222aef32a))
+
 ## [1.3.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.3...v1.3.4) (2025-10-16)
 
 
