@@ -76,12 +76,12 @@ return [
      * Controls how emoji ratings are rendered across all forms
      *
      * Options:
-     * - 'system': Use native platform emojis with improved fallback fonts
-     *             (iOS uses Apple Color Emoji, Android uses Noto, etc.)
-     * - 'webfont': Load Noto Color Emoji from Google Fonts for consistent
-     *              appearance across all platforms
+     * - 'system': Use native platform emojis (iOS, Android, Windows, etc.)
+     * - 'noto-color': Load Noto Color Emoji (detailed, colorful style)
+     * - 'noto-simple': Load Noto Emoji (simple, clean style)
+     * - 'webfont': Deprecated, maps to 'noto-color' for backward compatibility
      *
-     * Default: 'system' (backward compatible)
+     * Default: 'system'
      */
     'emojiRenderMode' => 'system',
 ];

@@ -277,6 +277,15 @@ window.FormieRating = class FormieRating {
             item.setAttribute('role', 'radio');
             item.setAttribute('aria-label', label);
 
+            // Calculate position percentage for color gradients (0-100)
+            if (options && options.length > 1) {
+                const minValue = parseFloat(options[0].value);
+                const maxValue = parseFloat(options[options.length - 1].value);
+                const currentValue = parseFloat(value);
+                const percentage = ((currentValue - minValue) / (maxValue - minValue)) * 100;
+                item.setAttribute('data-position', Math.round(percentage));
+            }
+
             switch (type) {
                 case 'star':
                     item.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';

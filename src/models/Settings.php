@@ -72,7 +72,7 @@ class Settings extends Model
     public string $defaultEndLabel = '';
 
     /**
-     * @var string Emoji render mode (system or webfont)
+     * @var string Emoji render mode (system, noto-color, noto-simple)
      */
     public string $emojiRenderMode = 'system';
 
@@ -90,7 +90,7 @@ class Settings extends Model
             [['defaultRatingSize'], 'in', 'range' => ['small', 'medium', 'large', 'xlarge']],
             [['defaultMinRating'], 'in', 'range' => [0, 1]],
             [['defaultMaxRating'], 'in', 'range' => [3, 4, 5, 6, 7, 8, 9, 10]],
-            [['emojiRenderMode'], 'in', 'range' => ['system', 'webfont']],
+            [['emojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
         ];
     }
 

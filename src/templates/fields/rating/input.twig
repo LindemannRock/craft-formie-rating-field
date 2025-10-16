@@ -6,14 +6,27 @@
 {% if plugin %}
     {% set emojiMode = plugin.settings.emojiRenderMode ?? 'system' %}
 
+    {# Handle backward compatibility: 'webfont' maps to 'noto-color' #}
     {% if emojiMode == 'webfont' %}
+        {% set emojiMode = 'noto-color' %}
+    {% endif %}
+
+    {% if emojiMode == 'noto-color' %}
         {# Load Noto Color Emoji from Google Fonts #}
         {% do craft.app.getView().registerCssFile('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap', {
             position: constant('yii\\web\\View::POS_HEAD')
         }) %}
 
         {# Add class to enable webfont styles #}
-        {% do craft.app.getView().registerJs("document.documentElement.classList.add('fui-rating-emoji-webfont');", constant('yii\\web\\View::POS_READY')) %}
+        {% do craft.app.getView().registerJs("document.documentElement.classList.add('fui-rating-emoji-noto-color');", constant('yii\\web\\View::POS_READY')) %}
+    {% elseif emojiMode == 'noto-simple' %}
+        {# Load Noto Emoji (simple style) from Google Fonts #}
+        {% do craft.app.getView().registerCssFile('https://fonts.googleapis.com/css2?family=Noto+Emoji&display=swap', {
+            position: constant('yii\\web\\View::POS_HEAD')
+        }) %}
+
+        {# Add class to enable webfont styles #}
+        {% do craft.app.getView().registerJs("document.documentElement.classList.add('fui-rating-emoji-noto-simple');", constant('yii\\web\\View::POS_READY')) %}
     {% endif %}
 {% endif %}
 

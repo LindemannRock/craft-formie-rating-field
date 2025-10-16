@@ -120,6 +120,22 @@ You can set any of these as global variables (remove the `fui-` prefix):
 }
 ```
 
+### Emoji Sentiment Colors
+
+When using `emojiRenderMode: 'noto-simple'`, emoji colors are automatically applied based on position in the scale (0-10, 1-5, etc.):
+
+```css
+:root {
+  --fui-rating-emoji-color-1: #ef4444;        /* Red - Very bad (0-20%) */
+  --fui-rating-emoji-color-2: #f97316;        /* Orange - Bad (21-40%) */
+  --fui-rating-emoji-color-3: #eab308;        /* Yellow - Neutral (41-60%) */
+  --fui-rating-emoji-color-4: #84cc16;        /* Light green - Good (61-80%) */
+  --fui-rating-emoji-color-5: #22c55e;        /* Green - Very good (81-100%) */
+}
+```
+
+**Note**: These colors only apply when using the Noto Emoji (simple) web font mode. System emojis and Noto Color Emoji maintain their native colors.
+
 ### General Settings
 ```css
 :root {
@@ -269,6 +285,19 @@ Add dark mode variations:
   --fui-rating-nps-border: #000000;
   --fui-rating-nps-selected-bg: #000000;
   --fui-rating-nps-selected-color: #ffffff;
+}
+```
+
+### Custom Emoji Sentiment Colors Example
+```css
+:root {
+  /* Custom brand colors for emoji sentiment gradient */
+  /* These apply when using emojiRenderMode: 'noto-simple' */
+  --rating-emoji-color-1: #dc2626;   /* Red - Very bad */
+  --rating-emoji-color-2: #f59e0b;   /* Amber - Bad */
+  --rating-emoji-color-3: #fbbf24;   /* Yellow - Neutral */
+  --rating-emoji-color-4: #10b981;   /* Emerald - Good */
+  --rating-emoji-color-5: #059669;   /* Green - Very good */
 }
 ```
 

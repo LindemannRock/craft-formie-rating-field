@@ -50,6 +50,13 @@
 	--fui-rating-emoji-selected-scale: var(--rating-emoji-selected-scale, 1.2);
 	--fui-rating-emoji-font-family: var(--rating-emoji-font-family, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols", sans-serif);
 
+	/* Emoji Sentiment Colors (for colored emoji mode) */
+	--fui-rating-emoji-color-1: var(--rating-emoji-color-1, #ef4444); /* Red - Very bad */
+	--fui-rating-emoji-color-2: var(--rating-emoji-color-2, #f97316); /* Orange - Bad */
+	--fui-rating-emoji-color-3: var(--rating-emoji-color-3, #eab308); /* Yellow - Neutral */
+	--fui-rating-emoji-color-4: var(--rating-emoji-color-4, #84cc16); /* Light green - Good */
+	--fui-rating-emoji-color-5: var(--rating-emoji-color-5, #22c55e); /* Green - Very good */
+
 	/* Emoji Sizes */
 	--fui-rating-emoji-size-small: var(--rating-emoji-size-small, 24px);
 	--fui-rating-emoji-size-medium: var(--rating-emoji-size-medium, 32px);
@@ -198,9 +205,141 @@ select[data-rating] + .fui-rating-loading {
 	/* transform: scale(var(--fui-rating-emoji-hover-scale, 1.05)); */
 }
 
-/* Web Font Mode - Use Noto Color Emoji exclusively */
-.fui-rating-emoji-webfont .fui-rating-emoji .fui-rating-item {
+/* Web Font Modes */
+/* Noto Color Emoji - Detailed, colorful style */
+.fui-rating-emoji-noto-color .fui-rating-emoji .fui-rating-item,
+.fui-rating-emoji-webfont .fui-rating-emoji .fui-rating-item { /* Backward compatibility */
 	font-family: "Noto Color Emoji", sans-serif;
+}
+
+/* Noto Emoji - Simple, clean style */
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item {
+	font-family: "Noto Emoji", sans-serif;
+}
+
+/* Emoji Text Colors - Sentiment-based gradient colors */
+/* Apply color directly to the emoji text for Noto Emoji (simple) style */
+
+/* Color assignments based on position percentage (0-100) */
+/* 0-20%: Red (Very bad) */
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="0"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="1"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="2"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="3"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="4"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="5"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="6"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="7"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="8"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="9"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="10"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="11"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="12"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="13"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="14"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="15"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="16"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="17"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="18"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="19"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="20"] {
+	color: var(--fui-rating-emoji-color-1);
+}
+
+/* 21-40%: Orange (Bad) */
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="21"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="22"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="23"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="24"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="25"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="26"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="27"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="28"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="29"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="30"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="31"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="32"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="33"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="34"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="35"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="36"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="37"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="38"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="39"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="40"] {
+	color: var(--fui-rating-emoji-color-2);
+}
+
+/* 41-60%: Yellow (Neutral) */
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="41"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="42"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="43"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="44"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="45"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="46"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="47"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="48"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="49"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="50"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="51"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="52"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="53"],
+.fui-rating-emoji-noto-simple .fui-rating-item[data-position="54"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="55"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="56"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="57"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="58"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="59"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="60"] {
+	color: var(--fui-rating-emoji-color-3);
+}
+
+/* 61-80%: Light green (Good) */
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="61"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="62"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="63"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="64"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="65"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="66"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="67"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="68"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="69"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="70"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="71"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="72"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="73"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="74"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="75"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="76"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="77"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="78"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="79"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="80"] {
+	color: var(--fui-rating-emoji-color-4);
+}
+
+/* 81-100%: Green (Very good) */
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="81"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="82"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="83"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="84"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="85"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="86"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="87"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="88"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="89"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="90"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="91"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="92"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="93"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="94"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="95"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="96"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="97"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="98"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="99"],
+.fui-rating-emoji-noto-simple .fui-rating-emoji .fui-rating-item[data-position="100"] {
+	color: var(--fui-rating-emoji-color-5);
 }
 
 /* NPS Rating Styles */

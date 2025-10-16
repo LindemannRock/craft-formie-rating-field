@@ -35,7 +35,7 @@ return [
     'defaultEndLabel' => '',
 
     // Emoji render mode
-    'emojiRenderMode' => 'system',  // 'system' or 'webfont'
+    'emojiRenderMode' => 'system',  // 'system', 'noto-color', or 'noto-simple'
 ];
 ```
 
@@ -101,7 +101,10 @@ return [
 - **defaultShowEndpointLabels**: Display labels at start/end of rating scale
 - **defaultStartLabel**: Default text for lowest rating (e.g., "Poor", "Not Likely")
 - **defaultEndLabel**: Default text for highest rating (e.g., "Excellent", "Very Likely")
-- **emojiRenderMode**: How emoji ratings are rendered ('system' uses native platform emojis with fallback fonts, 'webfont' loads Noto Color Emoji from Google Fonts for consistent cross-platform appearance)
+- **emojiRenderMode**: How emoji ratings are rendered:
+  - `'system'`: Native platform emojis (iOS, Android, Windows, etc.)
+  - `'noto-color'`: Noto Color Emoji from Google Fonts (detailed, colorful style)
+  - `'noto-simple'`: Noto Emoji from Google Fonts (simple, clean style with customizable sentiment colors)
 
 ### Rating Type Details
 
@@ -114,7 +117,10 @@ return [
 - Uses expressive emotion faces
 - Supports 0-10 scale with smart emoji selection (😭 😢 😕 😐 😊 😍 🤩 🥰 😎 🤗 🥳)
 - Great for user experience feedback
-- Choose between system emojis or web font for consistent appearance
+- Three render modes:
+  - **System**: Native platform emojis
+  - **Noto Color**: Detailed, colorful Google Font emoji style
+  - **Noto Simple**: Clean Google Font style with customizable sentiment colors (red → orange → yellow → green gradient)
 
 #### NPS (Net Promoter Score)
 - Numeric boxes from 0-10
@@ -157,7 +163,7 @@ return [
     'defaultMinRating' => 0,
     'defaultMaxRating' => 10,
     'defaultShowEndpointLabels' => false,
-    'emojiRenderMode' => 'webfont',  // Use Google Fonts for consistency
+    'emojiRenderMode' => 'noto-simple',  // Simple style with customizable sentiment colors
 ];
 ```
 
