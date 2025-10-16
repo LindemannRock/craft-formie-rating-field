@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.1...v1.3.2) (2025-10-16)
+
+
+### Bug Fixes
+
+* change license from proprietary to MIT in composer.json ([9bf312c](https://github.com/LindemannRock/craft-formie-rating-field/commit/9bf312c5cccb6bd3280eb9d2799bce9a85b777a1))
+
 ## [1.3.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.0...v1.3.1) (2025-10-16)
 
 
