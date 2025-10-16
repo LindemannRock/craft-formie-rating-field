@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.2...v1.3.3) (2025-10-16)
+
+
+### Bug Fixes
+
+* update installation instructions for Composer and DDEV ([1c1f172](https://github.com/LindemannRock/craft-formie-rating-field/commit/1c1f172f37335889af8dc25b6942d764102a21be))
+
 ## [1.3.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.1...v1.3.2) (2025-10-16)
 
 
