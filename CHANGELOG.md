@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.0...v1.3.1) (2025-10-16)
+
+
+### Bug Fixes
+
+* update author information and add RSS feed to support section in composer.json ([db2bffb](https://github.com/LindemannRock/craft-formie-rating-field/commit/db2bffb8ee9b85994687e3f82d30cd2a8d94c9e3))
+
 ## [1.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.2...v1.3.0) (2025-10-14)
 
 
