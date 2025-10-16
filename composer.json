@@ -12,7 +12,7 @@
         "rating field",
         "star rating"
     ],
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "Bilal Hary Lindemann",
