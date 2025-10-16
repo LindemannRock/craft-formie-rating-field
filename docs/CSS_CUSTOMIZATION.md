@@ -44,15 +44,14 @@ color: var(--fui-rating-star-color, #f59e0b);
 
 ## Available CSS Variables
 
-You can set any of these as global variables (remove the `fui-` prefix):
+Set these global variables in your CSS to customize the rating field appearance:
 
 ### Star Rating Colors
 
 ```css
 :root {
-  --fui-rating-star-color: #f59e0b;           /* Filled star color */
-  --fui-rating-star-empty-color: #e5e7eb;     /* Empty star color */
-  --fui-rating-star-hover-scale: 1.1;         /* Scale on hover */
+  --rating-star-color: #f59e0b;           /* Filled star color */
+  --rating-star-empty-color: #e5e7eb;     /* Empty star color */
 }
 ```
 
@@ -60,10 +59,10 @@ You can set any of these as global variables (remove the `fui-` prefix):
 
 ```css
 :root {
-  --fui-rating-star-size-small: 20px;         /* Small star size */
-  --fui-rating-star-size-medium: 24px;        /* Medium star size */
-  --fui-rating-star-size-large: 32px;         /* Large star size */
-  --fui-rating-star-size-xlarge: 40px;        /* Extra large star size */
+  --rating-star-size-small: 20px;         /* Small star size */
+  --rating-star-size-medium: 24px;        /* Medium star size */
+  --rating-star-size-large: 32px;         /* Large star size */
+  --rating-star-size-xlarge: 40px;        /* Extra large star size */
 }
 ```
 
@@ -71,15 +70,15 @@ You can set any of these as global variables (remove the `fui-` prefix):
 
 ```css
 :root {
-  --fui-rating-nps-border: #e5e7eb;           /* Default border */
-  --fui-rating-nps-bg: white;                 /* Default background */
-  --fui-rating-nps-color: #6b7280;            /* Default text color */
-  --fui-rating-nps-selected-bg: #2d5016;      /* Selected background */
-  --fui-rating-nps-selected-border: #2d5016;  /* Selected border */
-  --fui-rating-nps-selected-color: white;     /* Selected text color */
-  --fui-rating-nps-hover-bg: #f9fafb;         /* Hover background */
-  --fui-rating-nps-hover-border: #9ca3af;     /* Hover border */
-  --fui-rating-nps-selected-hover-bg: #365a1c; /* Selected hover background */
+  --rating-nps-border: #e5e7eb;           /* Default border */
+  --rating-nps-bg: white;                 /* Default background */
+  --rating-nps-color: #6b7280;            /* Default text color */
+  --rating-nps-selected-bg: #2d5016;      /* Selected background */
+  --rating-nps-selected-border: #2d5016;  /* Selected border */
+  --rating-nps-selected-color: white;     /* Selected text color */
+  --rating-nps-hover-bg: #f9fafb;         /* Hover background */
+  --rating-nps-hover-border: #9ca3af;     /* Hover border */
+  --rating-nps-selected-hover-bg: #365a1c; /* Selected hover background */
 }
 ```
 
@@ -87,14 +86,15 @@ You can set any of these as global variables (remove the `fui-` prefix):
 
 ```css
 :root {
-  --fui-rating-nps-size-small: 32px;          /* Small box size */
-  --fui-rating-nps-size-medium: 40px;         /* Medium box size */
-  --fui-rating-nps-size-large: 48px;          /* Large box size */
-  --fui-rating-nps-size-xlarge: 56px;         /* Extra large box size */
-  --fui-rating-nps-font-small: 11px;          /* Small font size */
-  --fui-rating-nps-font-medium: 12px;         /* Medium font size */
-  --fui-rating-nps-font-large: 14px;          /* Large font size */
-  --fui-rating-nps-font-xlarge: 16px;         /* Extra large font size */
+  --rating-nps-size-small: 32px;          /* Small box size */
+  --rating-nps-size-medium: 40px;         /* Medium box size */
+  --rating-nps-size-large: 48px;          /* Large box size */
+  --rating-nps-size-xlarge: 56px;         /* Extra large box size */
+  --rating-nps-font-small: 11px;          /* Small font size */
+  --rating-nps-font-medium: 12px;         /* Medium font size */
+  --rating-nps-font-large: 14px;          /* Large font size */
+  --rating-nps-font-xlarge: 16px;         /* Extra large font size */
+  --rating-nps-font-family: inherit;      /* Font family for NPS numbers */
 }
 ```
 
@@ -102,10 +102,9 @@ You can set any of these as global variables (remove the `fui-` prefix):
 
 ```css
 :root {
-  --fui-rating-emoji-grayscale: 100%;         /* Grayscale for unselected */
-  --fui-rating-emoji-opacity: 0.5;            /* Opacity for unselected */
-  --fui-rating-emoji-selected-scale: 1.1;     /* Scale when selected */
-  --fui-rating-emoji-hover-scale: 1.05;       /* Scale on hover */
+  --rating-emoji-grayscale: 100%;         /* Grayscale for unselected */
+  --rating-emoji-opacity: 0.5;            /* Opacity for unselected */
+  --rating-emoji-font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif; /* Emoji font stack */
 }
 ```
 
@@ -113,10 +112,10 @@ You can set any of these as global variables (remove the `fui-` prefix):
 
 ```css
 :root {
-  --fui-rating-emoji-size-small: 24px;        /* Small emoji size */
-  --fui-rating-emoji-size-medium: 32px;       /* Medium emoji size */
-  --fui-rating-emoji-size-large: 40px;        /* Large emoji size */
-  --fui-rating-emoji-size-xlarge: 48px;       /* Extra large emoji size */
+  --rating-emoji-size-small: 24px;        /* Small emoji size */
+  --rating-emoji-size-medium: 32px;       /* Medium emoji size */
+  --rating-emoji-size-large: 40px;        /* Large emoji size */
+  --rating-emoji-size-xlarge: 48px;       /* Extra large emoji size */
 }
 ```
 
@@ -126,11 +125,11 @@ When using `emojiRenderMode: 'noto-simple'`, emoji colors are automatically appl
 
 ```css
 :root {
-  --fui-rating-emoji-color-1: #ef4444;        /* Red - Very bad (0-20%) */
-  --fui-rating-emoji-color-2: #f97316;        /* Orange - Bad (21-40%) */
-  --fui-rating-emoji-color-3: #eab308;        /* Yellow - Neutral (41-60%) */
-  --fui-rating-emoji-color-4: #84cc16;        /* Light green - Good (61-80%) */
-  --fui-rating-emoji-color-5: #22c55e;        /* Green - Very good (81-100%) */
+  --rating-emoji-color-1: #ef4444;        /* Red - Very bad (0-20%) */
+  --rating-emoji-color-2: #f97316;        /* Orange - Bad (21-40%) */
+  --rating-emoji-color-3: #eab308;        /* Yellow - Neutral (41-60%) */
+  --rating-emoji-color-4: #84cc16;        /* Light green - Good (61-80%) */
+  --rating-emoji-color-5: #22c55e;        /* Green - Very good (81-100%) */
 }
 ```
 
@@ -139,35 +138,36 @@ When using `emojiRenderMode: 'noto-simple'`, emoji colors are automatically appl
 ### General Settings
 ```css
 :root {
-  --fui-rating-transition: all 0.2s ease;     /* Transition effect */
-  --fui-rating-focus-color: currentColor;     /* Focus outline color */
-  --fui-rating-gap-small: 2px;                /* Small gap between items */
-  --fui-rating-gap-medium: 4px;               /* Medium gap */
-  --fui-rating-gap-large: 6px;                /* Large gap */
+  --rating-transition: all 0.2s ease;     /* Transition effect */
+  --rating-focus-color: currentColor;     /* Focus outline color */
+  --rating-border-radius: 0.25rem;        /* Border radius for buttons */
+  --rating-gap-small: 2px;                /* Small gap between items */
+  --rating-gap-medium: 4px;               /* Medium gap */
+  --rating-gap-large: 6px;                /* Large gap */
 }
 ```
 
 ### Labels
 ```css
 :root {
-  --fui-rating-label-color: #6b7280;          /* Label text color */
-  --fui-rating-label-size: 0.875rem;          /* Selected label size */
-  --fui-rating-endpoint-size: 0.75rem;        /* Endpoint label size */
+  --rating-label-color: #6b7280;          /* Label text color */
+  --rating-label-size: 0.875rem;          /* Selected label size */
+  --rating-endpoint-size: 0.75rem;        /* Endpoint label size */
 }
 ```
 
 ### Error State
 ```css
 :root {
-  --fui-rating-error-color: #dc2626;          /* Error color */
+  --rating-error-color: #dc2626;          /* Error color */
 }
 ```
 
 ### Animation
 ```css
 :root {
-  --fui-rating-animation-scale: 1.2;          /* Pulse animation scale */
-  --fui-rating-animation-duration: 0.3s;      /* Animation duration */
+  --rating-animation-scale: 1.2;          /* Pulse animation scale */
+  --rating-animation-duration: 0.3s;      /* Animation duration */
 }
 ```
 
@@ -192,41 +192,26 @@ Set global variables in your main CSS file:
 }
 ```
 
-### Method 2: Field-Specific Override
-Override the `fui-` prefixed variables for more specific control:
-
-```css
-:root {
-  /* Only change specific field variables */
-  --fui-rating-star-color: #10b981;
-  --fui-rating-star-empty-color: #d1d5db;
-  
-  /* Change NPS colors */
-  --fui-rating-nps-selected-bg: #3b82f6;
-  --fui-rating-nps-selected-border: #3b82f6;
-}
-```
-
-### Method 3: Specific Form Override
+### Method 2: Specific Form Override
 Target specific forms:
 
 ```css
 #my-special-form {
-  --fui-rating-star-color: #ef4444;
-  --fui-rating-emoji-selected-scale: 1.3;
+  --rating-star-color: #ef4444;
+  --rating-nps-selected-bg: #ef4444;
 }
 ```
 
-### Method 4: Dark Mode Support
+### Method 3: Dark Mode Support
 Add dark mode variations:
 
 ```css
 @media (prefers-color-scheme: dark) {
   :root {
-    --fui-rating-star-empty-color: #374151;
-    --fui-rating-nps-bg: #1f2937;
-    --fui-rating-nps-color: #f3f4f6;
-    --fui-rating-label-color: #d1d5db;
+    --rating-star-empty-color: #374151;
+    --rating-nps-bg: #1f2937;
+    --rating-nps-color: #f3f4f6;
+    --rating-label-color: #d1d5db;
   }
 }
 ```
@@ -238,10 +223,10 @@ Add dark mode variations:
 ```css
 :root {
   /* Green theme */
-  --fui-rating-star-color: #2d5016;
-  --fui-rating-nps-selected-bg: #2d5016;
-  --fui-rating-nps-selected-border: #2d5016;
-  --fui-rating-error-color: #991b1b;
+  --rating-star-color: #2d5016;
+  --rating-nps-selected-bg: #2d5016;
+  --rating-nps-selected-border: #2d5016;
+  --rating-error-color: #991b1b;
 }
 ```
 
@@ -250,17 +235,17 @@ Add dark mode variations:
 ```css
 :root {
   /* Larger sizes for touch devices */
-  --fui-rating-star-size-small: 28px;
-  --fui-rating-star-size-medium: 36px;
-  --fui-rating-star-size-large: 44px;
-  --fui-rating-star-size-xlarge: 52px;
-  
+  --rating-star-size-small: 28px;
+  --rating-star-size-medium: 36px;
+  --rating-star-size-large: 44px;
+  --rating-star-size-xlarge: 52px;
+
   /* Bigger NPS boxes */
-  --fui-rating-nps-size-medium: 48px;
-  --fui-rating-nps-font-medium: 14px;
-  
+  --rating-nps-size-medium: 48px;
+  --rating-nps-font-medium: 14px;
+
   /* Bigger emojis */
-  --fui-rating-emoji-size-medium: 40px;
+  --rating-emoji-size-medium: 40px;
 }
 ```
 
@@ -268,11 +253,9 @@ Add dark mode variations:
 ```css
 :root {
   /* Slower, subtler animations */
-  --fui-rating-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  --fui-rating-star-hover-scale: 1.05;
-  --fui-rating-emoji-hover-scale: 1.02;
-  --fui-rating-animation-duration: 0.5s;
-  --fui-rating-animation-scale: 1.1;
+  --rating-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --rating-animation-duration: 0.5s;
+  --rating-animation-scale: 1.1;
 }
 ```
 
@@ -280,11 +263,11 @@ Add dark mode variations:
 ```css
 :root {
   /* High contrast for accessibility */
-  --fui-rating-star-color: #000000;
-  --fui-rating-star-empty-color: #ffffff;
-  --fui-rating-nps-border: #000000;
-  --fui-rating-nps-selected-bg: #000000;
-  --fui-rating-nps-selected-color: #ffffff;
+  --rating-star-color: #000000;
+  --rating-star-empty-color: #ffffff;
+  --rating-nps-border: #000000;
+  --rating-nps-selected-bg: #000000;
+  --rating-nps-selected-color: #ffffff;
 }
 ```
 
@@ -298,6 +281,78 @@ Add dark mode variations:
   --rating-emoji-color-3: #fbbf24;   /* Yellow - Neutral */
   --rating-emoji-color-4: #10b981;   /* Emerald - Good */
   --rating-emoji-color-5: #059669;   /* Green - Very good */
+}
+```
+
+## All Variables Reference
+
+Complete list of all available CSS variables with their default values:
+
+```css
+:root {
+  /* ===== Star Rating ===== */
+  --rating-star-color: #f59e0b;
+  --rating-star-empty-color: #e5e7eb;
+  --rating-star-size-small: 20px;
+  --rating-star-size-medium: 24px;
+  --rating-star-size-large: 32px;
+  --rating-star-size-xlarge: 40px;
+
+  /* ===== NPS Rating ===== */
+  --rating-nps-border: #e5e7eb;
+  --rating-nps-bg: white;
+  --rating-nps-color: #6b7280;
+  --rating-nps-selected-bg: #2d5016;
+  --rating-nps-selected-border: #2d5016;
+  --rating-nps-selected-color: white;
+  --rating-nps-hover-bg: #f9fafb;
+  --rating-nps-hover-border: #9ca3af;
+  --rating-nps-selected-hover-bg: #365a1c;
+  --rating-nps-size-small: 32px;
+  --rating-nps-size-medium: 40px;
+  --rating-nps-size-large: 48px;
+  --rating-nps-size-xlarge: 56px;
+  --rating-nps-font-small: 11px;
+  --rating-nps-font-medium: 12px;
+  --rating-nps-font-large: 14px;
+  --rating-nps-font-xlarge: 16px;
+  --rating-nps-font-family: inherit;
+
+  /* ===== Emoji Rating ===== */
+  --rating-emoji-grayscale: 100%;
+  --rating-emoji-opacity: 0.5;
+  --rating-emoji-font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  --rating-emoji-size-small: 24px;
+  --rating-emoji-size-medium: 32px;
+  --rating-emoji-size-large: 40px;
+  --rating-emoji-size-xlarge: 48px;
+
+  /* ===== Emoji Sentiment Colors (noto-simple mode only) ===== */
+  --rating-emoji-color-1: #ef4444;  /* Red - Very bad (0-20%) */
+  --rating-emoji-color-2: #f97316;  /* Orange - Bad (21-40%) */
+  --rating-emoji-color-3: #eab308;  /* Yellow - Neutral (41-60%) */
+  --rating-emoji-color-4: #84cc16;  /* Light green - Good (61-80%) */
+  --rating-emoji-color-5: #22c55e;  /* Green - Very good (81-100%) */
+
+  /* ===== General ===== */
+  --rating-transition: all 0.2s ease;
+  --rating-focus-color: currentColor;
+  --rating-border-radius: 0.25rem;
+  --rating-gap-small: 2px;
+  --rating-gap-medium: 4px;
+  --rating-gap-large: 6px;
+
+  /* ===== Labels ===== */
+  --rating-label-color: #6b7280;
+  --rating-label-size: 0.875rem;
+  --rating-endpoint-size: 0.75rem;
+
+  /* ===== Error State ===== */
+  --rating-error-color: #dc2626;
+
+  /* ===== Animation ===== */
+  --rating-animation-scale: 1.2;
+  --rating-animation-duration: 0.3s;
 }
 ```
 
