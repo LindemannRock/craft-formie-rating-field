@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.0...v1.4.1) (2025-10-16)
+
+
+### Bug Fixes
+
+* update CSS variable naming for rating fields to remove 'fui-' prefix ([7f481c6](https://github.com/LindemannRock/craft-formie-rating-field/commit/7f481c67c875792301d39399d1ced703fb32817d))
+
 ## [1.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.4...v1.4.0) (2025-10-16)
 
 
