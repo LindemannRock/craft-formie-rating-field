@@ -32,32 +32,25 @@ A Craft CMS plugin that provides advanced rating field types for Verbb's Formie 
 
 ## Installation
 
-### Via Composer (Development)
-
-Until published on Packagist, install directly from the repository:
+### Via Composer
 
 ```bash
 cd /path/to/project
-composer config repositories.formie-rating-field vcs https://github.com/LindemannRock/craft-formie-rating-field
-composer require lindemannrock/formie-rating-field:dev-main
+composer require lindemannrock/craft-formie-rating-field
 ./craft plugin/install formie-rating-field
 ```
 
-### Via Composer (Production - Coming Soon)
-
-Once published on Packagist:
+### Using DDEV
 
 ```bash
 cd /path/to/project
-composer require lindemannrock/formie-rating-field
-./craft plugin/install formie-rating-field
+ddev composer require lindemannrock/craft-formie-rating-field
+ddev craft plugin/install formie-rating-field
 ```
 
-### Via Plugin Store (Future)
+### Via Control Panel
 
-1. Go to the Plugin Store in your Craft control panel
-2. Search for "Formie Rating Field"
-3. Click "Install"
+In the Control Panel, go to Settings → Plugins and click "Install" for Formie Rating Field.
 
 ## Configuration
 
