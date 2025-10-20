@@ -62,11 +62,23 @@ window.FormieRating = class FormieRating {
             const showEndpoints = selectElement.dataset.ratingShowEndpoints === 'true' || this.settings.showEndpointLabels;
             const startLabel = selectElement.dataset.ratingStartLabel || '';
             const endLabel = selectElement.dataset.ratingEndLabel || '';
+            const singleSelection = selectElement.dataset.singleSelection === 'true' || this.settings.singleEmojiSelection;
+            const customLabels = selectElement.dataset.customLabels ? JSON.parse(selectElement.dataset.customLabels) : {};
+            const emojiMode = selectElement.dataset.emojiMode || 'system';
 
             // Create the visual rating container
             const container = document.createElement('div');
             container.className = `fui-rating-field fui-rating-${ratingType} fui-rating-size-${ratingSize}`;
-            
+
+            // Add emoji mode class to this specific container (not globally)
+            if (ratingType === 'emoji' && emojiMode !== 'system') {
+                container.classList.add(`fui-rating-emoji-${emojiMode}`);
+            }
+
+            // Store configuration for use in other methods
+            container.dataset.singleSelection = singleSelection;
+            container.dataset.customLabels = JSON.stringify(customLabels);
+
             // Add SVG gradient definition for half stars if this is a star rating
             if (ratingType === 'star') {
                 const svgDefs = document.createElement('div');
@@ -218,12 +230,14 @@ window.FormieRating = class FormieRating {
             }
             
             // Add selected label if enabled
-            if (showSelectedLabel) {
+            // For emoji with single selection, always show label
+            // For other types, only show if showSelectedLabel is enabled
+            if (showSelectedLabel || (ratingType === 'emoji' && singleSelection)) {
                 const selectedLabel = document.createElement('div');
                 selectedLabel.className = 'fui-rating-selected-label';
                 container.appendChild(selectedLabel);
             }
-            
+
             // Insert the visual rating before the select (select is already hidden by CSS)
             selectElement.parentNode.insertBefore(container, selectElement);
             
@@ -390,17 +404,28 @@ window.FormieRating = class FormieRating {
                     }
                 });
             } else {
-                // Original logic for emoji and NPS
+                // Check if single selection mode is enabled (for emoji only)
+                const singleSelection = container.dataset.singleSelection === 'true' && ratingType === 'emoji';
+
+                // Logic for emoji and NPS
                 const items = container.querySelectorAll('.fui-rating-item');
                 items.forEach(item => {
                     const itemValue = parseFloat(item.getAttribute('data-value'));
-                    
+
                     item.classList.remove('fui-rating-selected');
-                    
-                    if (itemValue <= value) {
-                        item.classList.add('fui-rating-selected');
+
+                    if (singleSelection) {
+                        // Single selection: only highlight the exact match
+                        if (itemValue === value) {
+                            item.classList.add('fui-rating-selected');
+                        }
+                    } else {
+                        // Cumulative selection: highlight all up to and including value
+                        if (itemValue <= value) {
+                            item.classList.add('fui-rating-selected');
+                        }
                     }
-                    
+
                     item.setAttribute('aria-checked', itemValue === value ? 'true' : 'false');
                 });
             }

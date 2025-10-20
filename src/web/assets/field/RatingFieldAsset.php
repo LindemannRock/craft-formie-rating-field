@@ -56,7 +56,7 @@ class RatingFieldAsset extends AssetBundle
         $plugin = FormieRatingField::$plugin;
         if ($plugin) {
             $settings = $plugin->getSettings();
-            if ($settings && $settings->emojiRenderMode === 'webfont') {
+            if ($settings && $settings->defaultEmojiRenderMode === 'webfont') {
                 // Register Google Fonts Noto Color Emoji
                 $view->registerCssFile(
                     'https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap',

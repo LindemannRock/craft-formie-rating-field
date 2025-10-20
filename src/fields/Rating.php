@@ -94,6 +94,11 @@ class Rating extends Field implements FieldInterface
      */
     public $endLabel;
 
+    /**
+     * @var bool Whether to use single emoji selection mode (emoji type only)
+     */
+    public $singleEmojiSelection;
+
     // Public Methods
     // =========================================================================
 
@@ -140,6 +145,9 @@ class Rating extends Field implements FieldInterface
                 if ($this->endLabel === null) {
                     $this->endLabel = $settings->defaultEndLabel ?? '';
                 }
+                if ($this->singleEmojiSelection === null) {
+                    $this->singleEmojiSelection = $settings->defaultSingleEmojiSelection ?? false;
+                }
             }
         }
 
@@ -154,6 +162,7 @@ class Rating extends Field implements FieldInterface
         $this->showEndpointLabels = $this->showEndpointLabels ?? false;
         $this->startLabel = $this->startLabel ?? '';
         $this->endLabel = $this->endLabel ?? '';
+        $this->singleEmojiSelection = $this->singleEmojiSelection ?? false;
     }
 
     // Static Methods
@@ -341,10 +350,15 @@ class Rating extends Field implements FieldInterface
                     <span :key="i" style="color: #f59e0b; font-size: 20px;">★</span>
                 </template>
             </div>
-            <div v-else-if="field.settings.ratingType === \'emoji\'" style="display: flex; gap: 4px;">
-                <template v-for="(emoji, index) in (((parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1) <= 5 ? [\'😢\', \'😕\', \'😐\', \'😊\', \'😍\'] : (((parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1) <= 8 ? [\'😢\', \'😕\', \'😐\', \'😊\', \'😍\', \'🤩\', \'🥰\', \'😎\'] : [\'😭\', \'😢\', \'😕\', \'😐\', \'😊\', \'😍\', \'🤩\', \'🥰\', \'😎\', \'🤗\', \'🥳\'])).slice(0, (parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1)">
-                    <span :key="index" style="font-size: 20px;">${ emoji }</span>
-                </template>
+            <div v-else-if="field.settings.ratingType === \'emoji\'" style="display: flex; flex-direction: column; align-items: start;">
+                <div style="display: flex; gap: 4px;">
+                    <template v-for="(emoji, index) in (((parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1) <= 5 ? [\'😢\', \'😕\', \'😐\', \'😊\', \'😍\'] : (((parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1) <= 8 ? [\'😢\', \'😕\', \'😐\', \'😊\', \'😍\', \'🤩\', \'🥰\', \'😎\'] : [\'😭\', \'😢\', \'😕\', \'😐\', \'😊\', \'😍\', \'🤩\', \'🥰\', \'😎\', \'🤗\', \'🥳\'])).slice(0, (parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1)">
+                        <span :key="index" style="font-size: 20px;">${ emoji }</span>
+                    </template>
+                </div>
+                <div v-if="field.settings.singleEmojiSelection" style="margin-top: 6px; font-size: 11px; color: #6b7280; font-style: italic;">
+                    Single selection mode
+                </div>
             </div>
             <div v-else-if="field.settings.ratingType === \'nps\'" style="display: flex; gap: 4px;">
                 <template v-for="n in (parseInt(field.settings.maxValue) || 10) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 1) + 1">
@@ -483,6 +497,7 @@ class Rating extends Field implements FieldInterface
             'customLabels' => [],
             'startLabel' => '',
             'endLabel' => '',
+            'singleEmojiSelection' => false,
         ];
 
         $plugin = FormieRatingField::$plugin;
@@ -501,6 +516,7 @@ class Rating extends Field implements FieldInterface
                     'customLabels' => [],
                     'startLabel' => $settings->defaultStartLabel ?? '',
                     'endLabel' => $settings->defaultEndLabel ?? '',
+                    'singleEmojiSelection' => $settings->defaultSingleEmojiSelection ?? false,
                 ];
             }
         }
@@ -521,6 +537,7 @@ class Rating extends Field implements FieldInterface
             'allowHalfRatings' => $this->allowHalfRatings,
             'showSelectedLabel' => $this->showSelectedLabel,
             'showEndpointLabels' => $this->showEndpointLabels,
+            'singleEmojiSelection' => $this->singleEmojiSelection,
         ]);
     }
 
@@ -548,6 +565,9 @@ class Rating extends Field implements FieldInterface
     {
         $options = [];
 
+        // Normalize custom labels to associative array format
+        $normalizedLabels = $this->getNormalizedCustomLabels();
+
         // Only allow half ratings for star type, not for emoji or NPS
         $step = ($this->allowHalfRatings && $this->ratingType === self::RATING_TYPE_STAR) ? 0.5 : 1;
 
@@ -556,7 +576,7 @@ class Rating extends Field implements FieldInterface
             if ($this->ratingType === self::RATING_TYPE_NPS) {
                 $label = (string)$i;
             } else {
-                $label = $this->customLabels[$i] ?? (string)$i;
+                $label = $normalizedLabels[$i] ?? (string)$i;
             }
 
             $options[] = [
@@ -566,6 +586,34 @@ class Rating extends Field implements FieldInterface
         }
 
         return $options;
+    }
+
+    /**
+     * Normalize custom labels to associative array format
+     * Handles both table format from Formie and associative format
+     */
+    private function getNormalizedCustomLabels(): array
+    {
+        if (!is_array($this->customLabels) || empty($this->customLabels)) {
+            return [];
+        }
+
+        // Check if it's table format (array of rows with 'value' and 'label' keys)
+        if (isset($this->customLabels[0]) && is_array($this->customLabels[0])) {
+            $normalized = [];
+            foreach ($this->customLabels as $row) {
+                $value = $row['value'] ?? null;
+                $label = $row['label'] ?? null;
+
+                if ($value !== null && $value !== '' && $label !== null && $label !== '') {
+                    $normalized[(int)$value] = $label;
+                }
+            }
+            return $normalized;
+        }
+
+        // Already in associative format
+        return $this->customLabels;
     }
 
     /**
@@ -582,14 +630,6 @@ class Rating extends Field implements FieldInterface
     public static function getEmailTemplatePath(): string
     {
         return 'formie-rating-field/fields/rating/email';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getSubmissionTemplatePath(): string
-    {
-        return 'formie-rating-field/fields/rating/submission';
     }
 
     /**
@@ -687,12 +727,6 @@ class Rating extends Field implements FieldInterface
                 'name' => 'allowHalfRatings',
                 'if' => '$get(ratingType).value == star',
             ]),
-            // Temporarily hidden until styling is finalized
-            // SchemaHelper::lightswitchField([
-            //     'label' => Craft::t('formie', 'Show Selected Label'),
-            //     'help' => Craft::t('formie', 'Display the label of the selected rating value.'),
-            //     'name' => 'showSelectedLabel',
-            // ]),
             SchemaHelper::lightswitchField([
                 'label' => Craft::t('formie', 'Show Endpoint Labels'),
                 'help' => Craft::t('formie', 'Display labels at the start and end of the rating scale.'),
@@ -709,6 +743,36 @@ class Rating extends Field implements FieldInterface
                 'help' => Craft::t('formie', 'Label for the highest rating value.'),
                 'name' => 'endLabel',
                 'if' => '$get(showEndpointLabels).value',
+            ]),
+            SchemaHelper::lightswitchField([
+                'label' => Craft::t('formie', 'Single Emoji Selection'),
+                'help' => Craft::t('formie', 'Highlight only the selected emoji instead of cumulative selection. When enabled, a custom label will display beneath the selected emoji.'),
+                'name' => 'singleEmojiSelection',
+                'if' => '$get(ratingType).value == emoji',
+            ]),
+            SchemaHelper::tableField([
+                'label' => Craft::t('formie', 'Custom Labels'),
+                'help' => Craft::t('formie', 'Define custom labels for each rating value (e.g., Value: 1, Label: Terrible). Labels will display beneath selected emoji.'),
+                'name' => 'customLabels',
+                'validation' => 'optional',
+                'generateValue' => false,
+                'if' => '$get(singleEmojiSelection).value',
+                'newRowDefaults' => [
+                    'value' => '',
+                    'label' => '',
+                ],
+                'columns' => [
+                    [
+                        'type' => 'value',
+                        'label' => Craft::t('formie', 'Value'),
+                        'class' => 'code singleline-cell textual',
+                    ],
+                    [
+                        'type' => 'label',
+                        'label' => Craft::t('formie', 'Label'),
+                        'class' => 'singleline-cell textual',
+                    ],
+                ],
             ]),
             SchemaHelper::includeInEmailField(),
         ];
@@ -767,6 +831,7 @@ class Rating extends Field implements FieldInterface
         $attributes[] = 'customLabels';
         $attributes[] = 'startLabel';
         $attributes[] = 'endLabel';
+        $attributes[] = 'singleEmojiSelection';
 
         return $attributes;
     }
@@ -783,10 +848,12 @@ class Rating extends Field implements FieldInterface
         $config['ratingSize'] = $this->ratingSize;
         $config['minValue'] = $this->minValue;
         $config['maxValue'] = $this->maxValue;
+        $config['singleEmojiSelection'] = $this->singleEmojiSelection;
         $config['settings']['ratingType'] = $this->ratingType;
         $config['settings']['ratingSize'] = $this->ratingSize;
         $config['settings']['minValue'] = $this->minValue;
         $config['settings']['maxValue'] = $this->maxValue;
+        $config['settings']['singleEmojiSelection'] = $this->singleEmojiSelection;
 
         return $config;
     }
@@ -814,6 +881,7 @@ class Rating extends Field implements FieldInterface
                 'allowHalfRatings' => $this->allowHalfRatings,
                 'showSelectedLabel' => $this->showSelectedLabel,
                 'showEndpointLabels' => $this->showEndpointLabels,
+                'singleEmojiSelection' => $this->singleEmojiSelection,
             ],
         ];
     }

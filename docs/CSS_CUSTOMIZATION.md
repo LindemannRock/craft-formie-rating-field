@@ -144,15 +144,20 @@ When using `emojiRenderMode: 'noto-simple'`, emoji colors are automatically appl
   --rating-gap-small: 2px;                /* Small gap between items */
   --rating-gap-medium: 4px;               /* Medium gap */
   --rating-gap-large: 6px;                /* Large gap */
+  --rating-gap-xlarge: 8px;               /* Extra large gap */
 }
 ```
 
 ### Labels
 ```css
 :root {
-  --rating-label-color: #6b7280;          /* Label text color */
-  --rating-label-size: 0.875rem;          /* Selected label size */
+  --rating-label-color: #6b7280;          /* General label text color */
+  --rating-label-size: 0.875rem;          /* General label size */
   --rating-endpoint-size: 0.75rem;        /* Endpoint label size */
+  --rating-selected-label-size: 0.875rem; /* Selected label font size */
+  --rating-selected-label-color: #6b7280; /* Selected label color */
+  --rating-selected-label-weight: 400;    /* Selected label font weight */
+  --rating-selected-label-font-family: inherit; /* Selected label font family */
 }
 ```
 
@@ -341,11 +346,16 @@ Complete list of all available CSS variables with their default values:
   --rating-gap-small: 2px;
   --rating-gap-medium: 4px;
   --rating-gap-large: 6px;
+  --rating-gap-xlarge: 8px;
 
   /* ===== Labels ===== */
   --rating-label-color: #6b7280;
   --rating-label-size: 0.875rem;
   --rating-endpoint-size: 0.75rem;
+  --rating-selected-label-size: 0.875rem;
+  --rating-selected-label-color: #6b7280;
+  --rating-selected-label-weight: 400;
+  --rating-selected-label-font-family: inherit;
 
   /* ===== Error State ===== */
   --rating-error-color: #dc2626;

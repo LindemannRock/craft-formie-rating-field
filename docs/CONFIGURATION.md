@@ -29,13 +29,13 @@ return [
 
     // Default options
     'defaultAllowHalfRatings' => false,
-    'defaultShowSelectedLabel' => false,
     'defaultShowEndpointLabels' => false,
     'defaultStartLabel' => '',
     'defaultEndLabel' => '',
+    'defaultSingleEmojiSelection' => false,
 
     // Emoji render mode
-    'emojiRenderMode' => 'system',  // 'system', 'noto-color', or 'noto-simple'
+    'defaultEmojiRenderMode' => 'system',  // 'system', 'noto-color', or 'noto-simple'
 ];
 ```
 
@@ -97,11 +97,11 @@ return [
 #### Feature Settings
 
 - **defaultAllowHalfRatings**: Enable half-star ratings by default (star type only)
-- **defaultShowSelectedLabel**: Show selected value as label (currently hidden in UI)
 - **defaultShowEndpointLabels**: Display labels at start/end of rating scale
 - **defaultStartLabel**: Default text for lowest rating (e.g., "Poor", "Not Likely")
 - **defaultEndLabel**: Default text for highest rating (e.g., "Excellent", "Very Likely")
-- **emojiRenderMode**: How emoji ratings are rendered:
+- **defaultSingleEmojiSelection**: Enable single emoji selection mode by default (emoji type only) - highlights only the selected emoji instead of cumulative selection, and displays custom labels beneath the selected emoji
+- **defaultEmojiRenderMode**: How emoji ratings are rendered:
   - `'system'`: Native platform emojis (iOS, Android, Windows, etc.)
   - `'noto-color'`: Noto Color Emoji from Google Fonts (detailed, colorful style)
   - `'noto-simple'`: Noto Emoji from Google Fonts (simple, clean style with customizable sentiment colors)
@@ -163,7 +163,8 @@ return [
     'defaultMinRating' => 0,
     'defaultMaxRating' => 10,
     'defaultShowEndpointLabels' => false,
-    'emojiRenderMode' => 'noto-simple',  // Simple style with customizable sentiment colors
+    'defaultSingleEmojiSelection' => true,  // Enable single selection mode
+    'defaultEmojiRenderMode' => 'noto-simple',  // Simple style with customizable sentiment colors
 ];
 ```
 

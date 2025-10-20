@@ -1,0 +1,24 @@
+{# CP select template for rating field #}
+
+{% set options = field.getRatingOptions() %}
+
+{# Debug output #}
+<!-- Rating Field Debug: value={{ value|json_encode }}, type={{ value is null ? 'null' : (value is numeric ? 'numeric' : 'other') }} -->
+
+	<select name="{{ name }}" class="fullwidth"> <option value="">{{ field.placeholder ?? 'Select a rating'|t('formie') }}</option>
+	{% for option in options %}
+		{# Force both values to float for comparison if they're numeric #}
+		{% set isSelected = false %}
+		{% if value is not null and value is not same as('') and option.value is not null %}
+			{% if value == option.value %}
+				{% set isSelected = true %}
+			{% elseif value is numeric and option.value is numeric %}
+				{% set isSelected = (value|float == option.value|float) %}
+			{% endif %}
+		{% endif %}
+
+		<option value="{{ option.value }}" {% if isSelected %} selected="selected" {% endif %} data-debug-value="{{ option.value }}" data-debug-current="{{ value }}" data-debug-selected="{{ isSelected ? 'true' : 'false' }}">
+			{{ option.label }}
+		</option>
+	{% endfor %}
+</select>

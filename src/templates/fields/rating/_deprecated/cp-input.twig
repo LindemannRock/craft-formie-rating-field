@@ -1,0 +1,12 @@
+{# CP input template for rating field #}
+
+{% set options = field.getRatingOptions() %}
+
+<select name="{{ name ?? field.handle }}" id="{{ field.handle }}-{{ field.id ?? 'field' }}" class="fui-select">
+	<option value="">{{ field.placeholder ?? 'Choose a rating'|t('formie') }}</option>
+	{% for option in options %}
+		<option value="{{ option.value }}" {% if option.value == value %} selected {% endif %}>
+			{{ option.label }}
+		</option>
+	{% endfor %}
+</select>

@@ -1,53 +1,57 @@
 {#
     Rating field value display for submissions
-    
+
     @var field - The rating field instance
     @var value - The rating value
 #}
 
 {% if value %}
-    <div class="fui-rating-value" style="font-size: 16px; line-height: 1.5;">
-        {% switch field.ratingType %}
-            {% case 'star' %}
-                {% set fullStars = value|round(0, 'floor') %}
-                {% set hasHalf = (value - fullStars) >= 0.5 %}
-                {% set emptyStars = field.maxValue - value|round(0, 'ceil') %}
-                
-                <span style="color: #f59e0b;">
-                    {%- for i in 1..fullStars -%}★{%- endfor -%}
-                    {%- if hasHalf -%}½{%- endif -%}
-                </span>
-                <span style="color: #e5e7eb;">
-                    {%- for i in 1..emptyStars -%}☆{%- endfor -%}
-                </span>
-                <span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
-                    ({{ value }}/{{ field.maxValue }})
-                </span>
-                
-            {% case 'emoji' %}
-                {% set emojis = ['😢', '😕', '😐', '😊', '😍'] %}
-                {% set range = field.maxValue - field.minValue %}
-                {% set normalizedValue = (value - field.minValue) / range %}
-                {% set index = (normalizedValue * (emojis|length - 1))|round %}
-                {% set emoji = emojis[index] ?? '😐' %}
-                
-                <span style="font-size: 24px;">{{ emoji }}</span>
-                <span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
-                    ({{ value }}/{{ field.maxValue }})
-                </span>
-                
-            {% case 'nps' %}
-                <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 2px solid #2d5016; background: #2d5016; color: white; border-radius: 4px; font-weight: 500;">
-                    {{ value }}
-                </span>
-                <span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
-                    / {{ field.maxValue }}
-                </span>
-                
-            {% default %}
-                {{ value }}
-        {% endswitch %}
-    </div>
+	<div class="fui-rating-value" style="font-size: 16px; line-height: 1.5;">
+		{% switch field.ratingType %}
+			{% case 'star' %}
+				{% set fullStars = value|round(0, 'floor') %}
+				{% set hasHalf = (value - fullStars) >= 0.5 %}
+				{% set emptyStars = field.maxValue - value|round(0, 'ceil') %}
+
+				<span style="color: #f59e0b;">
+					{%- for i in 1..fullStars -%}★
+					{%- endfor -%}
+					{%- if hasHalf -%}½
+					{%- endif -%}
+				</span>
+				<span style="color: #e5e7eb;">
+					{%- for i in 1..emptyStars -%}☆
+					{%- endfor -%}
+				</span>
+				<span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
+					({{ value }}/{{ field.maxValue }})
+				</span>
+
+			{% case 'emoji' %}
+				{% set emojis = ['😢', '😕', '😐', '😊', '😍'] %}
+				{% set range = field.maxValue - field.minValue %}
+				{% set normalizedValue = (value - field.minValue) / range %}
+				{% set index = (normalizedValue * (emojis|length - 1))|round %}
+				{% set emoji = emojis[index] ?? '😐' %}
+
+				<span style="font-size: 24px;">{{ emoji }}</span>
+				<span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
+					({{ value }}/{{ field.maxValue }})
+				</span>
+
+			{% case 'nps' %}
+				<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 2px solid #2d5016; background: #2d5016; color: white; border-radius: 4px; font-weight: 500;">
+					{{ value }}
+				</span>
+				<span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
+					/
+					{{ field.maxValue }}
+				</span>
+
+			{% default %}
+				{{ value }}
+		{% endswitch %}
+	</div>
 {% else %}
-    <span style="color: #9ca3af;">—</span>
+	<span style="color: #9ca3af;">—</span>
 {% endif %}

@@ -3,31 +3,26 @@
 
 {# Check emoji render mode setting and load web font if needed #}
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
+{% set emojiMode = 'system' %}
 {% if plugin %}
-    {% set emojiMode = field.emojiRenderMode ?? plugin.settings.defaultEmojiRenderMode ?? 'system' %}
+	{% set emojiMode = field.emojiRenderMode ?? plugin.settings.defaultEmojiRenderMode ?? 'system' %}
 
-    {# Handle backward compatibility: 'webfont' maps to 'noto-color' #}
-    {% if emojiMode == 'webfont' %}
-        {% set emojiMode = 'noto-color' %}
-    {% endif %}
+	{# Handle backward compatibility: 'webfont' maps to 'noto-color' #}
+	{% if emojiMode == 'webfont' %}
+		{% set emojiMode = 'noto-color' %}
+	{% endif %}
 
-    {% if emojiMode == 'noto-color' %}
-        {# Load Noto Color Emoji from Google Fonts #}
-        {% do craft.app.getView().registerCssFile('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap', {
+	{% if emojiMode == 'noto-color' %}
+		{# Load Noto Color Emoji from Google Fonts #}
+		{% do craft.app.getView().registerCssFile('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap', {
             position: constant('yii\\web\\View::POS_HEAD')
         }) %}
-
-        {# Add class to enable webfont styles #}
-        {% do craft.app.getView().registerJs("document.documentElement.classList.add('fui-rating-emoji-noto-color');", constant('yii\\web\\View::POS_READY')) %}
-    {% elseif emojiMode == 'noto-simple' %}
-        {# Load Noto Emoji (simple style) from Google Fonts #}
-        {% do craft.app.getView().registerCssFile('https://fonts.googleapis.com/css2?family=Noto+Emoji&display=swap', {
+	{% elseif emojiMode == 'noto-simple' %}
+		{# Load Noto Emoji (simple style) from Google Fonts #}
+		{% do craft.app.getView().registerCssFile('https://fonts.googleapis.com/css2?family=Noto+Emoji&display=swap', {
             position: constant('yii\\web\\View::POS_HEAD')
         }) %}
-
-        {# Add class to enable webfont styles #}
-        {% do craft.app.getView().registerJs("document.documentElement.classList.add('fui-rating-emoji-noto-simple');", constant('yii\\web\\View::POS_READY')) %}
-    {% endif %}
+	{% endif %}
 {% endif %}
 
 {# Set default variables if not provided #}
@@ -41,11 +36,15 @@
 	{% endif %}
 {% endfor %}
 
-<select name="{{ field.getHtmlName() }}" id="{{ field.getHtmlId(form) }}" class="fui-select" data-rating="{{ field.ratingType }}" data-rating-size="{{ field.ratingSize }}" {% if field.showSelectedLabel %} data-rating-show-selected="true" {% endif %} {% if field.showEndpointLabels %} data-rating-show-endpoints="true" {% if field.startLabel %} data-rating-start-label="{{ field.startLabel }}" {% endif %} {% if field.endLabel %} data-rating-end-label="{{ field.endLabel }}" {% endif %} {% endif %} {% if field.required %} required aria-required="true" {% endif %} data-field-config="{{ field.getConfigJson() }}" data-formie-rating-field="true">
+<select name="{{ field.getHtmlName() }}" id="{{ field.getHtmlId(form) }}" class="fui-select" data-rating="{{ field.ratingType }}" data-rating-size="{{ field.ratingSize }}" data-emoji-mode="{{ emojiMode }}" {% if field.showSelectedLabel %} data-rating-show-selected="true" {% endif %} {% if field.showEndpointLabels %} data-rating-show-endpoints="true" {% if field.startLabel %} data-rating-start-label="{{ field.startLabel }}" {% endif %} {% if field.endLabel %} data-rating-end-label="{{ field.endLabel }}" {% endif %} {% endif %} {% if field.singleEmojiSelection %} data-single-selection="true" {% endif %} {% if field.customLabels %} data-custom-labels="{{ field.customLabels|json_encode }}" {% endif %} {% if field.required %} required aria-required="true" {% endif %} data-field-config="{{ field.getConfigJson() }}" data-formie-rating-field="true">
 	<option value="">{{ field.placeholder ?? 'Choose a rating'|t('formie') }}</option>
 	{% for option in options %}
 		<option value="{{ option.value }}" {% if value is not null and option.value == value %} selected {% endif %}>
-			{% if option.label matches '/^[0-9.]+$/' %}{{ option.label }}{% else %}{{ option.label|t('formie') }}{% endif %}
+			{% if option.label matches '/^[0-9.]+$/' %}
+				{{ option.label }}
+			{% else %}
+				{{ option.label|t('formie') }}
+			{% endif %}
 		</option>
 	{% endfor %}
 </select>

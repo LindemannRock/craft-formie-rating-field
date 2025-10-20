@@ -77,6 +77,11 @@ class Settings extends Model
     public string $defaultEmojiRenderMode = 'system';
 
     /**
+     * @var bool Enable single emoji selection mode by default (emoji type only)
+     */
+    public bool $defaultSingleEmojiSelection = false;
+
+    /**
      * @inheritdoc
      */
     public function defineRules(): array
@@ -85,7 +90,7 @@ class Settings extends Model
             [['pluginName', 'defaultRatingType', 'defaultRatingSize', 'defaultStartLabel', 'defaultEndLabel'], 'string'],
             [['defaultMinRating'], 'integer', 'min' => 0, 'max' => 1],
             [['defaultMaxRating'], 'integer', 'min' => 3, 'max' => 10],
-            [['defaultAllowHalfRatings', 'defaultShowSelectedLabel', 'defaultShowEndpointLabels'], 'boolean'],
+            [['defaultAllowHalfRatings', 'defaultShowSelectedLabel', 'defaultShowEndpointLabels', 'defaultSingleEmojiSelection'], 'boolean'],
             [['defaultRatingType'], 'in', 'range' => ['star', 'emoji', 'nps']],
             [['defaultRatingSize'], 'in', 'range' => ['small', 'medium', 'large', 'xlarge']],
             [['defaultMinRating'], 'in', 'range' => [0, 1]],
@@ -111,6 +116,7 @@ class Settings extends Model
             'defaultStartLabel' => Craft::t('formie-rating-field', 'Default Start Label'),
             'defaultEndLabel' => Craft::t('formie-rating-field', 'Default End Label'),
             'defaultEmojiRenderMode' => Craft::t('formie-rating-field', 'Default Emoji Render Mode'),
+            'defaultSingleEmojiSelection' => Craft::t('formie-rating-field', 'Single Emoji Selection by Default'),
         ];
     }
 

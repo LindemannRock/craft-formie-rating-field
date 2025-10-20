@@ -13,6 +13,21 @@
     ],
 }) }}
 
+<div id="emojiRenderModeContainer">
+    {{ forms.selectField({
+        label: 'Emoji Render Mode'|t('formie'),
+        instructions: 'Choose how emoji ratings are rendered.'|t('formie'),
+        id: 'emojiRenderMode',
+        name: 'emojiRenderMode',
+        value: field.emojiRenderMode ?? craft.app.plugins.getPlugin('formie-rating-field').settings.defaultEmojiRenderMode ?? 'system',
+        options: [
+            { label: 'System Emojis (Native platform emojis)', value: 'system' },
+            { label: 'Noto Color Emoji (Detailed, colorful style)', value: 'noto-color' },
+            { label: 'Noto Emoji (Simple, clean style)', value: 'noto-simple' },
+        ],
+    }) }}
+</div>
+
 {{ forms.selectField({
     label: 'Size'|t('formie'),
     instructions: 'Choose the size of the rating elements.'|t('formie'),
@@ -78,6 +93,16 @@
     }) }}
 </div>
 
+<div id="singleEmojiSelectionContainer" class="{% if field.ratingType != 'emoji' %}hidden{% endif %}">
+    {{ forms.lightswitchField({
+        label: 'Single Emoji Selection'|t('formie'),
+        instructions: 'Highlight only the selected emoji instead of cumulative selection. When enabled, a custom label will display beneath the selected emoji.'|t('formie'),
+        id: 'singleEmojiSelection',
+        name: 'singleEmojiSelection',
+        on: field.singleEmojiSelection,
+    }) }}
+</div>
+
 {# Temporarily hidden until styling is finalized #}
 {# {{ forms.lightswitchField({
     label: 'Show Selected Label'|t('formie'),
@@ -134,46 +159,79 @@
     (function() {
         const ratingTypeSelect = document.getElementById('ratingType');
         const halfRatingsContainer = document.getElementById('halfRatingsContainer');
+        const singleEmojiSelectionContainer = document.getElementById('singleEmojiSelectionContainer');
+        const emojiRenderModeContainer = document.getElementById('emojiRenderModeContainer');
         const minValueInput = document.getElementById('minValue');
         const maxValueInput = document.getElementById('maxValue');
         const customLabelsContainer = document.getElementById('customLabelsContainer');
-        
-        function toggleHalfRatings() {
+
+        // Emoji sets based on range size
+        const emojis5 = ['😢', '😕', '😐', '😊', '😍'];
+        const emojis8 = ['😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎'];
+        const emojis11 = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
+
+        function getEmojiSet(count) {
+            return count <= 5 ? emojis5 : (count <= 8 ? emojis8 : emojis11);
+        }
+
+        function toggleConditionalFields() {
+            // Show/hide half ratings (star only)
             if (ratingTypeSelect.value === 'star') {
                 halfRatingsContainer.classList.remove('hidden');
             } else {
                 halfRatingsContainer.classList.add('hidden');
             }
+
+            // Show/hide single emoji selection (emoji only)
+            if (ratingTypeSelect.value === 'emoji') {
+                singleEmojiSelectionContainer.classList.remove('hidden');
+                emojiRenderModeContainer.classList.remove('hidden');
+            } else {
+                singleEmojiSelectionContainer.classList.add('hidden');
+                emojiRenderModeContainer.classList.add('hidden');
+            }
+
+            // Update custom labels to show emojis if emoji type
+            updateCustomLabels();
         }
-        
+
         function updateCustomLabels() {
             const min = parseInt(minValueInput.value) || 1;
             const max = parseInt(maxValueInput.value) || 5;
+            const count = max - min + 1;
             const existingLabels = {{ field.customLabels|json_encode|raw }};
-            
+            const isEmojiType = ratingTypeSelect.value === 'emoji';
+            const emojis = getEmojiSet(count);
+
             customLabelsContainer.innerHTML = '';
-            
+
             for (let i = min; i <= max; i++) {
+                const emojiIndex = i - min;
+                const emoji = isEmojiType && emojis[emojiIndex] ? emojis[emojiIndex] : '';
+
                 const div = document.createElement('div');
                 div.className = 'flex items-center mb-2';
                 div.innerHTML = `
-                    <label class="w-12">${i}:</label>
-                    <input type="text" 
-                        name="customLabels[${i}]" 
-                        value="${existingLabels[i] || ''}" 
+                    <label class="w-20" style="display: flex; align-items: center; gap: 4px;">
+                        ${emoji ? `<span style="font-size: 20px;">${emoji}</span>` : ''}
+                        <span>Value ${i}:</span>
+                    </label>
+                    <input type="text"
+                        name="customLabels[${i}]"
+                        value="${existingLabels[i] || ''}"
                         class="text fullwidth"
-                        placeholder="Label for ${i}">
+                        placeholder="${isEmojiType ? 'e.g., Terrible, Bad, Okay, Good, Excellent' : 'Label for ' + i}">
                 `;
                 customLabelsContainer.appendChild(div);
             }
         }
-        
-        ratingTypeSelect.addEventListener('change', toggleHalfRatings);
+
+        ratingTypeSelect.addEventListener('change', toggleConditionalFields);
         minValueInput.addEventListener('change', updateCustomLabels);
         maxValueInput.addEventListener('change', updateCustomLabels);
-        
+
         // Initialize
-        toggleHalfRatings();
+        toggleConditionalFields();
         updateCustomLabels();
     })();
 {% endjs %}
