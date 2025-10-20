@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.0.0...v3.0.1) (2025-10-20)
+
+
+### Miscellaneous Chores
+
+* update README with additional badges ([81fc2b8](https://github.com/LindemannRock/craft-formie-rating-field/commit/81fc2b843d265de1c3a256a8760e349c7d0bd8e2))
+
 ## [3.0.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.1...v3.0.0) (2025-10-20)
 
 

@@ -2,7 +2,7 @@
     "name": "lindemannrock/craft-formie-rating-field",
     "description": "Rating field for Formie - Provides star rating, emoji rating, and numeric rating field types for Craft CMS Formie plugin",
     "type": "craft-plugin",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "keywords": [
         "craft",
         "cms",
