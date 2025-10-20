@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.0.1...v3.1.0) (2025-10-20)
+
+
+### Features
+
+* add default emoji render mode setting and update related configurations ([1e6d686](https://github.com/LindemannRock/craft-formie-rating-field/commit/1e6d6860e8e4530142bdf110803c6ee3f32cadc3))
+* add single emoji selection mode with custom labels ([1332dbd](https://github.com/LindemannRock/craft-formie-rating-field/commit/1332dbdcab5df0bf0840af2c29c43335226d11ba))
+
 ## [3.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.0.0...v3.0.1) (2025-10-20)
 
 
