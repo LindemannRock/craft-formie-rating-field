@@ -44,6 +44,21 @@
     }) }}
 
     {{ forms.selectField({
+        label: 'Default Emoji Render Mode'|t('formie-rating-field'),
+        instructions: 'The default emoji render mode for new emoji rating fields'|t('formie-rating-field'),
+        id: 'defaultEmojiRenderMode',
+        name: 'defaultEmojiRenderMode',
+        value: settings.defaultEmojiRenderMode ?? 'system',
+        options: [
+            { value: 'system', label: 'System Emojis (Native platform emojis)'|t('formie-rating-field') },
+            { value: 'noto-color', label: 'Noto Color Emoji (Detailed, colorful style)'|t('formie-rating-field') },
+            { value: 'noto-simple', label: 'Noto Emoji (Simple, clean style)'|t('formie-rating-field') }
+        ],
+        warning: settings.isOverridden('defaultEmojiRenderMode') ? 'This is being overridden by the `defaultEmojiRenderMode` setting in the `config/formie-rating-field.php` file.'|t('formie-rating-field'),
+        disabled: settings.isOverridden('defaultEmojiRenderMode')
+    }) }}
+
+    {{ forms.selectField({
         label: 'Default Rating Size'|t('formie-rating-field'),
         instructions: 'The default size for rating icons'|t('formie-rating-field'),
         id: 'defaultRatingSize',
@@ -109,21 +124,6 @@
         on: settings.defaultAllowHalfRatings ?? false,
         warning: settings.isOverridden('defaultAllowHalfRatings') ? 'This is being overridden by the `defaultAllowHalfRatings` setting in the `config/formie-rating-field.php` file.'|t('formie-rating-field'),
         disabled: settings.isOverridden('defaultAllowHalfRatings')
-    }) }}
-
-    {{ forms.selectField({
-        label: 'Emoji Render Mode'|t('formie-rating-field'),
-        instructions: 'Choose how emoji ratings are rendered.'|t('formie-rating-field'),
-        id: 'emojiRenderMode',
-        name: 'emojiRenderMode',
-        value: settings.emojiRenderMode ?? 'system',
-        options: [
-            { value: 'system', label: 'System Emojis (Native platform emojis)'|t('formie-rating-field') },
-            { value: 'noto-color', label: 'Noto Color Emoji (Detailed, colorful style)'|t('formie-rating-field') },
-            { value: 'noto-simple', label: 'Noto Emoji (Simple, clean style)'|t('formie-rating-field') }
-        ],
-        warning: settings.isOverridden('emojiRenderMode') ? 'This is being overridden by the `emojiRenderMode` setting in the `config/formie-rating-field.php` file.'|t('formie-rating-field'),
-        disabled: settings.isOverridden('emojiRenderMode')
     }) }}
 </fieldset>
 

@@ -21,7 +21,21 @@ return [
      * Options: 'star', 'emoji', 'nps'
      */
     'defaultRatingType' => 'star',
-    
+
+    /**
+     * Default emoji render mode (for emoji rating type)
+     * Controls how emoji ratings are rendered
+     *
+     * Options:
+     * - 'system': Use native platform emojis (iOS, Android, Windows, etc.)
+     * - 'noto-color': Load Noto Color Emoji (detailed, colorful style)
+     * - 'noto-simple': Load Noto Emoji (simple, clean style)
+     * - 'webfont': Deprecated, maps to 'noto-color' for backward compatibility
+     *
+     * Default: 'system'
+     */
+    'defaultEmojiRenderMode' => 'system',
+
     /**
      * Default rating size for new rating fields
      * Options: 'small', 'medium', 'large', 'xlarge'
@@ -70,18 +84,4 @@ return [
      * Examples: 'Excellent', 'Very Likely', 'Strongly Agree'
      */
     'defaultEndLabel' => '',
-
-    /**
-     * Emoji render mode
-     * Controls how emoji ratings are rendered across all forms
-     *
-     * Options:
-     * - 'system': Use native platform emojis (iOS, Android, Windows, etc.)
-     * - 'noto-color': Load Noto Color Emoji (detailed, colorful style)
-     * - 'noto-simple': Load Noto Emoji (simple, clean style)
-     * - 'webfont': Deprecated, maps to 'noto-color' for backward compatibility
-     *
-     * Default: 'system'
-     */
-    'emojiRenderMode' => 'system',
 ];

@@ -72,9 +72,9 @@ class Settings extends Model
     public string $defaultEndLabel = '';
 
     /**
-     * @var string Emoji render mode (system, noto-color, noto-simple)
+     * @var string Default emoji render mode (system, noto-color, noto-simple)
      */
-    public string $emojiRenderMode = 'system';
+    public string $defaultEmojiRenderMode = 'system';
 
     /**
      * @inheritdoc
@@ -90,7 +90,7 @@ class Settings extends Model
             [['defaultRatingSize'], 'in', 'range' => ['small', 'medium', 'large', 'xlarge']],
             [['defaultMinRating'], 'in', 'range' => [0, 1]],
             [['defaultMaxRating'], 'in', 'range' => [3, 4, 5, 6, 7, 8, 9, 10]],
-            [['emojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
+            [['defaultEmojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
         ];
     }
 
@@ -110,7 +110,7 @@ class Settings extends Model
             'defaultShowEndpointLabels' => Craft::t('formie-rating-field', 'Show Endpoint Labels by Default'),
             'defaultStartLabel' => Craft::t('formie-rating-field', 'Default Start Label'),
             'defaultEndLabel' => Craft::t('formie-rating-field', 'Default End Label'),
-            'emojiRenderMode' => Craft::t('formie-rating-field', 'Emoji Render Mode'),
+            'defaultEmojiRenderMode' => Craft::t('formie-rating-field', 'Default Emoji Render Mode'),
         ];
     }
 

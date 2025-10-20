@@ -4,7 +4,7 @@
 {# Check emoji render mode setting and load web font if needed #}
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
 {% if plugin %}
-    {% set emojiMode = plugin.settings.emojiRenderMode ?? 'system' %}
+    {% set emojiMode = field.emojiRenderMode ?? plugin.settings.defaultEmojiRenderMode ?? 'system' %}
 
     {# Handle backward compatibility: 'webfont' maps to 'noto-color' #}
     {% if emojiMode == 'webfont' %}

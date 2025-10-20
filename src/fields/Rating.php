@@ -65,6 +65,11 @@ class Rating extends Field implements FieldInterface
     public $allowHalfRatings;
 
     /**
+     * @var string Emoji render mode (system, noto-color, noto-simple)
+     */
+    public $emojiRenderMode;
+
+    /**
      * @var bool Whether to show the selected value label
      */
     public $showSelectedLabel;
@@ -120,6 +125,9 @@ class Rating extends Field implements FieldInterface
                 if ($this->allowHalfRatings === null) {
                     $this->allowHalfRatings = $settings->defaultAllowHalfRatings ?? false;
                 }
+                if ($this->emojiRenderMode === null) {
+                    $this->emojiRenderMode = $settings->defaultEmojiRenderMode ?? 'system';
+                }
                 if ($this->showSelectedLabel === null) {
                     $this->showSelectedLabel = $settings->defaultShowSelectedLabel ?? false;
                 }
@@ -141,6 +149,7 @@ class Rating extends Field implements FieldInterface
         $this->minValue = $this->minValue ?? 1;
         $this->maxValue = $this->maxValue ?? 5;
         $this->allowHalfRatings = $this->allowHalfRatings ?? false;
+        $this->emojiRenderMode = $this->emojiRenderMode ?? 'system';
         $this->showSelectedLabel = $this->showSelectedLabel ?? false;
         $this->showEndpointLabels = $this->showEndpointLabels ?? false;
         $this->startLabel = $this->startLabel ?? '';
@@ -468,6 +477,7 @@ class Rating extends Field implements FieldInterface
             'minValue' => 1,
             'maxValue' => 5,
             'allowHalfRatings' => false,
+            'emojiRenderMode' => 'system',
             'showSelectedLabel' => false,
             'showEndpointLabels' => false,
             'customLabels' => [],
@@ -485,6 +495,7 @@ class Rating extends Field implements FieldInterface
                     'minValue' => $settings->defaultMinRating ?? 1,
                     'maxValue' => $settings->defaultMaxRating ?? 5,
                     'allowHalfRatings' => $settings->defaultAllowHalfRatings ?? false,
+                    'emojiRenderMode' => $settings->defaultEmojiRenderMode ?? 'system',
                     'showSelectedLabel' => $settings->defaultShowSelectedLabel ?? false,
                     'showEndpointLabels' => $settings->defaultShowEndpointLabels ?? false,
                     'customLabels' => [],
@@ -597,6 +608,17 @@ class Rating extends Field implements FieldInterface
                     ['label' => Craft::t('formie', 'Emoji Rating'), 'value' => self::RATING_TYPE_EMOJI],
                     ['label' => Craft::t('formie', 'NPS (Number) Rating'), 'value' => self::RATING_TYPE_NPS],
                 ],
+            ]),
+            SchemaHelper::selectField([
+                'label' => Craft::t('formie', 'Emoji Render Mode'),
+                'help' => Craft::t('formie', 'Choose how emoji ratings are rendered.'),
+                'name' => 'emojiRenderMode',
+                'options' => [
+                    ['label' => Craft::t('formie', 'System Emojis (Native platform emojis)'), 'value' => 'system'],
+                    ['label' => Craft::t('formie', 'Noto Color Emoji (Detailed, colorful style)'), 'value' => 'noto-color'],
+                    ['label' => Craft::t('formie', 'Noto Emoji (Simple, clean style)'), 'value' => 'noto-simple'],
+                ],
+                'if' => '$get(ratingType).value == emoji',
             ]),
             SchemaHelper::variableTextField([
                 'label' => Craft::t('formie', 'Placeholder'),
