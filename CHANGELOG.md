@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.1...v3.0.0) (2025-10-20)
+
+
+### Miscellaneous Chores
+
+* bump version scheme to match Formie 3 ([b1eb1b0](https://github.com/LindemannRock/craft-formie-rating-field/commit/b1eb1b0771c27d6749f0697af345c51c85fe7763))
+
 ## [1.4.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.0...v1.4.1) (2025-10-16)
 
 
