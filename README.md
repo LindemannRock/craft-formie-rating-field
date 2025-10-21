@@ -25,8 +25,9 @@ A Craft CMS plugin that provides advanced rating field types for Verbb's Formie 
 - **Size Options**: Small, medium, large, extra large
 - **Flexible Range**: Configurable min/max values
 - **Half Ratings**: Enable half-star selections (star type only)
+- **Single Emoji Selection**: Highlight only the selected emoji instead of cumulative (emoji type only)
+- **Custom Labels**: Define text labels for each rating value that display beneath selected emoji
 - **Endpoint Labels**: Add descriptive labels at scale endpoints (e.g., "Poor" / "Excellent")
-- **Custom Labels**: Override numeric values with custom text
 - **Emoji Render Modes**: Choose between system emojis, Noto Color Emoji (detailed), or Noto Emoji (simple)
 - **Plugin Settings**: Configure defaults for all new rating fields
 
@@ -83,12 +84,12 @@ return [
     'defaultRatingSize' => 'large',
     'defaultMinRating' => 0,
     'defaultMaxRating' => 10,
-    'defaultAllowHalfRatings' => true,
-    'defaultShowSelectedLabel' => true,  // Future feature
+    'defaultAllowHalfRatings' => false,
+    'defaultSingleEmojiSelection' => true,
     'defaultShowEndpointLabels' => true,
-    'defaultStartLabel' => 'Poor',
-    'defaultEndLabel' => 'Excellent',
-    'emojiRenderMode' => 'noto-simple',  // 'system', 'noto-color', 'noto-simple'
+    'defaultStartLabel' => 'Not Likely',
+    'defaultEndLabel' => 'Very Likely',
+    'defaultEmojiRenderMode' => 'noto-simple',  // 'system', 'noto-color', 'noto-simple'
 ];
 ```
 
@@ -102,8 +103,33 @@ return [
    - **Rating Type**: Choose star, emoji, or NPS display
    - **Size**: Control the visual size of rating elements
    - **Rating Range**: Set minimum and maximum values
-   - **Allow Half Ratings**: Enable for star type
+   - **Allow Half Ratings**: Enable for star type (stars only)
+   - **Single Emoji Selection**: Enable for single emoji highlighting (emoji only)
+   - **Custom Labels**: Define labels for each value (shows when using single emoji selection)
    - **Endpoint Labels**: Add descriptive text at scale ends
+
+### Using Single Emoji Selection with Custom Labels
+
+When **Single Emoji Selection** is enabled for emoji ratings:
+
+1. Only the clicked emoji is highlighted (not cumulative)
+2. A custom label displays beneath the selected emoji
+3. Define labels in the **Custom Labels** table that appears
+
+**Example:** For a 1-5 rating scale:
+
+| Value | Label |
+|-------|-------|
+| 1 | Terrible |
+| 2 | Bad |
+| 3 | Okay |
+| 4 | Good |
+| 5 | Excellent |
+
+**Important:**
+- Define a label for **each value** in your rating range (e.g., if min=0 and max=10, define labels for values 0-10)
+- Labels display only when an emoji is selected
+- If no custom label is defined for a value, the numeric value displays instead
 
 ### Templating
 
@@ -137,10 +163,13 @@ query {
 | Setting | Description | Options |
 |---------|-------------|---------|
 | **Rating Type** | Visual style of the rating | `star`, `emoji`, `nps` |
+| **Emoji Render Mode** | How emojis are displayed | `system`, `noto-color`, `noto-simple` (emoji only) |
 | **Size** | Visual size of rating elements | `small`, `medium`, `large`, `xlarge` |
 | **Min Value** | Minimum rating value | 0-10 |
 | **Max Value** | Maximum rating value | 1-10 |
 | **Allow Half Ratings** | Enable half-star selections | true/false (star only) |
+| **Single Emoji Selection** | Highlight only selected emoji (not cumulative) | true/false (emoji only) |
+| **Custom Labels** | Define text labels for each rating value | Table with Value/Label pairs |
 | **Show Endpoint Labels** | Display labels at scale ends | true/false |
 | **Start Label** | Text for lowest value | Any text |
 | **End Label** | Text for highest value | Any text |
