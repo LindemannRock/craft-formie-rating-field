@@ -6,7 +6,7 @@ You can override plugin settings by creating a `formie-rating-field.php` file in
 
 ### Basic Setup
 
-1. Copy `vendor/lindemannrock/formie-rating-field/src/config.php` to `config/formie-rating-field.php`
+1. Copy `vendor/lindemannrock/craft-formie-rating-field/src/config.php` to `config/formie-rating-field.php`
 2. Modify the settings as needed
 
 ### Available Settings
@@ -14,28 +14,24 @@ You can override plugin settings by creating a `formie-rating-field.php` file in
 ```php
 <?php
 return [
-    // Plugin name shown in Control Panel (optional)
-    'pluginName' => 'Custom Rating Field Name',
+    // General Settings
+    'pluginName' => 'Formie Rating Field',
 
-    // Default rating type for new rating fields
+    // Field Default Settings
     'defaultRatingType' => 'star',
-
-    // Default rating size for new rating fields
+    'defaultEmojiRenderMode' => 'system',
     'defaultRatingSize' => 'medium',
-
-    // Default rating range
     'defaultMinRating' => 1,
     'defaultMaxRating' => 5,
 
-    // Default options
+    // Rating Type Settings
     'defaultAllowHalfRatings' => false,
+    'defaultSingleEmojiSelection' => false,
+
+    // Label Settings
     'defaultShowEndpointLabels' => false,
     'defaultStartLabel' => '',
     'defaultEndLabel' => '',
-    'defaultSingleEmojiSelection' => false,
-
-    // Emoji render mode
-    'defaultEmojiRenderMode' => 'system',  // 'system', 'noto-color', or 'noto-simple'
 ];
 ```
 
@@ -50,34 +46,28 @@ return [
     '*' => [
         'defaultRatingType' => 'star',
         'defaultRatingSize' => 'medium',
+        'defaultMinRating' => 1,
+        'defaultMaxRating' => 5,
     ],
-    
+
     // Development environment
     'dev' => [
-        'defaultShowEndpointLabels' => true,
-        'defaultStartLabel' => 'Poor',
-        'defaultEndLabel' => 'Excellent',
+        // Development-specific settings can go here
     ],
-    
+
+    // Staging environment
+    'staging' => [
+        // Staging-specific settings can go here
+    ],
+
     // Production environment
     'production' => [
         'defaultRatingType' => 'emoji',
         'defaultRatingSize' => 'large',
         'defaultMinRating' => 0,
         'defaultMaxRating' => 10,
+        'defaultSingleEmojiSelection' => true,
     ],
-];
-```
-
-### Using Environment Variables
-
-All settings support environment variables:
-
-```php
-return [
-    'defaultRatingType' => getenv('RATING_TYPE') ?: 'star',
-    'defaultMaxRating' => (int)(getenv('RATING_MAX') ?: 5),
-    'defaultShowEndpointLabels' => getenv('RATING_SHOW_LABELS') === 'true',
 ];
 ```
 
@@ -85,26 +75,78 @@ return [
 
 #### General Settings
 
-- **pluginName**: The name shown in the Control Panel (usually set via Settings → Plugins)
-- **defaultRatingType**: Default type for new rating fields ('star', 'emoji', 'nps')
-- **defaultRatingSize**: Default size for rating elements ('small', 'medium', 'large', 'xlarge')
+##### pluginName
+Display name for the plugin in Craft CP navigation.
+- **Type:** `string`
+- **Default:** `'Formie Rating Field'`
 
-#### Rating Range Settings
+#### Field Default Settings
 
-- **defaultMinRating**: Default minimum rating value (0 or 1)
-- **defaultMaxRating**: Default maximum rating value (3-10)
+##### defaultRatingType
+Default rating type for new rating fields.
+- **Type:** `string`
+- **Options:** `'star'`, `'emoji'`, `'nps'`
+- **Default:** `'star'`
 
-#### Feature Settings
-
-- **defaultAllowHalfRatings**: Enable half-star ratings by default (star type only)
-- **defaultShowEndpointLabels**: Display labels at start/end of rating scale
-- **defaultStartLabel**: Default text for lowest rating (e.g., "Poor", "Not Likely")
-- **defaultEndLabel**: Default text for highest rating (e.g., "Excellent", "Very Likely")
-- **defaultSingleEmojiSelection**: Enable single emoji selection mode by default (emoji type only) - highlights only the selected emoji instead of cumulative selection, and displays custom labels beneath the selected emoji
-- **defaultEmojiRenderMode**: How emoji ratings are rendered:
+##### defaultEmojiRenderMode
+How emoji ratings are rendered (emoji type only).
+- **Type:** `string`
+- **Options:**
   - `'system'`: Native platform emojis (iOS, Android, Windows, etc.)
   - `'noto-color'`: Noto Color Emoji from Google Fonts (detailed, colorful style)
-  - `'noto-simple'`: Noto Emoji from Google Fonts (simple, clean style with customizable sentiment colors)
+  - `'noto-simple'`: Noto Emoji from Google Fonts (simple, clean style)
+  - `'webfont'`: Deprecated, maps to `'noto-color'` for backward compatibility
+- **Default:** `'system'`
+
+##### defaultRatingSize
+Default size for rating elements.
+- **Type:** `string`
+- **Options:** `'small'`, `'medium'`, `'large'`, `'xlarge'`
+- **Default:** `'medium'`
+
+##### defaultMinRating
+Default minimum rating value.
+- **Type:** `int`
+- **Options:** `0`, `1`
+- **Default:** `1`
+
+##### defaultMaxRating
+Default maximum rating value.
+- **Type:** `int`
+- **Options:** `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`
+- **Default:** `5`
+
+#### Rating Type Settings
+
+##### defaultAllowHalfRatings
+Enable half-star ratings by default (star type only).
+- **Type:** `bool`
+- **Default:** `false`
+
+##### defaultSingleEmojiSelection
+Enable single emoji selection mode by default (emoji type only).
+- **Type:** `bool`
+- **Default:** `false`
+- **Behavior:** When enabled, only the selected emoji is highlighted (not cumulative) and custom labels display beneath the selected emoji
+
+#### Label Settings
+
+##### defaultShowEndpointLabels
+Display labels at start/end of rating scale.
+- **Type:** `bool`
+- **Default:** `false`
+
+##### defaultStartLabel
+Default text for lowest rating.
+- **Type:** `string`
+- **Default:** `''` (empty)
+- **Examples:** `'Poor'`, `'Not Likely'`, `'Disagree'`
+
+##### defaultEndLabel
+Default text for highest rating.
+- **Type:** `string`
+- **Default:** `''` (empty)
+- **Examples:** `'Excellent'`, `'Very Likely'`, `'Strongly Agree'`
 
 ### Rating Type Details
 
@@ -130,6 +172,7 @@ return [
 ### Common Configuration Examples
 
 #### Customer Satisfaction Survey
+
 ```php
 return [
     'defaultRatingType' => 'star',
@@ -143,6 +186,7 @@ return [
 ```
 
 #### Net Promoter Score
+
 ```php
 return [
     'defaultRatingType' => 'nps',
@@ -156,6 +200,7 @@ return [
 ```
 
 #### User Experience Feedback
+
 ```php
 return [
     'defaultRatingType' => 'emoji',
@@ -163,8 +208,8 @@ return [
     'defaultMinRating' => 0,
     'defaultMaxRating' => 10,
     'defaultShowEndpointLabels' => false,
-    'defaultSingleEmojiSelection' => true,  // Enable single selection mode
-    'defaultEmojiRenderMode' => 'noto-simple',  // Simple style with customizable sentiment colors
+    'defaultSingleEmojiSelection' => true,
+    'defaultEmojiRenderMode' => 'noto-simple',
 ];
 ```
 
@@ -172,28 +217,46 @@ return [
 
 Settings are loaded in this order (later overrides earlier):
 
-1. Default plugin settings (hardcoded)
-2. Database-stored settings (from Control Panel)
+1. Default plugin settings
+2. Database-stored settings (from CP)
 3. Config file settings
 4. Environment-specific config settings
+
+**Note:** Config file settings always override database settings, making them ideal for production environments where you want to enforce specific values.
+
+### Using Environment Variables
+
+All settings support environment variables:
+
+```php
+use craft\helpers\App;
+
+return [
+    'defaultRatingType' => App::env('RATING_TYPE') ?: 'star',
+    'defaultMaxRating' => (int)App::env('RATING_MAX') ?: 5,
+    'defaultShowEndpointLabels' => (bool)App::env('RATING_SHOW_LABELS') ?: false,
+];
+```
 
 ### Validation
 
 The plugin validates all settings:
-- **Rating Type**: Must be 'star', 'emoji', or 'nps'
-- **Rating Size**: Must be 'small', 'medium', 'large', or 'xlarge'  
-- **Min Rating**: Must be 0 or 1
-- **Max Rating**: Must be 3-10
-- **Default Text Size**: Must match an available text size value
+- **Rating Type**: Must be `'star'`, `'emoji'`, or `'nps'`
+- **Rating Size**: Must be `'small'`, `'medium'`, `'large'`, or `'xlarge'`
+- **Min Rating**: Must be `0` or `1`
+- **Max Rating**: Must be `3-10`
+- **Emoji Render Mode**: Must be `'system'`, `'noto-color'`, `'noto-simple'`, or `'webfont'`
 
 ### Troubleshooting
 
 #### Settings Not Applied
+
 1. Clear compiled classes: `php craft clear-caches/compiled-classes`
 2. Check config file syntax is valid PHP
 3. Verify setting values are within valid ranges
 
 #### Plugin Name Not Changed
+
 1. Ensure config file is in correct location: `config/formie-rating-field.php`
 2. Check for typos in `pluginName` setting
 3. Settings in Control Panel override config file

@@ -71,11 +71,15 @@ Navigate to **Settings → Plugins → Formie Rating Field** to configure defaul
 - **Default Labels**: Start/end label text
 - **Default Options**: Half ratings, show labels, etc.
 
-### Advanced Configuration
+### Config File
 
-For detailed configuration options, see [Configuration Guide](docs/CONFIGURATION.md).
+Create a `config/formie-rating-field.php` file to override default settings:
 
-Create a config file for custom defaults:
+```bash
+cp vendor/lindemannrock/craft-formie-rating-field/src/config.php config/formie-rating-field.php
+```
+
+Example configuration:
 
 ```php
 // config/formie-rating-field.php
@@ -92,6 +96,8 @@ return [
     'defaultEmojiRenderMode' => 'noto-simple',  // 'system', 'noto-color', 'noto-simple'
 ];
 ```
+
+See [Configuration Documentation](docs/CONFIGURATION.md) for all available options.
 
 ## Usage
 
