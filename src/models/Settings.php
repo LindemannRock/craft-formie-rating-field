@@ -25,47 +25,47 @@ class Settings extends Model
      * @var string|null The public-facing name of the plugin
      */
     public ?string $pluginName = 'Formie Rating Field';
-    
+
     /**
      * @var string Default rating type (star, emoji, nps)
      */
     public string $defaultRatingType = 'star';
-    
+
     /**
      * @var string Default rating size (small, medium, large, xlarge)
      */
     public string $defaultRatingSize = 'medium';
-    
+
     /**
      * @var int Default minimum rating value
      */
     public $defaultMinRating = 1;
-    
+
     /**
      * @var int Default maximum rating value
      */
     public $defaultMaxRating = 5;
-    
+
     /**
      * @var bool Allow half ratings by default (star type only)
      */
     public bool $defaultAllowHalfRatings = false;
-    
+
     /**
      * @var bool Show selected value label by default
      */
     public bool $defaultShowSelectedLabel = false;
-    
+
     /**
      * @var bool Show endpoint labels by default
      */
     public bool $defaultShowEndpointLabels = false;
-    
+
     /**
      * @var string Default start label text
      */
     public string $defaultStartLabel = '';
-    
+
     /**
      * @var string Default end label text
      */
@@ -126,7 +126,7 @@ class Settings extends Model
      * @param string $setting
      * @return bool
      */
-    public function isOverridden(string $setting): bool
+    public function isOverriddenByConfig(string $setting): bool
     {
         $configFileSettings = Craft::$app->getConfig()->getConfigFromFile('formie-rating-field');
         return isset($configFileSettings[$setting]);
