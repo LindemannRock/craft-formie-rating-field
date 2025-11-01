@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.1...v3.1.2) (2025-11-01)
+
+
+### Bug Fixes
+
+* update validation method names for consistency and improve formatting in settings ([40f0ae5](https://github.com/LindemannRock/craft-formie-rating-field/commit/40f0ae5bddc60df7fcb23954c3cfd91b0094b8c2))
+
 ## [3.1.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.0...v3.1.1) (2025-10-27)
 
 
