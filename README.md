@@ -43,7 +43,13 @@ A Craft CMS plugin that provides advanced rating field types for Verbb's Formie 
 
 ```bash
 cd /path/to/project
+```
+
+```bash
 composer require lindemannrock/craft-formie-rating-field
+```
+
+```bash
 ./craft plugin/install formie-rating-field
 ```
 
@@ -51,7 +57,13 @@ composer require lindemannrock/craft-formie-rating-field
 
 ```bash
 cd /path/to/project
+```
+
+```bash
 ddev composer require lindemannrock/craft-formie-rating-field
+```
+
+```bash
 ddev craft plugin/install formie-rating-field
 ```
 
