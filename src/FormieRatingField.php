@@ -34,17 +34,17 @@ use yii\base\Event;
 class FormieRatingField extends Plugin
 {
     /**
-     * @var FormieRatingField
+     * @var FormieRatingField|null Singleton plugin instance
      */
     public static FormieRatingField $plugin;
 
     /**
-     * @inheritdoc
+     * @var string Plugin schema version for migrations
      */
     public string $schemaVersion = '1.0.0';
 
     /**
-     * @inheritdoc
+     * @var bool Whether the plugin exposes a control panel settings page
      */
     public bool $hasCpSettings = true;
 
