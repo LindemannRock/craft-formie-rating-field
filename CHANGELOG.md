@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.2...v3.2.0) (2025-11-25)
+
+
+### Features
+
+* add Feed Me integration for Rating field and update composer suggestions ([81b10ba](https://github.com/LindemannRock/craft-formie-rating-field/commit/81b10ba5c1f0eef7fb0803cf47c5c2617187b94b))
+
+
+### Bug Fixes
+
+* update plugin property descriptions for clarity and add missing newline ([605a6ab](https://github.com/LindemannRock/craft-formie-rating-field/commit/605a6ab62e538034593615627fe5481b450aa6bc))
+
 ## [3.1.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.1...v3.1.2) (2025-11-01)
 
 
