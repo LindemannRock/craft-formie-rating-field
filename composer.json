@@ -33,6 +33,9 @@
         "craftcms/cms": "^5.0.0",
         "verbb/formie": "^3.0.0"
     },
+    "suggest": {
+        "craftcms/feed-me": "For importing Rating field data via Feed Me"
+    },
     "autoload": {
         "psr-4": {
             "lindemannrock\\formieratingfield\\": "src/"

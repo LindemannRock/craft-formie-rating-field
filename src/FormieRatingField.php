@@ -12,10 +12,13 @@ namespace lindemannrock\formieratingfield;
 
 use Craft;
 use lindemannrock\formieratingfield\fields\Rating;
+use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
 use lindemannrock\formieratingfield\models\Settings;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\RegisterTemplateRootsEvent;
+use craft\feedme\events\RegisterFeedMeFieldsEvent;
+use craft\feedme\services\Fields as FeedMeFields;
 use craft\web\View;
 use verbb\formie\events\RegisterFieldsEvent;
 use verbb\formie\services\Fields;
@@ -89,7 +92,17 @@ class FormieRatingField extends Plugin
             }
         );
 
-        
+        // Register Feed Me integration (only if Feed Me is installed)
+        if (class_exists(FeedMeFields::class)) {
+            Event::on(
+                FeedMeFields::class,
+                FeedMeFields::EVENT_REGISTER_FEED_ME_FIELDS,
+                function(RegisterFeedMeFieldsEvent $event) {
+                    $event->fields[] = FeedMeRatingField::class;
+                }
+            );
+        }
+
         // Set the plugin name from settings
         $settings = $this->getSettings();
         if ($settings && !empty($settings->pluginName)) {
