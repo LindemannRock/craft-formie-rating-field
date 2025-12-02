@@ -10,7 +10,6 @@ namespace lindemannrock\formieratingfield\web\assets\field;
 
 use Craft;
 use craft\web\AssetBundle;
-use craft\web\assets\cp\CpAsset;
 use lindemannrock\formieratingfield\FormieRatingField;
 
 /**

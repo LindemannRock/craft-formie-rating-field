@@ -11,15 +11,15 @@
 namespace lindemannrock\formieratingfield;
 
 use Craft;
-use lindemannrock\formieratingfield\fields\Rating;
-use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
-use lindemannrock\formieratingfield\models\Settings;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
 use craft\web\View;
+use lindemannrock\formieratingfield\fields\Rating;
+use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
+use lindemannrock\formieratingfield\models\Settings;
 use verbb\formie\events\RegisterFieldsEvent;
 use verbb\formie\services\Fields;
 use yii\base\Event;

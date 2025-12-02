@@ -10,9 +10,9 @@
 
 namespace lindemannrock\formieratingfield\integrations\feedme\fields;
 
-use lindemannrock\formieratingfield\fields\Rating as RatingField;
-
 use craft\feedme\fields\Number as FeedMeNumber;
+
+use lindemannrock\formieratingfield\fields\Rating as RatingField;
 use verbb\formie\integrations\feedme\fields\BaseFieldTrait;
 
 /**

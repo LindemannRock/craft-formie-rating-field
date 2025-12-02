@@ -10,7 +10,6 @@ namespace lindemannrock\formieratingfield\models;
 
 use Craft;
 use craft\base\Model;
-use craft\helpers\App;
 
 /**
  * Formie Rating Field Settings Model

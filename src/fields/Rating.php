@@ -14,12 +14,12 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Template;
 use GraphQL\Type\Definition\Type;
+use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\web\assets\field\RatingFieldAsset;
 use verbb\formie\base\Field;
 use verbb\formie\base\FieldInterface;
 use verbb\formie\helpers\SchemaHelper;
 use yii\db\Schema;
-use lindemannrock\formieratingfield\web\assets\field\RatingFieldAsset;
-use lindemannrock\formieratingfield\FormieRatingField;
 
 /**
  * Rating field
@@ -32,9 +32,9 @@ class Rating extends Field implements FieldInterface
     // Constants
     // =========================================================================
 
-    const RATING_TYPE_STAR = 'star';
-    const RATING_TYPE_EMOJI = 'emoji';
-    const RATING_TYPE_NPS = 'nps';
+    public const RATING_TYPE_STAR = 'star';
+    public const RATING_TYPE_EMOJI = 'emoji';
+    public const RATING_TYPE_NPS = 'nps';
 
     // Properties
     // =========================================================================
@@ -885,5 +885,4 @@ class Rating extends Field implements FieldInterface
             ],
         ];
     }
-
 }
