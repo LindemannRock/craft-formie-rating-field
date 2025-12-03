@@ -6,3 +6,6 @@ parameters:
     phpVersion: 80300
     paths:
         - src
+    ignoreErrors:
+        # CosmeticField from Formie properly implements FieldInterface but PHPStan can't resolve the hierarchy
+        - '#Interface craft\\base\\FieldInterface requires implementing class to extend craft\\base\\Field#'

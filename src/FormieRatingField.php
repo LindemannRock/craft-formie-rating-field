@@ -39,7 +39,7 @@ class FormieRatingField extends Plugin
     /**
      * @var FormieRatingField|null Singleton plugin instance
      */
-    public static FormieRatingField $plugin;
+    public static ?FormieRatingField $plugin = null;
 
     /**
      * @var string Plugin schema version for migrations
@@ -105,7 +105,7 @@ class FormieRatingField extends Plugin
 
         // Set the plugin name from settings
         $settings = $this->getSettings();
-        if ($settings && !empty($settings->pluginName)) {
+        if (!empty($settings->pluginName)) {
             $this->name = $settings->pluginName;
         }
 

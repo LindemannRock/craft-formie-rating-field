@@ -111,58 +111,78 @@ class Rating extends Field implements FieldInterface
 
         // Get plugin settings and apply defaults if properties are not set
         $plugin = FormieRatingField::$plugin;
-        if ($plugin) {
+        if ($plugin !== null) {
             $settings = $plugin->getSettings();
-            if ($settings) {
-                // Apply defaults from plugin settings only if not already set
-                if ($this->ratingType === null) {
-                    $this->ratingType = $settings->defaultRatingType ?? self::RATING_TYPE_STAR;
-                }
-                if ($this->ratingSize === null) {
-                    $this->ratingSize = $settings->defaultRatingSize ?? 'medium';
-                }
-                if ($this->minValue === null) {
-                    $this->minValue = $settings->defaultMinRating ?? 1;
-                }
-                if ($this->maxValue === null) {
-                    $this->maxValue = $settings->defaultMaxRating ?? 5;
-                }
-                if ($this->allowHalfRatings === null) {
-                    $this->allowHalfRatings = $settings->defaultAllowHalfRatings ?? false;
-                }
-                if ($this->emojiRenderMode === null) {
-                    $this->emojiRenderMode = $settings->defaultEmojiRenderMode ?? 'system';
-                }
-                if ($this->showSelectedLabel === null) {
-                    $this->showSelectedLabel = $settings->defaultShowSelectedLabel ?? false;
-                }
-                if ($this->showEndpointLabels === null) {
-                    $this->showEndpointLabels = $settings->defaultShowEndpointLabels ?? false;
-                }
-                if ($this->startLabel === null) {
-                    $this->startLabel = $settings->defaultStartLabel ?? '';
-                }
-                if ($this->endLabel === null) {
-                    $this->endLabel = $settings->defaultEndLabel ?? '';
-                }
-                if ($this->singleEmojiSelection === null) {
-                    $this->singleEmojiSelection = $settings->defaultSingleEmojiSelection ?? false;
-                }
+            // Apply defaults from plugin settings only if not already set
+            if ($this->ratingType === null) {
+                $this->ratingType = $settings->defaultRatingType;
+            }
+            if ($this->ratingSize === null) {
+                $this->ratingSize = $settings->defaultRatingSize;
+            }
+            if ($this->minValue === null) {
+                $this->minValue = $settings->defaultMinRating;
+            }
+            if ($this->maxValue === null) {
+                $this->maxValue = $settings->defaultMaxRating;
+            }
+            if ($this->allowHalfRatings === null) {
+                $this->allowHalfRatings = $settings->defaultAllowHalfRatings;
+            }
+            if ($this->emojiRenderMode === null) {
+                $this->emojiRenderMode = $settings->defaultEmojiRenderMode;
+            }
+            if ($this->showSelectedLabel === null) {
+                $this->showSelectedLabel = $settings->defaultShowSelectedLabel;
+            }
+            if ($this->showEndpointLabels === null) {
+                $this->showEndpointLabels = $settings->defaultShowEndpointLabels;
+            }
+            if ($this->startLabel === null) {
+                $this->startLabel = $settings->defaultStartLabel;
+            }
+            if ($this->endLabel === null) {
+                $this->endLabel = $settings->defaultEndLabel;
+            }
+            if ($this->singleEmojiSelection === null) {
+                $this->singleEmojiSelection = $settings->defaultSingleEmojiSelection;
             }
         }
 
         // Final fallbacks if plugin is not available
-        $this->ratingType = $this->ratingType ?? self::RATING_TYPE_STAR;
-        $this->ratingSize = $this->ratingSize ?? 'medium';
-        $this->minValue = $this->minValue ?? 1;
-        $this->maxValue = $this->maxValue ?? 5;
-        $this->allowHalfRatings = $this->allowHalfRatings ?? false;
-        $this->emojiRenderMode = $this->emojiRenderMode ?? 'system';
-        $this->showSelectedLabel = $this->showSelectedLabel ?? false;
-        $this->showEndpointLabels = $this->showEndpointLabels ?? false;
-        $this->startLabel = $this->startLabel ?? '';
-        $this->endLabel = $this->endLabel ?? '';
-        $this->singleEmojiSelection = $this->singleEmojiSelection ?? false;
+        if ($this->ratingType === null) {
+            $this->ratingType = self::RATING_TYPE_STAR;
+        }
+        if ($this->ratingSize === null) {
+            $this->ratingSize = 'medium';
+        }
+        if ($this->minValue === null) {
+            $this->minValue = 1;
+        }
+        if ($this->maxValue === null) {
+            $this->maxValue = 5;
+        }
+        if ($this->allowHalfRatings === null) {
+            $this->allowHalfRatings = false;
+        }
+        if ($this->emojiRenderMode === null) {
+            $this->emojiRenderMode = 'system';
+        }
+        if ($this->showSelectedLabel === null) {
+            $this->showSelectedLabel = false;
+        }
+        if ($this->showEndpointLabels === null) {
+            $this->showEndpointLabels = false;
+        }
+        if ($this->startLabel === null) {
+            $this->startLabel = '';
+        }
+        if ($this->endLabel === null) {
+            $this->endLabel = '';
+        }
+        if ($this->singleEmojiSelection === null) {
+            $this->singleEmojiSelection = false;
+        }
     }
 
     // Static Methods
@@ -417,7 +437,7 @@ class Rating extends Field implements FieldInterface
                 $emojis11 = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'];
                 $emojis = $count <= 5 ? $emojis5 : ($count <= 8 ? $emojis8 : $emojis11);
 
-                $mid = floor($count / 2);
+                $mid = (int)floor($count / 2);
                 for ($i = 0; $i < $count; $i++) {
                     $opacity = $i === $mid ? '1' : '0.5';
                     $emoji = $emojis[$i] ?? '😐';
@@ -427,7 +447,7 @@ class Rating extends Field implements FieldInterface
             } elseif ($ratingType == self::RATING_TYPE_NPS || $ratingType == 'nps') {
                 $html .= '<div style="display: flex; gap: 4px; align-items: center;">';
                 $max = min($maxValue, 11); // Limit to 11 for preview
-                $mid = ceil(($maxValue + $minValue) / 2);
+                $mid = (int)ceil(($maxValue + $minValue) / 2);
                 // Scale box size based on rating size
                 $boxSize = $ratingSize == 'small' ? '18px' : ($ratingSize == 'large' ? '26px' : ($ratingSize == 'xlarge' ? '32px' : '22px'));
                 $textSize = $ratingSize == 'small' ? '11px' : ($ratingSize == 'large' ? '14px' : ($ratingSize == 'xlarge' ? '16px' : '12px'));
@@ -501,24 +521,22 @@ class Rating extends Field implements FieldInterface
         ];
 
         $plugin = FormieRatingField::$plugin;
-        if ($plugin) {
+        if ($plugin !== null) {
             $settings = $plugin->getSettings();
-            if ($settings) {
-                $defaults = [
-                    'ratingType' => $settings->defaultRatingType ?? self::RATING_TYPE_STAR,
-                    'ratingSize' => $settings->defaultRatingSize ?? 'medium',
-                    'minValue' => $settings->defaultMinRating ?? 1,
-                    'maxValue' => $settings->defaultMaxRating ?? 5,
-                    'allowHalfRatings' => $settings->defaultAllowHalfRatings ?? false,
-                    'emojiRenderMode' => $settings->defaultEmojiRenderMode ?? 'system',
-                    'showSelectedLabel' => $settings->defaultShowSelectedLabel ?? false,
-                    'showEndpointLabels' => $settings->defaultShowEndpointLabels ?? false,
-                    'customLabels' => [],
-                    'startLabel' => $settings->defaultStartLabel ?? '',
-                    'endLabel' => $settings->defaultEndLabel ?? '',
-                    'singleEmojiSelection' => $settings->defaultSingleEmojiSelection ?? false,
-                ];
-            }
+            $defaults = [
+                'ratingType' => $settings->defaultRatingType,
+                'ratingSize' => $settings->defaultRatingSize,
+                'minValue' => $settings->defaultMinRating,
+                'maxValue' => $settings->defaultMaxRating,
+                'allowHalfRatings' => $settings->defaultAllowHalfRatings,
+                'emojiRenderMode' => $settings->defaultEmojiRenderMode,
+                'showSelectedLabel' => $settings->defaultShowSelectedLabel,
+                'showEndpointLabels' => $settings->defaultShowEndpointLabels,
+                'customLabels' => [],
+                'startLabel' => $settings->defaultStartLabel,
+                'endLabel' => $settings->defaultEndLabel,
+                'singleEmojiSelection' => $settings->defaultSingleEmojiSelection,
+            ];
         }
 
         return $defaults;
