@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.2.0...v3.3.0) (2025-12-08)
+
+
+### Features
+
+* add PHPStan and EasyCodingStandard configurations, update Rating field integration ([b9dcdbd](https://github.com/LindemannRock/craft-formie-rating-field/commit/b9dcdbd6ac32778c7b76c6608355805c8730e4b0))
+* add statistics and Twig extension for Formie Rating Field ([a3187f2](https://github.com/LindemannRock/craft-formie-rating-field/commit/a3187f279659a48d4692a323402829f9cb2a59b5))
+
+
+### Bug Fixes
+
+* improve null checks and default settings handling in Rating field ([0b8b8af](https://github.com/LindemannRock/craft-formie-rating-field/commit/0b8b8af973802f94c51615bc2b4833a9658daafc))
+
+
+### Miscellaneous Chores
+
+* update config.php documentation for clarity ([0479024](https://github.com/LindemannRock/craft-formie-rating-field/commit/0479024c7984218b1d13ce03c8fd48ab3facad89))
+
 ## [3.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.2...v3.2.0) (2025-11-25)
 
 
