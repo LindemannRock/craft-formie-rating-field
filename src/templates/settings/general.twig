@@ -1,0 +1,219 @@
+{% extends "formie-rating-field/_layouts/settings" %}
+{% set title = "General Settings"|t('formie-rating-field') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'general' %}
+
+{% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
+{% set crumbs = [
+    {
+        label: ratingHelper.fullName|t('formie-rating-field'),
+        url: url('formie-rating-field'),
+    },
+    {
+        label: 'Settings'|t('formie-rating-field'),
+        url: url('formie-rating-field/settings'),
+    },
+    {
+        label: 'General'|t('formie-rating-field'),
+        url: url('formie-rating-field/settings/general'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+<form method="post" accept-charset="UTF-8">
+    {{ actionInput('formie-rating-field/settings/save') }}
+    {{ csrfInput() }}
+    {{ redirectInput('formie-rating-field/settings/general') }}
+    {{ hiddenInput('section', 'general') }}
+
+<fieldset style="margin-top: 0;">
+	<h2>{{ 'General Settings'|t('formie-rating-field') }}</h2>
+
+	{{ forms.textField({
+        label: 'Plugin Name'|t('formie-rating-field'),
+        instructions: 'The public-facing name of the plugin'|t('formie-rating-field'),
+        id: 'pluginName',
+        name: 'settings[pluginName]',
+        value: settings.pluginName ?? 'Formie Rating Field',
+        placeholder: 'Formie Rating Field',
+        warning: settings.isOverriddenByConfig('pluginName') ?
+            "This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('pluginName')
+    }) }}
+</fieldset>
+
+<hr>
+
+<fieldset>
+	<h2>{{ 'Default Field Settings'|t('formie-rating-field') }}</h2>
+	<p class="light">{{ 'These settings will be used as defaults when creating new rating fields.'|t('formie-rating-field') }}</p>
+
+	{{ forms.selectField({
+        label: 'Default Rating Type'|t('formie-rating-field'),
+        instructions: 'The default rating type for new rating fields'|t('formie-rating-field'),
+        id: 'defaultRatingType',
+        name: 'settings[defaultRatingType]',
+        value: settings.defaultRatingType ?? 'star',
+        options: [
+            { value: 'star', label: '⭐ Stars'|t('formie-rating-field') },
+            { value: 'emoji', label: '😊 Emojis (1-5 scale with expressions)'|t('formie-rating-field') },
+            { value: 'nps', label: '📊 NPS (Net Promoter Score, 0-10)'|t('formie-rating-field') }
+        ],
+        warning: settings.isOverriddenByConfig('defaultRatingType') ?
+            "This is being overridden by the <code>defaultRatingType</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultRatingType')
+    }) }}
+
+	{{ forms.selectField({
+        label: 'Default Emoji Render Mode'|t('formie-rating-field'),
+        instructions: 'The default emoji render mode for new emoji rating fields'|t('formie-rating-field'),
+        id: 'defaultEmojiRenderMode',
+        name: 'settings[defaultEmojiRenderMode]',
+        value: settings.defaultEmojiRenderMode ?? 'system',
+        options: [
+            { value: 'system', label: 'System Emojis (Native platform emojis)'|t('formie-rating-field') },
+            { value: 'noto-color', label: 'Noto Color Emoji (Detailed, colorful style)'|t('formie-rating-field') },
+            { value: 'noto-simple', label: 'Noto Emoji (Simple, clean style)'|t('formie-rating-field') }
+        ],
+        warning: settings.isOverriddenByConfig('defaultEmojiRenderMode') ?
+            "This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultEmojiRenderMode')
+    }) }}
+
+	{{ forms.selectField({
+        label: 'Default Rating Size'|t('formie-rating-field'),
+        instructions: 'The default size for rating icons'|t('formie-rating-field'),
+        id: 'defaultRatingSize',
+        name: 'settings[defaultRatingSize]',
+        value: settings.defaultRatingSize ?? 'medium',
+        options: [
+            { value: 'small', label: 'Small'|t('formie-rating-field') },
+            { value: 'medium', label: 'Medium'|t('formie-rating-field') },
+            { value: 'large', label: 'Large'|t('formie-rating-field') },
+            { value: 'xlarge', label: 'Extra Large'|t('formie-rating-field') }
+        ],
+        warning: settings.isOverriddenByConfig('defaultRatingSize') ?
+            "This is being overridden by the <code>defaultRatingSize</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultRatingSize')
+    }) }}
+
+	<div class="field">
+		<div class="heading">
+			<label>{{ 'Rating Range'|t('formie-rating-field') }}</label>
+			<div class="instructions">
+				<p>{{ 'The default minimum and maximum values for rating fields'|t('formie-rating-field') }}</p>
+			</div>
+		</div>
+		<div class="flex" style="gap: 1rem;">
+			{{ forms.selectField({
+                label: 'Min'|t('formie-rating-field'),
+                id: 'defaultMinRating',
+                name: 'settings[defaultMinRating]',
+                value: settings.defaultMinRating ?? 1,
+                options: [
+                    { value: 0, label: '0' },
+                    { value: 1, label: '1' }
+                ],
+                width: 25,
+                warning: settings.isOverriddenByConfig('defaultMinRating') ?
+                    "This is being overridden by the <code>defaultMinRating</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+                disabled: settings.isOverriddenByConfig('defaultMinRating')
+            }) }}
+
+			{{ forms.selectField({
+                label: 'Max'|t('formie-rating-field'),
+                id: 'defaultMaxRating',
+                name: 'settings[defaultMaxRating]',
+                value: settings.defaultMaxRating ?? 5,
+                options: [
+                    { value: 3, label: '3' },
+                    { value: 4, label: '4' },
+                    { value: 5, label: '5' },
+                    { value: 6, label: '6' },
+                    { value: 7, label: '7' },
+                    { value: 8, label: '8' },
+                    { value: 9, label: '9' },
+                    { value: 10, label: '10' }
+                ],
+                width: 25,
+                warning: settings.isOverriddenByConfig('defaultMaxRating') ?
+                    "This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+                disabled: settings.isOverriddenByConfig('defaultMaxRating')
+            }) }}
+		</div>
+	</div>
+
+	{{ forms.lightswitchField({
+        label: 'Allow Half Ratings'|t('formie-rating-field'),
+        instructions: 'Enable half-star ratings by default (star type only)'|t('formie-rating-field'),
+        id: 'defaultAllowHalfRatings',
+        name: 'settings[defaultAllowHalfRatings]',
+        on: settings.defaultAllowHalfRatings ?? false,
+        warning: settings.isOverriddenByConfig('defaultAllowHalfRatings') ?
+            "This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultAllowHalfRatings')
+    }) }}
+</fieldset>
+
+<hr>
+
+<fieldset>
+	<h2>{{ 'Label Settings'|t('formie-rating-field') }}</h2>
+
+	{{ forms.lightswitchField({
+        label: 'Show Selected Label'|t('formie-rating-field'),
+        instructions: 'Display the selected rating value as a label by default'|t('formie-rating-field'),
+        id: 'defaultShowSelectedLabel',
+        name: 'settings[defaultShowSelectedLabel]',
+        on: settings.defaultShowSelectedLabel ?? false,
+        warning: settings.isOverriddenByConfig('defaultShowSelectedLabel') ?
+            "This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultShowSelectedLabel')
+    }) }}
+
+	{{ forms.lightswitchField({
+        label: 'Show Endpoint Labels'|t('formie-rating-field'),
+        instructions: 'Display start and end labels by default'|t('formie-rating-field'),
+        id: 'defaultShowEndpointLabels',
+        name: 'settings[defaultShowEndpointLabels]',
+        on: settings.defaultShowEndpointLabels ?? false,
+        warning: settings.isOverriddenByConfig('defaultShowEndpointLabels') ?
+            "This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultShowEndpointLabels')
+    }) }}
+
+	{{ forms.textField({
+        label: 'Default Start Label'|t('formie-rating-field'),
+        instructions: 'Default text for the start endpoint label (e.g., "Poor", "Not Likely")'|t('formie-rating-field'),
+        id: 'defaultStartLabel',
+        name: 'settings[defaultStartLabel]',
+        value: settings.defaultStartLabel ?? '',
+        placeholder: 'e.g., Poor',
+        warning: settings.isOverriddenByConfig('defaultStartLabel') ?
+            "This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultStartLabel')
+    }) }}
+
+	{{ forms.textField({
+        label: 'Default End Label'|t('formie-rating-field'),
+        instructions: 'Default text for the end endpoint label (e.g., "Excellent", "Very Likely")'|t('formie-rating-field'),
+        id: 'defaultEndLabel',
+        name: 'settings[defaultEndLabel]',
+        value: settings.defaultEndLabel ?? '',
+        placeholder: 'e.g., Excellent',
+        warning: settings.isOverriddenByConfig('defaultEndLabel') ?
+            "This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultEndLabel')
+    }) }}
+</fieldset>
+
+<div class="buttons">
+    <button type="submit" class="btn submit">{{ "Save Settings"|t('formie-rating-field') }}</button>
+</div>
+</form>
+
+{% include 'formie-rating-field/_components/plugin-credit.twig' %}
+{% endblock %}

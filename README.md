@@ -37,6 +37,16 @@ A Craft CMS plugin that provides advanced rating field types for Verbb's Formie 
 - RTL support for Arabic sites
 - Backward compatible with existing forms
 
+### Statistics & Analytics
+- **Comprehensive Analytics Dashboard**: View rating statistics for all forms
+- **Smart Grouping**: Group ratings by product code, name, category, or any form field
+- **Type-Aware Calculations**: Automatic NPS scoring, star/emoji averages, and distributions
+- **Performance Indicators**: Scale-aware insights (Excellent/Good/Fair/Poor) that adapt to any min/max range
+- **Date Range Filtering**: Analyze trends across today, yesterday, last 7/30/90 days, or all time
+- **CSV Export**: Export filtered data with grouping for external analysis
+- **File-Based Caching**: Fast performance with automatic cache invalidation on new submissions
+- **CLI Cache Management**: Clear cache via command line tools
+
 ## Installation
 
 ### Via Composer
@@ -106,10 +116,88 @@ return [
     'defaultStartLabel' => 'Not Likely',
     'defaultEndLabel' => 'Very Likely',
     'defaultEmojiRenderMode' => 'noto-simple',  // 'system', 'noto-color', 'noto-simple'
+    'itemsPerPage' => 50,  // Number of items per page in statistics lists
 ];
 ```
 
 See [Configuration Documentation](docs/CONFIGURATION.md) for all available options.
+
+## Statistics & Analytics
+
+The plugin includes a comprehensive analytics dashboard for analyzing rating field submissions.
+
+### Accessing Statistics
+
+Navigate to the plugin's CP section:
+1. **Forms Rating** → **Statistics** in the main navigation
+2. Select a form to view detailed statistics
+3. Use filters to refine your analysis
+
+### Key Features
+
+**Smart Grouping**
+- Group ratings by any field in your form (product code, category, hidden fields, etc.)
+- View performance breakdown for each group
+- Identify top performers and items needing attention
+
+**Date Range Filtering**
+- Filter by: Today, Yesterday, Last 7/30/90 days, or All time
+- Analyze trends over specific periods
+- Compare performance across time ranges
+
+**Performance Insights**
+- Scale-aware indicators (Excellent/Good/Fair/Poor) that adapt to any rating range
+- Reliability warnings for products with insufficient reviews (<5)
+- Visual progress bars showing relative performance
+- NPS score calculation with promoter/passive/detractor breakdown
+
+**Data Export**
+- Export filtered data to CSV
+- Grouped exports show aggregated stats per group
+- Non-grouped exports show raw submission data
+- Includes average and median values for comprehensive analysis
+
+### Analytics Views
+
+**When Not Grouped (Default)**
+- Overall statistics across all submissions
+- Distribution charts showing rating patterns
+- Summary metrics (average, median, mode)
+
+**When Grouped by Field**
+- Summary cards showing total groups, overall average, top/bottom performers
+- Detailed table with performance indicators for each group
+- Searchable list supporting 600+ items
+- Show top 10 by default with "Show All" option
+
+### CLI Commands
+
+Manage statistics cache via command line:
+
+```bash
+# Clear all statistics cache
+php craft formie-rating-field/cache/clear
+
+# Clear cache for specific form
+php craft formie-rating-field/cache/clear-form --formId=34
+
+# View cache information
+php craft formie-rating-field/cache/info
+```
+
+Or with DDEV:
+
+```bash
+ddev craft formie-rating-field/cache/clear
+ddev craft formie-rating-field/cache/info
+```
+
+### Cache Behavior
+
+- **Location**: `storage/runtime/formie-rating-field/cache/statistics/`
+- **Invalidation**: Automatic on submission save/delete
+- **Manual Refresh**: Use CLI commands or "Refresh" button in CP
+- **No TTL**: Cache persists until invalidated (optimal performance)
 
 ## Usage
 
@@ -183,8 +271,8 @@ query {
 | **Rating Type** | Visual style of the rating | `star`, `emoji`, `nps` |
 | **Emoji Render Mode** | How emojis are displayed | `system`, `noto-color`, `noto-simple` (emoji only) |
 | **Size** | Visual size of rating elements | `small`, `medium`, `large`, `xlarge` |
-| **Min Value** | Minimum rating value | 0-10 |
-| **Max Value** | Maximum rating value | 1-10 |
+| **Min Value** | Minimum rating value | 0-1 (NPS is always 0) |
+| **Max Value** | Maximum rating value | 3-10 (NPS is always 10) |
 | **Allow Half Ratings** | Enable half-star selections | true/false (star only) |
 | **Single Emoji Selection** | Highlight only selected emoji (not cumulative) | true/false (emoji only) |
 | **Custom Labels** | Define text labels for each rating value | Table with Value/Label pairs |
@@ -201,29 +289,57 @@ For custom CSS styling options and examples, see [CSS Customization Guide](docs/
 ```
 plugins/formie-rating-field/
 ├── docs/
-│   ├── CONFIGURATION.md            # Configuration guide
-│   └── CSS_CUSTOMIZATION.md        # CSS customization guide
+│   ├── CONFIGURATION.md                   # Configuration guide
+│   └── CSS_CUSTOMIZATION.md               # CSS customization guide
 ├── src/
+│   ├── console/
+│   │   └── controllers/
+│   │       └── CacheController.php        # CLI cache management
+│   ├── controllers/
+│   │   ├── StatisticsController.php       # Statistics & analytics
+│   │   └── SettingsController.php         # Settings pages
 │   ├── fields/
-│   │   └── Rating.php              # Main field class
+│   │   └── Rating.php                     # Main field class
+│   ├── integrations/
+│   │   └── feedme/
+│   │       └── fields/
+│   │           └── Rating.php             # Feed Me integration
 │   ├── models/
-│   │   └── Settings.php            # Plugin settings model
+│   │   └── Settings.php                   # Plugin settings model
+│   ├── services/
+│   │   └── StatisticsService.php          # Statistics calculations
 │   ├── templates/
+│   │   ├── _components/
+│   │   │   └── plugin-credit.twig
+│   │   ├── _layouts/
+│   │   │   └── settings.twig              # Settings layout with sidebar
 │   │   ├── fields/
 │   │   │   └── rating/
-│   │   │       ├── input.twig      # Field input template
-│   │   │       └── preview.twig    # CP preview template
-│   │   └── settings.twig           # Plugin settings template
+│   │   │       ├── input.twig             # Field input template
+│   │   │       ├── value.twig             # Value display
+│   │   │       └── email.twig             # Email template
+│   │   ├── settings/
+│   │   │   ├── general.twig               # General settings tab
+│   │   │   └── interface.twig             # Interface settings tab
+│   │   ├── statistics/
+│   │   │   ├── index.twig                 # Forms list
+│   │   │   └── form.twig                  # Form statistics detail
+│   │   ├── settings.twig                  # Settings redirect
+│   │   └── index.twig                     # Plugin index redirect
+│   ├── twigextensions/
+│   │   └── PluginNameExtension.php        # Twig helper (ratingHelper)
 │   ├── web/
 │   │   └── assets/
 │   │       └── field/
-│   │           └── RatingFieldAsset.php
-│   ├── icon.svg                    # Plugin icon
-│   └── FormieRatingField.php       # Main plugin class
+│   │           ├── RatingFieldAsset.php
+│   │           ├── rating.css
+│   │           └── rating.js
+│   ├── config.php                         # Config file template
+│   ├── icon.svg                           # Plugin icon
+│   └── FormieRatingField.php              # Main plugin class
 ├── CHANGELOG.md
 ├── LICENSE.md
 ├── README.md
-├── TODO.md
 └── composer.json
 ```
 

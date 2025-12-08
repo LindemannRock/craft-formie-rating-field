@@ -98,6 +98,12 @@ return [
         // Default label configuration
 
         /**
+         * Show selected value label by default
+         * Displays the selected rating value as text label
+         */
+        'defaultShowSelectedLabel' => false,
+
+        /**
          * Show endpoint labels by default
          * Displays descriptive text at the start/end of the rating scale
          */
@@ -116,6 +122,19 @@ return [
          * Examples: 'Excellent', 'Very Likely', 'Strongly Agree'
          */
         'defaultEndLabel' => '',
+
+
+        // ========================================
+        // INTERFACE SETTINGS
+        // ========================================
+        // Control Panel interface preferences
+
+        /**
+         * Number of items to display per page in statistics lists
+         * Range: 10-500
+         * Default: 50
+         */
+        'itemsPerPage' => 50,
     ],
 
     // Dev environment settings

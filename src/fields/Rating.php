@@ -156,11 +156,19 @@ class Rating extends Field implements FieldInterface
         if ($this->ratingSize === null) {
             $this->ratingSize = 'medium';
         }
-        if ($this->minValue === null) {
-            $this->minValue = 1;
-        }
-        if ($this->maxValue === null) {
-            $this->maxValue = 5;
+
+        // Enforce NPS scale (must always be 0-10)
+        if ($this->ratingType === self::RATING_TYPE_NPS) {
+            $this->minValue = 0;
+            $this->maxValue = 10;
+        } else {
+            // For non-NPS types, use defaults
+            if ($this->minValue === null) {
+                $this->minValue = 1;
+            }
+            if ($this->maxValue === null) {
+                $this->maxValue = 5;
+            }
         }
         if ($this->allowHalfRatings === null) {
             $this->allowHalfRatings = false;
@@ -717,16 +725,17 @@ class Rating extends Field implements FieldInterface
             ]),
             SchemaHelper::selectField([
                 'label' => Craft::t('formie', 'Minimum Value'),
-                'help' => Craft::t('formie', 'Set the minimum rating value.'),
+                'help' => Craft::t('formie', 'Set the minimum rating value. NPS is always 0-10.'),
                 'name' => 'minValue',
                 'options' => [
                     ['label' => '0', 'value' => 0],
                     ['label' => '1', 'value' => 1],
                 ],
+                'if' => '$get(ratingType).value != nps',
             ]),
             SchemaHelper::selectField([
                 'label' => Craft::t('formie', 'Maximum Value'),
-                'help' => Craft::t('formie', 'Set the maximum rating value.'),
+                'help' => Craft::t('formie', 'Set the maximum rating value. NPS is always 0-10.'),
                 'name' => 'maxValue',
                 'options' => [
                     ['label' => '3', 'value' => 3],
@@ -738,6 +747,7 @@ class Rating extends Field implements FieldInterface
                     ['label' => '9', 'value' => 9],
                     ['label' => '10', 'value' => 10],
                 ],
+                'if' => '$get(ratingType).value != nps',
             ]),
             SchemaHelper::lightswitchField([
                 'label' => Craft::t('formie', 'Allow Half Ratings'),

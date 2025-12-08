@@ -13,13 +13,18 @@ namespace lindemannrock\formieratingfield;
 use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
+use craft\console\Application as ConsoleApplication;
 use craft\events\RegisterTemplateRootsEvent;
+use craft\events\RegisterUrlRulesEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
+use craft\web\UrlManager;
 use craft\web\View;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
 use lindemannrock\formieratingfield\models\Settings;
+use lindemannrock\formieratingfield\services\StatisticsService;
+use verbb\formie\elements\Submission;
 use verbb\formie\events\RegisterFieldsEvent;
 use verbb\formie\services\Fields;
 use yii\base\Event;
@@ -32,6 +37,7 @@ use yii\base\Event;
  * @since     1.0.0
  *
  * @property-read Settings $settings
+ * @property-read StatisticsService $statistics
  * @method Settings getSettings()
  */
 class FormieRatingField extends Plugin
@@ -52,6 +58,11 @@ class FormieRatingField extends Plugin
     public bool $hasCpSettings = true;
 
     /**
+     * @var bool Whether the plugin has its own CP section
+     */
+    public bool $hasCpSection = true;
+
+    /**
      * @inheritdoc
      */
     public function init(): void
@@ -61,7 +72,17 @@ class FormieRatingField extends Plugin
 
         // Set the alias for this module
         Craft::setAlias('@lindemannrock/formieratingfield', __DIR__);
-        
+
+        // Register services
+        $this->setComponents([
+            'statistics' => StatisticsService::class,
+        ]);
+
+        // Register console commands
+        if (Craft::$app instanceof ConsoleApplication) {
+            $this->controllerNamespace = 'lindemannrock\\formieratingfield\\console\\controllers';
+        }
+
         // Class alias removed - using direct namespace
         
         // Register view paths for Formie
@@ -74,7 +95,7 @@ class FormieRatingField extends Plugin
                 }
             );
         }
-        
+
         Event::on(
             View::class,
             View::EVENT_REGISTER_CP_TEMPLATE_ROOTS,
@@ -82,6 +103,9 @@ class FormieRatingField extends Plugin
                 $event->roots['formie-rating-field'] = __DIR__ . '/templates';
             }
         );
+
+        // Register Twig extension for ratingHelper
+        Craft::$app->view->registerTwigExtension(new \lindemannrock\formieratingfield\twigextensions\PluginNameExtension());
 
         // Register our field
         Event::on(
@@ -102,6 +126,50 @@ class FormieRatingField extends Plugin
                 }
             );
         }
+
+        // Register CP URL rules
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_CP_URL_RULES,
+            function(RegisterUrlRulesEvent $event) {
+                $event->rules['formie-rating-field'] = 'formie-rating-field/statistics/index';
+                $event->rules['formie-rating-field/statistics'] = 'formie-rating-field/statistics/index';
+                $event->rules['formie-rating-field/statistics/form/<formId:\d+>'] = 'formie-rating-field/statistics/form';
+                $event->rules['formie-rating-field/settings'] = 'formie-rating-field/settings/index';
+                $event->rules['formie-rating-field/settings/general'] = 'formie-rating-field/settings/general';
+                $event->rules['formie-rating-field/settings/interface'] = 'formie-rating-field/settings/interface';
+            }
+        );
+
+        // Invalidate statistics cache when submissions are saved
+        Event::on(
+            Submission::class,
+            Submission::EVENT_AFTER_SAVE,
+            function(Event $event) {
+                /** @var Submission $submission */
+                $submission = $event->sender;
+
+                // Clear cache for this form's statistics
+                if ($submission->formId) {
+                    $this->get('statistics')->clearCacheForForm($submission->formId);
+                }
+            }
+        );
+
+        // Invalidate statistics cache when submissions are deleted
+        Event::on(
+            Submission::class,
+            Submission::EVENT_AFTER_DELETE,
+            function(Event $event) {
+                /** @var Submission $submission */
+                $submission = $event->sender;
+
+                // Clear cache for this form's statistics
+                if ($submission->formId) {
+                    $this->get('statistics')->clearCacheForForm($submission->formId);
+                }
+            }
+        );
 
         // Set the plugin name from settings
         $settings = $this->getSettings();
@@ -127,14 +195,34 @@ class FormieRatingField extends Plugin
     /**
      * @inheritdoc
      */
-    protected function settingsHtml(): ?string
+    public function getSettingsResponse(): mixed
     {
-        return Craft::$app->view->renderTemplate(
-            'formie-rating-field/settings',
-            [
-                'settings' => $this->getSettings(),
-                'plugin' => $this,
-            ]
-        );
+        return Craft::$app->controller->redirect('formie-rating-field/settings');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCpNavItem(): ?array
+    {
+        $item = parent::getCpNavItem();
+
+        if ($item) {
+            $item['label'] = $this->getSettings()->getFullName();
+            $item['icon'] = '@appicons/star.svg';
+
+            $item['subnav'] = [
+                'statistics' => [
+                    'label' => Craft::t('formie-rating-field', 'Statistics'),
+                    'url' => 'formie-rating-field/statistics',
+                ],
+                'settings' => [
+                    'label' => Craft::t('formie-rating-field', 'Settings'),
+                    'url' => 'formie-rating-field/settings',
+                ],
+            ];
+        }
+
+        return $item;
     }
 }

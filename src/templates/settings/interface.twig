@@ -1,0 +1,58 @@
+{% set title = "Interface Settings"|t('formie-rating-field') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'interface' %}
+
+{% extends "formie-rating-field/_layouts/settings" %}
+
+{% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
+{% set crumbs = [
+    {
+        label: plugin.name|t('formie-rating-field'),
+        url: url('formie-rating-field'),
+    },
+    {
+        label: 'Settings'|t('formie-rating-field'),
+        url: url('formie-rating-field/settings'),
+    },
+    {
+        label: 'Interface'|t('formie-rating-field'),
+        url: url('formie-rating-field/settings/interface'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+<form method="post" accept-charset="UTF-8">
+    {{ actionInput('formie-rating-field/settings/save') }}
+    {{ csrfInput() }}
+    {{ redirectInput('formie-rating-field/settings/interface') }}
+    {{ hiddenInput('section', 'interface') }}
+
+<fieldset style="margin-top: 0;">
+	<h2>{{ 'Interface Settings'|t('formie-rating-field') }}</h2>
+
+	{{ forms.textField({
+        label: 'Items Per Page'|t('formie-rating-field'),
+        instructions: 'Number of items to display per page in statistics lists'|t('formie-rating-field'),
+        id: 'itemsPerPage',
+        name: 'settings[itemsPerPage]',
+        type: 'number',
+        value: settings.itemsPerPage ?? 50,
+        min: 10,
+        max: 500,
+        required: true,
+        disabled: settings.isOverriddenByConfig('itemsPerPage'),
+        warning: settings.isOverriddenByConfig('itemsPerPage') ?
+            "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        errors: settings.getErrors('itemsPerPage')
+    }) }}
+</fieldset>
+
+<div class="buttons">
+    <button type="submit" class="btn submit">{{ "Save Settings"|t('formie-rating-field') }}</button>
+</div>
+</form>
+
+{% include 'formie-rating-field/_components/plugin-credit.twig' %}
+{% endblock %}

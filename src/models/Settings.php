@@ -23,7 +23,7 @@ class Settings extends Model
     /**
      * @var string|null The public-facing name of the plugin
      */
-    public ?string $pluginName = 'Formie Rating Field';
+    public ?string $pluginName = 'Formie Rating';
 
     /**
      * @var string Default rating type (star, emoji, nps)
@@ -81,6 +81,11 @@ class Settings extends Model
     public bool $defaultSingleEmojiSelection = false;
 
     /**
+     * @var int Number of items to display per page in lists
+     */
+    public int $itemsPerPage = 50;
+
+    /**
      * @inheritdoc
      */
     public function defineRules(): array
@@ -89,6 +94,7 @@ class Settings extends Model
             [['pluginName', 'defaultRatingType', 'defaultRatingSize', 'defaultStartLabel', 'defaultEndLabel'], 'string'],
             [['defaultMinRating'], 'integer', 'min' => 0, 'max' => 1],
             [['defaultMaxRating'], 'integer', 'min' => 3, 'max' => 10],
+            [['itemsPerPage'], 'integer', 'min' => 10, 'max' => 500],
             [['defaultAllowHalfRatings', 'defaultShowSelectedLabel', 'defaultShowEndpointLabels', 'defaultSingleEmojiSelection'], 'boolean'],
             [['defaultRatingType'], 'in', 'range' => ['star', 'emoji', 'nps']],
             [['defaultRatingSize'], 'in', 'range' => ['small', 'medium', 'large', 'xlarge']],
@@ -116,6 +122,7 @@ class Settings extends Model
             'defaultEndLabel' => Craft::t('formie-rating-field', 'Default End Label'),
             'defaultEmojiRenderMode' => Craft::t('formie-rating-field', 'Default Emoji Render Mode'),
             'defaultSingleEmojiSelection' => Craft::t('formie-rating-field', 'Single Emoji Selection by Default'),
+            'itemsPerPage' => Craft::t('formie-rating-field', 'Items Per Page'),
         ];
     }
 
@@ -129,5 +136,84 @@ class Settings extends Model
     {
         $configFileSettings = Craft::$app->getConfig()->getConfigFromFile('formie-rating-field');
         return isset($configFileSettings[$setting]);
+    }
+
+    /**
+     * Get display name (singular, without "Field")
+     *
+     * Strips "Field" and singularizes the plugin name for use in UI labels.
+     * E.g., "Formie Rating Field" → "Rating", "Rating Fields" → "Rating"
+     *
+     * @return string
+     */
+    public function getDisplayName(): string
+    {
+        // Strip "Field" or "field" from the name
+        $name = str_replace([' Field', ' field'], '', $this->pluginName);
+
+        // Singularize by removing trailing 's' if present
+        $singular = preg_replace('/s$/', '', $name) ?: $name;
+
+        return $singular;
+    }
+
+    /**
+     * Get full plugin name (as configured, with "Field" if present)
+     *
+     * Returns the plugin name exactly as configured in settings.
+     * E.g., "Formie Rating Field", "Rating Fields", etc.
+     *
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->pluginName;
+    }
+
+    /**
+     * Get plural display name (without "Field")
+     *
+     * Strips "Field" from the plugin name but keeps plural form.
+     * E.g., "Formie Rating Field" → "Ratings", "Rating Fields" → "Ratings"
+     *
+     * @return string
+     */
+    public function getPluralDisplayName(): string
+    {
+        // Strip "Field" or "field" from the name
+        $name = str_replace([' Field', ' field'], '', $this->pluginName);
+
+        // Ensure it's plural by adding 's' if not present
+        if (!preg_match('/s$/i', $name)) {
+            $name .= 's';
+        }
+
+        return $name;
+    }
+
+    /**
+     * Get lowercase display name (singular, without "Field")
+     *
+     * Lowercase version of getDisplayName() for use in messages, handles, etc.
+     * E.g., "Formie Rating Field" → "rating", "Rating Fields" → "rating"
+     *
+     * @return string
+     */
+    public function getLowerDisplayName(): string
+    {
+        return strtolower($this->getDisplayName());
+    }
+
+    /**
+     * Get lowercase plural display name (without "Field")
+     *
+     * Lowercase version of getPluralDisplayName() for use in messages, handles, etc.
+     * E.g., "Formie Rating Field" → "ratings", "Rating Fields" → "ratings"
+     *
+     * @return string
+     */
+    public function getPluralLowerDisplayName(): string
+    {
+        return strtolower($this->getPluralDisplayName());
     }
 }
