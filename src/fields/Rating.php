@@ -144,6 +144,11 @@ class Rating extends Field implements FieldInterface
      */
     public $googleReviewUrl;
 
+    /**
+     * @var string Button alignment (start, center, end)
+     */
+    public $googleReviewButtonAlign;
+
     // Public Methods
     // =========================================================================
 
@@ -227,6 +232,9 @@ class Rating extends Field implements FieldInterface
         }
         if ($this->googleReviewUrl === null) {
             $this->googleReviewUrl = '';
+        }
+        if ($this->googleReviewButtonAlign === null) {
+            $this->googleReviewButtonAlign = 'start';
         }
 
         // Enforce NPS scale (must always be 0-10)
@@ -935,6 +943,18 @@ class Rating extends Field implements FieldInterface
                 'placeholder' => 'Review on Google',
                 'if' => '$get(enableGoogleReview).value',
             ]),
+            SchemaHelper::selectField([
+                'label' => Craft::t('formie-rating-field', 'Button Alignment'),
+                'help' => Craft::t('formie-rating-field', 'How to align the review button.'),
+                'name' => 'googleReviewButtonAlign',
+                'options' => [
+                    ['label' => Craft::t('formie-rating-field', 'Start'), 'value' => 'start'],
+                    ['label' => Craft::t('formie-rating-field', 'Center'), 'value' => 'center'],
+                    ['label' => Craft::t('formie-rating-field', 'End'), 'value' => 'end'],
+                ],
+                'value' => 'start',
+                'if' => '$get(enableGoogleReview).value',
+            ]),
             SchemaHelper::includeInEmailField(),
         ];
     }
@@ -1002,6 +1022,7 @@ class Rating extends Field implements FieldInterface
         $attributes[] = 'googleReviewButtonLabel';
         $attributes[] = 'googleReviewButtonClass';
         $attributes[] = 'googleReviewUrl';
+        $attributes[] = 'googleReviewButtonAlign';
 
         return $attributes;
     }
@@ -1097,6 +1118,14 @@ class Rating extends Field implements FieldInterface
         $messageLow = $this->googleReviewMessageLow ?: 'Thank you for your feedback. We will use it to improve our service.';
         $buttonLabel = $this->googleReviewButtonLabel ?: 'Review on Google';
         $reviewUrl = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
+        $buttonAlign = $this->googleReviewButtonAlign ?: 'start';
+
+        // Map alignment to CSS class
+        $alignClass = match ($buttonAlign) {
+            'center' => 'text-center',
+            'end' => 'text-end',
+            default => 'text-start',
+        };
 
         // Translate (whatever text is entered gets translated through Formie's category)
         $messageHigh = Craft::t('formie', $messageHigh);
@@ -1110,14 +1139,12 @@ class Rating extends Field implements FieldInterface
         $messageLow = addslashes($messageLow);
         $buttonLabel = addslashes($buttonLabel);
         $reviewUrl = addslashes($reviewUrl);
+        $alignClass = addslashes($alignClass);
 
         return <<<JS
 (function() {
-    console.log('Google Review JS loaded for field: {$fieldHandle}');
-
     document.addEventListener('onFormieInit', function(event) {
         const \$form = event.detail.\$form;
-        console.log('Google Review - Form initialized');
 
         let capturedRating = 0;
         let capturedPlaceId = '';
@@ -1128,10 +1155,6 @@ class Rating extends Field implements FieldInterface
 
             capturedRating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
             capturedPlaceId = placeIdInput ? placeIdInput.value : '';
-
-            console.log('Google Review - Captured rating:', capturedRating, 'PlaceID:', capturedPlaceId);
-            console.log('Google Review - PlaceID input found:', placeIdInput);
-            console.log('Google Review - Rating select found:', ratingSelect);
         });
 
         \$form.addEventListener('onAfterFormieSubmit', function() {
@@ -1141,10 +1164,6 @@ class Rating extends Field implements FieldInterface
                 if (!successMessage) {
                     return;
                 }
-
-                console.log('Google Review - Evaluating: rating >= {$threshold}?', capturedRating >= {$threshold});
-                console.log('Google Review - Has PlaceID?', !!capturedPlaceId);
-                console.log('Google Review - Both conditions?', capturedRating >= {$threshold} && capturedPlaceId);
 
                 if (capturedRating >= {$threshold} && capturedPlaceId) {
                     // Get Formie's submit button classes from the form
@@ -1156,7 +1175,7 @@ class Rating extends Field implements FieldInterface
 
                     successMessage.innerHTML = `
                         <p>{$messageHigh}</p>
-                        <p style="margin-top: 16px;">
+                        <p class="{$alignClass}" style="margin-top: 16px;">
                             <a href="\${reviewUrl}"
                                target="_blank"
                                class="\${btnClasses}">
