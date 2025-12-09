@@ -1122,11 +1122,6 @@ class Rating extends Field implements FieldInterface
 
             capturedRating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
             capturedPlaceId = placeIdInput ? placeIdInput.value : '';
-
-            // FOR TESTING: Use dummy PlaceID if empty
-            if (!capturedPlaceId) {
-                capturedPlaceId = 'ChIJN1t_tDeuEmsRUsoyG83frY4';
-            }
         });
 
         \$form.addEventListener('onAfterFormieSubmit', function() {
