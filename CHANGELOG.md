@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.3.0...v3.4.0) (2025-12-09)
+
+
+### Features
+
+* enhance Formie Rating Field with cache clearing option and loading indicators for charts ([7997bbc](https://github.com/LindemannRock/craft-formie-rating-field/commit/7997bbca8cd8f804e9257bb76ff3a731228d6ac6))
+
 ## [3.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.2.0...v3.3.0) (2025-12-08)
 
 
