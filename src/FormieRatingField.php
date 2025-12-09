@@ -14,10 +14,12 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
+use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
+use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\View;
 use lindemannrock\formieratingfield\fields\Rating;
@@ -106,6 +108,24 @@ class FormieRatingField extends Plugin
 
         // Register Twig extension for ratingHelper
         Craft::$app->view->registerTwigExtension(new \lindemannrock\formieratingfield\twigextensions\PluginNameExtension());
+
+        // Register cache clearing option in utilities
+        Event::on(
+            ClearCaches::class,
+            ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
+            function(RegisterCacheOptionsEvent $event) {
+                $settings = $this->getSettings();
+                $event->options[] = [
+                    'key' => 'formie-rating-cache',
+                    'label' => Craft::t('formie-rating-field', '{pluginName} Cache', [
+                        'pluginName' => $settings->getDisplayName(),
+                    ]),
+                    'action' => function() {
+                        $this->get('statistics')->clearAllCache();
+                    },
+                ];
+            }
+        );
 
         // Register our field
         Event::on(

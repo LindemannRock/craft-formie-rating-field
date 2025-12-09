@@ -1,8 +1,8 @@
 <?php
 /**
- * Formie Rating Field config.php
+ * Formie Rating config.php
  *
- * This file exists only as a template for the Formie Rating Field settings.
+ * This file exists only as a template for the Formie Rating settings.
  * It does nothing on its own.
  *
  * Don't edit this file, instead copy it to 'craft/config' as 'formie-rating-field.php'
@@ -25,9 +25,9 @@ return [
 
         /**
          * Plugin name shown in Control Panel (optional)
-         * Usually set via Settings → Plugins → Formie Rating Field instead.
+         * Usually set via Settings → Formie Rating instead.
          */
-        // 'pluginName' => 'Custom Rating Field Name',
+        // 'pluginName' => 'Custom Rating Name',
 
 
         // ========================================

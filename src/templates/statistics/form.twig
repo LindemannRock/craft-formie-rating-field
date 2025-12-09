@@ -386,14 +386,22 @@
                     {# Distribution Chart #}
                     <div class="chart-container">
                         <h3>{{ "Rating Distribution"|t('formie-rating-field') }}</h3>
-                        <canvas id="distribution-chart-{{ field.handle }}"></canvas>
+                        <div class="chart-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: #8f98a3;">
+                            <div class="spinner" style="margin-bottom: 12px;"></div>
+                            <div>{{ "Loading chart..."|t('formie-rating-field') }}</div>
+                        </div>
+                        <canvas id="distribution-chart-{{ field.handle }}" style="display: none;"></canvas>
                     </div>
                 {% endif %}
 
                 {# Trend Chart #}
                 <div class="chart-container">
                     <h3>{{ "Trend Over Time"|t('formie-rating-field') }}</h3>
-                    <canvas id="trend-chart-{{ field.handle }}"></canvas>
+                    <div class="chart-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: #8f98a3;">
+                        <div class="spinner" style="margin-bottom: 12px;"></div>
+                        <div>{{ "Loading chart..."|t('formie-rating-field') }}</div>
+                    </div>
+                    <canvas id="trend-chart-{{ field.handle }}" style="display: none;"></canvas>
                 </div>
             </div>
             {% endif %}
@@ -775,8 +783,8 @@
             (function() {
                 const fieldHandle = '{{ field.handle }}';
 
-                {% if isGrouped %}
-                    // Comparison Chart for grouped data (Top 10 only)
+                {% if isGrouped and stats.groups|length <= 100 %}
+                    // Comparison Chart for grouped data (Top 10 only, skip if too many groups)
                     const comparisonData = {{ stats.groups|slice(0, 10)|json_encode|raw }};
                     const comparisonLabels = comparisonData.map(g => g.label.length > 20 ? g.label.substring(0, 20) + '...' : g.label);
                     {% if isNps %}
@@ -869,10 +877,17 @@
                             fieldHandle: fieldHandle,
                             dateRange: currentRange,
                             type: 'distribution',
-                            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+                            '{{ craft.app.config.general.csrfTokenName }}': '{{ craft.app.request.csrfToken }}'
+                        },
+                        beforeSend: function() {
+                            $('#distribution-chart-{{ field.handle }}').siblings('.chart-loading').show();
                         },
                         success: function(response) {
                             if (response.success && response.data) {
+                                // Hide loading, show canvas
+                                $('#distribution-chart-{{ field.handle }}').siblings('.chart-loading').hide();
+                                $('#distribution-chart-{{ field.handle }}').show();
+
                                 window.statisticsCharts['distribution-{{ field.handle }}'] = new Chart(
                                     document.getElementById('distribution-chart-{{ field.handle }}'),
                                     {
@@ -923,10 +938,17 @@
                         fieldHandle: fieldHandle,
                         dateRange: currentRange,
                         type: 'trend',
-                        {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
+                        '{{ craft.app.config.general.csrfTokenName }}': '{{ craft.app.request.csrfToken }}'
+                    },
+                    beforeSend: function() {
+                        $('#trend-chart-{{ field.handle }}').siblings('.chart-loading').show();
                     },
                     success: function(response) {
                         if (response.success && response.data) {
+                            // Hide loading, show canvas
+                            $('#trend-chart-{{ field.handle }}').siblings('.chart-loading').hide();
+                            $('#trend-chart-{{ field.handle }}').show();
+
                             window.statisticsCharts['trend-{{ field.handle }}'] = new Chart(
                                 document.getElementById('trend-chart-{{ field.handle }}'),
                                 {

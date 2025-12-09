@@ -10,11 +10,13 @@ namespace lindemannrock\formieratingfield\services;
 
 use Craft;
 use craft\base\Component;
+use craft\db\Query;
 use craft\fields\Categories;
 use craft\fields\Dropdown;
 use craft\fields\Entries;
 use craft\fields\PlainText;
 use craft\fields\RadioButtons;
+use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use lindemannrock\formieratingfield\fields\Rating;
 use verbb\formie\elements\Form;
@@ -232,46 +234,62 @@ class StatisticsService extends Component
      */
     public function getGroupedStatistics(Form $form, Rating $field, string $dateRange, string $groupByHandle): array
     {
-        $submissions = $this->getSubmissions($form, $dateRange);
+        // Get field UIDs for JSON extraction (Formie stores data by UID, not handle)
+        $groupByField = null;
+        $ratingFieldUid = $field->uid;
 
-        // Group submissions by the specified field
-        $groups = [];
-
-        foreach ($submissions as $submission) {
-            $groupValue = $submission->getFieldValue($groupByHandle);
-            $ratingValue = $submission->getFieldValue($field->handle);
-
-            // Skip if no rating value
-            if ($ratingValue === null || $ratingValue === '') {
-                continue;
+        foreach ($form->getFields() as $formField) {
+            if ($formField->handle === $groupByHandle) {
+                $groupByField = $formField;
+                break;
             }
-
-            // Handle different field types
-            $groupKey = $this->normalizeGroupValue($groupValue);
-
-            if ($groupKey === null || $groupKey === '') {
-                $groupKey = '(Not Set)';
-            }
-
-            if (!isset($groups[$groupKey])) {
-                $groups[$groupKey] = [
-                    'label' => $groupKey,
-                    'values' => [],
-                ];
-            }
-
-            $groups[$groupKey]['values'][] = (float)$ratingValue;
         }
+
+        if (!$groupByField) {
+            throw new \Exception("Group by field '{$groupByHandle}' not found in form.");
+        }
+
+        // Use database aggregation for better performance
+        $dateStart = $this->getDateRangeStart($dateRange);
+        $groupByUid = $groupByField->uid;
+
+        // Build the query using field UIDs (escaped with quotes for JSON path)
+        $query = (new Query())
+            ->select([
+                'groupValue' => "COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $groupByUid . "\"')), ''), '(Not Set)')",
+                'count' => 'COUNT(*)',
+                'ratingValues' => "GROUP_CONCAT(CAST(JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $ratingFieldUid . "\"')) AS DECIMAL(10,2)))",
+            ])
+            ->from('{{%formie_submissions}}')
+            ->where([
+                'formId' => $form->id,
+                'isIncomplete' => false,
+                'isSpam' => false,
+            ])
+            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $ratingFieldUid . "\"')) IS NOT NULL")
+            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $ratingFieldUid . "\"')) != ''")
+            ->groupBy('groupValue')
+            ->orderBy(['count' => SORT_DESC]);
+
+        // Add date filter if specified
+        if ($dateStart) {
+            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($dateStart)]);
+        }
+
+        $results = $query->all();
 
         // Calculate statistics for each group
         $groupedStats = [];
 
-        foreach ($groups as $groupKey => $groupData) {
-            $values = $groupData['values'];
-            $count = count($values);
+        foreach ($results as $row) {
+            $groupLabel = $row['groupValue'] ?? '(Not Set)';
+            $count = (int)$row['count'];
+
+            // Parse the rating values
+            $values = array_map('floatval', explode(',', $row['ratingValues']));
 
             $stats = [
-                'label' => $groupData['label'],
+                'label' => $groupLabel,
                 'count' => $count,
             ];
 
@@ -291,9 +309,6 @@ class StatisticsService extends Component
             $groupedStats[] = $stats;
         }
 
-        // Sort by count descending
-        usort($groupedStats, fn($a, $b) => $b['count'] - $a['count']);
-
         // Get the group field label
         $groupFieldLabel = $groupByHandle;
         foreach ($form->getFields() as $formField) {
@@ -312,34 +327,6 @@ class StatisticsService extends Component
             'groups' => $groupedStats,
             'totalGroups' => count($groupedStats),
         ];
-    }
-
-    /**
-     * Normalize group value for consistent grouping
-     *
-     * @param mixed $value
-     * @return string|null
-     */
-    private function normalizeGroupValue($value): ?string
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        // Handle entry/category fields (returns element)
-        if (is_object($value)) {
-            if (property_exists($value, 'title') && isset($value->title)) {
-                return (string)$value->title;
-            }
-            return (string)$value;
-        }
-
-        // Handle arrays (multi-select fields)
-        if (is_array($value)) {
-            return implode(', ', array_map('strval', $value));
-        }
-
-        return (string)$value;
     }
 
     /**
@@ -626,6 +613,18 @@ class StatisticsService extends Component
         // Sort by date
         usort($chartData, fn($a, $b) => strcmp($a['date'], $b['date']));
 
+        // Limit to max 50 data points for performance
+        if (count($chartData) > 50) {
+            $step = ceil(count($chartData) / 50);
+            $sampledData = [];
+            foreach ($chartData as $index => $data) {
+                if ($index % $step === 0) {
+                    $sampledData[] = $data;
+                }
+            }
+            $chartData = $sampledData;
+        }
+
         return [
             'labels' => array_column($chartData, 'date'),
             'averages' => array_column($chartData, 'average'),
@@ -809,13 +808,19 @@ class StatisticsService extends Component
      */
     private function getSubmissions(Form $form, string $dateRange = 'all'): array
     {
-        $query = Submission::find()->formId($form->id);
+        $query = Submission::find()
+            ->formId($form->id)
+            ->orderBy(['dateCreated' => SORT_DESC]);
 
         $dateStart = $this->getDateRangeStart($dateRange);
 
         if ($dateStart) {
             $query->andWhere(['>=', 'dateCreated', $dateStart->format('Y-m-d H:i:s')]);
         }
+
+        // For very large datasets, consider limiting
+        // Uncomment if you need to cap at a maximum for performance
+        // $query->limit(10000);
 
         return $query->all();
     }
@@ -888,13 +893,16 @@ class StatisticsService extends Component
                 return 'Y-m-d H:00'; // Hourly
 
             case 'last7days':
+                return 'Y-m-d'; // Daily
+
             case 'last30days':
             case 'last90days':
                 return 'Y-m-d'; // Daily
 
             case 'all':
             default:
-                return 'Y-m'; // Monthly
+                // For large datasets, group by week instead of month
+                return 'Y-W'; // Weekly (Year-Week)
         }
     }
 
