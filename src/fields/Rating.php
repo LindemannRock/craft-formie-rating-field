@@ -1088,14 +1088,14 @@ class Rating extends Field implements FieldInterface
         $threshold = $this->googleReviewThreshold ?? 9;
         $placeIdField = $this->googlePlaceIdField;
 
-        // Get messages and URL with defaults
-        $messageHigh = $this->googleReviewMessageHigh ?: Craft::t('formie-rating-field', 'Thank you for the excellent rating! 🎉 We would love if you could share your experience with others.');
-        $messageMedium = $this->googleReviewMessageMedium ?: Craft::t('formie-rating-field', 'Thank you for your feedback!');
-        $messageLow = $this->googleReviewMessageLow ?: Craft::t('formie-rating-field', 'Thank you for your feedback. We will use it to improve our service.');
-        $buttonLabel = $this->googleReviewButtonLabel ?: Craft::t('formie-rating-field', 'Review on Google');
+        // Get messages and URL with defaults (use Formie's translation category)
+        $messageHigh = $this->googleReviewMessageHigh ?: 'Thank you for the excellent rating! 🎉 We would love if you could share your experience with others.';
+        $messageMedium = $this->googleReviewMessageMedium ?: 'Thank you for your feedback!';
+        $messageLow = $this->googleReviewMessageLow ?: 'Thank you for your feedback. We will use it to improve our service.';
+        $buttonLabel = $this->googleReviewButtonLabel ?: 'Review on Google';
         $reviewUrl = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
 
-        // Translate using Formie's category (like field labels)
+        // Translate using Formie's category (same as all Formie field content)
         $messageHigh = Craft::t('formie', $messageHigh);
         $messageMedium = Craft::t('formie', $messageMedium);
         $messageLow = Craft::t('formie', $messageLow);
