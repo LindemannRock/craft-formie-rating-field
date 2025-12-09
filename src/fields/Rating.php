@@ -1089,7 +1089,7 @@ class Rating extends Field implements FieldInterface
         $placeIdField = $this->googlePlaceIdField;
 
         // Get values with English defaults
-        $messageHigh = $this->googleReviewMessageHigh ?: 'Thank you for the excellent rating! 🎉 We would love if you could share your experience with others.';
+        $messageHigh = $this->googleReviewMessageHigh ?: 'Thank you for the excellent rating! We would love if you could share your experience with others.';
         $messageMedium = $this->googleReviewMessageMedium ?: 'Thank you for your feedback!';
         $messageLow = $this->googleReviewMessageLow ?: 'Thank you for your feedback. We will use it to improve our service.';
         $buttonLabel = $this->googleReviewButtonLabel ?: 'Review on Google';
