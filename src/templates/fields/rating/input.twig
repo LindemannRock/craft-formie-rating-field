@@ -1,6 +1,16 @@
 {# Register the CSS asset for front-end #}
 {% do craft.app.getView().registerAssetBundle('\\lindemannrock\\formieratingfield\\web\\assets\\field\\RatingFieldAsset') %}
 
+{# Register Google Review integration if enabled #}
+{% if field.enableGoogleReview %}
+    {% set googleReviewJs = field.getGoogleReviewJs() %}
+    {% if googleReviewJs %}
+        {% js %}
+        {{ googleReviewJs|raw }}
+        {% endjs %}
+    {% endif %}
+{% endif %}
+
 {# Check emoji render mode setting and load web font if needed #}
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
 {% set emojiMode = 'system' %}

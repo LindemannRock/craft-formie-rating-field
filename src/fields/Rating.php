@@ -1057,7 +1057,10 @@ class Rating extends Field implements FieldInterface
 
         // Add Google Review integration if enabled
         if ($this->enableGoogleReview) {
+            Craft::info("Registering Google Review JS for field: {$this->handle}", __METHOD__);
             $this->registerGoogleReviewJs();
+        } else {
+            Craft::info("Google Review NOT enabled for field: {$this->handle}", __METHOD__);
         }
 
         return $modules;
@@ -1078,7 +1081,7 @@ class Rating extends Field implements FieldInterface
     /**
      * Generate Google Review integration JavaScript
      */
-    private function getGoogleReviewJs(): string
+    public function getGoogleReviewJs(): string
     {
         if (!$this->enableGoogleReview || !$this->googlePlaceIdField) {
             return '';
@@ -1110,8 +1113,11 @@ class Rating extends Field implements FieldInterface
 
         return <<<JS
 (function() {
+    console.log('Google Review JS loaded for field: {$fieldHandle}');
+
     document.addEventListener('onFormieInit', function(event) {
         const \$form = event.detail.\$form;
+        console.log('Google Review - Form initialized');
 
         let capturedRating = 0;
         let capturedPlaceId = '';
@@ -1122,6 +1128,10 @@ class Rating extends Field implements FieldInterface
 
             capturedRating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
             capturedPlaceId = placeIdInput ? placeIdInput.value : '';
+
+            console.log('Google Review - Captured rating:', capturedRating, 'PlaceID:', capturedPlaceId);
+            console.log('Google Review - PlaceID input found:', placeIdInput);
+            console.log('Google Review - Rating select found:', ratingSelect);
         });
 
         \$form.addEventListener('onAfterFormieSubmit', function() {
@@ -1131,6 +1141,10 @@ class Rating extends Field implements FieldInterface
                 if (!successMessage) {
                     return;
                 }
+
+                console.log('Google Review - Evaluating: rating >= {$threshold}?', capturedRating >= {$threshold});
+                console.log('Google Review - Has PlaceID?', !!capturedPlaceId);
+                console.log('Google Review - Both conditions?', capturedRating >= {$threshold} && capturedPlaceId);
 
                 if (capturedRating >= {$threshold} && capturedPlaceId) {
                     // Get Formie's submit button classes from the form
