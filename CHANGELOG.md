@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.4...v3.7.0) (2025-12-09)
+
+
+### Features
+
+* add button alignment option for Google Review integration ([7d70de1](https://github.com/LindemannRock/craft-formie-rating-field/commit/7d70de14cf78d2af20652ba427671c9f4e643ece))
+
 ## [3.6.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.3...v3.6.4) (2025-12-09)
 
 
