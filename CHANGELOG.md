@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.6.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.1...v3.6.2) (2025-12-09)
+
+
+### Bug Fixes
+
+* update comments and default messages for clarity in Rating field ([3c8d9ef](https://github.com/LindemannRock/craft-formie-rating-field/commit/3c8d9ef969aad5a646420a9d6d008e55f62a3a96))
+* update default messages to use static strings in Rating field ([012f41b](https://github.com/LindemannRock/craft-formie-rating-field/commit/012f41b98611fd59db1cd7bae704e4555ef89c01))
+
 ## [3.6.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.0...v3.6.1) (2025-12-09)
 
 
