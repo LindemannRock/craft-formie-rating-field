@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.5.0...v3.6.0) (2025-12-09)
+
+
+### Features
+
+* add Google Review integration to Rating field ([2ba47a9](https://github.com/LindemannRock/craft-formie-rating-field/commit/2ba47a9e694bd4c8ab28e64d4c348eb7d6666309))
+
 ## [3.5.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.4.0...v3.5.0) (2025-12-09)
 
 
