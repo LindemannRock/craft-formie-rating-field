@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.0...v3.7.1) (2025-12-09)
+
+
+### Bug Fixes
+
+* update Google Review button alignment to use flex classes ([8969b4a](https://github.com/LindemannRock/craft-formie-rating-field/commit/8969b4ad8d5d876ce21d5f5fc53e88e48dcff679))
+
 ## [3.7.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.4...v3.7.0) (2025-12-09)
 
 
