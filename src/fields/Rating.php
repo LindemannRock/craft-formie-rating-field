@@ -99,6 +99,51 @@ class Rating extends Field implements FieldInterface
      */
     public $singleEmojiSelection;
 
+    /**
+     * @var bool Enable Google Review prompt for high ratings
+     */
+    public $enableGoogleReview;
+
+    /**
+     * @var int|null Minimum rating threshold to trigger Google Review prompt
+     */
+    public $googleReviewThreshold;
+
+    /**
+     * @var string Field handle containing the Google Place ID
+     */
+    public $googlePlaceIdField;
+
+    /**
+     * @var string Custom message for high ratings
+     */
+    public $googleReviewMessageHigh;
+
+    /**
+     * @var string Custom message for medium ratings
+     */
+    public $googleReviewMessageMedium;
+
+    /**
+     * @var string Custom message for low ratings
+     */
+    public $googleReviewMessageLow;
+
+    /**
+     * @var string Google Review button label
+     */
+    public $googleReviewButtonLabel;
+
+    /**
+     * @var string Google Review button CSS classes
+     */
+    public $googleReviewButtonClass;
+
+    /**
+     * @var string Google Review URL template
+     */
+    public $googleReviewUrl;
+
     // Public Methods
     // =========================================================================
 
@@ -155,6 +200,33 @@ class Rating extends Field implements FieldInterface
         }
         if ($this->ratingSize === null) {
             $this->ratingSize = 'medium';
+        }
+        if ($this->enableGoogleReview === null) {
+            $this->enableGoogleReview = false;
+        }
+        if ($this->googleReviewThreshold === null) {
+            $this->googleReviewThreshold = 9;
+        }
+        if ($this->googlePlaceIdField === null) {
+            $this->googlePlaceIdField = '';
+        }
+        if ($this->googleReviewMessageHigh === null) {
+            $this->googleReviewMessageHigh = '';
+        }
+        if ($this->googleReviewMessageMedium === null) {
+            $this->googleReviewMessageMedium = '';
+        }
+        if ($this->googleReviewMessageLow === null) {
+            $this->googleReviewMessageLow = '';
+        }
+        if ($this->googleReviewButtonLabel === null) {
+            $this->googleReviewButtonLabel = '';
+        }
+        if ($this->googleReviewButtonClass === null) {
+            $this->googleReviewButtonClass = '';
+        }
+        if ($this->googleReviewUrl === null) {
+            $this->googleReviewUrl = '';
         }
 
         // Enforce NPS scale (must always be 0-10)
@@ -807,6 +879,62 @@ class Rating extends Field implements FieldInterface
                     ],
                 ],
             ]),
+            SchemaHelper::lightswitchField([
+                'label' => Craft::t('formie-rating-field', 'Enable Google Review Prompt'),
+                'help' => Craft::t('formie-rating-field', 'Show a Google Review link when users give high ratings. This will override the form\'s success message. Only one rating field per form should have this enabled.'),
+                'name' => 'enableGoogleReview',
+            ]),
+            SchemaHelper::numberField([
+                'label' => Craft::t('formie-rating-field', 'Rating Threshold'),
+                'help' => Craft::t('formie-rating-field', 'Minimum rating value to show the Google Review prompt (e.g., 9 for NPS).'),
+                'name' => 'googleReviewThreshold',
+                'value' => 9,
+                'if' => '$get(enableGoogleReview).value',
+            ]),
+            SchemaHelper::textField([
+                'label' => Craft::t('formie-rating-field', 'Google Place ID Field Handle'),
+                'help' => Craft::t('formie-rating-field', 'Handle of the field containing the Google Place ID.'),
+                'name' => 'googlePlaceIdField',
+                'placeholder' => 'googlePlaceId',
+                'required' => true,
+                'if' => '$get(enableGoogleReview).value',
+            ]),
+            SchemaHelper::textareaField([
+                'label' => Craft::t('formie-rating-field', 'High Rating Message'),
+                'help' => Craft::t('formie-rating-field', 'Message shown when rating is above threshold.'),
+                'name' => 'googleReviewMessageHigh',
+                'placeholder' => 'Thank you for the excellent rating! Would you like to share your experience on Google?',
+                'if' => '$get(enableGoogleReview).value',
+            ]),
+            SchemaHelper::textareaField([
+                'label' => Craft::t('formie-rating-field', 'Medium Rating Message'),
+                'help' => Craft::t('formie-rating-field', 'Message shown for medium ratings.'),
+                'name' => 'googleReviewMessageMedium',
+                'placeholder' => 'Thank you for your feedback!',
+                'if' => '$get(enableGoogleReview).value',
+            ]),
+            SchemaHelper::textareaField([
+                'label' => Craft::t('formie-rating-field', 'Low Rating Message'),
+                'help' => Craft::t('formie-rating-field', 'Message shown for low ratings.'),
+                'name' => 'googleReviewMessageLow',
+                'placeholder' => 'Thank you for your feedback. We will use it to improve our service.',
+                'if' => '$get(enableGoogleReview).value',
+            ]),
+            SchemaHelper::textField([
+                'label' => Craft::t('formie-rating-field', 'Google Review URL Template'),
+                'help' => Craft::t('formie-rating-field', 'URL template for Google Reviews. Use {googlePlaceId} as placeholder - it will be replaced with the actual value from that field.'),
+                'name' => 'googleReviewUrl',
+                'value' => 'https://search.google.com/local/writereview?placeid={googlePlaceId}',
+                'placeholder' => 'https://search.google.com/local/writereview?placeid={googlePlaceId}',
+                'if' => '$get(enableGoogleReview).value',
+            ]),
+            SchemaHelper::textField([
+                'label' => Craft::t('formie-rating-field', 'Review Button Label'),
+                'help' => Craft::t('formie-rating-field', 'Text displayed on the Google Review button.'),
+                'name' => 'googleReviewButtonLabel',
+                'placeholder' => 'Review on Google',
+                'if' => '$get(enableGoogleReview).value',
+            ]),
             SchemaHelper::includeInEmailField(),
         ];
     }
@@ -865,6 +993,15 @@ class Rating extends Field implements FieldInterface
         $attributes[] = 'startLabel';
         $attributes[] = 'endLabel';
         $attributes[] = 'singleEmojiSelection';
+        $attributes[] = 'enableGoogleReview';
+        $attributes[] = 'googleReviewThreshold';
+        $attributes[] = 'googlePlaceIdField';
+        $attributes[] = 'googleReviewMessageHigh';
+        $attributes[] = 'googleReviewMessageMedium';
+        $attributes[] = 'googleReviewMessageLow';
+        $attributes[] = 'googleReviewButtonLabel';
+        $attributes[] = 'googleReviewButtonClass';
+        $attributes[] = 'googleReviewUrl';
 
         return $attributes;
     }
@@ -903,7 +1040,7 @@ class Rating extends Field implements FieldInterface
         $assetPath = dirname((new \ReflectionClass(RatingFieldAsset::class))->getFileName());
         $publishedUrl = Craft::$app->getAssetManager()->getPublishedUrl($assetPath, true);
 
-        return [
+        $modules = [
             'src' => $publishedUrl . '/' . (Craft::$app->getConfig()->getGeneral()->devMode ? 'rating.js' : 'rating.min.js'),
             'module' => 'FormieRating',
             'settings' => [
@@ -917,5 +1054,116 @@ class Rating extends Field implements FieldInterface
                 'singleEmojiSelection' => $this->singleEmojiSelection,
             ],
         ];
+
+        // Add Google Review integration if enabled
+        if ($this->enableGoogleReview) {
+            $this->registerGoogleReviewJs();
+        }
+
+        return $modules;
+    }
+
+    /**
+     * Register Google Review integration JavaScript
+     */
+    private function registerGoogleReviewJs(): void
+    {
+        $js = $this->getGoogleReviewJs();
+
+        if ($js) {
+            Craft::$app->getView()->registerJs($js, \yii\web\View::POS_END);
+        }
+    }
+
+    /**
+     * Generate Google Review integration JavaScript
+     */
+    private function getGoogleReviewJs(): string
+    {
+        if (!$this->enableGoogleReview || !$this->googlePlaceIdField) {
+            return '';
+        }
+
+        $fieldHandle = $this->handle;
+        $threshold = $this->googleReviewThreshold ?? 9;
+        $placeIdField = $this->googlePlaceIdField;
+
+        // Get messages and URL with defaults
+        $messageHigh = $this->googleReviewMessageHigh ?: Craft::t('formie-rating-field', 'Thank you for the excellent rating! 🎉 We would love if you could share your experience with others.');
+        $messageMedium = $this->googleReviewMessageMedium ?: Craft::t('formie-rating-field', 'Thank you for your feedback!');
+        $messageLow = $this->googleReviewMessageLow ?: Craft::t('formie-rating-field', 'Thank you for your feedback. We will use it to improve our service.');
+        $buttonLabel = $this->googleReviewButtonLabel ?: Craft::t('formie-rating-field', 'Review on Google');
+        $reviewUrl = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
+
+        // Translate using Formie's category (like field labels)
+        $messageHigh = Craft::t('formie', $messageHigh);
+        $messageMedium = Craft::t('formie', $messageMedium);
+        $messageLow = Craft::t('formie', $messageLow);
+        $buttonLabel = Craft::t('formie', $buttonLabel);
+
+        // Escape for JavaScript
+        $messageHigh = addslashes($messageHigh);
+        $messageMedium = addslashes($messageMedium);
+        $messageLow = addslashes($messageLow);
+        $buttonLabel = addslashes($buttonLabel);
+        $reviewUrl = addslashes($reviewUrl);
+
+        return <<<JS
+(function() {
+    document.addEventListener('onFormieInit', function(event) {
+        const \$form = event.detail.\$form;
+
+        let capturedRating = 0;
+        let capturedPlaceId = '';
+
+        \$form.addEventListener('onBeforeFormieSubmit', function() {
+            const ratingSelect = \$form.querySelector('select[name="fields[{$fieldHandle}]"]');
+            const placeIdInput = \$form.querySelector('input[name="fields[{$placeIdField}]"]');
+
+            capturedRating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
+            capturedPlaceId = placeIdInput ? placeIdInput.value : '';
+
+            // FOR TESTING: Use dummy PlaceID if empty
+            if (!capturedPlaceId) {
+                capturedPlaceId = 'ChIJN1t_tDeuEmsRUsoyG83frY4';
+            }
+        });
+
+        \$form.addEventListener('onAfterFormieSubmit', function() {
+            setTimeout(function() {
+                const successMessage = document.querySelector('[data-fui-alert-success]');
+
+                if (!successMessage) {
+                    return;
+                }
+
+                if (capturedRating >= {$threshold} && capturedPlaceId) {
+                    // Get Formie's submit button classes from the form
+                    const submitBtn = \$form.querySelector('[data-submit-action]');
+                    const btnClasses = submitBtn ? submitBtn.className : 'fui-btn';
+
+                    // Build review URL by replacing placeholder with actual Place ID
+                    const reviewUrl = '{$reviewUrl}'.replace('{googlePlaceId}', capturedPlaceId).replace('{placeId}', capturedPlaceId);
+
+                    successMessage.innerHTML = `
+                        <p>{$messageHigh}</p>
+                        <p style="margin-top: 16px;">
+                            <a href="\${reviewUrl}"
+                               target="_blank"
+                               class="\${btnClasses}">
+                                {$buttonLabel}
+                            </a>
+                        </p>
+                    `;
+                } else if (capturedRating >= Math.floor({$threshold} * 0.7)) {
+                    successMessage.innerHTML = '<p>{$messageMedium}</p>';
+                } else if (capturedRating > 0) {
+                    successMessage.innerHTML = '<p>{$messageLow}</p>';
+                }
+            }, 300);
+        });
+    });
+})();
+JS;
     }
 }
