@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.0...v3.6.1) (2025-12-09)
+
+
+### Bug Fixes
+
+* remove dummy PlaceID for testing in Rating field ([1656d24](https://github.com/LindemannRock/craft-formie-rating-field/commit/1656d248a83d7ac58ace203eb76169a98d848d05))
+
 ## [3.6.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.5.0...v3.6.0) (2025-12-09)
 
 
