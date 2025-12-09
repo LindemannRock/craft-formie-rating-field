@@ -1120,11 +1120,11 @@ class Rating extends Field implements FieldInterface
         $reviewUrl = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
         $buttonAlign = $this->googleReviewButtonAlign ?: 'start';
 
-        // Map alignment to CSS class
+        // Map alignment to flex justify class
         $alignClass = match ($buttonAlign) {
-            'center' => 'text-center',
-            'end' => 'text-end',
-            default => 'text-start',
+            'center' => 'justify-center',
+            'end' => 'justify-end',
+            default => 'justify-start',
         };
 
         // Translate (whatever text is entered gets translated through Formie's category)
@@ -1175,13 +1175,13 @@ class Rating extends Field implements FieldInterface
 
                     successMessage.innerHTML = `
                         <p>{$messageHigh}</p>
-                        <p class="{$alignClass}" style="margin-top: 16px;">
+                        <div class="flex {$alignClass}" style="margin-top: 16px;">
                             <a href="\${reviewUrl}"
                                target="_blank"
                                class="\${btnClasses}">
                                 {$buttonLabel}
                             </a>
-                        </p>
+                        </div>
                     `;
                 } else if (capturedRating >= Math.floor({$threshold} * 0.7)) {
                     successMessage.innerHTML = '<p>{$messageMedium}</p>';
