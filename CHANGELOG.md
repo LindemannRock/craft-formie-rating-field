@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.2...v3.6.3) (2025-12-09)
+
+
+### Bug Fixes
+
+* remove emoji from high rating message for consistency ([d6fe53e](https://github.com/LindemannRock/craft-formie-rating-field/commit/d6fe53e677a10d8528623cbd1142314852fabcc4))
+
 ## [3.6.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.1...v3.6.2) (2025-12-09)
 
 
