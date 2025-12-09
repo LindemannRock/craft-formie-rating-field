@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.4.0...v3.5.0) (2025-12-09)
+
+
+### Features
+
+* add 'Show Selected Label' option to Rating field schema ([cb672fd](https://github.com/LindemannRock/craft-formie-rating-field/commit/cb672fd4fcdc8f85d6a5dc70345e5e5ccf8d2e4b))
+
 ## [3.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.3.0...v3.4.0) (2025-12-09)
 
 
