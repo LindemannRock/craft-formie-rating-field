@@ -756,6 +756,11 @@ class Rating extends Field implements FieldInterface
                 'if' => '$get(ratingType).value == star',
             ]),
             SchemaHelper::lightswitchField([
+                'label' => Craft::t('formie', 'Show Selected Label'),
+                'help' => Craft::t('formie', 'Display the selected rating value as a text label.'),
+                'name' => 'showSelectedLabel',
+            ]),
+            SchemaHelper::lightswitchField([
                 'label' => Craft::t('formie', 'Show Endpoint Labels'),
                 'help' => Craft::t('formie', 'Display labels at the start and end of the rating scale.'),
                 'name' => 'showEndpointLabels',
