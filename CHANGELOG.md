@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.1...v3.8.0) (2025-12-10)
+
+
+### Features
+
+* add group detail view and export functionality for statistics ([677a60f](https://github.com/LindemannRock/craft-formie-rating-field/commit/677a60f9a0aa3f18e747e01de0dec61954d29d8a))
+
 ## [3.7.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.0...v3.7.1) (2025-12-09)
 
 
