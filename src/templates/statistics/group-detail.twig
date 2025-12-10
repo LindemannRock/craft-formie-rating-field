@@ -1,0 +1,90 @@
+{% extends "_layouts/cp" %}
+{% set title = groupValue ~ " - Individual Submissions"|t('formie-rating-field') %}
+{% set selectedSubnavItem = 'statistics' %}
+
+{% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
+{% set crumbs = [
+    {
+        label: plugin.name|t('formie-rating-field'),
+        url: url('formie-rating-field'),
+    },
+    {
+        label: 'Statistics'|t('formie-rating-field'),
+        url: url('formie-rating-field/statistics'),
+    },
+    {
+        label: form.title,
+        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy),
+    },
+    {
+        label: groupValue,
+        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ groupValue|url_encode ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy),
+    },
+] %}
+
+{% block actionButton %}
+    <a href="{{ url('formie-rating-field/statistics/export-group') ~ '?formId=' ~ form.id ~ '&groupBy=' ~ groupBy ~ '&groupValue=' ~ groupValue|url_encode ~ '&dateRange=' ~ dateRange }}" class="btn">
+        {{ "Export CSV"|t('formie-rating-field') }}
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div style="padding: 24px;">
+        <div style="margin-bottom: 32px;">
+            <h2>{{ "Individual Submissions for"|t('formie-rating-field') }}: {{ groupValue }}</h2>
+            <p class="light">{{ "Showing {count} submission(s) for this {groupBy}"|t('formie-rating-field', {count: totalSubmissions, groupBy: groupBy}) }}</p>
+        </div>
+
+        {% if submissions|length %}
+            <div class="tableview">
+                <table class="data fullwidth">
+                    <thead>
+                        <tr>
+                            <th>{{ "Date"|t('formie-rating-field') }}</th>
+                            <th>{{ "Submission"|t('formie-rating-field') }}</th>
+                            {% for formField in form.getFields() %}
+                                {% if formField.handle != groupBy %}
+                                    <th>{{ formField.label }}</th>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submissions %}
+                            <tr>
+                                <td>{{ submission.dateCreated|datetime('short') }}</td>
+                                <td>
+                                    <a href="{{ submission.cpEditUrl }}" target="_blank" class="go">
+                                        <code>{{ submission.id }}</code>
+                                    </a>
+                                </td>
+                                {% for formField in form.getFields() %}
+                                    {% if formField.handle != groupBy %}
+                                        {% set value = submission.getFieldValue(formField.handle) %}
+                                        <td>
+                                            {% if value %}
+                                                {% if value is iterable and value is not string %}
+                                                    {{ value|join(', ') }}
+                                                {% else %}
+                                                    {{ value|length > 100 ? value|slice(0, 100) ~ '...' : value }}
+                                                {% endif %}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="zilch">
+                <p>{{ "No submissions found for this {groupBy}"|t('formie-rating-field', {groupBy: groupBy}) }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {% include 'formie-rating-field/_components/plugin-credit.twig' %}
+{% endblock %}

@@ -259,7 +259,11 @@
                                     {% set hasEnoughReviews = group.count >= 5 %}
 
                                     <tr class="group-row">
-                                        <td><strong>{{ group.label }}</strong></td>
+                                        <td>
+                                            <a href="{{ url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ group.label|url_encode ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy) }}" class="go">
+                                                <strong>{{ group.label }}</strong>
+                                            </a>
+                                        </td>
                                         <td>{{ group.count }}</td>
                                         {% if isNps %}
                                             <td>

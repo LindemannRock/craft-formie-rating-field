@@ -157,6 +157,50 @@ class StatisticsController extends Controller
     }
 
     /**
+     * Display individual submissions for a specific group
+     */
+    public function actionGroupDetail(?int $formId = null, ?string $groupValue = null): Response
+    {
+        $this->requireCpRequest();
+
+        if (!$formId || !$groupValue) {
+            throw new \yii\web\BadRequestHttpException('Form ID and group value are required');
+        }
+
+        $form = Form::find()->id($formId)->one();
+
+        if (!$form instanceof Form) {
+            throw new \yii\web\NotFoundHttpException('Form not found');
+        }
+
+        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
+        $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy');
+
+        if (!$groupBy) {
+            Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Group by parameter is required'));
+            return $this->redirect('formie-rating-field/statistics/form/' . $formId);
+        }
+
+        // Decode the group value (might be URL encoded)
+        $groupValue = urldecode($groupValue);
+
+        // Get submissions for this specific group
+        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
+        $ratingFields = $statisticsService->getRatingFieldsForForm($form);
+
+        return $this->renderTemplate('formie-rating-field/statistics/group-detail', [
+            'form' => $form,
+            'groupBy' => $groupBy,
+            'groupValue' => $groupValue,
+            'submissions' => $submissions,
+            'ratingFields' => $ratingFields,
+            'dateRange' => $dateRange,
+            'totalSubmissions' => count($submissions),
+        ]);
+    }
+
+    /**
      * AJAX endpoint to get statistics data for dynamic updates
      */
     public function actionGetData(): Response
@@ -283,6 +327,80 @@ class StatisticsController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Export group detail submissions to CSV
+     */
+    public function actionExportGroup(): Response
+    {
+        $this->requireCpRequest();
+
+        $request = Craft::$app->getRequest();
+        $formId = $request->getQueryParam('formId');
+        $groupBy = $request->getQueryParam('groupBy');
+        $groupValue = urldecode($request->getQueryParam('groupValue', ''));
+        $dateRange = $request->getQueryParam('dateRange', 'all');
+
+        if (!$formId || !$groupBy || !$groupValue) {
+            throw new \yii\web\BadRequestHttpException('Missing required parameters');
+        }
+
+        $form = Form::find()->id($formId)->one();
+
+        if (!$form instanceof Form) {
+            throw new \yii\web\NotFoundHttpException('Form not found');
+        }
+
+        $statisticsService = FormieRatingField::$plugin->get('statistics');
+
+        // Get submissions for this group
+        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
+
+        // Build CSV
+        $rows = [];
+
+        // Header
+        $headers = ['Date', 'Submission ID'];
+        foreach ($form->getFields() as $field) {
+            $headers[] = $field->label;
+        }
+        $rows[] = $headers;
+
+        // Data rows
+        foreach ($submissions as $submission) {
+            $row = [
+                $submission->dateCreated->format('Y-m-d H:i:s'),
+                $submission->id,
+            ];
+
+            foreach ($form->getFields() as $field) {
+                $value = $submission->getFieldValue($field->handle);
+                $row[] = $value ?? '';
+            }
+
+            $rows[] = $row;
+        }
+
+        // Convert to CSV
+        $output = fopen('php://temp', 'r+');
+        foreach ($rows as $row) {
+            fputcsv($output, $row);
+        }
+        rewind($output);
+        $csv = stream_get_contents($output);
+        fclose($output);
+
+        // Build filename
+        $settings = FormieRatingField::$plugin->getSettings();
+        $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
+        $safeGroupValue = preg_replace('/[^a-z0-9]+/i', '-', $groupValue);
+        $filename = $filenamePart . '-' . $safeGroupValue . '-' . $dateRange . '-' . date('Y-m-d') . '.csv';
+
+        return Craft::$app->getResponse()
+            ->sendContentAsFile($csv, $filename, [
+                'mimeType' => 'text/csv',
+            ]);
     }
 
     /**

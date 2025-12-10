@@ -1183,9 +1183,9 @@ class Rating extends Field implements FieldInterface
                             </a>
                         </div>
                     `;
-                } else if (capturedRating >= Math.floor({$threshold} * 0.7)) {
+                } else if (capturedRating >= ({$threshold} - 2)) {
                     successMessage.innerHTML = '<p>{$messageMedium}</p>';
-                } else if (capturedRating > 0) {
+                } else if (capturedRating >= 0) {
                     successMessage.innerHTML = '<p>{$messageLow}</p>';
                 }
             }, 300);

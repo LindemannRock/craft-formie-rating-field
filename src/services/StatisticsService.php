@@ -330,6 +330,67 @@ class StatisticsService extends Component
     }
 
     /**
+     * Get submissions for a specific group value
+     *
+     * @param Form $form
+     * @param string $groupByHandle
+     * @param string $groupValue
+     * @param string $dateRange
+     * @return array
+     */
+    public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all'): array
+    {
+        $submissions = $this->getSubmissions($form, $dateRange);
+        $groupedSubmissions = [];
+
+        foreach ($submissions as $submission) {
+            $submissionGroupValue = $submission->getFieldValue($groupByHandle);
+
+            // Get string representation
+            $groupKey = $this->getGroupKeyFromValue($submissionGroupValue);
+
+            if ($groupKey === null || $groupKey === '') {
+                $groupKey = '(Not Set)';
+            }
+
+            // Match the group value
+            if ($groupKey === $groupValue) {
+                $groupedSubmissions[] = $submission;
+            }
+        }
+
+        return $groupedSubmissions;
+    }
+
+    /**
+     * Get group key from field value
+     *
+     * @param mixed $value
+     * @return string|null
+     */
+    private function getGroupKeyFromValue($value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        // Handle entry/category fields (returns element)
+        if (is_object($value)) {
+            if (property_exists($value, 'title') && isset($value->title)) {
+                return (string)$value->title;
+            }
+            return (string)$value;
+        }
+
+        // Handle arrays (multi-select fields)
+        if (is_array($value)) {
+            return implode(', ', array_map('strval', $value));
+        }
+
+        return (string)$value;
+    }
+
+    /**
      * Get cache directory path
      *
      * @return string
