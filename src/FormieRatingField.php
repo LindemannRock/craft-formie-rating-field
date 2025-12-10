@@ -156,6 +156,7 @@ class FormieRatingField extends Plugin
                 $event->rules['formie-rating-field/statistics'] = 'formie-rating-field/statistics/index';
                 $event->rules['formie-rating-field/statistics/form/<formId:\d+>'] = 'formie-rating-field/statistics/form';
                 $event->rules['formie-rating-field/statistics/form/<formId:\d+>/group/<groupValue>'] = 'formie-rating-field/statistics/group-detail';
+                $event->rules['formie-rating-field/statistics/export-group'] = 'formie-rating-field/statistics/export-group';
                 $event->rules['formie-rating-field/settings'] = 'formie-rating-field/settings/index';
                 $event->rules['formie-rating-field/settings/general'] = 'formie-rating-field/settings/general';
                 $event->rules['formie-rating-field/settings/interface'] = 'formie-rating-field/settings/interface';

@@ -23,7 +23,7 @@
 ] %}
 
 {% block actionButton %}
-    <a href="{{ url('formie-rating-field/statistics/export-group') ~ '?formId=' ~ form.id ~ '&groupBy=' ~ groupBy ~ '&groupValue=' ~ groupValue|url_encode ~ '&dateRange=' ~ dateRange }}" class="btn">
+    <a href="{{ url('formie-rating-field/statistics/export-group', {formId: form.id, groupBy: groupBy, groupValue: groupValue, dateRange: dateRange}) }}" class="btn">
         {{ "Export CSV"|t('formie-rating-field') }}
     </a>
 {% endblock %}
@@ -32,11 +32,11 @@
     <div style="padding: 24px;">
         <div style="margin-bottom: 32px;">
             <h2>{{ "Individual Submissions for"|t('formie-rating-field') }}: {{ groupValue }}</h2>
-            <p class="light">{{ "Showing {count} submission(s) for this {groupBy}"|t('formie-rating-field', {count: totalSubmissions, groupBy: groupBy}) }}</p>
+            <p class="light">{{ "Showing {count} submission(s) for this {groupBy}"|t('formie-rating-field', {count: totalSubmissions, groupBy: groupByLabel}) }}</p>
         </div>
 
         {% if submissions|length %}
-            <div class="tableview">
+            <div class="tableview" style="overflow-x: auto;">
                 <table class="data fullwidth">
                     <thead>
                         <tr>
@@ -81,7 +81,7 @@
             </div>
         {% else %}
             <div class="zilch">
-                <p>{{ "No submissions found for this {groupBy}"|t('formie-rating-field', {groupBy: groupBy}) }}</p>
+                <p>{{ "No submissions found for this {groupBy}"|t('formie-rating-field', {groupBy: groupByLabel}) }}</p>
             </div>
         {% endif %}
     </div>

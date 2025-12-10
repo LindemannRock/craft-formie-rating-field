@@ -189,9 +189,19 @@ class StatisticsController extends Controller
         $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
         $ratingFields = $statisticsService->getRatingFieldsForForm($form);
 
+        // Get the groupBy field label
+        $groupByLabel = $groupBy;
+        foreach ($form->getFields() as $field) {
+            if ($field->handle === $groupBy) {
+                $groupByLabel = $field->label;
+                break;
+            }
+        }
+
         return $this->renderTemplate('formie-rating-field/statistics/group-detail', [
             'form' => $form,
             'groupBy' => $groupBy,
+            'groupByLabel' => $groupByLabel,
             'groupValue' => $groupValue,
             'submissions' => $submissions,
             'ratingFields' => $ratingFields,
