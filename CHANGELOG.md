@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.9.0...v3.10.0) (2025-12-11)
+
+
+### Features
+
+* add cache management features including settings for automatic cache generation and a utility for cache operations ([2604ccb](https://github.com/LindemannRock/craft-formie-rating-field/commit/2604ccb9b81f44bcff5e25f0e642026695ff3584))
+
 ## [3.9.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.8.0...v3.9.0) (2025-12-11)
 
 
