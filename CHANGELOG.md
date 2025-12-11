@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.10.0...v3.11.0) (2025-12-11)
+
+
+### Features
+
+* enhance GenerateCacheJob with batch processing and improved cache management ([736c1b9](https://github.com/LindemannRock/craft-formie-rating-field/commit/736c1b97a3f60c0e0c1c3c6f97c4285ccd92d309))
+
 ## [3.10.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.9.0...v3.10.0) (2025-12-11)
 
 
