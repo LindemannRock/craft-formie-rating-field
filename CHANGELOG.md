@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.9.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.8.0...v3.9.0) (2025-12-11)
+
+
+### Features
+
+* add export functionality and improve group detail display in statistics ([dfbf370](https://github.com/LindemannRock/craft-formie-rating-field/commit/dfbf37074c2b22e2ba6c3bdb5572cf13c7edca47))
+* enhance README with drill-down view details and Google review integration settings ([3fed2db](https://github.com/LindemannRock/craft-formie-rating-field/commit/3fed2db6c368dd6a290b69e231426ff0d0eb7550))
+
+
+### Bug Fixes
+
+* enhance group detail template with field handle support and improved URL parameters ([0d2d7af](https://github.com/LindemannRock/craft-formie-rating-field/commit/0d2d7af2595ad8f110d7e9448595b41a2180a19c))
+
 ## [3.8.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.1...v3.8.0) (2025-12-10)
 
 
