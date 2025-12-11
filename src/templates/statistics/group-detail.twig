@@ -3,6 +3,8 @@
 {% set selectedSubnavItem = 'statistics' %}
 
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
+{% set fieldHandle = craft.app.request.getParam('fieldHandle', '') %}
+
 {% set crumbs = [
     {
         label: plugin.name|t('formie-rating-field'),
@@ -14,11 +16,11 @@
     },
     {
         label: form.title,
-        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy),
+        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy) ~ (fieldHandle ? '#' ~ fieldHandle : ''),
     },
     {
         label: groupValue,
-        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ groupValue|url_encode ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy),
+        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ groupValue|url_encode ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy ~ '&fieldHandle=' ~ fieldHandle),
     },
 ] %}
 

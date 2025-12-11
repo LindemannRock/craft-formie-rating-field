@@ -129,10 +129,6 @@
             {% set stats = fieldStats[field.handle] ?? {} %}
             {% set isNps = stats.fieldType == 'nps' %}
             {% set isGrouped = stats.groups is defined %}
-            {% set isFirstField = loop.first %}
-
-            {# Wrap in tab div if multiple fields #}
-            <div id="{{ field.handle }}" {% if ratingFields|length > 1 and not isFirstField %}class="hidden"{% endif %}>
 
             <div style="margin-bottom: 32px;">
                 <h2>{{ field.label }}
@@ -152,27 +148,8 @@
                 {# Calculate summary metrics #}
                 {% set totalGroups = stats.totalGroups ?? stats.groups|length %}
                 {% set groupByFieldName = stats.groupByLabel ?? stats.groupByHandle %}
-
-                {# Find top performer (skip "Not Set") #}
-                {% set topGroup = null %}
-                {% for group in stats.groups %}
-                    {% if topGroup is null and group.label != '(Not Set)' %}
-                        {% set topGroup = group %}
-                    {% endif %}
-                {% endfor %}
-
-                {# Find needs attention (lowest score, not lowest count) #}
-                {% set bottomGroup = null %}
-                {% set lowestScore = 999999 %}
-                {% for group in stats.groups %}
-                    {% if group.label != '(Not Set)' and group.count >= 5 %}
-                        {% set score = isNps ? group.npsScore : group.average %}
-                        {% if score < lowestScore %}
-                            {% set lowestScore = score %}
-                            {% set bottomGroup = group %}
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
+                {% set topGroup = stats.groups|first %}
+                {% set bottomGroup = stats.groups|last %}
                 {% set allValues = [] %}
                 {% for group in stats.groups %}
                     {% if isNps %}
@@ -214,7 +191,7 @@
                         <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                                 <div style="width: 12px; height: 12px; border-radius: 50%; background: #059669;"></div>
-                                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Top Performer"|t('formie-rating-field') }}</h4>
+                                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">🏆 {{ "Top Performer"|t('formie-rating-field') }}</h4>
                             </div>
                             <div style="flex: 1; display: flex; flex-direction: column;">
                                 <div style="font-size: 18px; font-weight: 600; color: #059669; line-height: 1.3; margin-bottom: 8px;">{{ topGroup.label|length > 30 ? topGroup.label|slice(0, 30) ~ '...' : topGroup.label }}</div>
@@ -235,7 +212,7 @@
                         <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                                 <div style="width: 12px; height: 12px; border-radius: 50%; background: #f59e0b;"></div>
-                                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Needs Attention"|t('formie-rating-field') }}</h4>
+                                <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">⚠️ {{ "Needs Attention"|t('formie-rating-field') }}</h4>
                             </div>
                             <div style="flex: 1; display: flex; flex-direction: column;">
                                 <div style="font-size: 18px; font-weight: 600; color: #f59e0b; line-height: 1.3; margin-bottom: 8px;">{{ bottomGroup.label|length > 30 ? bottomGroup.label|slice(0, 30) ~ '...' : bottomGroup.label }}</div>
@@ -272,34 +249,14 @@
                         <table class="data fullwidth grouped-stats-table-{{ field.handle }}">
                             <thead>
                                 <tr>
-                                    <th scope="col" data-attribute="label" class="orderable">
-                                        <button type="button" data-sort="label" data-field="{{ field.handle }}">
-                                            {{ groupByFieldName }}
-                                        </button>
-                                    </th>
-                                    <th scope="col" data-attribute="count" class="orderable">
-                                        <button type="button" data-sort="count" data-field="{{ field.handle }}">
-                                            {{ "Reviews"|t('formie-rating-field') }}
-                                        </button>
-                                    </th>
+                                    <th>{{ groupByFieldName }}</th>
+                                    <th>{{ "Reviews"|t('formie-rating-field') }}</th>
                                     {% if isNps %}
-                                        <th scope="col" data-attribute="npsScore" class="orderable">
-                                            <button type="button" data-sort="npsScore" data-field="{{ field.handle }}">
-                                                {{ "NPS Score"|t('formie-rating-field') }}
-                                            </button>
-                                        </th>
+                                        <th>{{ "NPS Score"|t('formie-rating-field') }}</th>
                                         <th>{{ "Breakdown"|t('formie-rating-field') }}</th>
                                     {% else %}
-                                        <th scope="col" data-attribute="average" class="orderable">
-                                            <button type="button" data-sort="average" data-field="{{ field.handle }}">
-                                                {{ "Average"|t('formie-rating-field') }}
-                                            </button>
-                                        </th>
-                                        <th scope="col" data-attribute="performance" class="orderable">
-                                            <button type="button" data-sort="performance" data-field="{{ field.handle }}">
-                                                {{ "Performance"|t('formie-rating-field') }}
-                                            </button>
-                                        </th>
+                                        <th>{{ "Average"|t('formie-rating-field') }}</th>
+                                        <th>{{ "Performance"|t('formie-rating-field') }}</th>
                                         <th>{{ "Distribution"|t('formie-rating-field') }}</th>
                                     {% endif %}
                                     <th>{{ "Reliability"|t('formie-rating-field') }}</th>
@@ -316,7 +273,7 @@
 
                                     <tr class="group-row">
                                         <td>
-                                            <a href="{{ url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ group.label|url_encode ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy ~ '&fieldHandle=' ~ field.handle) }}" class="go">
+                                            <a href="{{ url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ group.label|url_encode ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy) }}" class="go">
                                                 <strong>{{ group.label }}</strong>
                                             </a>
                                         </td>
@@ -335,15 +292,15 @@
                                                 <strong>{{ group.average }}/{{ field.maxValue }}</strong>
                                                 <span style="font-size: 11px; color: #9ca3af;">({{ (normalizedScore * 100)|round }}%)</span>
                                             </td>
-                                            <td data-sort-value="{{ normalizedScore * 100 }}">
+                                            <td>
                                                 {% if isExcellent %}
-                                                    <span style="color: #10b981;">Excellent</span>
+                                                    <span style="color: #10b981;">🏆 Excellent</span>
                                                 {% elseif isGood %}
-                                                    <span style="color: #10b981;">Good</span>
+                                                    <span style="color: #10b981;">✓ Good</span>
                                                 {% elseif isFair %}
-                                                    <span style="color: #f59e0b;">Fair</span>
+                                                    <span style="color: #f59e0b;">~ Fair</span>
                                                 {% else %}
-                                                    <span style="color: #ef4444;">Poor</span>
+                                                    <span style="color: #ef4444;">⚠️ Poor</span>
                                                 {% endif %}
                                             </td>
                                             <td>
@@ -354,9 +311,9 @@
                                         {% endif %}
                                         <td>
                                             {% if hasEnoughReviews %}
-                                                <span style="color: #10b981;">Reliable</span>
+                                                <span style="color: #10b981;">✓ Reliable</span>
                                             {% else %}
-                                                <span style="color: #f59e0b;">Low data</span>
+                                                <span style="color: #f59e0b;">⚠️ Low data</span>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -466,9 +423,9 @@
             </div>
             {% endif %}
 
-            {# Close tab div #}
-            </div>
-
+            {% if not loop.last %}
+                <hr style="margin: 40px 0; border: none; border-top: 1px solid #e3e5e8;">
+            {% endif %}
         {% endfor %}
     </div>
 
@@ -1056,51 +1013,4 @@
             })();
         {% endfor %}
     }
-
-    // Client-side table sorting for grouped products
-    document.querySelectorAll('button[data-sort][data-field]').forEach(button => {
-        button.addEventListener('click', function() {
-            const sortAttr = this.dataset.sort;
-            const fieldHandle = this.dataset.field;
-            const table = document.querySelector('.grouped-stats-table-' + fieldHandle);
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-
-            // Toggle sort direction
-            const currentDir = this.closest('th').classList.contains('ordered') && this.closest('th').classList.contains('desc') ? 'asc' : 'desc';
-
-            // Remove all ordered classes
-            table.querySelectorAll('th').forEach(th => th.classList.remove('ordered', 'asc', 'desc'));
-
-            // Add ordered class to current
-            this.closest('th').classList.add('ordered', currentDir);
-
-            // Get column index
-            const headers = Array.from(table.querySelectorAll('thead th'));
-            const columnIndex = headers.findIndex(th => th.querySelector('button[data-sort="' + sortAttr + '"]'));
-
-            // Sort rows
-            rows.sort((a, b) => {
-                const aCel = a.children[columnIndex];
-                const bCell = b.children[columnIndex];
-
-                // Check for data-sort-value attribute first
-                let aVal = aCel.dataset.sortValue || aCel.textContent.trim();
-                let bVal = bCell.dataset.sortValue || bCell.textContent.trim();
-
-                // Try to parse as number
-                const aNum = parseFloat(aVal);
-                const bNum = parseFloat(bVal);
-
-                if (!isNaN(aNum) && !isNaN(bNum)) {
-                    return currentDir === 'asc' ? aNum - bNum : bNum - aNum;
-                }
-
-                return currentDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-            });
-
-            // Re-append sorted rows
-            rows.forEach(row => tbody.appendChild(row));
-        });
-    });
 {% endjs %}
