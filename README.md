@@ -167,8 +167,16 @@ Navigate to the plugin's CP section:
 **When Grouped by Field**
 - Summary cards showing total groups, overall average, top/bottom performers
 - Detailed table with performance indicators for each group
-- Searchable list supporting 600+ items
-- Show top 10 by default with "Show All" option
+- Sortable columns (Product Name, Reviews, Average, Performance)
+- Client-side search with instant filtering
+- Click any group to drill down to individual submissions
+
+**Drill-Down View**
+- Click any product/group to see individual submissions
+- Full submission data displayed (all form fields)
+- Search, sort, and paginate through submissions
+- Export submissions for specific group to CSV
+- Direct links to view full submissions in Formie
 
 ### CLI Commands
 
@@ -279,6 +287,28 @@ query {
 | **Show Endpoint Labels** | Display labels at scale ends | true/false |
 | **Start Label** | Text for lowest value | Any text |
 | **End Label** | Text for highest value | Any text |
+| **Show Selected Label** | Display selected rating as text | true/false |
+
+### Google Review Integration
+
+Automatically prompt high-rating customers to leave Google Reviews:
+
+| Setting | Description |
+|---------|-------------|
+| **Enable Google Review Prompt** | Show Google Review link for high ratings |
+| **Rating Threshold** | Minimum rating to trigger prompt (e.g., 9 for NPS) |
+| **Google Place ID Field** | Handle of field containing Place ID |
+| **Review URL Template** | Customizable URL (supports different regions) |
+| **Button Label** | Text on review button |
+| **Button Alignment** | start/center/end |
+| **High/Medium/Low Messages** | Custom messages per rating tier |
+
+**How it works:**
+- High ratings (≥ threshold): Shows Google Review button
+- Medium ratings (threshold - 2): Generic thank you message
+- Low ratings (< medium): Improvement message
+
+All messages are translatable through Formie's translation system.
 
 ## Styling
 
