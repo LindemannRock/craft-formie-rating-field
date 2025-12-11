@@ -115,9 +115,10 @@ class StatisticsController extends Controller
         }
 
         $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $settings = FormieRatingField::$plugin->getSettings();
 
-        // Get date range from query params
-        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
+        // Get date range from query params, use default from settings if not specified
+        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', $settings->defaultDateRange);
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
         $fieldFilter = Craft::$app->getRequest()->getQueryParam('field', null);
 

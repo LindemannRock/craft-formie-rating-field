@@ -86,6 +86,16 @@ class Settings extends Model
     public int $itemsPerPage = 50;
 
     /**
+     * @var string Schedule for automatic cache generation
+     */
+    public string $cacheGenerationSchedule = 'manual';
+
+    /**
+     * @var string Default date range for statistics
+     */
+    public string $defaultDateRange = 'last30days';
+
+    /**
      * @inheritdoc
      */
     public function defineRules(): array
@@ -101,6 +111,8 @@ class Settings extends Model
             [['defaultMinRating'], 'in', 'range' => [0, 1]],
             [['defaultMaxRating'], 'in', 'range' => [3, 4, 5, 6, 7, 8, 9, 10]],
             [['defaultEmojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
+            [['cacheGenerationSchedule'], 'in', 'range' => ['manual', 'every3hours', 'every6hours', 'every12hours', 'daily', 'daily2am', 'twicedaily', 'weekly']],
+            [['defaultDateRange'], 'in', 'range' => ['last7days', 'last30days', 'last90days', 'all']],
         ];
     }
 
@@ -123,6 +135,8 @@ class Settings extends Model
             'defaultEmojiRenderMode' => Craft::t('formie-rating-field', 'Default Emoji Render Mode'),
             'defaultSingleEmojiSelection' => Craft::t('formie-rating-field', 'Single Emoji Selection by Default'),
             'itemsPerPage' => Craft::t('formie-rating-field', 'Items Per Page'),
+            'cacheGenerationSchedule' => Craft::t('formie-rating-field', 'Cache Generation Schedule'),
+            'defaultDateRange' => Craft::t('formie-rating-field', 'Default Date Range'),
         ];
     }
 

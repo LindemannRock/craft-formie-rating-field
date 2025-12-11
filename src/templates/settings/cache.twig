@@ -1,0 +1,88 @@
+{% set title = "Cache Settings"|t('formie-rating-field') %}
+{% set fullPageForm = true %}
+{% set selectedSettingsItem = 'cache' %}
+
+{% extends "formie-rating-field/_layouts/settings" %}
+
+{% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
+{% set crumbs = [
+    {
+        label: ratingHelper.fullName|t('formie-rating-field'),
+        url: url('formie-rating-field'),
+    },
+    {
+        label: 'Settings'|t('formie-rating-field'),
+        url: url('formie-rating-field/settings'),
+    },
+    {
+        label: 'Cache'|t('formie-rating-field'),
+        url: url('formie-rating-field/settings/cache'),
+    },
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+<form method="post" accept-charset="UTF-8">
+    {{ actionInput('formie-rating-field/settings/save') }}
+    {{ csrfInput() }}
+    {{ redirectInput('formie-rating-field/settings/cache') }}
+    {{ hiddenInput('section', 'cache') }}
+
+<h2 style="margin-top: 0px;">{{ "Statistics Cache Settings"|t('formie-rating-field') }}</h2>
+
+{{ forms.selectField({
+    label: 'Cache Generation Schedule'|t('formie-rating-field'),
+    instructions: 'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.'|t('formie-rating-field'),
+    id: 'cacheGenerationSchedule',
+    name: 'settings[cacheGenerationSchedule]',
+    value: settings.cacheGenerationSchedule ?? 'manual',
+    options: [
+        { value: 'manual', label: 'Manual Only'|t('formie-rating-field') },
+        { value: 'every3hours', label: 'Every 3 Hours'|t('formie-rating-field') },
+        { value: 'every6hours', label: 'Every 6 Hours'|t('formie-rating-field') },
+        { value: 'every12hours', label: 'Every 12 Hours'|t('formie-rating-field') },
+        { value: 'daily', label: 'Daily (Midnight)'|t('formie-rating-field') },
+        { value: 'daily2am', label: 'Daily at 2am (Low Traffic)'|t('formie-rating-field') },
+        { value: 'twicedaily', label: 'Twice Daily (Midnight & Noon)'|t('formie-rating-field') },
+        { value: 'weekly', label: 'Weekly (Sunday Midnight)'|t('formie-rating-field') },
+    ],
+    disabled: settings.isOverriddenByConfig('cacheGenerationSchedule'),
+    warning: settings.isOverriddenByConfig('cacheGenerationSchedule') ?
+        "This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+}) }}
+
+{% if settings.cacheGenerationSchedule == 'manual' or not settings.cacheGenerationSchedule %}
+    {% include 'formie-rating-field/_components/info-box' with {
+        message: '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.',
+        type: 'warning'
+    } %}
+{% endif %}
+
+<div style="margin-top: 1.5rem; padding: 1rem; background: #f3f4f6; border-radius: 4px;">
+    <p class="light" style="margin: 0; display: flex; align-items: flex-start; gap: 8px;">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" style="flex-shrink: 0; margin-top: 2px;">
+            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+            <text x="8" y="12" text-anchor="middle" font-size="11" font-weight="bold" fill="currentColor">i</text>
+        </svg>
+        <span><strong>{{ "How it works:"|t('formie-rating-field') }}</strong><br>
+        • Statistics are calculated and cached to improve performance<br>
+        • Scheduled generation pre-calculates stats for all forms<br>
+        • Cache is regenerated on schedule with latest submission data<br>
+        • For manual cache management, go to <a href="{{ url('utilities/formie-rating') }}">{{ "Utilities"|t('formie-rating-field') }}</a></span>
+    </p>
+</div>
+
+{% include 'formie-rating-field/_components/info-box' with {
+    message: '<strong>Cache Location:</strong> <code>storage/runtime/formie-rating-field/cache/statistics/</code>',
+    type: 'info'
+} %}
+
+<div class="buttons">
+    <button type="submit" class="btn submit">{{ "Save Settings"|t('formie-rating-field') }}</button>
+</div>
+</form>
+
+{% include 'formie-rating-field/_components/plugin-credit.twig' %}
+{% endblock %}

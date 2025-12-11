@@ -96,13 +96,37 @@ class CacheController extends Controller
 
         $cacheCount = $statisticsService->getCacheFileCount();
         $cachePath = Craft::$app->getPath()->getRuntimePath() . '/formie-rating-field/cache/statistics/';
+        $settings = FormieRatingField::$plugin->getSettings();
 
         $this->stdout("Rating Field Statistics Cache Info:\n");
         $this->stdout("-----------------------------------\n");
         $this->stdout("Cache path: {$cachePath}\n");
         $this->stdout("Cache files: {$cacheCount}\n");
-        $this->stdout("Invalidation: Auto (on submission save)\n");
+        $this->stdout("Generation schedule: {$settings->cacheGenerationSchedule}\n");
         $this->stdout("Manual clear: php craft formie-rating-field/cache/clear\n");
+        $this->stdout("Manual generate: php craft formie-rating-field/cache/generate\n");
+
+        return ExitCode::OK;
+    }
+
+    /**
+     * Generate cache for all forms with rating fields
+     *
+     * Example: php craft formie-rating-field/cache/generate
+     * Example: php craft formie-rating-field/cache/generate --formId=34
+     */
+    public function actionGenerate(?int $formId = null): int
+    {
+        $this->stdout("Queuing cache generation job...\n");
+
+        // Push to queue instead of running directly
+        Craft::$app->getQueue()->push(new \lindemannrock\formieratingfield\jobs\GenerateCacheJob([
+            'formId' => $formId,
+            'reschedule' => false, // Manual trigger
+        ]));
+
+        $this->stdout("Cache generation job queued successfully.\n");
+        $this->stdout("Check progress in the queue manager or wait for completion.\n");
 
         return ExitCode::OK;
     }

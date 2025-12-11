@@ -47,6 +47,23 @@
             "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
         errors: settings.getErrors('itemsPerPage')
     }) }}
+
+	{{ forms.selectField({
+        label: 'Default Date Range'|t('formie-rating-field'),
+        instructions: 'Default date range for statistics when first loading the page. Shorter ranges load faster.'|t('formie-rating-field'),
+        id: 'defaultDateRange',
+        name: 'settings[defaultDateRange]',
+        value: settings.defaultDateRange ?? 'last30days',
+        options: [
+            { value: 'last7days', label: 'Last 7 Days'|t('formie-rating-field') },
+            { value: 'last30days', label: 'Last 30 Days'|t('formie-rating-field') },
+            { value: 'last90days', label: 'Last 90 Days'|t('formie-rating-field') },
+            { value: 'all', label: 'All Time'|t('formie-rating-field') },
+        ],
+        disabled: settings.isOverriddenByConfig('defaultDateRange'),
+        warning: settings.isOverriddenByConfig('defaultDateRange') ?
+            "This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+    }) }}
 </fieldset>
 
 <div class="buttons">

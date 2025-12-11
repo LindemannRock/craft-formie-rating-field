@@ -15,10 +15,12 @@ use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\events\RegisterCacheOptionsEvent;
+use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
+use craft\services\Utilities;
 use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\View;
@@ -127,6 +129,15 @@ class FormieRatingField extends Plugin
             }
         );
 
+        // Register utility
+        Event::on(
+            Utilities::class,
+            Utilities::EVENT_REGISTER_UTILITIES,
+            function(RegisterComponentTypesEvent $event) {
+                $event->types[] = \lindemannrock\formieratingfield\utilities\RatingUtility::class;
+            }
+        );
+
         // Register our field
         Event::on(
             Fields::class,
@@ -157,17 +168,28 @@ class FormieRatingField extends Plugin
                 $event->rules['formie-rating-field/statistics/form/<formId:\d+>'] = 'formie-rating-field/statistics/form';
                 $event->rules['formie-rating-field/statistics/form/<formId:\d+>/group/<groupValue>'] = 'formie-rating-field/statistics/group-detail';
                 $event->rules['formie-rating-field/statistics/export-group'] = 'formie-rating-field/statistics/export-group';
+                $event->rules['formie-rating-field/cache/generate-all'] = 'formie-rating-field/cache/generate-all';
+                $event->rules['formie-rating-field/cache/clear-all'] = 'formie-rating-field/cache/clear-all';
                 $event->rules['formie-rating-field/settings'] = 'formie-rating-field/settings/index';
                 $event->rules['formie-rating-field/settings/general'] = 'formie-rating-field/settings/general';
                 $event->rules['formie-rating-field/settings/interface'] = 'formie-rating-field/settings/interface';
+                $event->rules['formie-rating-field/settings/cache'] = 'formie-rating-field/settings/cache';
             }
         );
 
-        // Invalidate statistics cache when submissions are saved
+        // Invalidate statistics cache when submissions are saved/deleted
+        // Only if NOT using scheduled generation (to avoid conflicts)
         Event::on(
             Submission::class,
             Submission::EVENT_AFTER_SAVE,
             function(Event $event) {
+                $settings = $this->getSettings();
+
+                // Skip auto-invalidation if using scheduled cache generation
+                if ($settings->cacheGenerationSchedule !== 'manual') {
+                    return;
+                }
+
                 /** @var Submission $submission */
                 $submission = $event->sender;
 
@@ -178,11 +200,17 @@ class FormieRatingField extends Plugin
             }
         );
 
-        // Invalidate statistics cache when submissions are deleted
         Event::on(
             Submission::class,
             Submission::EVENT_AFTER_DELETE,
             function(Event $event) {
+                $settings = $this->getSettings();
+
+                // Skip auto-invalidation if using scheduled cache generation
+                if ($settings->cacheGenerationSchedule !== 'manual') {
+                    return;
+                }
+
                 /** @var Submission $submission */
                 $submission = $event->sender;
 
@@ -199,10 +227,39 @@ class FormieRatingField extends Plugin
             $this->name = $settings->pluginName;
         }
 
+        // Schedule cache generation job if enabled and not already queued
+        if ($settings->cacheGenerationSchedule !== 'manual') {
+            $this->scheduleInitialCacheGeneration();
+        }
+
         Craft::info(
             'Formie Rating Field plugin loaded',
             __METHOD__
         );
+    }
+
+    /**
+     * Schedule initial cache generation job if not already queued
+     */
+    private function scheduleInitialCacheGeneration(): void
+    {
+        // Check if a job is already scheduled
+        $existingJob = (new \craft\db\Query())
+            ->from('{{%queue}}')
+            ->where(['like', 'job', 'GenerateCacheJob'])
+            ->andWhere(['<=', 'timePushed', time() + 86400])
+            ->exists();
+
+        if (!$existingJob) {
+            $job = new \lindemannrock\formieratingfield\jobs\GenerateCacheJob([
+                'reschedule' => true,
+            ]);
+
+            // Add to queue with small initial delay (5 minutes)
+            Craft::$app->getQueue()->delay(5 * 60)->push($job);
+
+            Craft::info('Scheduled initial cache generation job', __METHOD__);
+        }
     }
     
     /**

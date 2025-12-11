@@ -17,6 +17,11 @@
                     {{ 'Interface'|t('formie-rating-field') }}
                 </a>
             </li>
+            <li>
+                <a href="{{ url('formie-rating-field/settings/cache') }}" {% if selectedSettingsItem == 'cache' %}class="sel"{% endif %} data-nav-item="cache">
+                    {{ 'Cache'|t('formie-rating-field') }}
+                </a>
+            </li>
         </ul>
     </nav>
 {% endblock %}

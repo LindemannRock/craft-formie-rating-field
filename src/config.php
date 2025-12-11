@@ -135,6 +135,38 @@ return [
          * Default: 50
          */
         'itemsPerPage' => 50,
+
+        /**
+         * Default date range for statistics when first loading the page
+         * Shorter ranges load faster
+         * Options: 'last7days', 'last30days', 'last90days', 'all'
+         * Default: 'last30days'
+         */
+        'defaultDateRange' => 'last30days',
+
+
+        // ========================================
+        // CACHE SETTINGS
+        // ========================================
+        // Statistics cache configuration
+
+        /**
+         * Schedule for automatic cache generation
+         * Pre-generating cache improves performance for large datasets
+         *
+         * Options:
+         * - 'manual': Generate on-demand only (may be slow for 1000+ submissions)
+         * - 'every3hours': Every 3 hours
+         * - 'every6hours': Every 6 hours
+         * - 'every12hours': Every 12 hours
+         * - 'daily': Daily at midnight
+         * - 'daily2am': Daily at 2am (recommended for low traffic)
+         * - 'twicedaily': Twice daily (midnight and noon)
+         * - 'weekly': Weekly (Sunday midnight)
+         *
+         * Default: 'manual'
+         */
+        'cacheGenerationSchedule' => 'manual',
     ],
 
     // Dev environment settings

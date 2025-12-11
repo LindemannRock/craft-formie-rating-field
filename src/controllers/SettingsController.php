@@ -58,6 +58,20 @@ class SettingsController extends Controller
     }
 
     /**
+     * Cache settings
+     */
+    public function actionCache(): Response
+    {
+        $this->requireCpRequest();
+
+        $settings = FormieRatingField::$plugin->getSettings();
+
+        return $this->renderTemplate('formie-rating-field/settings/cache', [
+            'settings' => $settings,
+        ]);
+    }
+
+    /**
      * Save settings
      */
     public function actionSave(): Response
