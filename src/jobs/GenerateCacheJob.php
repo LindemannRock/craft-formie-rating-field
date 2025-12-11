@@ -38,6 +38,31 @@ class GenerateCacheJob extends BaseJob
     public ?int $formId = null;
 
     /**
+     * @var string|null Specific field handle to process
+     */
+    public ?string $fieldHandle = null;
+
+    /**
+     * @var string|null Specific date range to process
+     */
+    public ?string $dateRange = null;
+
+    /**
+     * @var string|null Specific groupBy field to process
+     */
+    public ?string $groupBy = null;
+
+    /**
+     * @var int Current batch number
+     */
+    public int $currentBatch = 1;
+
+    /**
+     * @var int Total batches
+     */
+    public int $totalBatches = 1;
+
+    /**
      * @inheritdoc
      */
     public function init(): void
@@ -61,57 +86,122 @@ class GenerateCacheJob extends BaseJob
         $settings = FormieRatingField::$plugin->getSettings();
         $statisticsService = FormieRatingField::$plugin->get('statistics');
 
-        // Clear all cache first to ensure fresh calculations
-        $statisticsService->clearAllCache();
-        Craft::info('Cleared all statistics cache before regeneration', __METHOD__);
+        // If this is the first batch, calculate total batches and clear cache
+        if ($this->currentBatch === 1 && !$this->formId) {
+            // Clear all cache first
+            $statisticsService->clearAllCache();
+            Craft::info('Cleared all statistics cache before regeneration', __METHOD__);
 
-        // Get forms to process
-        $formsWithRatings = $statisticsService->getFormsWithRatingFields();
-
-        if ($this->formId) {
-            // Filter to specific form
-            $formsWithRatings = array_filter($formsWithRatings, fn($item) => $item['form']->id == $this->formId);
+            // Calculate and queue all batches
+            $this->queueAllBatches($statisticsService);
+            return;
         }
 
-        $totalForms = count($formsWithRatings);
-        $processed = 0;
+        // Process this specific batch
+        $this->processBatch($statisticsService, $queue);
 
-        // Date ranges to pre-generate
+        // Reschedule master job if needed
+        if ($this->reschedule && $this->currentBatch === 1) {
+            $this->scheduleNext();
+        }
+    }
+
+    /**
+     * Calculate and queue all batches
+     */
+    private function queueAllBatches($statisticsService): void
+    {
+        $formsWithRatings = $statisticsService->getFormsWithRatingFields();
         $dateRanges = ['last7days', 'last30days', 'last90days', 'all'];
+
+        $batches = [];
 
         foreach ($formsWithRatings as $item) {
             $form = $item['form'];
             $ratingFields = $statisticsService->getRatingFieldsForForm($form);
-
-            // Update progress label
-            $this->setProgress($queue, $processed / $totalForms, Craft::t('formie-rating-field', 'Processing {form}...', [
-                'form' => $form->title,
-            ]));
+            $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
 
             foreach ($ratingFields as $field) {
-                foreach ($dateRanges as $dateRange) {
-                    // Generate cache (this will save it)
-                    $statisticsService->getFieldStatistics($form, $field, $dateRange);
+                foreach ($dateRanges as $range) {
+                    // Batch 1: Ungrouped stats for this field + range
+                    $batches[] = [
+                        'formId' => $form->id,
+                        'fieldHandle' => $field->handle,
+                        'dateRange' => $range,
+                        'groupBy' => null,
+                    ];
 
-                    // Also generate grouped stats if groupable fields exist
-                    $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
+                    // Batches 2-N: Each grouping
                     foreach ($groupableFields as $groupField) {
-                        $statisticsService->getFieldStatistics($form, $field, $dateRange, $groupField['handle']);
+                        $batches[] = [
+                            'formId' => $form->id,
+                            'fieldHandle' => $field->handle,
+                            'dateRange' => $range,
+                            'groupBy' => $groupField['handle'],
+                        ];
                     }
                 }
             }
-
-            $processed++;
-            // Final progress update for this form
-            $this->setProgress($queue, $processed / $totalForms);
         }
 
-        Craft::info("Generated cache for {$processed} form(s)", __METHOD__);
+        $totalBatches = count($batches);
 
-        // Reschedule if needed
-        if ($this->reschedule) {
-            $this->scheduleNext();
+        // Queue each batch
+        foreach ($batches as $index => $batchConfig) {
+            Craft::$app->getQueue()->push(new self([
+                'formId' => $batchConfig['formId'],
+                'fieldHandle' => $batchConfig['fieldHandle'],
+                'dateRange' => $batchConfig['dateRange'],
+                'groupBy' => $batchConfig['groupBy'],
+                'currentBatch' => $index + 1,
+                'totalBatches' => $totalBatches,
+                'reschedule' => false,
+            ]));
         }
+
+        Craft::info("Queued {$totalBatches} cache generation batches", __METHOD__);
+    }
+
+    /**
+     * Process a single batch
+     */
+    private function processBatch($statisticsService, $queue): void
+    {
+        // Get the specific form and field
+        $form = \verbb\formie\elements\Form::find()->id($this->formId)->one();
+
+        if (!$form) {
+            return;
+        }
+
+        $ratingFields = $statisticsService->getRatingFieldsForForm($form);
+        $field = null;
+
+        foreach ($ratingFields as $ratingField) {
+            if ($ratingField->handle === $this->fieldHandle) {
+                $field = $ratingField;
+                break;
+            }
+        }
+
+        if (!$field) {
+            return;
+        }
+
+        // Update progress
+        $this->setProgress($queue, $this->currentBatch / $this->totalBatches,
+            Craft::t('formie-rating-field', 'Batch {current} of {total}: {form} - {field}', [
+                'current' => $this->currentBatch,
+                'total' => $this->totalBatches,
+                'form' => $form->title,
+                'field' => $field->label,
+            ])
+        );
+
+        // Generate cache for this specific combination
+        $statisticsService->getFieldStatistics($form, $field, $this->dateRange, $this->groupBy);
+
+        Craft::info("Completed batch {$this->currentBatch}/{$this->totalBatches}", __METHOD__);
     }
 
     /**
@@ -120,6 +210,16 @@ class GenerateCacheJob extends BaseJob
     protected function defaultDescription(): ?string
     {
         $settings = FormieRatingField::$plugin->getSettings();
+
+        // Show batch info if this is a specific batch
+        if ($this->totalBatches > 1) {
+            return Craft::t('formie-rating-field', '{pluginName}: Generating cache (batch {current} of {total})', [
+                'pluginName' => $settings->getDisplayName(),
+                'current' => $this->currentBatch,
+                'total' => $this->totalBatches,
+            ]);
+        }
+
         $description = Craft::t('formie-rating-field', '{pluginName}: Generating statistics cache', [
             'pluginName' => $settings->getDisplayName(),
         ]);
