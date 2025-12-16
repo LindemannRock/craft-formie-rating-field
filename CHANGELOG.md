@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.11.0...v3.12.0) (2025-12-16)
+
+
+### Features
+
+* add cache storage method configuration and Redis support ([fad55f0](https://github.com/LindemannRock/craft-formie-rating-field/commit/fad55f0e0ab6659fd7786a88ca12dfd5ec66b436))
+
 ## [3.11.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.10.0...v3.11.0) (2025-12-11)
 
 
