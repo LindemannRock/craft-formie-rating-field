@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.0...v3.12.1) (2025-12-16)
+
+
+### Bug Fixes
+
+* update cache job scheduling logic to use dynamic delay calculation ([7032414](https://github.com/LindemannRock/craft-formie-rating-field/commit/7032414cd4017b2fa2d6ee60cb1f99996f5dc189))
+
 ## [3.12.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.11.0...v3.12.0) (2025-12-16)
 
 
