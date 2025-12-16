@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.1...v3.12.2) (2025-12-16)
+
+
+### Bug Fixes
+
+* read-only mode for settings based on project config ([2b8b864](https://github.com/LindemannRock/craft-formie-rating-field/commit/2b8b86404298a609bcf332e7903cfd541185ed20))
+
 ## [3.12.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.0...v3.12.1) (2025-12-16)
 
 
