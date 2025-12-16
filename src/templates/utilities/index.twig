@@ -2,7 +2,9 @@
 
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
 {% set pluginName = ratingHelper.fullName %}
-{% set cacheCount = craft.app.plugins.getPlugin('formie-rating-field').statistics.getCacheFileCount() %}
+{% set settings = plugin.settings %}
+{% set cacheCount = plugin.statistics.getCacheFileCount() %}
+{% set storageMethod = settings.cacheStorageMethod %}
 
 <div style="margin-bottom: 32px;">
 	<h2>{{ pluginName }} {{ "Overview"|t('formie-rating-field') }}</h2>
@@ -17,17 +19,21 @@
 		<div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
 			<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
 				<div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
-				<h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Cache Status"|t('formie-rating-field') }}</h4>
+				<h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">
+					{{ "Cache Status"|t('formie-rating-field') }} ({{ storageMethod == 'redis' ? 'Redis' : 'File' }})
+				</h4>
 			</div>
-			<div style="flex: 1; display: flex; flex-direction: column;">
-				<div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 12px;">{{ cacheCount|number_format }}</div>
-				<div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">{{ "Cached statistics"|t('formie-rating-field') }}</div>
-				<div style="margin-top: auto;">
-					<div style="padding: 12px; background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; border-radius: 8px;">
-						<div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">{{ "Location"|t('formie-rating-field') }}</div>
-						<code style="font-size: 10px; word-break: break-all;">storage/runtime/formie-rating-field/cache/statistics/</code>
+			<div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+				{% if storageMethod == 'redis' %}
+					<div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
+						{{ "Active"|t('formie-rating-field') }}
 					</div>
-				</div>
+				{% else %}
+					<div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 12px;">
+						{{ cacheCount|number_format }}
+					</div>
+					<div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">{{ "Cached statistics"|t('formie-rating-field') }}</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>

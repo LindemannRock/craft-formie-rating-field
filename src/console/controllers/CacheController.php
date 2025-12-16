@@ -95,7 +95,7 @@ class CacheController extends Controller
         }
 
         $cacheCount = $statisticsService->getCacheFileCount();
-        $cachePath = Craft::$app->getPath()->getRuntimePath() . '/formie-rating-field/cache/statistics/';
+        $cachePath = Craft::$app->getPath()->getStoragePath() . '/formie-rating-field/cache/statistics/';
         $settings = FormieRatingField::$plugin->getSettings();
 
         $this->stdout("Rating Field Statistics Cache Info:\n");

@@ -151,6 +151,19 @@ return [
         // Statistics cache configuration
 
         /**
+         * Cache storage method
+         * How cache data is stored
+         *
+         * Options:
+         * - 'file': File system (default, single server)
+         * - 'redis': Redis/Database (load-balanced, multi-server, cloud hosting)
+         *
+         * Default: 'file'
+         * Recommended for Servd/AWS/Platform.sh: 'redis'
+         */
+        'cacheStorageMethod' => 'file',
+
+        /**
          * Schedule for automatic cache generation
          * Pre-generating cache improves performance for large datasets
          *
@@ -165,6 +178,7 @@ return [
          * - 'weekly': Weekly (Sunday midnight)
          *
          * Default: 'manual'
+         * Recommended for production: 'daily2am' or 'every6hours'
          */
         'cacheGenerationSchedule' => 'manual',
     ],

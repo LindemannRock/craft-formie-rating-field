@@ -391,6 +391,26 @@ class StatisticsService extends Component
     }
 
     /**
+     * Generate cache key for Redis/database storage
+     *
+     * @param int $formId
+     * @param string $fieldHandle
+     * @param string $dateRange
+     * @param string|null $groupByHandle
+     * @return string
+     */
+    private function getCacheKey(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null): string
+    {
+        $key = "formie-rating-stats-{$formId}-{$fieldHandle}-{$dateRange}";
+
+        if ($groupByHandle) {
+            $key .= "-{$groupByHandle}";
+        }
+
+        return $key;
+    }
+
+    /**
      * Get cache directory path
      *
      * @return string
@@ -409,7 +429,7 @@ class StatisticsService extends Component
      * @param string|null $groupByHandle
      * @return string
      */
-    private function getCacheFilename(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null): string
+    public function getCacheFilename(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null): string
     {
         $key = "{$formId}-{$fieldHandle}-{$dateRange}";
 
@@ -431,6 +451,16 @@ class StatisticsService extends Component
      */
     private function getFromCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null): ?array
     {
+        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
+
+        // Use Redis/database cache if configured
+        if ($settings->cacheStorageMethod === 'redis') {
+            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle);
+            $cached = Craft::$app->cache->get($cacheKey);
+            return $cached !== false ? $cached : null;
+        }
+
+        // Use file-based cache (default)
         $cachePath = $this->getCachePath();
         $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle);
         $filepath = $cachePath . $filename;
@@ -460,6 +490,29 @@ class StatisticsService extends Component
      */
     private function saveToCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats): bool
     {
+        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
+
+        // Use Redis/database cache if configured
+        if ($settings->cacheStorageMethod === 'redis') {
+            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle);
+            $cache = Craft::$app->cache;
+
+            Craft::info("Attempting to save to cache. Type: " . get_class($cache) . ", Key: {$cacheKey}", __METHOD__);
+
+            $result = $cache->set($cacheKey, $stats);
+
+            if ($result) {
+                // Increment count in Redis
+                $this->incrementRedisCacheCount();
+                Craft::info("Cache saved successfully: {$cacheKey}", __METHOD__);
+            } else {
+                Craft::error("Failed to save cache: {$cacheKey}", __METHOD__);
+            }
+
+            return $result;
+        }
+
+        // Use file-based cache (default)
         $cachePath = $this->getCachePath();
 
         // Create cache directory if it doesn't exist
@@ -473,7 +526,15 @@ class StatisticsService extends Component
         // Serialize and save
         $data = serialize($stats);
 
-        return file_put_contents($filepath, $data) !== false;
+        $result = file_put_contents($filepath, $data) !== false;
+
+        if ($result) {
+            Craft::info("Cache saved to file: {$filename}", __METHOD__);
+        } else {
+            Craft::error("Failed to save cache to file: {$filename}", __METHOD__);
+        }
+
+        return $result;
     }
 
     /**
@@ -519,6 +580,17 @@ class StatisticsService extends Component
      */
     public function clearAllCache(): bool
     {
+        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
+
+        // Clear Redis/database cache if configured
+        if ($settings->cacheStorageMethod === 'redis') {
+            // Reset count
+            $this->resetRedisCacheCount();
+            // Flush all cache keys matching our pattern
+            return Craft::$app->cache->flush();
+        }
+
+        // Clear file-based cache (default)
         $cachePath = $this->getCachePath();
 
         if (!is_dir($cachePath)) {
@@ -542,12 +614,55 @@ class StatisticsService extends Component
     }
 
     /**
-     * Get count of cache files
+     * Increment Redis cache count
+     */
+    private function incrementRedisCacheCount(): void
+    {
+        $cache = Craft::$app->cache;
+        if ($cache instanceof \yii\redis\Cache) {
+            $redis = $cache->redis;
+            $redis->executeCommand('INCR', ['formie-rating-cache-count']);
+        }
+    }
+
+    /**
+     * Reset Redis cache count
+     */
+    private function resetRedisCacheCount(): void
+    {
+        $cache = Craft::$app->cache;
+        if ($cache instanceof \yii\redis\Cache) {
+            $redis = $cache->redis;
+            $redis->executeCommand('SET', ['formie-rating-cache-count', 0]);
+        }
+    }
+
+    /**
+     * Get count of cache entries
      *
      * @return int
      */
     public function getCacheFileCount(): int
     {
+        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
+
+        // For Redis, get count from tracking key
+        if ($settings->cacheStorageMethod === 'redis') {
+            try {
+                $cache = Craft::$app->cache;
+                if ($cache instanceof \yii\redis\Cache) {
+                    $redis = $cache->redis;
+                    $count = $redis->executeCommand('GET', ['formie-rating-cache-count']);
+                    return (int)($count ?: 0);
+                }
+                return 0;
+            } catch (\Exception $e) {
+                Craft::error('Failed to get Redis cache count: ' . $e->getMessage(), __METHOD__);
+                return 0;
+            }
+        }
+
+        // Count file-based cache
         $cachePath = $this->getCachePath();
 
         if (!is_dir($cachePath)) {

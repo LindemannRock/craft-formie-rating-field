@@ -198,7 +198,11 @@ class GenerateCacheJob extends BaseJob
             ])
         );
 
-        // Generate cache for this specific combination
+        // Clear this specific cache first to force regeneration
+        $cacheFilename = $statisticsService->getCacheFilename($form->id, $field->handle, $this->dateRange, $this->groupBy);
+        Craft::info("Generating cache for: {$cacheFilename}", __METHOD__);
+
+        // Generate cache for this specific combination (will save it)
         $statisticsService->getFieldStatistics($form, $field, $this->dateRange, $this->groupBy);
 
         Craft::info("Completed batch {$this->currentBatch}/{$this->totalBatches}", __METHOD__);
