@@ -238,7 +238,7 @@ class GenerateCacheJob extends BaseJob
     /**
      * Calculate delay until next run based on schedule
      */
-    private function calculateNextRunDelay(): int
+    public function calculateNextRunDelay(): int
     {
         $settings = FormieRatingField::$plugin->getSettings();
 

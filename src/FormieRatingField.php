@@ -255,10 +255,12 @@ class FormieRatingField extends Plugin
                 'reschedule' => true,
             ]);
 
-            // Add to queue with small initial delay (5 minutes)
-            Craft::$app->getQueue()->delay(5 * 60)->push($job);
+            // Calculate delay until next scheduled run time
+            $delay = $job->calculateNextRunDelay();
 
-            Craft::info('Scheduled initial cache generation job', __METHOD__);
+            Craft::$app->getQueue()->delay($delay)->push($job);
+
+            Craft::info('Scheduled initial cache generation job. Delay: ' . $delay . 's, Next run: ' . date('Y-m-d H:i:s', time() + $delay), __METHOD__);
         }
     }
     
