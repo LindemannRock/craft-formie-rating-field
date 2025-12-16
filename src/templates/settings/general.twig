@@ -1,7 +1,12 @@
-{% extends "formie-rating-field/_layouts/settings" %}
 {% set title = "General Settings"|t('formie-rating-field') %}
-{% set fullPageForm = true %}
+{% set fullPageForm = not (readOnly ?? false) %}
 {% set selectedSettingsItem = 'general' %}
+
+{% if readOnly ?? false %}
+    {% set contentNotice = readOnlyNotice() %}
+{% endif %}
+
+{% extends "formie-rating-field/_layouts/settings" %}
 
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
 {% set crumbs = [
@@ -24,9 +29,11 @@
 {% block content %}
 
 <form method="post" accept-charset="UTF-8">
-    {{ actionInput('formie-rating-field/settings/save') }}
-    {{ csrfInput() }}
-    {{ redirectInput('formie-rating-field/settings/general') }}
+    {% if not (readOnly ?? false) %}
+        {{ actionInput('formie-rating-field/settings/save') }}
+        {{ csrfInput() }}
+        {{ redirectInput('formie-rating-field/settings/general') }}
+    {% endif %}
     {{ hiddenInput('section', 'general') }}
 
 <fieldset style="margin-top: 0;">

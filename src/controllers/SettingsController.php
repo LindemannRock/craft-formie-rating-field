@@ -22,6 +22,22 @@ use yii\web\Response;
 class SettingsController extends Controller
 {
     /**
+     * @var bool Whether settings are read-only (project config mode)
+     */
+    private bool $readOnly;
+
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        // Settings are read-only when allowAdminChanges is disabled (project config is read-only)
+        $this->readOnly = !Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
+    }
+
+    /**
      * Settings index - redirects to general
      */
     public function actionIndex(): Response
@@ -40,6 +56,7 @@ class SettingsController extends Controller
 
         return $this->renderTemplate('formie-rating-field/settings/general', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -54,6 +71,7 @@ class SettingsController extends Controller
 
         return $this->renderTemplate('formie-rating-field/settings/interface', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -68,6 +86,7 @@ class SettingsController extends Controller
 
         return $this->renderTemplate('formie-rating-field/settings/cache', [
             'settings' => $settings,
+            'readOnly' => $this->readOnly,
         ]);
     }
 
@@ -78,6 +97,11 @@ class SettingsController extends Controller
     {
         $this->requirePostRequest();
         $this->requireCpRequest();
+
+        // Prevent saving if in read-only mode
+        if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new \yii\web\ForbiddenHttpException('Administrative changes are disallowed in this environment.');
+        }
 
         $params = Craft::$app->getRequest()->getBodyParam('settings', []);
         $plugin = FormieRatingField::$plugin;
