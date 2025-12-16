@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.2...v3.12.3) (2025-12-16)
+
+
+### Bug Fixes
+
+* update icon method to return a star icon ([2d9eab7](https://github.com/LindemannRock/craft-formie-rating-field/commit/2d9eab7aabcab3960f93be7372e876fded3a48f3))
+
 ## [3.12.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.1...v3.12.2) (2025-12-16)
 
 
