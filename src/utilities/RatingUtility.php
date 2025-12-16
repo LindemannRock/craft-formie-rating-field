@@ -40,9 +40,9 @@ class RatingUtility extends Utility
     /**
      * @inheritdoc
      */
-    public static function iconPath(): ?string
+    public static function icon(): ?string
     {
-        return null;
+        return 'star';
     }
 
     /**
