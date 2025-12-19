@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.3...v3.12.4) (2025-12-19)
+
+
+### Bug Fixes
+
+* trim whitespace in display name methods and update cache label ([95235f0](https://github.com/LindemannRock/craft-formie-rating-field/commit/95235f00a805c83339d919e9df1e40afbc6bbec1))
+
 ## [3.12.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.2...v3.12.3) (2025-12-16)
 
 
