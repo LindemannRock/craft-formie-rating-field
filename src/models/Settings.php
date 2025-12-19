@@ -169,8 +169,8 @@ class Settings extends Model
      */
     public function getDisplayName(): string
     {
-        // Strip "Field" or "field" from the name
-        $name = str_replace([' Field', ' field'], '', $this->pluginName);
+        // Strip "Field" or "field" from the name and trim whitespace
+        $name = trim(str_replace([' Field', ' field'], '', $this->pluginName));
 
         // Singularize by removing trailing 's' if present
         $singular = preg_replace('/s$/', '', $name) ?: $name;
@@ -188,7 +188,7 @@ class Settings extends Model
      */
     public function getFullName(): string
     {
-        return $this->pluginName;
+        return trim($this->pluginName);
     }
 
     /**
@@ -201,8 +201,8 @@ class Settings extends Model
      */
     public function getPluralDisplayName(): string
     {
-        // Strip "Field" or "field" from the name
-        $name = str_replace([' Field', ' field'], '', $this->pluginName);
+        // Strip "Field" or "field" from the name and trim whitespace
+        $name = trim(str_replace([' Field', ' field'], '', $this->pluginName));
 
         // Ensure it's plural by adding 's' if not present
         if (!preg_match('/s$/i', $name)) {

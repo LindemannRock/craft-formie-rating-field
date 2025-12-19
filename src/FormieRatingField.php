@@ -117,10 +117,12 @@ class FormieRatingField extends Plugin
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
                 $settings = $this->getSettings();
+                $displayName = $settings->getDisplayName();
+
                 $event->options[] = [
                     'key' => 'formie-rating-cache',
-                    'label' => Craft::t('formie-rating-field', '{pluginName} Cache', [
-                        'pluginName' => $settings->getDisplayName(),
+                    'label' => Craft::t('formie-rating-field', '{displayName} caches', [
+                        'displayName' => $displayName,
                     ]),
                     'action' => function() {
                         $this->get('statistics')->clearAllCache();
