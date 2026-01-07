@@ -1,61 +1,62 @@
 {
-    "name": "lindemannrock/craft-formie-rating-field",
-    "description": "Rating field for Formie - Provides star rating, emoji rating, and numeric rating field types for Craft CMS Formie plugin",
-    "type": "craft-plugin",
-    "version": "3.12.4",
-    "keywords": [
-        "craft",
-        "cms",
-        "craftcms",
-        "craft-plugin",
-        "formie",
-        "rating field",
-        "star rating"
-    ],
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Bilal Hary Lindemann",
-            "email": "bh@lindemannrock.com",
-            "homepage": "https://lindemannrock.com",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "email": "support@lindemannrock.com",
-        "issues": "https://github.com/LindemannRock/craft-formie-rating-field/issues",
-        "source": "https://github.com/LindemannRock/craft-formie-rating-field",
-        "docs": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md",
-        "rss": "https://github.com/LindemannRock/craft-formie-rating-field/commits/main.atom"
-    },
-    "require": {
-        "php": "^8.2",
-        "craftcms/cms": "^5.0.0",
-        "verbb/formie": "^3.0.0"
-    },
-    "require-dev": {
-        "craftcms/phpstan": "dev-main"
-    },
-    "suggest": {
-        "craftcms/feed-me": "For importing Rating field data via Feed Me"
-    },
-    "autoload": {
-        "psr-4": {
-            "lindemannrock\\formieratingfield\\": "src/"
-        }
-    },
-    "scripts": {
-        "phpstan": "phpstan --ansi --memory-limit=1G",
-        "check-cs": "ecs check --ansi",
-        "fix-cs": "ecs check --fix --ansi"
-    },
-    "extra": {
-        "name": "Formie Rating Field",
-        "handle": "formie-rating-field",
-        "developer": "LindemannRock",
-        "developerUrl": "https://lindemannrock.com",
-        "documentationUrl": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md",
-        "changelogUrl": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/CHANGELOG.md",
-        "class": "lindemannrock\\formieratingfield\\FormieRatingField"
-    }
+	"name": "lindemannrock/craft-formie-rating-field",
+	"description": "Rating field for Formie - Provides star rating, emoji rating, and numeric rating field types for Craft CMS Formie plugin",
+	"type": "craft-plugin",
+	"version": "3.12.4",
+	"keywords": [
+		"craft",
+		"cms",
+		"craftcms",
+		"craft-plugin",
+		"formie",
+		"rating field",
+		"star rating"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Bilal Hary Lindemann",
+			"email": "bh@lindemannrock.com",
+			"homepage": "https://lindemannrock.com",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"email": "support@lindemannrock.com",
+		"issues": "https://github.com/LindemannRock/craft-formie-rating-field/issues",
+		"source": "https://github.com/LindemannRock/craft-formie-rating-field",
+		"docs": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md",
+		"rss": "https://github.com/LindemannRock/craft-formie-rating-field/commits/main.atom"
+	},
+	"require": {
+		"php": "^8.2",
+		"craftcms/cms": "^5.0.0",
+		"verbb/formie": "^3.0.0"
+	},
+	"require-dev": {
+		"craftcms/ecs": "dev-main",
+		"craftcms/phpstan": "dev-main"
+	},
+	"suggest": {
+		"craftcms/feed-me": "For importing Rating field data via Feed Me"
+	},
+	"autoload": {
+		"psr-4": {
+			"lindemannrock\\formieratingfield\\": "src/"
+		}
+	},
+	"scripts": {
+		"phpstan": "phpstan --ansi --memory-limit=1G",
+		"check-cs": "ecs check --ansi",
+		"fix-cs": "ecs check --fix --ansi"
+	},
+	"extra": {
+		"name": "Formie Rating Field",
+		"handle": "formie-rating-field",
+		"developer": "LindemannRock",
+		"developerUrl": "https://lindemannrock.com",
+		"documentationUrl": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md",
+		"changelogUrl": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/CHANGELOG.md",
+		"class": "lindemannrock\\formieratingfield\\FormieRatingField"
+	}
 }
