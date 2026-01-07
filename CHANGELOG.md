@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.5](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.4...v3.12.5) (2026-01-07)
+
+
+### Miscellaneous Chores
+
+* update composer.json to include missing dev dependencies ([69ddde8](https://github.com/LindemannRock/craft-formie-rating-field/commit/69ddde82e03162114bda1c64e00e0b01a5243f51))
+
 ## [3.12.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.3...v3.12.4) (2025-12-19)
 
 
