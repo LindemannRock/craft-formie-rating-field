@@ -24,6 +24,7 @@ use craft\services\Utilities;
 use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\View;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
 use lindemannrock\formieratingfield\models\Settings;
@@ -73,6 +74,9 @@ class FormieRatingField extends Plugin
     {
         parent::init();
         self::$plugin = $this;
+
+        // Bootstrap the base plugin helper
+        PluginHelper::bootstrap($this, 'formieRatingFieldHelper');
 
         // Set the alias for this module
         Craft::setAlias('@lindemannrock/formieratingfield', __DIR__);
