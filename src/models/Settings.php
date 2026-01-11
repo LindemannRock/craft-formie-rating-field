@@ -10,6 +10,8 @@ namespace lindemannrock\formieratingfield\models;
 
 use Craft;
 use craft\base\Model;
+use lindemannrock\base\traits\SettingsConfigTrait;
+use lindemannrock\base\traits\SettingsDisplayNameTrait;
 
 /**
  * Formie Rating Field Settings Model
@@ -20,10 +22,12 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
+    use SettingsConfigTrait;
+    use SettingsDisplayNameTrait;
     /**
-     * @var string|null The public-facing name of the plugin
+     * @var string The public-facing name of the plugin
      */
-    public ?string $pluginName = 'Formie Rating';
+    public string $pluginName = 'Formie Rating';
 
     /**
      * @var string Default rating type (star, emoji, nps)
@@ -148,93 +152,10 @@ class Settings extends Model
     }
 
     /**
-     * Check if a setting is overridden in config file
-     *
-     * @param string $setting
-     * @return bool
+     * Plugin handle for config file resolution
      */
-    public function isOverriddenByConfig(string $setting): bool
+    protected static function pluginHandle(): string
     {
-        $configFileSettings = Craft::$app->getConfig()->getConfigFromFile('formie-rating-field');
-        return isset($configFileSettings[$setting]);
-    }
-
-    /**
-     * Get display name (singular, without "Field")
-     *
-     * Strips "Field" and singularizes the plugin name for use in UI labels.
-     * E.g., "Formie Rating Field" → "Rating", "Rating Fields" → "Rating"
-     *
-     * @return string
-     */
-    public function getDisplayName(): string
-    {
-        // Strip "Field" or "field" from the name and trim whitespace
-        $name = trim(str_replace([' Field', ' field'], '', $this->pluginName));
-
-        // Singularize by removing trailing 's' if present
-        $singular = preg_replace('/s$/', '', $name) ?: $name;
-
-        return $singular;
-    }
-
-    /**
-     * Get full plugin name (as configured, with "Field" if present)
-     *
-     * Returns the plugin name exactly as configured in settings.
-     * E.g., "Formie Rating Field", "Rating Fields", etc.
-     *
-     * @return string
-     */
-    public function getFullName(): string
-    {
-        return trim($this->pluginName);
-    }
-
-    /**
-     * Get plural display name (without "Field")
-     *
-     * Strips "Field" from the plugin name but keeps plural form.
-     * E.g., "Formie Rating Field" → "Ratings", "Rating Fields" → "Ratings"
-     *
-     * @return string
-     */
-    public function getPluralDisplayName(): string
-    {
-        // Strip "Field" or "field" from the name and trim whitespace
-        $name = trim(str_replace([' Field', ' field'], '', $this->pluginName));
-
-        // Ensure it's plural by adding 's' if not present
-        if (!preg_match('/s$/i', $name)) {
-            $name .= 's';
-        }
-
-        return $name;
-    }
-
-    /**
-     * Get lowercase display name (singular, without "Field")
-     *
-     * Lowercase version of getDisplayName() for use in messages, handles, etc.
-     * E.g., "Formie Rating Field" → "rating", "Rating Fields" → "rating"
-     *
-     * @return string
-     */
-    public function getLowerDisplayName(): string
-    {
-        return strtolower($this->getDisplayName());
-    }
-
-    /**
-     * Get lowercase plural display name (without "Field")
-     *
-     * Lowercase version of getPluralDisplayName() for use in messages, handles, etc.
-     * E.g., "Formie Rating Field" → "ratings", "Rating Fields" → "ratings"
-     *
-     * @return string
-     */
-    public function getPluralLowerDisplayName(): string
-    {
-        return strtolower($this->getPluralDisplayName());
+        return 'formie-rating-field';
     }
 }

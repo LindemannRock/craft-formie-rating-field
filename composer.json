@@ -31,7 +31,8 @@
 	"require": {
 		"php": "^8.2",
 		"craftcms/cms": "^5.0.0",
-		"verbb/formie": "^3.0.0"
+		"verbb/formie": "^3.0.0",
+		"lindemannrock/craft-plugin-base": "^5.0"
 	},
 	"require-dev": {
 		"craftcms/ecs": "dev-main",
