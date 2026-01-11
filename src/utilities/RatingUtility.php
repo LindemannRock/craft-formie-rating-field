@@ -25,8 +25,7 @@ class RatingUtility extends Utility
      */
     public static function displayName(): string
     {
-        $settings = FormieRatingField::$plugin->getSettings();
-        return $settings->getDisplayName();
+        return FormieRatingField::$plugin->getSettings()->getFullName();
     }
 
     /**
