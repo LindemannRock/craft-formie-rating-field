@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.13.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.4...v3.13.0) (2026-01-11)
+
+
+### Features
+
+* bootstrap PluginHelper in FormieRatingField initialization ([d6ee9be](https://github.com/LindemannRock/craft-formie-rating-field/commit/d6ee9be1a26ccf3121d217f6c09badbb94a98102))
+
+
+### Bug Fixes
+
+* update composer.json to include required package and refactor Settings model ([bd9ddf0](https://github.com/LindemannRock/craft-formie-rating-field/commit/bd9ddf0aedf7c95df86a6226e1b36e3636bf7aec))
+* update displayName method to return full name from settings ([c26099c](https://github.com/LindemannRock/craft-formie-rating-field/commit/c26099ceb00bbdab17284d92901e9d5bcdfb3ab1))
+
+
+### Miscellaneous Chores
+
+* update composer.json to include missing dev dependencies ([69ddde8](https://github.com/LindemannRock/craft-formie-rating-field/commit/69ddde82e03162114bda1c64e00e0b01a5243f51))
+
 ## [3.12.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.3...v3.12.4) (2025-12-19)
 
 
