@@ -341,7 +341,7 @@ class StatisticsController extends Controller
     }
 
     /**
-     * Export group detail submissions to CSV
+     * Export group detail submissions to CSV or JSON
      */
     public function actionExportGroup(): Response
     {
@@ -352,6 +352,7 @@ class StatisticsController extends Controller
         $groupBy = $request->getQueryParam('groupBy');
         $groupValue = urldecode($request->getQueryParam('groupValue', ''));
         $dateRange = $request->getQueryParam('dateRange', 'all');
+        $format = $request->getQueryParam('format', 'csv');
 
         if (!$formId || !$groupBy || !$groupValue) {
             throw new \yii\web\BadRequestHttpException('Missing required parameters');
@@ -367,6 +368,57 @@ class StatisticsController extends Controller
 
         // Get submissions for this group
         $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
+
+        // Build filename
+        $settings = FormieRatingField::$plugin->getSettings();
+        $filenamePart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
+        $safeGroupValue = preg_replace('/[^a-z0-9]+/i', '-', $groupValue);
+        $safeGroupValue = trim($safeGroupValue, '-');
+        // Use "alltime" instead of "all" for clearer filename
+        $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
+
+        if ($format === 'json') {
+            // Build JSON data
+            $exportData = [
+                'form' => [
+                    'id' => $form->id,
+                    'title' => $form->title,
+                    'handle' => $form->handle,
+                ],
+                'groupBy' => $groupBy,
+                'groupValue' => $groupValue,
+                'dateRange' => $dateRange,
+                'exportedAt' => date('Y-m-d H:i:s'),
+                'totalSubmissions' => count($submissions),
+                'submissions' => [],
+            ];
+
+            foreach ($submissions as $submission) {
+                $submissionData = [
+                    'id' => $submission->id,
+                    'dateCreated' => $submission->dateCreated->format('Y-m-d H:i:s'),
+                    'fields' => [],
+                ];
+
+                foreach ($form->getFields() as $field) {
+                    $value = $submission->getFieldValue($field->handle);
+                    $submissionData['fields'][$field->handle] = [
+                        'label' => $field->label,
+                        'value' => $value,
+                    ];
+                }
+
+                $exportData['submissions'][] = $submissionData;
+            }
+
+            $jsonData = json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            $filename = $filenamePart . '-statistics-' . $form->handle . '-' . $safeGroupValue . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.json';
+
+            return Craft::$app->getResponse()
+                ->sendContentAsFile($jsonData, $filename, [
+                    'mimeType' => 'application/json',
+                ]);
+        }
 
         // Build CSV
         $rows = [];
@@ -402,11 +454,7 @@ class StatisticsController extends Controller
         $csv = stream_get_contents($output);
         fclose($output);
 
-        // Build filename
-        $settings = FormieRatingField::$plugin->getSettings();
-        $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
-        $safeGroupValue = preg_replace('/[^a-z0-9]+/i', '-', $groupValue);
-        $filename = $filenamePart . '-' . $safeGroupValue . '-' . $dateRange . '-' . date('Y-m-d') . '.csv';
+        $filename = $filenamePart . '-statistics-' . $form->handle . '-' . $safeGroupValue . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.csv';
 
         return Craft::$app->getResponse()
             ->sendContentAsFile($csv, $filename, [
@@ -415,7 +463,7 @@ class StatisticsController extends Controller
     }
 
     /**
-     * Export statistics to CSV
+     * Export statistics to CSV or JSON
      */
     public function actionExport(?int $formId = null): Response
     {
@@ -433,15 +481,33 @@ class StatisticsController extends Controller
 
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
+        $format = Craft::$app->getRequest()->getQueryParam('format', 'csv');
         $statisticsService = FormieRatingField::$plugin->get('statistics');
-
-        // Generate CSV
-        $csv = $statisticsService->generateCsvExport($form, $dateRange, $groupBy);
 
         // Build filename following analytics pattern
         $settings = FormieRatingField::$plugin->getSettings();
-        $filenamePart = strtolower(str_replace(' ', '-', $settings->getPluralLowerDisplayName()));
-        $filename = $filenamePart . '-statistics-' . $form->handle . '-' . $dateRange . '-' . date('Y-m-d') . '.csv';
+        $filenamePart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
+
+        // Use "alltime" instead of "all" for clearer filename
+        $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
+
+        // Include groupBy in filename if set
+        $groupByPart = $groupBy ? '-' . $groupBy : '';
+
+        if ($format === 'json') {
+            // Generate JSON
+            $data = $statisticsService->generateJsonExport($form, $dateRange, $groupBy);
+            $filename = $filenamePart . '-statistics-' . $form->handle . $groupByPart . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.json';
+
+            return Craft::$app->getResponse()
+                ->sendContentAsFile($data, $filename, [
+                    'mimeType' => 'application/json',
+                ]);
+        }
+
+        // Generate CSV (default)
+        $csv = $statisticsService->generateCsvExport($form, $dateRange, $groupBy);
+        $filename = $filenamePart . '-statistics-' . $form->handle . $groupByPart . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.csv';
 
         return Craft::$app->getResponse()
             ->sendContentAsFile($csv, $filename, [

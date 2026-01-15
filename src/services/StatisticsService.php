@@ -976,6 +976,95 @@ class StatisticsService extends Component
     }
 
     /**
+     * Generate JSON export for form statistics
+     *
+     * @param Form $form
+     * @param string $dateRange
+     * @param string|null $groupByHandle
+     * @return string
+     */
+    public function generateJsonExport(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): string
+    {
+        $ratingFields = $this->getRatingFieldsForForm($form);
+
+        if (empty($ratingFields)) {
+            return json_encode(['error' => 'No rating fields found'], JSON_PRETTY_PRINT);
+        }
+
+        $exportData = [
+            'form' => [
+                'id' => $form->id,
+                'title' => $form->title,
+                'handle' => $form->handle,
+            ],
+            'dateRange' => $dateRange,
+            'exportedAt' => date('Y-m-d H:i:s'),
+            'fields' => [],
+        ];
+
+        // If grouped, export aggregated stats per group
+        if ($groupByHandle) {
+            $exportData['groupBy'] = $groupByHandle;
+
+            foreach ($ratingFields as $field) {
+                $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle);
+
+                $fieldData = [
+                    'handle' => $field->handle,
+                    'label' => $field->label,
+                    'ratingType' => $field->ratingType,
+                    'groups' => $fieldStats['groups'] ?? [],
+                ];
+
+                $exportData['fields'][] = $fieldData;
+            }
+        } else {
+            // Not grouped - export raw submission data
+            $submissions = $this->getSubmissions($form, $dateRange);
+
+            $exportData['submissions'] = [];
+
+            foreach ($submissions as $submission) {
+                $submissionData = [
+                    'id' => $submission->id,
+                    'dateCreated' => $submission->dateCreated->format('Y-m-d H:i:s'),
+                    'ratings' => [],
+                ];
+
+                foreach ($ratingFields as $field) {
+                    $value = $submission->getFieldValue($field->handle);
+                    $submissionData['ratings'][$field->handle] = [
+                        'label' => $field->label,
+                        'value' => $value,
+                    ];
+                }
+
+                $exportData['submissions'][] = $submissionData;
+            }
+
+            // Also include summary statistics
+            $exportData['summary'] = [];
+            foreach ($ratingFields as $field) {
+                $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, null);
+                $exportData['summary'][$field->handle] = [
+                    'label' => $field->label,
+                    'ratingType' => $field->ratingType,
+                    'totalResponses' => $fieldStats['totalResponses'] ?? 0,
+                    'average' => $fieldStats['average'] ?? null,
+                    'median' => $fieldStats['median'] ?? null,
+                    'mode' => $fieldStats['mode'] ?? null,
+                    'npsScore' => $fieldStats['npsScore'] ?? null,
+                    'promoters' => $fieldStats['promoters'] ?? null,
+                    'passives' => $fieldStats['passives'] ?? null,
+                    'detractors' => $fieldStats['detractors'] ?? null,
+                ];
+            }
+        }
+
+        return json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
      * Get submissions for a form within a date range
      *
      * @param Form $form
