@@ -25,9 +25,19 @@
 ] %}
 
 {% block actionButton %}
-    <a href="{{ url('formie-rating-field/statistics/export-group', {formId: form.id, groupBy: groupBy, groupValue: groupValue, dateRange: dateRange}) }}" class="btn">
-        {{ "Export CSV"|t('formie-rating-field') }}
-    </a>
+    <div id="action-button" class="btngroup">
+        <button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('formie-rating-field') }}</button>
+        <div class="menu" data-align="right">
+            <ul>
+                <li>
+                    <a href="{{ url('formie-rating-field/statistics/export-group', {formId: form.id, groupBy: groupBy, groupValue: groupValue, dateRange: dateRange, format: 'csv'}) }}">{{ "Export as CSV"|t('formie-rating-field') }}</a>
+                </li>
+                <li>
+                    <a href="{{ url('formie-rating-field/statistics/export-group', {formId: form.id, groupBy: groupBy, groupValue: groupValue, dateRange: dateRange, format: 'json'}) }}">{{ "Export as JSON"|t('formie-rating-field') }}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 {% endblock %}
 
 {% block content %}

@@ -119,7 +119,7 @@
 								<td>
 									<code>{{ item.form.handle }}</code>
 								</td>
-								<td>{{ item.ratingFieldCount }}</td>
+								<td>{{ item.ratingFieldCount|number }}</td>
 								<td>{{ item.totalSubmissions|number_format }}</td>
 								<td class="thin" style="text-align: right;">
 									<a href="{{ url('formie-rating-field/statistics/form/' ~ item.form.id) }}" class="btn" title="{{ 'View Statistics'|t('formie-rating-field') }}">
@@ -152,7 +152,7 @@
 					{% if totalItems == 0 %}
 						{{ 'no forms'|t('formie-rating-field') }}
 					{% else %}
-						{{ offset + 1 }} – {{ endRange }} of {{ totalItems }} {{ totalItems == 1 ? 'form' : 'forms' }}
+						{{ (offset + 1)|number }} – {{ endRange|number }} of {{ totalItems|number }} {{ totalItems == 1 ? 'form' : 'forms' }}
 					{% endif %}
 				</div>
 			</div>
