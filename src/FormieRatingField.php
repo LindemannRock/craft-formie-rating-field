@@ -75,8 +75,8 @@ class FormieRatingField extends Plugin
         parent::init();
         self::$plugin = $this;
 
-        // Bootstrap the base plugin helper
-        PluginHelper::bootstrap($this, 'formieRatingFieldHelper');
+        // Bootstrap the base plugin helper (registers ratingHelper Twig global)
+        PluginHelper::bootstrap($this, 'ratingHelper');
 
         // Set the alias for this module
         Craft::setAlias('@lindemannrock/formieratingfield', __DIR__);
@@ -111,9 +111,6 @@ class FormieRatingField extends Plugin
                 $event->roots['formie-rating-field'] = __DIR__ . '/templates';
             }
         );
-
-        // Register Twig extension for ratingHelper
-        Craft::$app->view->registerTwigExtension(new \lindemannrock\formieratingfield\twigextensions\PluginNameExtension());
 
         // Register cache clearing option in utilities
         Event::on(
