@@ -18,7 +18,9 @@ use craft\fields\PlainText;
 use craft\fields\RadioButtons;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\formieratingfield\fields\Rating;
+use lindemannrock\formieratingfield\FormieRatingField;
 use verbb\formie\elements\Form;
 use verbb\formie\elements\Submission;
 use verbb\formie\fields\Hidden;
@@ -417,7 +419,7 @@ class StatisticsService extends Component
      */
     private function getCachePath(): string
     {
-        return Craft::$app->getPath()->getRuntimePath() . '/formie-rating-field/cache/statistics/';
+        return PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics');
     }
 
     /**
