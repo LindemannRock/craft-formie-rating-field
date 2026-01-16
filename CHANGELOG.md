@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.14.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.13.0...v3.14.0) (2026-01-16)
+
+
+### Features
+
+* add JSON export functionality for group detail and overall statistics ([d303cb4](https://github.com/LindemannRock/craft-formie-rating-field/commit/d303cb4894474eaefaaeb0c83e6fb71f15516d90))
+* add JSON export option for statistics and group detail pages ([4d58bb1](https://github.com/LindemannRock/craft-formie-rating-field/commit/4d58bb10338384aa88099ceb75d2f08135b36edf))
+
+
+### Bug Fixes
+
+* update cache.twig to use shared info-box component and improve cache location messages ([fb60584](https://github.com/LindemannRock/craft-formie-rating-field/commit/fb6058468c7208847c727a8bd28244b25fb75c7e))
+* update hardcoded cache paths with PluginHelper for consistency ([0b8a720](https://github.com/LindemannRock/craft-formie-rating-field/commit/0b8a720fa204ada6d32a6482f9f75a1379b50651))
+* update plugin credit component path to use shared base component ([cda5121](https://github.com/LindemannRock/craft-formie-rating-field/commit/cda5121c312297215a63d6e0c3ae58486cc98955))
+
 ## [3.13.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.4...v3.13.0) (2026-01-11)
 
 
