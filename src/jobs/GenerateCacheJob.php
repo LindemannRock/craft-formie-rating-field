@@ -272,12 +272,27 @@ class GenerateCacheJob extends BaseJob
      */
     private function scheduleNext(): void
     {
+        // Prevent duplicate scheduling - check if another job already exists
+        // This prevents fan-out if multiple jobs end up in the queue (manual runs, retries, etc.)
+        $existingJob = (new \craft\db\Query())
+            ->from('{{%queue}}')
+            ->where(['like', 'job', 'formieratingfield'])
+            ->andWhere(['like', 'job', 'GenerateCacheJob'])
+            ->exists();
+
+        if ($existingJob) {
+            Craft::info('Skipping reschedule - cache generation job already exists', __METHOD__);
+            return;
+        }
+
         $delay = $this->calculateNextRunDelay();
 
         if ($delay > 0) {
             Craft::$app->getQueue()->delay($delay)->push(new self([
                 'reschedule' => true,
             ]));
+
+            Craft::info('Scheduled next cache generation', __METHOD__);
         }
     }
 }

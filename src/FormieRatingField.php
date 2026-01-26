@@ -249,8 +249,8 @@ class FormieRatingField extends Plugin
         // Check if a job is already scheduled
         $existingJob = (new \craft\db\Query())
             ->from('{{%queue}}')
-            ->where(['like', 'job', 'GenerateCacheJob'])
-            ->andWhere(['<=', 'timePushed', time() + 86400])
+            ->where(['like', 'job', 'formieratingfield'])
+            ->andWhere(['like', 'job', 'GenerateCacheJob'])
             ->exists();
 
         if (!$existingJob) {
