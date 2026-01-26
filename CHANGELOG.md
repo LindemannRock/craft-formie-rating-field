@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.14.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.0...v3.14.1) (2026-01-26)
+
+
+### Bug Fixes
+
+* **jobs:** prevent duplicate scheduling of backup jobs ([0d887ea](https://github.com/LindemannRock/craft-formie-rating-field/commit/0d887ea2f5953f8a216111de1e49ee23f43ff202))
+
 ## [3.14.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.13.0...v3.14.0) (2026-01-16)
 
 
