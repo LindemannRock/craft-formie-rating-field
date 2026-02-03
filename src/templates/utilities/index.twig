@@ -1,134 +1,79 @@
-{% import "_includes/forms" as forms %}
+{% extends 'lindemannrock-base/_layouts/cp-utilities' %}
 
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
-{% set pluginName = ratingHelper.fullName %}
 {% set settings = plugin.settings %}
 {% set cacheCount = plugin.statistics.getCacheFileCount() %}
 {% set storageMethod = settings.cacheStorageMethod %}
 
-<div style="margin-bottom: 32px;">
-	<h2>{{ pluginName }} {{ "Overview"|t('formie-rating-field') }}</h2>
-	<p class="light">{{ "Manage statistics cache and monitor performance."|t('formie-rating-field') }}</p>
-</div>
+{% set utilitiesConfig = {
+    plugin: {
+        handle: 'formie-rating-field',
+        name: ratingHelper.fullName,
+    },
+    page: {
+        title: 'Overview'|t('formie-rating-field'),
+        description: 'Manage statistics cache and monitor performance.'|t('formie-rating-field'),
+    },
+} %}
 
-<div style="margin-bottom: 40px;">
-	<h2>{{ "System Overview"|t('formie-rating-field') }}</h2>
+{% block overview %}
+    {% if storageMethod == 'redis' %}
+        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            title: 'Cache Status'|t('formie-rating-field') ~ ' (Redis)',
+            color: lrPaletteColor('emerald').color,
+            value: 'Active'|t('formie-rating-field'),
+        } only %}
+    {% else %}
+        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            title: 'Cache Status'|t('formie-rating-field') ~ ' (File)',
+            color: lrPaletteColor('emerald').color,
+            value: cacheCount,
+            description: 'Cached statistics'|t('formie-rating-field'),
+        } only %}
+    {% endif %}
+{% endblock %}
 
-	<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: stretch;">
-		<!-- Cache Status Card -->
-		<div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
-			<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-				<div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
-				<h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">
-					{{ "Cache Status"|t('formie-rating-field') }} ({{ storageMethod == 'redis' ? 'Redis' : 'File' }})
-				</h4>
-			</div>
-			<div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-				{% if storageMethod == 'redis' %}
-					<div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1;">
-						{{ "Active"|t('formie-rating-field') }}
-					</div>
-				{% else %}
-					<div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 12px;">
-						{{ cacheCount|number_format }}
-					</div>
-					<div style="font-size: 14px; color: #4b5563; margin-bottom: 12px;">{{ "Cached statistics"|t('formie-rating-field') }}</div>
-				{% endif %}
-			</div>
-		</div>
-	</div>
-</div>
+{% block quickActions %}
+    {# Navigation Section #}
+    {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+        title: 'Navigation'|t('formie-rating-field'),
+        description: 'Access main plugin sections'|t('formie-rating-field'),
+        buttons: [
+            {type: 'link', label: 'View Statistics'|t('formie-rating-field'), url: url('formie-rating-field/statistics')},
+            {type: 'link', label: 'View Settings'|t('formie-rating-field'), url: url('formie-rating-field/settings')},
+        ],
+    } only %}
 
-<!-- Quick Actions -->
-<div>
-	<h2>{{ 'Quick Actions'|t('formie-rating-field') }}</h2>
+    {# Cache Management Section #}
+    {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+        title: 'Cache Management'|t('formie-rating-field'),
+        description: 'Generate or clear statistics cache. Generation may take several minutes for large datasets.'|t('formie-rating-field'),
+        showSeparator: true,
+        buttons: [
+            {id: 'generate-cache', label: 'Generate Cache Now'|t('formie-rating-field')},
+            {id: 'clear-all-cache', label: 'Clear All Cache'|t('formie-rating-field'), class: 'btn secondary'},
+        ],
+    } only %}
+{% endblock %}
 
-	<div class="pane">
-		<div style="margin-bottom: 24px;">
-			<h3>{{ "Navigation"|t('formie-rating-field') }}</h3>
-			<p class="light" style="margin-bottom: 16px;">{{ "Access main plugin sections"|t('formie-rating-field') }}</p>
-
-			<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-				<a href="{{ url('formie-rating-field/statistics') }}" class="btn">{{ "View Statistics"|t('formie-rating-field') }}</a>
-				<a href="{{ url('formie-rating-field/settings') }}" class="btn">{{ "View Settings"|t('formie-rating-field') }}</a>
-			</div>
-		</div>
-
-		<hr style="margin: 24px 0;">
-
-		<div>
-			<h3>{{ "Cache Management"|t('formie-rating-field') }}</h3>
-			<p class="light" style="margin-bottom: 16px;">{{ "Generate or clear statistics cache. Generation may take several minutes for large datasets."|t('formie-rating-field') }}</p>
-			<div style="display: flex; gap: 10px; flex-wrap: wrap;">
-				<button type="button" class="btn" id="generate-cache">{{ "Generate Cache Now"|t('formie-rating-field') }}</button>
-				<button type="button" class="btn secondary" id="clear-all-cache">{{ "Clear All Cache"|t('formie-rating-field') }}</button>
-			</div>
-		</div>
-	</div>
-</div>
-
+{% block scripts %}
 {% js %}
-$('#generate-cache').on('click', function() {
-    const $btn = $(this);
+{% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
+    id: 'generate-cache',
+    action: actionUrl('formie-rating-field/cache/generate-all'),
+    confirm: 'This will generate cache for all forms with rating fields. This may take several minutes. Continue?'|t('formie-rating-field'),
+    successMessage: 'Cache generation started'|t('formie-rating-field'),
+    errorMessage: 'Failed to start cache generation'|t('formie-rating-field'),
+    reloadDelay: 2000,
+} only %}
 
-    if (!confirm('{{ "This will generate cache for all forms with rating fields. This may take several minutes. Continue?"|t('formie-rating-field')|e('js') }}')) {
-        return;
-    }
-
-    $btn.addClass('loading').prop('disabled', true);
-
-    $.ajax({
-        url: '{{ actionUrl('formie-rating-field/cache/generate-all')|raw }}',
-        type: 'POST',
-        data: {
-            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Craft.cp.displayNotice('{{ "Cache generation started"|t('formie-rating-field')|e('js') }}');
-                setTimeout(() => window.location.reload(), 2000);
-            } else {
-                Craft.cp.displayError('{{ "Failed to start cache generation"|t('formie-rating-field')|e('js') }}');
-            }
-        },
-        error: function() {
-            Craft.cp.displayError('{{ "Failed to start cache generation"|t('formie-rating-field')|e('js') }}');
-        },
-        complete: function() {
-            $btn.removeClass('loading').prop('disabled', false);
-        }
-    });
-});
-
-$('#clear-all-cache').on('click', function() {
-    const $btn = $(this);
-
-    if (!confirm('{{ "Clear all statistics cache?"|t('formie-rating-field')|e('js') }}')) {
-        return;
-    }
-
-    $btn.addClass('loading').prop('disabled', true);
-
-    $.ajax({
-        url: '{{ actionUrl('formie-rating-field/cache/clear-all')|raw }}',
-        type: 'POST',
-        data: {
-            {{ craft.app.config.general.csrfTokenName }}: '{{ craft.app.request.csrfToken }}'
-        },
-        success: function(response) {
-            if (response.success) {
-                Craft.cp.displayNotice('{{ "Cache cleared successfully"|t('formie-rating-field')|e('js') }}');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                Craft.cp.displayError('{{ "Failed to clear cache"|t('formie-rating-field')|e('js') }}');
-            }
-        },
-        error: function() {
-            Craft.cp.displayError('{{ "Failed to clear cache"|t('formie-rating-field')|e('js') }}');
-        },
-        complete: function() {
-            $btn.removeClass('loading').prop('disabled', false);
-        }
-    });
-});
+{% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
+    id: 'clear-all-cache',
+    action: actionUrl('formie-rating-field/cache/clear-all'),
+    confirm: 'Clear all statistics cache?'|t('formie-rating-field'),
+    successMessage: 'Cache cleared successfully'|t('formie-rating-field'),
+    errorMessage: 'Failed to clear cache'|t('formie-rating-field'),
+    reloadDelay: 1000,
+} only %}
 {% endjs %}
+{% endblock %}
