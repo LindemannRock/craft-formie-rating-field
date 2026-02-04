@@ -30,13 +30,7 @@ class CacheController extends Controller
     {
         $this->stdout("Clearing rating field statistics cache...\n");
 
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
-
-        if (!$statisticsService) {
-            $this->stderr("Error: Statistics service not available.\n");
-            return ExitCode::UNSPECIFIED_ERROR;
-        }
-
+        $statisticsService = FormieRatingField::$plugin->statistics;
         $cacheCount = $statisticsService->getCacheFileCount();
 
         if ($cacheCount === 0) {
@@ -64,12 +58,7 @@ class CacheController extends Controller
     {
         $this->stdout("Clearing statistics cache for form ID: {$formId}...\n");
 
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
-
-        if (!$statisticsService) {
-            $this->stderr("Error: Statistics service not available.\n");
-            return ExitCode::UNSPECIFIED_ERROR;
-        }
+        $statisticsService = FormieRatingField::$plugin->statistics;
 
         if ($statisticsService->clearCacheForForm($formId)) {
             $this->stdout("Successfully cleared cache for form {$formId}.\n");
@@ -87,13 +76,7 @@ class CacheController extends Controller
      */
     public function actionInfo(): int
     {
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
-
-        if (!$statisticsService) {
-            $this->stderr("Error: Statistics service not available.\n");
-            return ExitCode::UNSPECIFIED_ERROR;
-        }
-
+        $statisticsService = FormieRatingField::$plugin->statistics;
         $cacheCount = $statisticsService->getCacheFileCount();
         $cachePath = Craft::$app->getPath()->getStoragePath() . '/formie-rating-field/cache/statistics/';
         $settings = FormieRatingField::$plugin->getSettings();

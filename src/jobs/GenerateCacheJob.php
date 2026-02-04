@@ -84,7 +84,7 @@ class GenerateCacheJob extends BaseJob
     public function execute($queue): void
     {
         $settings = FormieRatingField::$plugin->getSettings();
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $statisticsService = FormieRatingField::$plugin->statistics;
 
         // If this is the first batch, calculate total batches and clear cache
         if ($this->currentBatch === 1 && !$this->formId) {

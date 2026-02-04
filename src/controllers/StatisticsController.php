@@ -36,11 +36,7 @@ class StatisticsController extends Controller
             throw new \yii\web\ServerErrorHttpException('Plugin not found');
         }
 
-        $statisticsService = $plugin->get('statistics');
-        if (!$statisticsService) {
-            throw new \yii\web\ServerErrorHttpException('Statistics service not available');
-        }
-
+        $statisticsService = $plugin->statistics;
         $settings = $plugin->getSettings();
         $request = Craft::$app->getRequest();
 
@@ -110,11 +106,11 @@ class StatisticsController extends Controller
 
         $form = Form::find()->id($formId)->one();
 
-        if (!$form) {
+        if (!$form instanceof Form) {
             throw new \yii\web\NotFoundHttpException('Form not found');
         }
 
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $statisticsService = FormieRatingField::$plugin->statistics;
         $settings = FormieRatingField::$plugin->getSettings();
 
         // Get date range from query params, use default from settings if not specified
@@ -174,7 +170,7 @@ class StatisticsController extends Controller
             throw new \yii\web\NotFoundHttpException('Form not found');
         }
 
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $statisticsService = FormieRatingField::$plugin->statistics;
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy');
 
@@ -234,14 +230,14 @@ class StatisticsController extends Controller
 
         $form = Form::find()->id($formId)->one();
 
-        if (!$form) {
+        if (!$form instanceof Form) {
             return $this->asJson([
                 'success' => false,
                 'error' => 'Form not found',
             ]);
         }
 
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $statisticsService = FormieRatingField::$plugin->statistics;
 
         try {
             $data = null;
@@ -323,7 +319,7 @@ class StatisticsController extends Controller
         }
 
         try {
-            $statisticsService = FormieRatingField::$plugin->get('statistics');
+            $statisticsService = FormieRatingField::$plugin->statistics;
             $statisticsService->clearCacheForForm($formId);
 
             return $this->asJson([
@@ -364,7 +360,7 @@ class StatisticsController extends Controller
             throw new \yii\web\NotFoundHttpException('Form not found');
         }
 
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $statisticsService = FormieRatingField::$plugin->statistics;
 
         // Get submissions for this group
         $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
@@ -482,7 +478,7 @@ class StatisticsController extends Controller
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
         $format = Craft::$app->getRequest()->getQueryParam('format', 'csv');
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $statisticsService = FormieRatingField::$plugin->statistics;
 
         // Build filename following analytics pattern
         $settings = FormieRatingField::$plugin->getSettings();

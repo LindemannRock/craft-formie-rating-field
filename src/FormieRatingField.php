@@ -126,7 +126,7 @@ class FormieRatingField extends Plugin
                         'displayName' => $displayName,
                     ]),
                     'action' => function() {
-                        $this->get('statistics')->clearAllCache();
+                        $this->statistics->clearAllCache();
                     },
                 ];
             }
@@ -198,7 +198,7 @@ class FormieRatingField extends Plugin
 
                 // Clear cache for this form's statistics
                 if ($submission->formId) {
-                    $this->get('statistics')->clearCacheForForm($submission->formId);
+                    $this->statistics->clearCacheForForm($submission->formId);
                 }
             }
         );
@@ -219,7 +219,7 @@ class FormieRatingField extends Plugin
 
                 // Clear cache for this form's statistics
                 if ($submission->formId) {
-                    $this->get('statistics')->clearCacheForForm($submission->formId);
+                    $this->statistics->clearCacheForForm($submission->formId);
                 }
             }
         );

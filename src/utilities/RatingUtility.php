@@ -49,7 +49,7 @@ class RatingUtility extends Utility
      */
     public static function contentHtml(): string
     {
-        $statisticsService = FormieRatingField::$plugin->get('statistics');
+        $statisticsService = FormieRatingField::$plugin->statistics;
         $settings = FormieRatingField::$plugin->getSettings();
         $cacheCount = $statisticsService->getCacheFileCount();
 
