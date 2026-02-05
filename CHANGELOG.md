@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.14.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.1...v3.14.2) (2026-02-05)
+
+
+### Miscellaneous Chores
+
+* **package.json:** update package name and add author/company details ([89de567](https://github.com/LindemannRock/craft-formie-rating-field/commit/89de567610f0da041a77bad0a7d0718f912f6afe))
+* **statistics:** remove backup of StatisticsController.php ([5bc7ead](https://github.com/LindemannRock/craft-formie-rating-field/commit/5bc7ead6e837f1ff536111b753bbee062ebc8ea7))
+
 ## [3.14.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.0...v3.14.1) (2026-01-26)
 
 
