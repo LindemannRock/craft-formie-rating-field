@@ -3,6 +3,14 @@
 {% set title = title ?? 'Settings'|t('formie-rating-field') %}
 {% set selectedSettingsItem = selectedSettingsItem ?? 'general' %}
 {% set selectedSubnavItem = 'settings' %}
+{% set errorSummary = '' %}
+{% if settings is defined and settings.hasErrors() %}
+    {% set errorSummary = include('lindemannrock-base/_partials/error-summary', {
+        errors: settings.getErrors(),
+        translationCategory: 'formie-rating-field',
+        linkMode: 'field-id',
+    })|trim %}
+{% endif %}
 
 {% block sidebar %}
     <nav id="settings-nav">

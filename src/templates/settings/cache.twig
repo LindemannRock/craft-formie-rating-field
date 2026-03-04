@@ -50,6 +50,7 @@
     disabled: settings.isOverriddenByConfig('cacheStorageMethod'),
     warning: settings.isOverriddenByConfig('cacheStorageMethod') ?
         "This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+    errors: settings.getErrors('cacheStorageMethod')
 }) }}
 
 {% set craftUsesRedis = craft.app.cache is defined and craft.app.cache.className is defined and craft.app.cache.className == 'yii\\redis\\Cache' %}
@@ -94,6 +95,7 @@
     disabled: settings.isOverriddenByConfig('cacheGenerationSchedule'),
     warning: settings.isOverriddenByConfig('cacheGenerationSchedule') ?
         "This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+    errors: settings.getErrors('cacheGenerationSchedule')
 }) }}
 
 {% if settings.cacheGenerationSchedule == 'manual' or not settings.cacheGenerationSchedule %}

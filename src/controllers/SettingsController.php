@@ -104,16 +104,26 @@ class SettingsController extends Controller
         }
 
         $params = Craft::$app->getRequest()->getBodyParam('settings', []);
+        $section = $this->validSection((string) Craft::$app->getRequest()->getBodyParam('section', 'general'));
         $plugin = FormieRatingField::$plugin;
         $settings = $plugin->getSettings();
 
         // Set the new values
         $settings->setAttributes($params, false);
 
+        $attributesToValidate = $this->validationAttributesForSection($section);
+        $attributesToValidate = array_values(array_filter(
+            $attributesToValidate,
+            fn(string $attribute): bool => !$settings->isOverriddenByConfig($attribute),
+        ));
+
         // Validate
-        if (!$settings->validate()) {
+        if (!$settings->validate($attributesToValidate)) {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Could not save settings.'));
-            return $this->asFailure('Could not save settings.');
+            return $this->renderTemplate("formie-rating-field/settings/{$section}", [
+                'settings' => $settings,
+                'readOnly' => $this->readOnly,
+            ]);
         }
 
         // Save the settings
@@ -125,5 +135,42 @@ class SettingsController extends Controller
         Craft::$app->getSession()->setNotice(Craft::t('formie-rating-field', 'Settings saved.'));
 
         return $this->redirectToPostedUrl();
+    }
+
+    private function validSection(string $section): string
+    {
+        $allowed = ['general', 'interface', 'cache'];
+        return in_array($section, $allowed, true) ? $section : 'general';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function validationAttributesForSection(string $section): array
+    {
+        return match ($section) {
+            'general' => [
+                'pluginName',
+                'defaultRatingType',
+                'defaultEmojiRenderMode',
+                'defaultRatingSize',
+                'defaultMinRating',
+                'defaultMaxRating',
+                'defaultAllowHalfRatings',
+                'defaultShowSelectedLabel',
+                'defaultShowEndpointLabels',
+                'defaultStartLabel',
+                'defaultEndLabel',
+            ],
+            'interface' => [
+                'itemsPerPage',
+                'defaultDateRange',
+            ],
+            'cache' => [
+                'cacheStorageMethod',
+                'cacheGenerationSchedule',
+            ],
+            default => [],
+        };
     }
 }

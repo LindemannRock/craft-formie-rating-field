@@ -68,6 +68,7 @@
         disabled: settings.isOverriddenByConfig('defaultDateRange'),
         warning: settings.isOverriddenByConfig('defaultDateRange') ?
             "This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        errors: settings.getErrors('defaultDateRange')
     }) }}
 </fieldset>
 

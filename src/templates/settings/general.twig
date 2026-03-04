@@ -48,7 +48,8 @@
         placeholder: 'Formie Rating Field',
         warning: settings.isOverriddenByConfig('pluginName') ?
             "This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('pluginName')
+        disabled: settings.isOverriddenByConfig('pluginName'),
+        errors: settings.getErrors('pluginName')
     }) }}
 </fieldset>
 
@@ -71,7 +72,8 @@
         ],
         warning: settings.isOverriddenByConfig('defaultRatingType') ?
             "This is being overridden by the <code>defaultRatingType</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultRatingType')
+        disabled: settings.isOverriddenByConfig('defaultRatingType'),
+        errors: settings.getErrors('defaultRatingType')
     }) }}
 
 	{{ forms.selectField({
@@ -87,7 +89,8 @@
         ],
         warning: settings.isOverriddenByConfig('defaultEmojiRenderMode') ?
             "This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultEmojiRenderMode')
+        disabled: settings.isOverriddenByConfig('defaultEmojiRenderMode'),
+        errors: settings.getErrors('defaultEmojiRenderMode')
     }) }}
 
 	{{ forms.selectField({
@@ -104,7 +107,8 @@
         ],
         warning: settings.isOverriddenByConfig('defaultRatingSize') ?
             "This is being overridden by the <code>defaultRatingSize</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultRatingSize')
+        disabled: settings.isOverriddenByConfig('defaultRatingSize'),
+        errors: settings.getErrors('defaultRatingSize')
     }) }}
 
 	<div class="field">
@@ -127,7 +131,8 @@
                 width: 25,
                 warning: settings.isOverriddenByConfig('defaultMinRating') ?
                     "This is being overridden by the <code>defaultMinRating</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-                disabled: settings.isOverriddenByConfig('defaultMinRating')
+                disabled: settings.isOverriddenByConfig('defaultMinRating'),
+                errors: settings.getErrors('defaultMinRating')
             }) }}
 
 			{{ forms.selectField({
@@ -148,7 +153,8 @@
                 width: 25,
                 warning: settings.isOverriddenByConfig('defaultMaxRating') ?
                     "This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-                disabled: settings.isOverriddenByConfig('defaultMaxRating')
+                disabled: settings.isOverriddenByConfig('defaultMaxRating'),
+                errors: settings.getErrors('defaultMaxRating')
             }) }}
 		</div>
 	</div>
@@ -161,7 +167,8 @@
         on: settings.defaultAllowHalfRatings ?? false,
         warning: settings.isOverriddenByConfig('defaultAllowHalfRatings') ?
             "This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultAllowHalfRatings')
+        disabled: settings.isOverriddenByConfig('defaultAllowHalfRatings'),
+        errors: settings.getErrors('defaultAllowHalfRatings')
     }) }}
 </fieldset>
 
@@ -178,7 +185,8 @@
         on: settings.defaultShowSelectedLabel ?? false,
         warning: settings.isOverriddenByConfig('defaultShowSelectedLabel') ?
             "This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultShowSelectedLabel')
+        disabled: settings.isOverriddenByConfig('defaultShowSelectedLabel'),
+        errors: settings.getErrors('defaultShowSelectedLabel')
     }) }}
 
 	{{ forms.lightswitchField({
@@ -189,7 +197,8 @@
         on: settings.defaultShowEndpointLabels ?? false,
         warning: settings.isOverriddenByConfig('defaultShowEndpointLabels') ?
             "This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultShowEndpointLabels')
+        disabled: settings.isOverriddenByConfig('defaultShowEndpointLabels'),
+        errors: settings.getErrors('defaultShowEndpointLabels')
     }) }}
 
 	{{ forms.textField({
@@ -201,7 +210,8 @@
         placeholder: 'e.g., Poor',
         warning: settings.isOverriddenByConfig('defaultStartLabel') ?
             "This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultStartLabel')
+        disabled: settings.isOverriddenByConfig('defaultStartLabel'),
+        errors: settings.getErrors('defaultStartLabel')
     }) }}
 
 	{{ forms.textField({
@@ -213,7 +223,8 @@
         placeholder: 'e.g., Excellent',
         warning: settings.isOverriddenByConfig('defaultEndLabel') ?
             "This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultEndLabel')
+        disabled: settings.isOverriddenByConfig('defaultEndLabel'),
+        errors: settings.getErrors('defaultEndLabel')
     }) }}
 </fieldset>
 
