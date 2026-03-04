@@ -18,12 +18,14 @@ use craft\fields\PlainText;
 use craft\fields\RadioButtons;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\FormieRatingField;
 use verbb\formie\elements\Form;
 use verbb\formie\elements\Submission;
 use verbb\formie\fields\Hidden;
+use yii\db\Expression;
 
 /**
  * Statistics Service
@@ -255,12 +257,16 @@ class StatisticsService extends Component
         $dateStart = $this->getDateRangeStart($dateRange);
         $groupByUid = $groupByField->uid;
 
-        // Build the query using field UIDs (escaped with quotes for JSON path)
+        // Build the query using field UIDs with DB-agnostic helpers
+        $groupByExpr = DbHelper::jsonExtract('content', $groupByUid);
+        $ratingExpr = DbHelper::jsonExtract('content', $ratingFieldUid);
+        $ratingCast = new Expression("CAST($ratingExpr AS DECIMAL(10,2))");
+
         $query = (new Query())
             ->select([
-                'groupValue' => "COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $groupByUid . "\"')), ''), '(Not Set)')",
+                'groupValue' => "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')",
                 'count' => 'COUNT(*)',
-                'ratingValues' => "GROUP_CONCAT(CAST(JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $ratingFieldUid . "\"')) AS DECIMAL(10,2)))",
+                'ratingValues' => DbHelper::groupConcat($ratingCast),
             ])
             ->from('{{%formie_submissions}}')
             ->where([
@@ -268,8 +274,8 @@ class StatisticsService extends Component
                 'isIncomplete' => false,
                 'isSpam' => false,
             ])
-            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $ratingFieldUid . "\"')) IS NOT NULL")
-            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(content, '$.\"" . $ratingFieldUid . "\"')) != ''")
+            ->andWhere(['not', [$ratingExpr => null]])
+            ->andWhere(['!=', $ratingExpr, ''])
             ->groupBy('groupValue')
             ->orderBy(['count' => SORT_DESC]);
 
