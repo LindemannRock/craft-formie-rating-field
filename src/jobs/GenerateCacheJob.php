@@ -10,7 +10,9 @@ namespace lindemannrock\formieratingfield\jobs;
 
 use Craft;
 use craft\queue\BaseJob;
+use lindemannrock\base\traits\QueueTtrTrait;
 use lindemannrock\formieratingfield\FormieRatingField;
+use yii\queue\RetryableJobInterface;
 
 /**
  * Generate Cache Job
@@ -20,8 +22,10 @@ use lindemannrock\formieratingfield\FormieRatingField;
  * @author LindemannRock
  * @since 3.3.0
  */
-class GenerateCacheJob extends BaseJob
+class GenerateCacheJob extends BaseJob implements RetryableJobInterface
 {
+    use QueueTtrTrait;
+
     /**
      * @var bool Whether to reschedule after completion
      */
@@ -61,6 +65,14 @@ class GenerateCacheJob extends BaseJob
      * @var int Total batches
      */
     public int $totalBatches = 1;
+
+    /**
+     * @inheritdoc
+     */
+    public function canRetry($attempt, $error): bool
+    {
+        return false;
+    }
 
     /**
      * @inheritdoc
