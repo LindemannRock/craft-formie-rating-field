@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.14.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.2...v3.14.3) (2026-03-04)
+
+
+### Bug Fixes
+
+* **GenerateCacheJob:** implement RetryableJobInterface and update canRetry method ([6e07bb7](https://github.com/LindemannRock/craft-formie-rating-field/commit/6e07bb79a976109e027cd0e5a9707187ce86aae2))
+* **SettingsController:** validate settings based on section and add error handling ([bd02aed](https://github.com/LindemannRock/craft-formie-rating-field/commit/bd02aede6357987bd37ead912e76eb9af4dbd79a))
+* **StatisticsService:** improve query building with DB-agnostic helpers ([191471e](https://github.com/LindemannRock/craft-formie-rating-field/commit/191471ef6ac8447fa9c2d745007137eb5aba37c5))
+
+
+### Miscellaneous Chores
+
+* add .gitattributes with export-ignore for Packagist distribution ([f6a2300](https://github.com/LindemannRock/craft-formie-rating-field/commit/f6a230049770f57348a2a35a5a56cf8991123a50))
+* switch to Craft License for commercial release ([3e72082](https://github.com/LindemannRock/craft-formie-rating-field/commit/3e7208234381fe4813ac74c082fadb47342a51ab))
+
 ## [3.14.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.1...v3.14.2) (2026-02-05)
 
 
