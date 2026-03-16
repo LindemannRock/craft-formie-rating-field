@@ -1,0 +1,19 @@
+{
+  "name": "@lindemannrock/formie-rating-field",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd src/web/assets/field && npm run build",
+    "minify": "cd src/web/assets/field && npm run minify"
+  },
+  "author": {
+    "name": "Bilal Harry Lindemann",
+    "email": "hello@lindemannrock.com",
+    "url": "https://lindemannrock.com"
+  },
+  "company": {
+    "name": "LindemannRock",
+    "url": "https://lindemannrock.com"
+  },
+  "license": "Proprietary"
+}
