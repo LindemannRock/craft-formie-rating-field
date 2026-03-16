@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "cd src/web/assets/field && npm run build",
-    "minify": "cd src/web/assets/field && npm run minify"
+    "build": "cd src/web/assets/field && npm run build"
   },
   "author": {
     "name": "Bilal Harry Lindemann",
