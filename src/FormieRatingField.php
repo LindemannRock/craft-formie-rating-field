@@ -293,7 +293,6 @@ class FormieRatingField extends Plugin
 
         if ($item) {
             $item['label'] = $this->getSettings()->getFullName();
-            $item['icon'] = '@appicons/star.svg';
 
             $item['subnav'] = [
                 'statistics' => [

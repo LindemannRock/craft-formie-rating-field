@@ -41,7 +41,7 @@ class RatingUtility extends Utility
      */
     public static function icon(): ?string
     {
-        return 'star';
+        return '@lindemannrock/formieratingfield/icon-mask.svg';
     }
 
     /**
