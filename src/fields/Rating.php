@@ -1062,7 +1062,7 @@ class Rating extends Field implements FieldInterface
         $publishedUrl = Craft::$app->getAssetManager()->getPublishedUrl($assetPath, true);
 
         $modules = [
-            'src' => $publishedUrl . '/' . (Craft::$app->getConfig()->getGeneral()->devMode ? 'rating.js' : 'rating.min.js'),
+            'src' => $publishedUrl . '/dist/js/rating.js',
             'module' => 'FormieRating',
             'settings' => [
                 'ratingType' => $this->ratingType,

@@ -4,9 +4,10 @@ This directory contains the CSS and JavaScript assets for the Formie Rating Fiel
 
 ## Files
 
-- **rating.js** - The main JavaScript file that handles the rating field functionality
-- **rating.min.js** - Minified version of rating.js (used in production)
-- **rating.css** - Styles for the rating field
+- **src/js/rating.js** - Editable JavaScript source for the rating field functionality
+- **src/css/rating.css** - Editable CSS source for the rating field
+- **dist/js/rating.js** - Built JavaScript shipped with the plugin
+- **dist/css/rating.css** - Built CSS shipped with the plugin
 - **RatingFieldAsset.php** - Asset bundle that registers the CSS and JS files
 
 ## How it Works
@@ -49,8 +50,8 @@ The field automatically integrates with Formie's event system:
 ## Development
 
 To modify the assets:
-1. Edit `rating.js` and `rating.css`
-2. Minify the JS for production: Use any JS minifier to create `rating.min.js`
-3. Test in both dev mode (unminified) and production mode (minified)
+1. Edit `src/js/rating.js` and `src/css/rating.css`
+2. Run `npm run build`
+3. Test the built output from `dist/js/rating.js` and `dist/css/rating.css`
 
-The asset bundle automatically uses the appropriate version based on Craft's `devMode` setting.
+The asset bundle always uses the built files from `dist/`.

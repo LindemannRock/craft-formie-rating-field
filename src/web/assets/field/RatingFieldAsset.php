@@ -8,7 +8,6 @@
 
 namespace lindemannrock\formieratingfield\web\assets\field;
 
-use Craft;
 use craft\web\AssetBundle;
 use lindemannrock\formieratingfield\FormieRatingField;
 
@@ -28,17 +27,16 @@ class RatingFieldAsset extends AssetBundle
      */
     public function init(): void
     {
-        // Define the path to the assets folder
-        $this->sourcePath = __DIR__;
+        // Define the path to the built assets folder
+        $this->sourcePath = __DIR__ . '/dist';
 
         // Define which files to include
         $this->css = [
-            'rating.css',
+            'css/rating.css',
         ];
 
-        // Use minified JS in production
         $this->js = [
-            Craft::$app->getConfig()->getGeneral()->devMode ? 'rating.js' : 'rating.min.js',
+            'js/rating.js',
         ];
 
         parent::init();
