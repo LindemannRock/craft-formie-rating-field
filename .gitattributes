@@ -1,4 +1,12 @@
 # Exclude dev/build files from Packagist distribution
 ecs.php          export-ignore
 phpstan.neon     export-ignore
+
+# Field assets: only dist/ is needed
+src/web/assets/field/src/                  export-ignore
+src/web/assets/field/node_modules/         export-ignore
+src/web/assets/field/package.json          export-ignore
+src/web/assets/field/package-lock.json     export-ignore
+
+# Docs are available on the website
 docs/            export-ignore

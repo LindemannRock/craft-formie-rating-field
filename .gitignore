@@ -16,7 +16,7 @@ ehthumbs.db
 Desktop.ini
 
 # Dependencies
-/node_modules/
+node_modules/
 /vendor/
 
 # Build artifacts
@@ -33,10 +33,8 @@ yarn-error.log*
 /tmp/
 /temp/
 
-# Development files
-TODO.md
-FREEMIUM_PLAN.md
-README.md.backup
+# Internal
+/.internal/
 
 # Plugin releases
 *.zip
