@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.15.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.3...v3.15.0) (2026-04-02)
+
+
+### Features
+
+* **rating:** add styles for rating field including stars and emojis ([1a0d9fc](https://github.com/LindemannRock/craft-formie-rating-field/commit/1a0d9fcc9b465bd85de97763defed73fb978254b))
+* **rating:** implement rating field functionality with dynamic UI ([5321036](https://github.com/LindemannRock/craft-formie-rating-field/commit/5321036e4659884e50db5efcd7d629e1f6b0ee89))
+
+
+### Bug Fixes
+
+* **RatingUtility:** update icon path to use new SVG file ([d94f644](https://github.com/LindemannRock/craft-formie-rating-field/commit/d94f644a0abac11cf2b9a4a1c2fdae63f3cbde8e))
+* **settings:** remove redundant submit button from settings forms ([a32b584](https://github.com/LindemannRock/craft-formie-rating-field/commit/a32b584c5d08de0140365d103521603cbc60ddd3))
+
+
+### Miscellaneous Chores
+
+* **gitignore:** update .gitignore and .gitattributes for asset exclusions ([3afbfe6](https://github.com/LindemannRock/craft-formie-rating-field/commit/3afbfe685efea40db22e93a980df36fc94f33590))
+* **package:** add package.json for project configuration and scripts ([9d409a2](https://github.com/LindemannRock/craft-formie-rating-field/commit/9d409a294baf0e1df4efd3db4849ec42d215387e))
+* **package:** remove unused minify scripts from package.json ([bc2f00e](https://github.com/LindemannRock/craft-formie-rating-field/commit/bc2f00e85c929e87a98ed4aa774b997e2009cd99))
+
 ## [3.14.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.2...v3.14.3) (2026-03-04)
 
 
