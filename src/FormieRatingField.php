@@ -63,6 +63,11 @@ class FormieRatingField extends Plugin
     public bool $hasCpSettings = true;
 
     /**
+     * @var bool Whether the plugin settings page is accessible when allowAdminChanges is false
+     */
+    public bool $hasReadOnlyCpSettings = true;
+
+    /**
      * @var bool Whether the plugin has its own CP section
      */
     public bool $hasCpSection = true;
@@ -280,6 +285,14 @@ class FormieRatingField extends Plugin
      * @inheritdoc
      */
     public function getSettingsResponse(): mixed
+    {
+        return Craft::$app->controller->redirect('formie-rating-field/settings');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getReadOnlySettingsResponse(): mixed
     {
         return Craft::$app->controller->redirect('formie-rating-field/settings');
     }
