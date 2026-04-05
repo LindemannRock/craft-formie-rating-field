@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.15.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.0...v3.15.1) (2026-04-05)
+
+
+### Bug Fixes
+
+* read-only settings response ([c12cef9](https://github.com/LindemannRock/craft-formie-rating-field/commit/c12cef95dbf40d01bc66350001573334664f5282))
+
 ## [3.15.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.3...v3.15.0) (2026-04-02)
 
 
