@@ -18,6 +18,7 @@ use craft\fields\PlainText;
 use craft\fields\RadioButtons;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\formieratingfield\fields\Rating;
@@ -182,6 +183,28 @@ class StatisticsService extends Component
     private function calculateFieldStatistics(Form $form, Rating $field, string $dateRange = 'all'): array
     {
         $submissions = $this->getSubmissions($form, $dateRange);
+
+        return $this->calculateStatsForSubmissions($submissions, $field);
+    }
+
+    /**
+     * Calculate rating statistics for a pre-fetched set of submissions.
+     *
+     * Use this when another plugin (e.g. Campaign Manager) has already
+     * matched submissions by its own criteria and needs NPS/rating math
+     * applied to them, independent of form + date range.
+     *
+     * The caller is responsible for fetching the submissions. Results are
+     * not cached — caching is skipped because the caller owns the matching
+     * criteria and no cache key can be derived safely from here.
+     *
+     * @param Submission[] $submissions Pre-fetched submissions
+     * @param Rating $field The rating field to analyze
+     * @return array Stats in the same shape as getFieldStatistics()'s summary output
+     * @since 3.16.0
+     */
+    public function calculateStatsForSubmissions(array $submissions, Rating $field): array
+    {
         $values = $this->extractFieldValues($submissions, $field);
 
         $stats = [
@@ -254,7 +277,7 @@ class StatisticsService extends Component
         }
 
         // Use database aggregation for better performance
-        $dateStart = $this->getDateRangeStart($dateRange);
+        $dateBounds = DateRangeHelper::getBounds($dateRange);
         $groupByUid = $groupByField->uid;
 
         // Build the query using field UIDs with DB-agnostic helpers
@@ -280,8 +303,11 @@ class StatisticsService extends Component
             ->orderBy(['count' => SORT_DESC]);
 
         // Add date filter if specified
-        if ($dateStart) {
-            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($dateStart)]);
+        if ($dateBounds['start']) {
+            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($dateBounds['start'])]);
+        }
+        if ($dateBounds['end']) {
+            $query->andWhere(['<', 'dateCreated', Db::prepareDateForDb($dateBounds['end'])]);
         }
 
         $results = $query->all();
@@ -1085,10 +1111,13 @@ class StatisticsService extends Component
             ->formId($form->id)
             ->orderBy(['dateCreated' => SORT_DESC]);
 
-        $dateStart = $this->getDateRangeStart($dateRange);
+        $bounds = DateRangeHelper::getBounds($dateRange);
 
-        if ($dateStart) {
-            $query->andWhere(['>=', 'dateCreated', $dateStart->format('Y-m-d H:i:s')]);
+        if ($bounds['start']) {
+            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($bounds['start'])]);
+        }
+        if ($bounds['end']) {
+            $query->andWhere(['<', 'dateCreated', Db::prepareDateForDb($bounds['end'])]);
         }
 
         // For very large datasets, consider limiting
@@ -1121,38 +1150,6 @@ class StatisticsService extends Component
     }
 
     /**
-     * Get date range start date
-     *
-     * @param string $dateRange
-     * @return \DateTime|null
-     */
-    private function getDateRangeStart(string $dateRange): ?\DateTime
-    {
-        $now = new \DateTime();
-
-        switch ($dateRange) {
-            case 'today':
-                return $now->setTime(0, 0, 0);
-
-            case 'yesterday':
-                return $now->modify('-1 day')->setTime(0, 0, 0);
-
-            case 'last7days':
-                return $now->modify('-7 days')->setTime(0, 0, 0);
-
-            case 'last30days':
-                return $now->modify('-30 days')->setTime(0, 0, 0);
-
-            case 'last90days':
-                return $now->modify('-90 days')->setTime(0, 0, 0);
-
-            case 'all':
-            default:
-                return null;
-        }
-    }
-
-    /**
      * Get appropriate date format based on range
      *
      * @param string $dateRange
@@ -1170,9 +1167,16 @@ class StatisticsService extends Component
 
             case 'last30days':
             case 'last90days':
+            case 'thisMonth':
+            case 'lastMonth':
                 return 'Y-m-d'; // Daily
 
+            case 'thisYear':
+            case 'lastYear':
+                return 'Y-m'; // Monthly
+
             case 'all':
+            case 'alltime':
             default:
                 // For large datasets, group by week instead of month
                 return 'Y-W'; // Weekly (Year-Week)
