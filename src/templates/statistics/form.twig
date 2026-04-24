@@ -26,7 +26,7 @@
     {% for field in ratingFields %}
         {% set tabs = tabs|merge({
             (field.handle): {
-                label: field.label,
+                label: field.label|lrShortLabel(40),
                 url: '#' ~ field.handle,
             }
         }) %}
@@ -65,7 +65,7 @@
                         <span id="fieldFilterLabel">
                             {% if fieldFilter %}
                                 {% set selectedField = allRatingFields|filter(f => f.handle == fieldFilter)|first %}
-                                {{ selectedField ? selectedField.label : 'All Fields' }}
+                                {{ selectedField ? selectedField.label|lrShortLabel : 'All Fields' }}
                             {% else %}
                                 {{ "All Fields"|t('formie-rating-field') }}
                             {% endif %}
@@ -75,7 +75,7 @@
                         <ul>
                             <li><a href="#" data-field="" class="field-filter-option {{ not fieldFilter ? 'sel' : '' }}">{{ "All Fields"|t('formie-rating-field') }}</a></li>
                             {% for field in allRatingFields %}
-                                <li><a href="#" data-field="{{ field.handle }}" class="field-filter-option {{ fieldFilter == field.handle ? 'sel' : '' }}">{{ field.label }}</a></li>
+                                <li><a href="#" data-field="{{ field.handle }}" class="field-filter-option {{ fieldFilter == field.handle ? 'sel' : '' }}" title="{{ field.label }}">{{ field.label|lrShortLabel }}</a></li>
                             {% endfor %}
                         </ul>
                     </div>
