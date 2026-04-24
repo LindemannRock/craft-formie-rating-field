@@ -59,12 +59,7 @@
         id: 'defaultDateRange',
         name: 'settings[defaultDateRange]',
         value: settings.defaultDateRange ?? 'last30days',
-        options: [
-            { value: 'last7days', label: 'Last 7 Days'|t('formie-rating-field') },
-            { value: 'last30days', label: 'Last 30 Days'|t('formie-rating-field') },
-            { value: 'last90days', label: 'Last 90 Days'|t('formie-rating-field') },
-            { value: 'all', label: 'All Time'|t('formie-rating-field') },
-        ],
+        options: lrDateRangeOptions(),
         disabled: settings.isOverriddenByConfig('defaultDateRange'),
         warning: settings.isOverriddenByConfig('defaultDateRange') ?
             "This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,

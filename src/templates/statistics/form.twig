@@ -18,6 +18,8 @@
     },
 ] %}
 
+{% set dateRangeOptions = lrDateRangeOptions('assoc') %}
+
 {# Create tabs if multiple rating fields #}
 {% if ratingFields|length > 1 %}
     {% set tabs = {} %}
@@ -84,16 +86,13 @@
         <div>
             <div class="btngroup">
                 <button type="button" class="btn menubtn">
-                    <span id="dateRangeLabel">{{ dateRange == 'today' ? 'Today' : (dateRange == 'yesterday' ? 'Yesterday' : (dateRange == 'last7days' ? 'Last 7 days' : (dateRange == 'last30days' ? 'Last 30 days' : (dateRange == 'last90days' ? 'Last 90 days' : 'All time')))) }}</span>
+                    <span id="dateRangeLabel">{{ dateRangeOptions[dateRange] ?? dateRangeOptions['all'] }}</span>
                 </button>
                 <div class="menu">
                     <ul>
-                        <li><a href="#" data-range="today" class="main-date-range-option {{ dateRange == 'today' ? 'sel' : '' }}">{{ "Today"|t('formie-rating-field') }}</a></li>
-                        <li><a href="#" data-range="yesterday" class="main-date-range-option {{ dateRange == 'yesterday' ? 'sel' : '' }}">{{ "Yesterday"|t('formie-rating-field') }}</a></li>
-                        <li><a href="#" data-range="last7days" class="main-date-range-option {{ dateRange == 'last7days' ? 'sel' : '' }}">{{ "Last 7 days"|t('formie-rating-field') }}</a></li>
-                        <li><a href="#" data-range="last30days" class="main-date-range-option {{ dateRange == 'last30days' ? 'sel' : '' }}">{{ "Last 30 days"|t('formie-rating-field') }}</a></li>
-                        <li><a href="#" data-range="last90days" class="main-date-range-option {{ dateRange == 'last90days' ? 'sel' : '' }}">{{ "Last 90 days"|t('formie-rating-field') }}</a></li>
-                        <li><a href="#" data-range="all" class="main-date-range-option {{ dateRange == 'all' ? 'sel' : '' }}">{{ "All time"|t('formie-rating-field') }}</a></li>
+                        {% for value, label in dateRangeOptions %}
+                            <li><a href="#" data-range="{{ value }}" class="main-date-range-option {{ dateRange == value ? 'sel' : '' }}">{{ label }}</a></li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -697,14 +696,7 @@
             const range = $btn.data('range');
 
             // Update the button text
-            const rangeLabels = {
-                'today': '{{ "Today"|t('formie-rating-field')|e('js') }}',
-                'yesterday': '{{ "Yesterday"|t('formie-rating-field')|e('js') }}',
-                'last7days': '{{ "Last 7 days"|t('formie-rating-field')|e('js') }}',
-                'last30days': '{{ "Last 30 days"|t('formie-rating-field')|e('js') }}',
-                'last90days': '{{ "Last 90 days"|t('formie-rating-field')|e('js') }}',
-                'all': '{{ "All time"|t('formie-rating-field')|e('js') }}'
-            };
+            const rangeLabels = {{ dateRangeOptions|json_encode|raw }};
 
             $('#dateRangeLabel').text(rangeLabels[range] || range);
 

@@ -122,7 +122,7 @@ class Settings extends Model
             [['defaultEmojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
             [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
             [['cacheGenerationSchedule'], 'in', 'range' => ['manual', 'every3hours', 'every6hours', 'every12hours', 'daily', 'daily2am', 'twicedaily', 'weekly']],
-            [['defaultDateRange'], 'in', 'range' => ['last7days', 'last30days', 'last90days', 'all']],
+            [['defaultDateRange'], 'in', 'range' => ['today', 'yesterday', 'last7days', 'last30days', 'last90days', 'thisMonth', 'lastMonth', 'thisYear', 'lastYear', 'all']],
         ];
     }
 
