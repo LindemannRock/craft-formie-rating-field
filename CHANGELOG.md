@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.16.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.1...v3.16.0) (2026-04-25)
+
+
+### Features
+
+* **settings:** expand defaultDateRange options for improved flexibility ([a73d280](https://github.com/LindemannRock/craft-formie-rating-field/commit/a73d28020ce558221569d53a86aad183f43a5be4))
+* **statistics:** add calculateStatsForSubmissions method for external submission analysis ([94053c9](https://github.com/LindemannRock/craft-formie-rating-field/commit/94053c9f2beed161085c79c9dbd3873235db08bb))
+* **statistics:** enhance export functionality to support multi-sheet Excel and ZIP of CSVs ([30a7f2a](https://github.com/LindemannRock/craft-formie-rating-field/commit/30a7f2ac71b19b8c1bc7cfa1de997d7b91fd1856))
+* **statistics:** enhance NPS calculation and export format validation ([2d09b80](https://github.com/LindemannRock/craft-formie-rating-field/commit/2d09b800ff63ca3349284c21515ed1003cdfd675))
+* **statistics:** implement export functionality for grouped and ungrouped statistics ([38ad0e7](https://github.com/LindemannRock/craft-formie-rating-field/commit/38ad0e713cf6c756c9c243330964285e6e80a8f6))
+* **statistics:** shorten field labels in tabs and filters for better display ([271ab7b](https://github.com/LindemannRock/craft-formie-rating-field/commit/271ab7bb23380df18658b1443a664077f359d275))
+
+
+### Bug Fixes
+
+* drop PAT requirement for release-please — use built-in GITHUB_TOKEN ([c5652b2](https://github.com/LindemannRock/craft-formie-rating-field/commit/c5652b216440bfade9119a46fb5991ba6deb7756))
+* **statistics:** update card values to handle zero responses gracefully ([1bf1726](https://github.com/LindemannRock/craft-formie-rating-field/commit/1bf17264125e079f3e5b3609e18fe5023fa1b834))
+
 ## [3.15.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.0...v3.15.1) (2026-04-05)
 
 
