@@ -137,17 +137,14 @@
             <div id="{{ field.handle }}" {% if ratingFields|length > 1 and not isFirstField %}class="hidden"{% endif %}>
 
             <div style="margin-bottom: 32px;">
-                <h2>{{ field.label }}
-                    <span style="font-size: 14px; font-weight: normal; color: #8f98a3; margin-left: 10px;">
-                        ({{ isNps ? 'NPS' : (stats.fieldType == 'star' ? 'Star Rating' : 'Emoji Rating') }})
-                    </span>
+                <h2 style="margin: 0 0 6px;">{{ field.label }}</h2>
+                <p class="lr-text-muted" style="margin: 0 0 16px; font-size: 13px;">
+                    ({{ isNps ? 'NPS' : (stats.fieldType == 'star' ? 'Star Rating' : 'Emoji Rating') }})
                     {% set settings = craft.app.plugins.getPlugin('formie-rating-field').settings %}
                     {% if settings.cacheGenerationSchedule != 'manual' %}
-                        <span style="font-size: 14px; font-weight: normal; color: #8f98a3; margin-left: 10px;">
-                            • {{ "Last updated:"|t('formie-rating-field') }} {{ now|datetime('short') }}
-                        </span>
+                        • {{ "Last updated: {time}"|t('formie-rating-field', {time: now|lrDatetime('short')}) }}
                     {% endif %}
-                </h2>
+                </p>
             </div>
 
             {# Grouped Statistics - Summary Cards #}
@@ -376,7 +373,7 @@
 
             {# Summary Statistics #}
             {% if not isGrouped %}
-            <div class="analytics-stats">
+            <div class="lr-unified-cards {{ isNps ? 'cols-5' : 'cols-4' }}">
                 {% if isNps %}
                     {% set npsScore = stats.npsScore ?? 0 %}
                     {% set promoters = stats.promoters ?? 0 %}
@@ -385,52 +382,71 @@
                     {% set passivesPercentage = stats.passivesPercentage ?? 0 %}
                     {% set detractors = stats.detractors ?? 0 %}
                     {% set detractorsPercentage = stats.detractorsPercentage ?? 0 %}
+                    {% set npsDisplay = (npsScore == npsScore|round(0)) ? npsScore|number_format(0) : npsScore|number_format(1) %}
+                    {% set npsColor = npsScore >= 50 ? '#10b981' : (npsScore >= 0 ? '#f59e0b' : '#ef4444') %}
 
-                    <div class="stat-box {{ npsScore >= 50 ? 'positive' : (npsScore >= 0 ? 'neutral' : 'negative') }}">
-                        <div class="stat-value">{{ npsScore }}</div>
-                        <div class="stat-label">{{ "NPS Score"|t('formie-rating-field') }}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" style="color: #27ae60;">{{ promoters|number }}</div>
-                        <div class="stat-label">
-                            {{ "Promoters"|t('formie-rating-field') }}
-                            <span class="light">({{ promotersPercentage }}%)</span>
-                        </div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" style="color: #f39c12;">{{ passives|number }}</div>
-                        <div class="stat-label">
-                            {{ "Passives"|t('formie-rating-field') }}
-                            <span class="light">({{ passivesPercentage }}%)</span>
-                        </div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" style="color: #e74c3c;">{{ detractors|number }}</div>
-                        <div class="stat-label">
-                            {{ "Detractors"|t('formie-rating-field') }}
-                            <span class="light">({{ detractorsPercentage }}%)</span>
-                        </div>
-                    </div>
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: npsDisplay,
+                        valueIsFormatted: true,
+                        valueColor: npsColor,
+                        description: 'NPS Score'|t('formie-rating-field'),
+                        align: 'center',
+                    } only %}
+
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: promoters,
+                        valueColor: '#10b981',
+                        description: 'Promoters ({pct}%)'|t('formie-rating-field', {pct: promotersPercentage}),
+                        align: 'center',
+                    } only %}
+
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: passives,
+                        valueColor: '#f59e0b',
+                        description: 'Passives ({pct}%)'|t('formie-rating-field', {pct: passivesPercentage}),
+                        align: 'center',
+                    } only %}
+
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: detractors,
+                        valueColor: '#ef4444',
+                        description: 'Detractors ({pct}%)'|t('formie-rating-field', {pct: detractorsPercentage}),
+                        align: 'center',
+                    } only %}
+
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: stats.totalResponses ?? 0,
+                        description: 'Responses'|t('formie-rating-field'),
+                        align: 'center',
+                    } only %}
+
                 {% else %}
-                    <div class="stat-box">
-                        <div class="stat-value">{{ stats.average ?? 0 }}</div>
-                        <div class="stat-label">{{ "Average Rating"|t('formie-rating-field') }}</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value">{{ (stats.totalResponses ?? 0)|number }}</div>
-                        <div class="stat-label">{{ "Total Responses"|t('formie-rating-field') }}</div>
-                    </div>
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: stats.average ?? 0,
+                        description: 'Average Rating'|t('formie-rating-field'),
+                        align: 'center',
+                    } only %}
+
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: stats.totalResponses ?? 0,
+                        description: 'Total Responses'|t('formie-rating-field'),
+                        align: 'center',
+                    } only %}
+
                     {% if stats.median is defined %}
-                        <div class="stat-box">
-                            <div class="stat-value">{{ stats.median }}</div>
-                            <div class="stat-label">{{ "Median"|t('formie-rating-field') }}</div>
-                        </div>
+                        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                            value: stats.median,
+                            description: 'Median'|t('formie-rating-field'),
+                            align: 'center',
+                        } only %}
                     {% endif %}
+
                     {% if stats.mode is defined and stats.mode is not null %}
-                        <div class="stat-box">
-                            <div class="stat-value">{{ stats.mode }}</div>
-                            <div class="stat-label">{{ "Most Common"|t('formie-rating-field') }}</div>
-                        </div>
+                        {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                            value: stats.mode,
+                            description: 'Most Common'|t('formie-rating-field'),
+                            align: 'center',
+                        } only %}
                     {% endif %}
                 {% endif %}
             </div>
@@ -438,33 +454,39 @@
 
             {# Charts #}
             {% if not isGrouped %}
-            <div class="analytics-charts">
+            <div class="lr-analytics-charts">
                 {% if isNps %}
-                    {# NPS Breakdown Chart #}
-                    <div class="chart-container">
-                        <h3>{{ "NPS Breakdown"|t('formie-rating-field') }}</h3>
-                        <canvas id="nps-chart-{{ field.handle }}"></canvas>
+                    {# NPS Distribution Chart #}
+                    <div class="lr-chart-container">
+                        <h3>{{ "NPS Distribution"|t('formie-rating-field') }}</h3>
+                        <div class="lr-chart-center">
+                            <canvas id="nps-chart-{{ field.handle }}"></canvas>
+                        </div>
                     </div>
                 {% else %}
                     {# Distribution Chart #}
-                    <div class="chart-container">
+                    <div class="lr-chart-container">
                         <h3>{{ "Rating Distribution"|t('formie-rating-field') }}</h3>
                         <div class="chart-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: #8f98a3;">
                             <div class="spinner" style="margin-bottom: 12px;"></div>
                             <div>{{ "Loading chart..."|t('formie-rating-field') }}</div>
                         </div>
-                        <canvas id="distribution-chart-{{ field.handle }}" style="display: none;"></canvas>
+                        <div class="lr-chart-height-250" style="display: none;">
+                            <canvas id="distribution-chart-{{ field.handle }}"></canvas>
+                        </div>
                     </div>
                 {% endif %}
 
                 {# Trend Chart #}
-                <div class="chart-container">
-                    <h3>{{ "Trend Over Time"|t('formie-rating-field') }}</h3>
+                <div class="lr-chart-container">
+                    <h3>{{ isNps ? "NPS over time"|t('formie-rating-field') : "Trend Over Time"|t('formie-rating-field') }}</h3>
                     <div class="chart-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: #8f98a3;">
                         <div class="spinner" style="margin-bottom: 12px;"></div>
                         <div>{{ "Loading chart..."|t('formie-rating-field') }}</div>
                     </div>
-                    <canvas id="trend-chart-{{ field.handle }}" style="display: none;"></canvas>
+                    <div class="lr-chart-height-250" style="display: none;">
+                        <canvas id="trend-chart-{{ field.handle }}"></canvas>
+                    </div>
                 </div>
             </div>
             {% endif %}
@@ -539,42 +561,6 @@
         color: #8f98a3;
     }
 
-    .analytics-charts {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 30px;
-        margin-bottom: 30px;
-    }
-
-    @media (max-width: 1024px) {
-        .analytics-charts {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .chart-container {
-        background: #fff;
-        border: 1px solid #e3e5e8;
-        border-radius: 4px;
-        padding: 24px;
-        min-width: 0;
-        overflow: hidden;
-    }
-
-    .chart-container h3 {
-        margin: 0 0 20px;
-        font-size: 16px;
-    }
-
-    .chart-container canvas {
-        max-height: 300px;
-        max-width: 100%;
-    }
-
-    .chart-container > canvas {
-        display: block;
-        box-sizing: border-box;
-    }
 {% endcss %}
 
 {% js %}
@@ -936,13 +922,14 @@
                             '{{ craft.app.config.general.csrfTokenName }}': '{{ craft.app.request.csrfToken }}'
                         },
                         beforeSend: function() {
-                            $('#distribution-chart-{{ field.handle }}').siblings('.chart-loading').show();
+                            $('#distribution-chart-{{ field.handle }}').closest('.lr-chart-container').find('.chart-loading').show();
                         },
                         success: function(response) {
                             if (response.success && response.data) {
-                                // Hide loading, show canvas
-                                $('#distribution-chart-{{ field.handle }}').siblings('.chart-loading').hide();
-                                $('#distribution-chart-{{ field.handle }}').show();
+                                // Hide loading, show canvas wrapper
+                                var $wrap = $('#distribution-chart-{{ field.handle }}').closest('.lr-chart-container');
+                                $wrap.find('.chart-loading').hide();
+                                $wrap.find('.lr-chart-height-250').show();
 
                                 window.statisticsCharts['distribution-{{ field.handle }}'] = new Chart(
                                     document.getElementById('distribution-chart-{{ field.handle }}'),
@@ -997,23 +984,33 @@
                         '{{ craft.app.config.general.csrfTokenName }}': '{{ craft.app.request.csrfToken }}'
                     },
                     beforeSend: function() {
-                        $('#trend-chart-{{ field.handle }}').siblings('.chart-loading').show();
+                        $('#trend-chart-{{ field.handle }}').closest('.lr-chart-container').find('.chart-loading').show();
                     },
                     success: function(response) {
                         if (response.success && response.data) {
-                            // Hide loading, show canvas
-                            $('#trend-chart-{{ field.handle }}').siblings('.chart-loading').hide();
-                            $('#trend-chart-{{ field.handle }}').show();
+                            // Hide loading, show canvas wrapper
+                            var $wrap = $('#trend-chart-{{ field.handle }}').closest('.lr-chart-container');
+                            $wrap.find('.chart-loading').hide();
+                            $wrap.find('.lr-chart-height-250').show();
+
+                            var trendData = response.data;
+                            var scaleMin = typeof trendData.scaleMin === 'number' ? trendData.scaleMin : 0;
+                            var scaleMax = typeof trendData.scaleMax === 'number' ? trendData.scaleMax : {{ stats.maxValue ?? 5 }};
+                            {% if isNps %}
+                            var trendLabel = '{{ "NPS Score"|t('formie-rating-field')|e('js') }}';
+                            {% else %}
+                            var trendLabel = '{{ "Average Rating"|t('formie-rating-field')|e('js') }}';
+                            {% endif %}
 
                             window.statisticsCharts['trend-{{ field.handle }}'] = new Chart(
                                 document.getElementById('trend-chart-{{ field.handle }}'),
                                 {
                                     type: 'line',
                                     data: {
-                                        labels: response.data.labels,
+                                        labels: trendData.labels,
                                         datasets: [{
-                                            label: '{{ "Average Rating"|t('formie-rating-field') }}',
-                                            data: response.data.averages,
+                                            label: trendLabel,
+                                            data: trendData.values,
                                             borderColor: chartColors[1],
                                             backgroundColor: chartColors[1] + '20',
                                             tension: 0.1,
@@ -1025,12 +1022,8 @@
                                         maintainAspectRatio: true,
                                         scales: {
                                             y: {
-                                                beginAtZero: true,
-                                                {% if isNps %}
-                                                max: 10,
-                                                {% else %}
-                                                max: {{ stats.maxValue ?? 5 }},
-                                                {% endif %}
+                                                min: scaleMin,
+                                                max: scaleMax,
                                                 ticks: {
                                                     stepSize: 1,
                                                     precision: 1

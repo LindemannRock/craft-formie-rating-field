@@ -807,15 +807,25 @@ class StatisticsService extends Component
             }
         }
 
-        // Calculate averages for each date
+        $isNps = $field->ratingType === Rating::RATING_TYPE_NPS;
+
+        // Calculate metric per bucket
         $chartData = [];
         foreach ($trendData as $date => $data) {
             $valueCount = count($data['values']);
-            $average = round(array_sum($data['values']) / $valueCount, 2);
+
+            if ($isNps) {
+                // NPS buckets: 0–6 = detractors, 7–8 = passives, 9–10 = promoters
+                $promoters = count(array_filter($data['values'], fn($v) => $v >= 9));
+                $detractors = count(array_filter($data['values'], fn($v) => $v <= 6));
+                $bucketValue = round((($promoters - $detractors) / $valueCount) * 100, 1);
+            } else {
+                $bucketValue = round(array_sum($data['values']) / $valueCount, 2);
+            }
 
             $chartData[] = [
                 'date' => $date,
-                'average' => $average,
+                'value' => $bucketValue,
                 'count' => $data['count'],
             ];
         }
@@ -837,8 +847,10 @@ class StatisticsService extends Component
 
         return [
             'labels' => array_column($chartData, 'date'),
-            'averages' => array_column($chartData, 'average'),
+            'values' => array_column($chartData, 'value'),
             'counts' => array_column($chartData, 'count'),
+            'scaleMin' => $isNps ? -100 : 0,
+            'scaleMax' => $isNps ? 100 : (int)$field->maxValue,
         ];
     }
 

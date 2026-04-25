@@ -10,8 +10,11 @@ namespace lindemannrock\formieratingfield\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\DateRangeHelper;
+use lindemannrock\base\helpers\ExportHelper;
 use lindemannrock\formieratingfield\FormieRatingField;
 use verbb\formie\elements\Form;
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 /**
@@ -113,8 +116,9 @@ class StatisticsController extends Controller
         $statisticsService = FormieRatingField::$plugin->statistics;
         $settings = FormieRatingField::$plugin->getSettings();
 
-        // Get date range from query params, use default from settings if not specified
-        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', $settings->defaultDateRange);
+        // Get date range from query params, fall back to base helper which respects
+        // config/formie-rating-field.php → config/lindemannrock-base.php → 'last30days'.
+        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange('formie-rating-field'));
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
         $fieldFilter = Craft::$app->getRequest()->getQueryParam('field', null);
 
@@ -351,7 +355,12 @@ class StatisticsController extends Controller
         $format = $request->getQueryParam('format', 'csv');
 
         if (!$formId || !$groupBy || !$groupValue) {
-            throw new \yii\web\BadRequestHttpException('Missing required parameters');
+            throw new BadRequestHttpException('Missing required parameters');
+        }
+
+        // Gate by enabled export formats from config/formie-rating-field.php (or base default)
+        if (!ExportHelper::isFormatEnabled($format, 'formie-rating-field')) {
+            throw new BadRequestHttpException("Export format '{$format}' is not enabled.");
         }
 
         $form = Form::find()->id($formId)->one();
@@ -478,6 +487,12 @@ class StatisticsController extends Controller
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
         $format = Craft::$app->getRequest()->getQueryParam('format', 'csv');
+
+        // Gate by enabled export formats from config/formie-rating-field.php (or base default)
+        if (!ExportHelper::isFormatEnabled($format, 'formie-rating-field')) {
+            throw new BadRequestHttpException("Export format '{$format}' is not enabled.");
+        }
+
         $statisticsService = FormieRatingField::$plugin->statistics;
 
         // Build filename following analytics pattern
