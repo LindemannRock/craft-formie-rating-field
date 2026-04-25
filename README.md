@@ -50,10 +50,12 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **Smart Grouping**: Group ratings by product code, name, category, or any form field
 - **Type-Aware Calculations**: Automatic NPS scoring, star/emoji averages, and distributions
 - **Performance Indicators**: Scale-aware insights (Excellent/Good/Fair/Poor) that adapt to any min/max range
-- **Date Range Filtering**: Analyze trends across today, yesterday, last 7/30/90 days, or all time
-- **CSV Export**: Export filtered data with grouping for external analysis
-- **File-Based Caching**: Fast performance with automatic cache invalidation on new submissions
-- **CLI Cache Management**: Clear cache via command line tools
+- **Date Range Filtering**: Analyze trends across today, yesterday, last 7/30/90 days, this month (MTD), last month, this year, last year, or all time
+- **Multi-Format Export**: Excel (multi-sheet: Summary / Raw Responses / By Group when grouping), CSV (ZIP of per-section CSVs), or JSON (single nested file); format availability gated via `exports` config key
+- **NPS Visual Indicators**: Stat boxes use traffic-light color coding (NPS Score: green ≥ 50, amber 0–49, red < 0; Promoters: green; Passives: amber; Detractors: red)
+- **Trend Charts**: NPS trend plots NPS Score (−100 to 100); Star/Emoji trend plots average rating
+- **File-Based or Redis Caching**: Fast performance with automatic cache invalidation on new submissions; configurable storage method and generation schedule
+- **CLI Cache Management**: Clear, inspect, and pre-generate cache via command line tools
 
 ## Installation
 
@@ -149,7 +151,7 @@ Navigate to the plugin's CP section:
 - Identify top performers and items needing attention
 
 **Date Range Filtering**
-- Filter by: Today, Yesterday, Last 7/30/90 days, or All time
+- Filter by: Today, Yesterday, Last 7/30/90 days, This Month (MTD), Last Month, This Year, Last Year, or All Time
 - Analyze trends over specific periods
 - Compare performance across time ranges
 
@@ -160,10 +162,10 @@ Navigate to the plugin's CP section:
 - NPS score calculation with promoter/passive/detractor breakdown
 
 **Data Export**
-- Export filtered data to CSV
-- Grouped exports show aggregated stats per group
-- Non-grouped exports show raw submission data
-- Includes average and median values for comprehensive analysis
+- **Excel** (`.xlsx`): Multi-sheet workbook — Summary, Raw Responses, and By Group (when a grouping field is selected)
+- **CSV** (`.zip`): ZIP archive containing one `.csv` file per section
+- **JSON**: Single nested file with all sections
+- Format availability is gated via the `exports` key in `config/formie-rating-field.php`
 
 ### Analytics Views
 
