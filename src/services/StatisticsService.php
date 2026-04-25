@@ -894,25 +894,30 @@ class StatisticsService extends Component
     }
 
     /**
-     * Generate CSV export for form statistics
+     * Get structured export data (headers + rows) for form statistics.
+     *
+     * Returns a structured array suitable for use with ExportHelper::toCsv() or ::toExcel().
+     * Two branches: grouped (aggregated stats per group) and ungrouped (raw submission data).
      *
      * @param Form $form
      * @param string $dateRange
      * @param string|null $groupByHandle
-     * @return string
+     * @return array{headers: string[], rows: array[]}
      */
-    public function generateCsvExport(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): string
+    public function getStatsExportData(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
         if (empty($ratingFields)) {
-            return '';
+            return ['headers' => [], 'rows' => []];
         }
 
+        $headers = [];
         $rows = [];
 
-        // If grouped, export aggregated stats per group
         if ($groupByHandle) {
+            // Grouped: aggregated stats per group
+
             // Get groupBy field label
             $groupByFieldLabel = $groupByHandle;
             foreach ($form->getFields() as $field) {
@@ -922,22 +927,24 @@ class StatisticsService extends Component
                 }
             }
 
-            // Build header for grouped export
-            $headers = [$groupByFieldLabel, 'Submissions Count'];
+            $headers = [
+                Craft::t('formie-rating-field', $groupByFieldLabel),
+                Craft::t('formie-rating-field', 'Submissions Count'),
+            ];
+
             foreach ($ratingFields as $field) {
                 if ($field->ratingType === Rating::RATING_TYPE_NPS) {
-                    $headers[] = $field->label . ' - NPS Score';
-                    $headers[] = $field->label . ' - Promoters';
-                    $headers[] = $field->label . ' - Passives';
-                    $headers[] = $field->label . ' - Detractors';
+                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'NPS Score');
+                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Promoters');
+                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Passives');
+                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Detractors');
                 } else {
-                    $headers[] = $field->label . ' - Average';
-                    $headers[] = $field->label . ' - Median';
+                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Average');
+                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Median');
                 }
             }
-            $rows[] = $headers;
 
-            // Get grouped stats for first rating field to get the groups
+            // Get grouped stats for the first rating field to obtain the group list
             $firstField = $ratingFields[0];
             $groupedStats = $this->getFieldStatistics($form, $firstField, $dateRange, $groupByHandle);
 
@@ -945,11 +952,9 @@ class StatisticsService extends Component
                 foreach ($groupedStats['groups'] as $group) {
                     $row = [$group['label'], $group['count']];
 
-                    // Get stats for each rating field for this group
                     foreach ($ratingFields as $field) {
                         $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle);
 
-                        // Find this group's stats
                         $groupStats = null;
                         foreach ($fieldStats['groups'] as $g) {
                             if ($g['label'] === $group['label']) {
@@ -969,7 +974,6 @@ class StatisticsService extends Component
                                 $row[] = $groupStats['median'];
                             }
                         } else {
-                            // No data for this group
                             $row[] = '';
                             $row[] = '';
                             if ($field->ratingType === Rating::RATING_TYPE_NPS) {
@@ -983,15 +987,16 @@ class StatisticsService extends Component
                 }
             }
         } else {
-            // Not grouped - export raw submission data
+            // Not grouped: raw submission data
             $submissions = $this->getSubmissions($form, $dateRange);
 
-            // Build CSV header
-            $headers = ['Submission Date', 'Submission ID'];
+            $headers = [
+                Craft::t('formie-rating-field', 'Submission Date'),
+                Craft::t('formie-rating-field', 'Submission ID'),
+            ];
             foreach ($ratingFields as $field) {
                 $headers[] = $field->label;
             }
-            $rows[] = $headers;
 
             foreach ($submissions as $submission) {
                 $row = [
@@ -1008,33 +1013,25 @@ class StatisticsService extends Component
             }
         }
 
-
-        // Convert to CSV string
-        $output = fopen('php://temp', 'r+');
-        foreach ($rows as $row) {
-            fputcsv($output, $row);
-        }
-        rewind($output);
-        $csv = stream_get_contents($output);
-        fclose($output);
-
-        return $csv;
+        return ['headers' => $headers, 'rows' => $rows];
     }
 
     /**
-     * Generate JSON export for form statistics
+     * Get structured export array for form statistics JSON export.
+     *
+     * Returns the data structure directly (no json_encode) for use with ExportHelper::toJson().
      *
      * @param Form $form
      * @param string $dateRange
      * @param string|null $groupByHandle
-     * @return string
+     * @return array
      */
-    public function generateJsonExport(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): string
+    public function getStatsExportArray(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
         if (empty($ratingFields)) {
-            return json_encode(['error' => 'No rating fields found'], JSON_PRETTY_PRINT);
+            return ['error' => 'No rating fields found'];
         }
 
         $exportData = [
@@ -1048,24 +1045,21 @@ class StatisticsService extends Component
             'fields' => [],
         ];
 
-        // If grouped, export aggregated stats per group
         if ($groupByHandle) {
             $exportData['groupBy'] = $groupByHandle;
 
             foreach ($ratingFields as $field) {
                 $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle);
 
-                $fieldData = [
+                $exportData['fields'][] = [
                     'handle' => $field->handle,
                     'label' => $field->label,
                     'ratingType' => $field->ratingType,
                     'groups' => $fieldStats['groups'] ?? [],
                 ];
-
-                $exportData['fields'][] = $fieldData;
             }
         } else {
-            // Not grouped - export raw submission data
+            // Not grouped: raw submission data
             $submissions = $this->getSubmissions($form, $dateRange);
 
             $exportData['submissions'] = [];
@@ -1088,7 +1082,7 @@ class StatisticsService extends Component
                 $exportData['submissions'][] = $submissionData;
             }
 
-            // Also include summary statistics
+            // Include summary statistics
             $exportData['summary'] = [];
             foreach ($ratingFields as $field) {
                 $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, null);
@@ -1107,7 +1101,7 @@ class StatisticsService extends Component
             }
         }
 
-        return json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        return $exportData;
     }
 
     /**

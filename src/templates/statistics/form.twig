@@ -40,18 +40,16 @@
             {{ "Refresh"|t('formie-rating-field') }}
         </button>
     </div>
-    <div id="action-button" class="btngroup">
-        <button type="button" class="btn menubtn" data-icon="download">{{ "Export"|t('formie-rating-field') }}</button>
-        <div class="menu" data-align="right">
-            <ul>
-                <li>
-                    <a href="#" class="export-link" data-format="csv" data-action="formie-rating-field/statistics/export">{{ "Export as CSV"|t('formie-rating-field') }}</a>
-                </li>
-                <li>
-                    <a href="#" class="export-link" data-format="json" data-action="formie-rating-field/statistics/export">{{ "Export as JSON"|t('formie-rating-field') }}</a>
-                </li>
-            </ul>
-        </div>
+    <div id="action-button">
+        {% include 'lindemannrock-base/_components/export-menu' with {
+            action: 'formie-rating-field/statistics/export',
+            pluginHandle: 'formie-rating-field',
+            extraParams: {
+                formId: form.id,
+                dateRange: dateRange,
+                groupBy: groupBy,
+            },
+        } only %}
     </div>
 {% endblock %}
 
@@ -772,28 +770,6 @@
         });
 
         // Handle export link clicks
-        $(document).on('click', '.export-link', function(e) {
-            e.preventDefault();
-            const $link = $(this);
-            const action = $link.data('action');
-            const format = $link.data('format') || 'csv';
-
-            // Build URL with current date range and groupBy
-            const params = {
-                formId: formId,
-                dateRange: currentDateRange,
-                format: format
-            };
-
-            if (currentGroupBy) {
-                params.groupBy = currentGroupBy;
-            }
-
-            const exportUrl = Craft.getActionUrl(action, params);
-
-            // Trigger download
-            window.location.href = exportUrl;
-        });
     });
 
     function initCharts() {

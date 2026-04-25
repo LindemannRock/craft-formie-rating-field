@@ -346,13 +346,14 @@ class StatisticsController extends Controller
     public function actionExportGroup(): Response
     {
         $this->requireCpRequest();
+        $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
-        $formId = $request->getQueryParam('formId');
-        $groupBy = $request->getQueryParam('groupBy');
-        $groupValue = urldecode($request->getQueryParam('groupValue', ''));
-        $dateRange = $request->getQueryParam('dateRange', 'all');
-        $format = $request->getQueryParam('format', 'csv');
+        $formId = $request->getBodyParam('formId');
+        $groupBy = $request->getBodyParam('groupBy');
+        $groupValue = urldecode($request->getBodyParam('groupValue', ''));
+        $dateRange = $request->getBodyParam('dateRange', 'all');
+        $format = $request->getBodyParam('format', 'csv');
 
         if (!$formId || !$groupBy || !$groupValue) {
             throw new BadRequestHttpException('Missing required parameters');
@@ -374,68 +375,28 @@ class StatisticsController extends Controller
         // Get submissions for this group
         $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
 
-        // Build filename
         $settings = FormieRatingField::$plugin->getSettings();
-        $filenamePart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
-        $safeGroupValue = preg_replace('/[^a-z0-9]+/i', '-', $groupValue);
-        $safeGroupValue = trim($safeGroupValue, '-');
-        // Use "alltime" instead of "all" for clearer filename
+        $safeGroupValue = trim((string)preg_replace('/[^a-z0-9]+/i', '-', $groupValue), '-');
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
+        $extension = in_array($format, ['xlsx', 'excel'], true) ? 'xlsx' : $format;
 
-        if ($format === 'json') {
-            // Build JSON data
-            $exportData = [
-                'form' => [
-                    'id' => $form->id,
-                    'title' => $form->title,
-                    'handle' => $form->handle,
-                ],
-                'groupBy' => $groupBy,
-                'groupValue' => $groupValue,
-                'dateRange' => $dateRange,
-                'exportedAt' => date('Y-m-d H:i:s'),
-                'totalSubmissions' => count($submissions),
-                'submissions' => [],
-            ];
+        $filename = ExportHelper::filename($settings, [
+            'statistics',
+            $form->handle,
+            $safeGroupValue,
+            $dateRangeLabel,
+        ], $extension);
 
-            foreach ($submissions as $submission) {
-                $submissionData = [
-                    'id' => $submission->id,
-                    'dateCreated' => $submission->dateCreated->format('Y-m-d H:i:s'),
-                    'fields' => [],
-                ];
-
-                foreach ($form->getFields() as $field) {
-                    $value = $submission->getFieldValue($field->handle);
-                    $submissionData['fields'][$field->handle] = [
-                        'label' => $field->label,
-                        'value' => $value,
-                    ];
-                }
-
-                $exportData['submissions'][] = $submissionData;
-            }
-
-            $jsonData = json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-            $filename = $filenamePart . '-statistics-' . $form->handle . '-' . $safeGroupValue . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.json';
-
-            return Craft::$app->getResponse()
-                ->sendContentAsFile($jsonData, $filename, [
-                    'mimeType' => 'application/json',
-                ]);
-        }
-
-        // Build CSV
-        $rows = [];
-
-        // Header
-        $headers = ['Date', 'Submission ID'];
+        // Build headers and rows for CSV / Excel
+        $headers = [
+            Craft::t('formie-rating-field', 'Date'),
+            Craft::t('formie-rating-field', 'Submission ID'),
+        ];
         foreach ($form->getFields() as $field) {
             $headers[] = $field->label;
         }
-        $rows[] = $headers;
 
-        // Data rows
+        $rows = [];
         foreach ($submissions as $submission) {
             $row = [
                 $submission->dateCreated->format('Y-m-d H:i:s'),
@@ -450,32 +411,62 @@ class StatisticsController extends Controller
             $rows[] = $row;
         }
 
-        // Convert to CSV
-        $output = fopen('php://temp', 'r+');
-        foreach ($rows as $row) {
-            fputcsv($output, $row);
+        // Build JSON data structure
+        $jsonData = [
+            'form' => [
+                'id' => $form->id,
+                'title' => $form->title,
+                'handle' => $form->handle,
+            ],
+            'groupBy' => $groupBy,
+            'groupValue' => $groupValue,
+            'dateRange' => $dateRange,
+            'exportedAt' => date('Y-m-d H:i:s'),
+            'totalSubmissions' => count($submissions),
+            'submissions' => [],
+        ];
+
+        foreach ($submissions as $submission) {
+            $submissionData = [
+                'id' => $submission->id,
+                'dateCreated' => $submission->dateCreated->format('Y-m-d H:i:s'),
+                'fields' => [],
+            ];
+
+            foreach ($form->getFields() as $field) {
+                $value = $submission->getFieldValue($field->handle);
+                $submissionData['fields'][$field->handle] = [
+                    'label' => $field->label,
+                    'value' => $value,
+                ];
+            }
+
+            $jsonData['submissions'][] = $submissionData;
         }
-        rewind($output);
-        $csv = stream_get_contents($output);
-        fclose($output);
 
-        $filename = $filenamePart . '-statistics-' . $form->handle . '-' . $safeGroupValue . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.csv';
-
-        return Craft::$app->getResponse()
-            ->sendContentAsFile($csv, $filename, [
-                'mimeType' => 'text/csv',
-            ]);
+        return match ($format) {
+            'csv' => ExportHelper::toCsv($rows, $headers, $filename),
+            'json' => ExportHelper::toJson($jsonData, $filename),
+            'xlsx', 'excel' => ExportHelper::toExcel($rows, $headers, $filename, [], [
+                'sheetTitle' => 'Statistics',
+            ]),
+            default => throw new BadRequestHttpException("Unknown export format: {$format}"),
+        };
     }
 
     /**
      * Export statistics to CSV or JSON
      */
-    public function actionExport(?int $formId = null): Response
+    public function actionExport(): Response
     {
         $this->requireCpRequest();
+        $this->requirePostRequest();
+
+        $request = Craft::$app->getRequest();
+        $formId = $request->getBodyParam('formId');
 
         if (!$formId) {
-            throw new \yii\web\BadRequestHttpException('Form ID is required');
+            throw new BadRequestHttpException('Form ID is required');
         }
 
         $form = Form::find()->id($formId)->one();
@@ -484,9 +475,9 @@ class StatisticsController extends Controller
             throw new \yii\web\NotFoundHttpException('Form not found');
         }
 
-        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
-        $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
-        $format = Craft::$app->getRequest()->getQueryParam('format', 'csv');
+        $dateRange = $request->getBodyParam('dateRange', 'all');
+        $groupBy = $request->getBodyParam('groupBy', null);
+        $format = $request->getBodyParam('format', 'csv');
 
         // Gate by enabled export formats from config/formie-rating-field.php (or base default)
         if (!ExportHelper::isFormatEnabled($format, 'formie-rating-field')) {
@@ -495,34 +486,29 @@ class StatisticsController extends Controller
 
         $statisticsService = FormieRatingField::$plugin->statistics;
 
-        // Build filename following analytics pattern
         $settings = FormieRatingField::$plugin->getSettings();
-        $filenamePart = strtolower(str_replace(' ', '-', $settings->getLowerDisplayName()));
-
-        // Use "alltime" instead of "all" for clearer filename
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
+        $extension = in_array($format, ['xlsx', 'excel'], true) ? 'xlsx' : $format;
 
-        // Include groupBy in filename if set
-        $groupByPart = $groupBy ? '-' . $groupBy : '';
+        $filenameParts = array_filter([
+            'statistics',
+            $form->handle,
+            $groupBy ?: null,
+            $dateRangeLabel,
+        ]);
 
-        if ($format === 'json') {
-            // Generate JSON
-            $data = $statisticsService->generateJsonExport($form, $dateRange, $groupBy);
-            $filename = $filenamePart . '-statistics-' . $form->handle . $groupByPart . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.json';
+        $filename = ExportHelper::filename($settings, array_values($filenameParts), $extension);
 
-            return Craft::$app->getResponse()
-                ->sendContentAsFile($data, $filename, [
-                    'mimeType' => 'application/json',
-                ]);
-        }
+        $exportData = $statisticsService->getStatsExportData($form, $dateRange, $groupBy);
+        $jsonData = $statisticsService->getStatsExportArray($form, $dateRange, $groupBy);
 
-        // Generate CSV (default)
-        $csv = $statisticsService->generateCsvExport($form, $dateRange, $groupBy);
-        $filename = $filenamePart . '-statistics-' . $form->handle . $groupByPart . '-' . $dateRangeLabel . '-' . date('Y-m-d') . '.csv';
-
-        return Craft::$app->getResponse()
-            ->sendContentAsFile($csv, $filename, [
-                'mimeType' => 'text/csv',
-            ]);
+        return match ($format) {
+            'csv' => ExportHelper::toCsv($exportData['rows'], $exportData['headers'], $filename),
+            'json' => ExportHelper::toJson($jsonData, $filename),
+            'xlsx', 'excel' => ExportHelper::toExcel($exportData['rows'], $exportData['headers'], $filename, [], [
+                'sheetTitle' => 'Statistics',
+            ]),
+            default => throw new BadRequestHttpException("Unknown export format: {$format}"),
+        };
     }
 }
