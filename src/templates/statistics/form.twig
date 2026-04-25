@@ -420,32 +420,28 @@
 
                 {% else %}
                     {% include 'lindemannrock-base/_components/cards/unified-card' with {
-                        value: stats.average ?? 0,
+                        value: stats.totalResponses > 0 ? (stats.average ?? 0) : '—',
                         description: 'Average Rating'|t('formie-rating-field'),
                         align: 'center',
                     } only %}
 
                     {% include 'lindemannrock-base/_components/cards/unified-card' with {
-                        value: stats.totalResponses ?? 0,
-                        description: 'Total Responses'|t('formie-rating-field'),
+                        value: stats.totalResponses > 0 ? (stats.median ?? '—') : '—',
+                        description: 'Median'|t('formie-rating-field'),
                         align: 'center',
                     } only %}
 
-                    {% if stats.median is defined %}
-                        {% include 'lindemannrock-base/_components/cards/unified-card' with {
-                            value: stats.median,
-                            description: 'Median'|t('formie-rating-field'),
-                            align: 'center',
-                        } only %}
-                    {% endif %}
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: stats.totalResponses > 0 ? (stats.mode ?? '—') : '—',
+                        description: 'Most Common'|t('formie-rating-field'),
+                        align: 'center',
+                    } only %}
 
-                    {% if stats.mode is defined and stats.mode is not null %}
-                        {% include 'lindemannrock-base/_components/cards/unified-card' with {
-                            value: stats.mode,
-                            description: 'Most Common'|t('formie-rating-field'),
-                            align: 'center',
-                        } only %}
-                    {% endif %}
+                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                        value: stats.totalResponses ?? 0,
+                        description: 'Responses'|t('formie-rating-field'),
+                        align: 'center',
+                    } only %}
                 {% endif %}
             </div>
             {% endif %}
