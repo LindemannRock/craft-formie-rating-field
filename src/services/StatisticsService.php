@@ -894,17 +894,18 @@ class StatisticsService extends Component
     }
 
     /**
-     * Get structured export data (headers + rows) for form statistics.
+     * Build summary export rows — one row per rating field with aggregate stats.
      *
-     * Returns a structured array suitable for use with ExportHelper::toCsv() or ::toExcel().
-     * Two branches: grouped (aggregated stats per group) and ungrouped (raw submission data).
+     * Columns are the same for all field types; inapplicable cells are filled with '—'.
+     * NPS fields omit Median and Most Common. Star/Emoji fields omit NPS, Promoters,
+     * Passives, and Detractors columns.
      *
      * @param Form $form
      * @param string $dateRange
-     * @param string|null $groupByHandle
      * @return array{headers: string[], rows: array[]}
+     * @since 3.16.0
      */
-    public function getStatsExportData(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): array
+    public function buildSummaryExportRows(Form $form, string $dateRange = 'all'): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
@@ -912,196 +913,214 @@ class StatisticsService extends Component
             return ['headers' => [], 'rows' => []];
         }
 
-        $headers = [];
+        $headers = [
+            Craft::t('formie-rating-field', 'Field Label'),
+            Craft::t('formie-rating-field', 'Field Type'),
+            Craft::t('formie-rating-field', 'Total Responses'),
+            Craft::t('formie-rating-field', 'NPS Score'),
+            Craft::t('formie-rating-field', 'Promoters'),
+            Craft::t('formie-rating-field', 'Promoters %'),
+            Craft::t('formie-rating-field', 'Passives'),
+            Craft::t('formie-rating-field', 'Passives %'),
+            Craft::t('formie-rating-field', 'Detractors'),
+            Craft::t('formie-rating-field', 'Detractors %'),
+            Craft::t('formie-rating-field', 'Average'),
+            Craft::t('formie-rating-field', 'Median'),
+            Craft::t('formie-rating-field', 'Most Common'),
+        ];
+
         $rows = [];
 
-        if ($groupByHandle) {
-            // Grouped: aggregated stats per group
+        foreach ($ratingFields as $field) {
+            $stats = $this->getFieldStatistics($form, $field, $dateRange, null);
+            $isNps = $field->ratingType === Rating::RATING_TYPE_NPS;
 
-            // Get groupBy field label
-            $groupByFieldLabel = $groupByHandle;
-            foreach ($form->getFields() as $field) {
-                if ($field->handle === $groupByHandle) {
-                    $groupByFieldLabel = $field->label;
-                    break;
-                }
-            }
-
-            $headers = [
-                Craft::t('formie-rating-field', $groupByFieldLabel),
-                Craft::t('formie-rating-field', 'Submissions Count'),
+            $row = [
+                $field->label,
+                $field->ratingType,
+                $stats['totalResponses'] ?? 0,
             ];
 
-            foreach ($ratingFields as $field) {
-                if ($field->ratingType === Rating::RATING_TYPE_NPS) {
-                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'NPS Score');
-                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Promoters');
-                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Passives');
-                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Detractors');
-                } else {
-                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Average');
-                    $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Median');
-                }
+            if ($isNps) {
+                $row[] = $stats['npsScore'] ?? 0;
+                $row[] = $stats['promoters'] ?? 0;
+                $row[] = $stats['promotersPercentage'] ?? 0;
+                $row[] = $stats['passives'] ?? 0;
+                $row[] = $stats['passivesPercentage'] ?? 0;
+                $row[] = $stats['detractors'] ?? 0;
+                $row[] = $stats['detractorsPercentage'] ?? 0;
+                $row[] = $stats['average'] ?? 0;
+                $row[] = '—';
+                $row[] = '—';
+            } else {
+                $row[] = '—';
+                $row[] = '—';
+                $row[] = '—';
+                $row[] = '—';
+                $row[] = '—';
+                $row[] = '—';
+                $row[] = '—';
+                $row[] = $stats['average'] ?? 0;
+                $row[] = $stats['median'] ?? 0;
+                $row[] = $stats['mode'] ?? '—';
             }
 
-            // Get grouped stats for the first rating field to obtain the group list
-            $firstField = $ratingFields[0];
-            $groupedStats = $this->getFieldStatistics($form, $firstField, $dateRange, $groupByHandle);
-
-            if (isset($groupedStats['groups'])) {
-                foreach ($groupedStats['groups'] as $group) {
-                    $row = [$group['label'], $group['count']];
-
-                    foreach ($ratingFields as $field) {
-                        $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle);
-
-                        $groupStats = null;
-                        foreach ($fieldStats['groups'] as $g) {
-                            if ($g['label'] === $group['label']) {
-                                $groupStats = $g;
-                                break;
-                            }
-                        }
-
-                        if ($groupStats) {
-                            if ($field->ratingType === Rating::RATING_TYPE_NPS) {
-                                $row[] = $groupStats['npsScore'];
-                                $row[] = $groupStats['promoters'] . ' (' . $groupStats['promotersPercentage'] . '%)';
-                                $row[] = $groupStats['passives'] . ' (' . $groupStats['passivesPercentage'] . '%)';
-                                $row[] = $groupStats['detractors'] . ' (' . $groupStats['detractorsPercentage'] . '%)';
-                            } else {
-                                $row[] = $groupStats['average'];
-                                $row[] = $groupStats['median'];
-                            }
-                        } else {
-                            $row[] = '';
-                            $row[] = '';
-                            if ($field->ratingType === Rating::RATING_TYPE_NPS) {
-                                $row[] = '';
-                                $row[] = '';
-                            }
-                        }
-                    }
-
-                    $rows[] = $row;
-                }
-            }
-        } else {
-            // Not grouped: raw submission data
-            $submissions = $this->getSubmissions($form, $dateRange);
-
-            $headers = [
-                Craft::t('formie-rating-field', 'Submission Date'),
-                Craft::t('formie-rating-field', 'Submission ID'),
-            ];
-            foreach ($ratingFields as $field) {
-                $headers[] = $field->label;
-            }
-
-            foreach ($submissions as $submission) {
-                $row = [
-                    $submission->dateCreated->format('Y-m-d H:i:s'),
-                    $submission->id,
-                ];
-
-                foreach ($ratingFields as $field) {
-                    $value = $submission->getFieldValue($field->handle);
-                    $row[] = $value ?? '';
-                }
-
-                $rows[] = $row;
-            }
+            $rows[] = $row;
         }
 
         return ['headers' => $headers, 'rows' => $rows];
     }
 
     /**
-     * Get structured export array for form statistics JSON export.
+     * Build raw responses export rows — one row per submission.
      *
-     * Returns the data structure directly (no json_encode) for use with ExportHelper::toJson().
+     * Columns: Submission Date, Submission ID, then one column per rating field.
      *
      * @param Form $form
      * @param string $dateRange
-     * @param string|null $groupByHandle
-     * @return array
+     * @return array{headers: string[], rows: array[]}
+     * @since 3.16.0
      */
-    public function getStatsExportArray(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): array
+    public function buildRawResponsesExportRows(Form $form, string $dateRange = 'all'): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
         if (empty($ratingFields)) {
-            return ['error' => 'No rating fields found'];
+            return ['headers' => [], 'rows' => []];
         }
 
-        $exportData = [
-            'form' => [
-                'id' => $form->id,
-                'title' => $form->title,
-                'handle' => $form->handle,
-            ],
-            'dateRange' => $dateRange,
-            'exportedAt' => date('Y-m-d H:i:s'),
-            'fields' => [],
+        $headers = [
+            Craft::t('formie-rating-field', 'Submission Date'),
+            Craft::t('formie-rating-field', 'Submission ID'),
+        ];
+        foreach ($ratingFields as $field) {
+            $headers[] = $field->label;
+        }
+
+        $submissions = $this->getSubmissions($form, $dateRange);
+        $rows = [];
+
+        foreach ($submissions as $submission) {
+            $row = [
+                $submission->dateCreated->format('Y-m-d H:i:s'),
+                $submission->id,
+            ];
+
+            foreach ($ratingFields as $field) {
+                $value = $submission->getFieldValue($field->handle);
+                $row[] = $value ?? '';
+            }
+
+            $rows[] = $row;
+        }
+
+        return ['headers' => $headers, 'rows' => $rows];
+    }
+
+    /**
+     * Build group breakdown export rows — one row per group value.
+     *
+     * Columns: group field label, Submissions Count, then per-field metrics.
+     * NPS fields get: NPS Score, Promoters (%), Passives (%), Detractors (%).
+     * Star/Emoji fields get: Average, Median.
+     *
+     * Returns empty headers/rows when $groupByHandle is null or empty.
+     *
+     * @param Form $form
+     * @param string $dateRange
+     * @param string|null $groupByHandle
+     * @return array{headers: string[], rows: array[]}
+     * @since 3.16.0
+     */
+    public function buildGroupedExportRows(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): array
+    {
+        if (!$groupByHandle) {
+            return ['headers' => [], 'rows' => []];
+        }
+
+        $ratingFields = $this->getRatingFieldsForForm($form);
+
+        if (empty($ratingFields)) {
+            return ['headers' => [], 'rows' => []];
+        }
+
+        // Resolve group-by field label
+        $groupByFieldLabel = $groupByHandle;
+        foreach ($form->getFields() as $field) {
+            if ($field->handle === $groupByHandle) {
+                $groupByFieldLabel = $field->label;
+                break;
+            }
+        }
+
+        $headers = [
+            $groupByFieldLabel,
+            Craft::t('formie-rating-field', 'Submissions Count'),
         ];
 
-        if ($groupByHandle) {
-            $exportData['groupBy'] = $groupByHandle;
+        foreach ($ratingFields as $field) {
+            if ($field->ratingType === Rating::RATING_TYPE_NPS) {
+                $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'NPS Score');
+                $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Promoters (%)');
+                $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Passives (%)');
+                $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Detractors (%)');
+            } else {
+                $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Average');
+                $headers[] = $field->label . ' - ' . Craft::t('formie-rating-field', 'Median');
+            }
+        }
+
+        // Use the first rating field to establish the group list
+        $firstField = $ratingFields[0];
+        $groupedStats = $this->getFieldStatistics($form, $firstField, $dateRange, $groupByHandle);
+
+        if (empty($groupedStats['groups'])) {
+            return ['headers' => $headers, 'rows' => []];
+        }
+
+        $rows = [];
+
+        foreach ($groupedStats['groups'] as $group) {
+            $row = [$group['label'], $group['count']];
 
             foreach ($ratingFields as $field) {
                 $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle);
 
-                $exportData['fields'][] = [
-                    'handle' => $field->handle,
-                    'label' => $field->label,
-                    'ratingType' => $field->ratingType,
-                    'groups' => $fieldStats['groups'] ?? [],
-                ];
-            }
-        } else {
-            // Not grouped: raw submission data
-            $submissions = $this->getSubmissions($form, $dateRange);
-
-            $exportData['submissions'] = [];
-
-            foreach ($submissions as $submission) {
-                $submissionData = [
-                    'id' => $submission->id,
-                    'dateCreated' => $submission->dateCreated->format('Y-m-d H:i:s'),
-                    'ratings' => [],
-                ];
-
-                foreach ($ratingFields as $field) {
-                    $value = $submission->getFieldValue($field->handle);
-                    $submissionData['ratings'][$field->handle] = [
-                        'label' => $field->label,
-                        'value' => $value,
-                    ];
+                $groupStats = null;
+                foreach ($fieldStats['groups'] as $g) {
+                    if ($g['label'] === $group['label']) {
+                        $groupStats = $g;
+                        break;
+                    }
                 }
 
-                $exportData['submissions'][] = $submissionData;
+                if ($groupStats) {
+                    if ($field->ratingType === Rating::RATING_TYPE_NPS) {
+                        $row[] = $groupStats['npsScore'] ?? 0;
+                        $row[] = ($groupStats['promoters'] ?? 0) . ' (' . ($groupStats['promotersPercentage'] ?? 0) . '%)';
+                        $row[] = ($groupStats['passives'] ?? 0) . ' (' . ($groupStats['passivesPercentage'] ?? 0) . '%)';
+                        $row[] = ($groupStats['detractors'] ?? 0) . ' (' . ($groupStats['detractorsPercentage'] ?? 0) . '%)';
+                    } else {
+                        $row[] = $groupStats['average'] ?? 0;
+                        $row[] = $groupStats['median'] ?? 0;
+                    }
+                } else {
+                    if ($field->ratingType === Rating::RATING_TYPE_NPS) {
+                        $row[] = '';
+                        $row[] = '';
+                        $row[] = '';
+                        $row[] = '';
+                    } else {
+                        $row[] = '';
+                        $row[] = '';
+                    }
+                }
             }
 
-            // Include summary statistics
-            $exportData['summary'] = [];
-            foreach ($ratingFields as $field) {
-                $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, null);
-                $exportData['summary'][$field->handle] = [
-                    'label' => $field->label,
-                    'ratingType' => $field->ratingType,
-                    'totalResponses' => $fieldStats['totalResponses'] ?? 0,
-                    'average' => $fieldStats['average'] ?? null,
-                    'median' => $fieldStats['median'] ?? null,
-                    'mode' => $fieldStats['mode'] ?? null,
-                    'npsScore' => $fieldStats['npsScore'] ?? null,
-                    'promoters' => $fieldStats['promoters'] ?? null,
-                    'passives' => $fieldStats['passives'] ?? null,
-                    'detractors' => $fieldStats['detractors'] ?? null,
-                ];
-            }
+            $rows[] = $row;
         }
 
-        return $exportData;
+        return ['headers' => $headers, 'rows' => $rows];
     }
 
     /**

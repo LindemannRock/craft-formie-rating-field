@@ -455,7 +455,10 @@ class StatisticsController extends Controller
     }
 
     /**
-     * Export statistics to CSV or JSON
+     * Export statistics to Excel (multi-sheet), CSV (ZIP of CSVs), or JSON (nested payload).
+     *
+     * Always includes Summary and Raw Responses sections. The By Group section is included
+     * only when a groupBy field handle is provided.
      */
     public function actionExport(): Response
     {
@@ -485,30 +488,112 @@ class StatisticsController extends Controller
         }
 
         $statisticsService = FormieRatingField::$plugin->statistics;
-
         $settings = FormieRatingField::$plugin->getSettings();
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
-        $extension = in_array($format, ['xlsx', 'excel'], true) ? 'xlsx' : $format;
 
-        $filenameParts = array_filter([
-            'statistics',
-            $form->handle,
-            $groupBy ?: null,
-            $dateRangeLabel,
-        ]);
+        try {
+            // Build all sections
+            $summary = $statisticsService->buildSummaryExportRows($form, $dateRange);
+            $raw = $statisticsService->buildRawResponsesExportRows($form, $dateRange);
+            $byGroup = $groupBy ? $statisticsService->buildGroupedExportRows($form, $dateRange, $groupBy) : null;
 
-        $filename = ExportHelper::filename($settings, array_values($filenameParts), $extension);
+            if ($format === 'xlsx' || $format === 'excel') {
+                $filename = ExportHelper::filename($settings, [
+                    'statistics',
+                    $form->handle,
+                    $dateRangeLabel,
+                ], 'xlsx');
 
-        $exportData = $statisticsService->getStatsExportData($form, $dateRange, $groupBy);
-        $jsonData = $statisticsService->getStatsExportArray($form, $dateRange, $groupBy);
+                $sheets = [
+                    [
+                        'title' => Craft::t('formie-rating-field', 'Summary'),
+                        'headers' => $summary['headers'],
+                        'rows' => $summary['rows'],
+                    ],
+                    [
+                        'title' => Craft::t('formie-rating-field', 'Raw Responses'),
+                        'headers' => $raw['headers'],
+                        'rows' => $raw['rows'],
+                    ],
+                ];
 
-        return match ($format) {
-            'csv' => ExportHelper::toCsv($exportData['rows'], $exportData['headers'], $filename),
-            'json' => ExportHelper::toJson($jsonData, $filename),
-            'xlsx', 'excel' => ExportHelper::toExcel($exportData['rows'], $exportData['headers'], $filename, [], [
-                'sheetTitle' => 'Statistics',
-            ]),
-            default => throw new BadRequestHttpException("Unknown export format: {$format}"),
-        };
+                if ($byGroup) {
+                    $sheets[] = [
+                        'title' => Craft::t('formie-rating-field', 'By Group'),
+                        'headers' => $byGroup['headers'],
+                        'rows' => $byGroup['rows'],
+                    ];
+                }
+
+                return ExportHelper::toExcelMulti($sheets, $filename);
+            }
+
+            if ($format === 'json') {
+                $filename = ExportHelper::filename($settings, [
+                    'statistics',
+                    $form->handle,
+                    $dateRangeLabel,
+                ], 'json');
+
+                $payload = [
+                    'exported' => date('c'),
+                    'form' => [
+                        'id' => $form->id,
+                        'title' => $form->title,
+                        'handle' => $form->handle,
+                    ],
+                    'dateRange' => $dateRange,
+                    'summary' => [
+                        'columns' => $summary['headers'],
+                        'rows' => $summary['rows'],
+                    ],
+                    'rawResponses' => [
+                        'columns' => $raw['headers'],
+                        'rows' => $raw['rows'],
+                    ],
+                ];
+
+                if ($byGroup) {
+                    $payload['byGroup'] = [
+                        'groupBy' => $groupBy,
+                        'columns' => $byGroup['headers'],
+                        'rows' => $byGroup['rows'],
+                    ];
+                }
+
+                return ExportHelper::toJson($payload, $filename);
+            }
+
+            // CSV: ZIP of multiple CSV files
+            $filename = ExportHelper::filename($settings, [
+                'statistics',
+                $form->handle,
+                $dateRangeLabel,
+                'csv',
+            ], 'zip');
+
+            $suffix = $form->handle . '-' . $dateRangeLabel;
+            $files = [
+                "summary-{$suffix}.csv" => ExportHelper::csvContent($summary['rows'], $summary['headers']),
+                "raw-responses-{$suffix}.csv" => ExportHelper::csvContent($raw['rows'], $raw['headers']),
+            ];
+
+            if ($byGroup) {
+                $safeGroupBy = trim((string)preg_replace('/[^a-z0-9]+/i', '-', (string)$groupBy), '-');
+                $files["by-group-{$safeGroupBy}-{$suffix}.csv"] = ExportHelper::csvContent($byGroup['rows'], $byGroup['headers']);
+            }
+
+            return ExportHelper::toZip($files, $filename);
+        } catch (\Exception $e) {
+            Craft::error('Statistics export failed: ' . $e->getMessage(), __METHOD__);
+
+            Craft::$app->getSession()->setError(
+                Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('formie-rating-field', 'Export failed. Please check the logs for details.')
+            );
+
+            return $this->redirect($request->getReferrer() ?? 'formie-rating-field/statistics');
+        }
     }
 }
