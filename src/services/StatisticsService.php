@@ -1291,21 +1291,27 @@ class StatisticsService extends Component
             return ['headers' => $headers, 'rows' => []];
         }
 
+        // Pre-fetch each field's grouped stats once, indexed by group label for O(1)
+        // lookup. Replaces the prior pattern of calling getFieldStatistics() and walking
+        // its groups array once per (group, field) pair (same cache hit, repeated work).
+        // Shape: [fieldHandle => [groupLabel => groupStats]]
+        $statsByField = [];
+        foreach ($ratingFields as $field) {
+            $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
+            $byLabel = [];
+            foreach (($fieldStats['groups'] ?? []) as $g) {
+                $byLabel[$g['label']] = $g;
+            }
+            $statsByField[$field->handle] = $byLabel;
+        }
+
         $rows = [];
 
         foreach ($groupedStats['groups'] as $group) {
             $row = [$group['label'], $group['count']];
 
             foreach ($ratingFields as $field) {
-                $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
-
-                $groupStats = null;
-                foreach ($fieldStats['groups'] as $g) {
-                    if ($g['label'] === $group['label']) {
-                        $groupStats = $g;
-                        break;
-                    }
-                }
+                $groupStats = $statsByField[$field->handle][$group['label']] ?? null;
 
                 if ($groupStats) {
                     if ($field->ratingType === Rating::RATING_TYPE_NPS) {
