@@ -56,7 +56,7 @@ class StatisticsService extends Component
         $ratingCountRows = (new Query())
             ->select(['formId' => 'fo.id', 'cnt' => new Expression('COUNT(*)')])
             ->from(['fo' => '{{%formie_forms}}'])
-            ->innerJoin(['ff' => '{{%formie_fields}}'], '[[ff.layoutId]] = [[fo.fieldLayoutId]]')
+            ->innerJoin(['ff' => '{{%formie_fields}}'], '[[ff.layoutId]] = [[fo.layoutId]]')
             ->where(['ff.type' => Rating::class])
             ->groupBy('fo.id')
             ->all();
