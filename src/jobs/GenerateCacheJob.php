@@ -17,7 +17,13 @@ use yii\queue\RetryableJobInterface;
 /**
  * Generate Cache Job
  *
- * Automatically generates statistics cache for all forms with rating fields
+ * Automatically generates statistics cache for all forms with rating fields.
+ *
+ * Site dimension: only the cross-site aggregate (siteId='all') is pre-warmed.
+ * Per-site queries compute live on first load (no cache hit) and are then stored
+ * on save, but are not iterated here. Pre-warming every (form × field × dateRange × site)
+ * combination would multiply queue size by the number of editable sites with no
+ * meaningful benefit for the typical single-site or cross-site view.
  *
  * @author LindemannRock
  * @since 3.3.0
@@ -210,12 +216,13 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
             ])
         );
 
-        // Clear this specific cache first to force regeneration
-        $cacheFilename = $statisticsService->getCacheFilename($form->id, $field->handle, $this->dateRange, $this->groupBy);
+        // Clear this specific cache first to force regeneration (always siteId='all' for pre-warming)
+        $cacheFilename = $statisticsService->getCacheFilename($form->id, $field->handle, $this->dateRange, $this->groupBy, 'all');
         Craft::info("Generating cache for: {$cacheFilename}", __METHOD__);
 
-        // Generate cache for this specific combination (will save it)
-        $statisticsService->getFieldStatistics($form, $field, $this->dateRange, $this->groupBy);
+        // Generate cache for this specific combination (will save it).
+        // siteId='all' is explicitly passed — the job only pre-warms cross-site aggregates.
+        $statisticsService->getFieldStatistics($form, $field, $this->dateRange, $this->groupBy, 'all');
 
         Craft::info("Completed batch {$this->currentBatch}/{$this->totalBatches}", __METHOD__);
     }

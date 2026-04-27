@@ -48,6 +48,7 @@
                 formId: form.id,
                 dateRange: dateRange,
                 groupBy: groupBy,
+                siteId: siteId,
             },
         } only %}
     </div>
@@ -95,6 +96,32 @@
                 </div>
             </div>
         </div>
+
+        {% if editableSites|length > 1 %}
+            <div>
+                <div class="btngroup">
+                    <button type="button" class="btn menubtn">
+                        <span id="siteFilterLabel">
+                            {% if siteId != 'all' %}
+                                {% for site in editableSites %}
+                                    {% if site.id == siteId %}{{ site.name }}{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {{ "All Sites"|t('formie-rating-field') }}
+                            {% endif %}
+                        </span>
+                    </button>
+                    <div class="menu">
+                        <ul>
+                            <li><a href="#" data-site="all" class="site-filter-option {{ siteId == 'all' ? 'sel' : '' }}">{{ "All Sites"|t('formie-rating-field') }}</a></li>
+                            {% for site in editableSites %}
+                                <li><a href="#" data-site="{{ site.id }}" class="site-filter-option {{ siteId == site.id ? 'sel' : '' }}">{{ site.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
         {% if groupableFields|length > 0 %}
             <div>
@@ -576,6 +603,7 @@
         let currentDateRange = '{{ dateRange }}';
         let currentGroupBy = '{{ groupBy ?? '' }}';
         let currentFieldFilter = '{{ fieldFilter ?? '' }}';
+        let currentSiteId = '{{ siteId }}';
         const formId = {{ form.id }};
 
         // Handle field filter selection
@@ -605,6 +633,31 @@
             }
 
             // Reload the page
+            window.location.replace(url.toString());
+        });
+
+        // Handle site filter selection
+        $(document).on('click', '.site-filter-option', function(e) {
+            e.preventDefault();
+
+            const $btn = $(this);
+            const site = $btn.data('site') || 'all';
+
+            $btn.closest('ul').find('.sel').removeClass('sel');
+            $btn.addClass('sel');
+
+            $btn.closest('.menu').removeClass('active');
+            $btn.closest('.btngroup').find('.menubtn').removeClass('active');
+
+            currentSiteId = site;
+
+            const url = new URL(window.location);
+            if (site && site !== 'all') {
+                url.searchParams.set('siteId', site);
+            } else {
+                url.searchParams.delete('siteId');
+            }
+
             window.location.replace(url.toString());
         });
 
@@ -890,6 +943,7 @@
                             formId: formId,
                             fieldHandle: fieldHandle,
                             dateRange: currentRange,
+                            siteId: currentSiteId,
                             type: 'distribution',
                             '{{ craft.app.config.general.csrfTokenName }}': '{{ craft.app.request.csrfToken }}'
                         },
@@ -952,6 +1006,7 @@
                         formId: formId,
                         fieldHandle: fieldHandle,
                         dateRange: currentRange,
+                        siteId: currentSiteId,
                         type: 'trend',
                         '{{ craft.app.config.general.csrfTokenName }}': '{{ craft.app.request.csrfToken }}'
                     },

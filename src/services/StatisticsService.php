@@ -148,12 +148,13 @@ class StatisticsService extends Component
      * @param Rating $field
      * @param string $dateRange
      * @param string|null $groupByHandle
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array
      */
-    public function getFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', ?string $groupByHandle = null): array
+    public function getFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', ?string $groupByHandle = null, int|string $siteId = 'all'): array
     {
         // Try to get from cache
-        $cachedData = $this->getFromCache($form->id, $field->handle, $dateRange, $groupByHandle);
+        $cachedData = $this->getFromCache($form->id, $field->handle, $dateRange, $groupByHandle, $siteId);
 
         if ($cachedData !== null) {
             return $cachedData;
@@ -161,13 +162,13 @@ class StatisticsService extends Component
 
         // If grouping is requested, return grouped statistics
         if ($groupByHandle) {
-            $stats = $this->getGroupedStatistics($form, $field, $dateRange, $groupByHandle);
+            $stats = $this->getGroupedStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
         } else {
-            $stats = $this->calculateFieldStatistics($form, $field, $dateRange);
+            $stats = $this->calculateFieldStatistics($form, $field, $dateRange, $siteId);
         }
 
         // Save to cache
-        $this->saveToCache($form->id, $field->handle, $dateRange, $groupByHandle, $stats);
+        $this->saveToCache($form->id, $field->handle, $dateRange, $groupByHandle, $stats, $siteId);
 
         return $stats;
     }
@@ -178,11 +179,12 @@ class StatisticsService extends Component
      * @param Form $form
      * @param Rating $field
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array
      */
-    private function calculateFieldStatistics(Form $form, Rating $field, string $dateRange = 'all'): array
+    private function calculateFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
-        $submissions = $this->getSubmissions($form, $dateRange);
+        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
 
         return $this->calculateStatsForSubmissions($submissions, $field);
     }
@@ -257,9 +259,10 @@ class StatisticsService extends Component
      * @param Rating $field
      * @param string $dateRange
      * @param string $groupByHandle
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array
      */
-    public function getGroupedStatistics(Form $form, Rating $field, string $dateRange, string $groupByHandle): array
+    public function getGroupedStatistics(Form $form, Rating $field, string $dateRange, string $groupByHandle, int|string $siteId = 'all'): array
     {
         // Get field UIDs for JSON extraction (Formie stores data by UID, not handle)
         $groupByField = null;
@@ -281,8 +284,8 @@ class StatisticsService extends Component
         $groupByUid = $groupByField->uid;
 
         // Build the query using field UIDs with DB-agnostic helpers
-        $groupByExpr = DbHelper::jsonExtract('content', $groupByUid);
-        $ratingExpr = DbHelper::jsonExtract('content', $ratingFieldUid);
+        $groupByExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $groupByUid);
+        $ratingExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $ratingFieldUid);
         $ratingCast = new Expression("CAST($ratingExpr AS DECIMAL(10,2))");
 
         $query = (new Query())
@@ -293,14 +296,24 @@ class StatisticsService extends Component
             ])
             ->from('{{%formie_submissions}}')
             ->where([
-                'formId' => $form->id,
-                'isIncomplete' => false,
-                'isSpam' => false,
+                '{{%formie_submissions}}.formId' => $form->id,
+                '{{%formie_submissions}}.isIncomplete' => false,
+                '{{%formie_submissions}}.isSpam' => false,
             ])
             ->andWhere(['not', [$ratingExpr => null]])
             ->andWhere(['!=', $ratingExpr, ''])
             ->groupBy('groupValue')
             ->orderBy(['count' => SORT_DESC]);
+
+        // Filter by site when a specific site is requested.
+        // formie_submissions has no siteId column; site association lives in elements_sites.
+        if ($siteId !== 'all') {
+            $query->innerJoin(
+                '{{%elements_sites}} es_site_filter',
+                '[[es_site_filter.elementId]] = [[{{%formie_submissions}}.id]] AND [[es_site_filter.siteId]] = :filterSiteId',
+                [':filterSiteId' => (int)$siteId]
+            );
+        }
 
         // Add date filter if specified
         if ($dateBounds['start']) {
@@ -370,11 +383,12 @@ class StatisticsService extends Component
      * @param string $groupByHandle
      * @param string $groupValue
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array
      */
-    public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all'): array
+    public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
-        $submissions = $this->getSubmissions($form, $dateRange);
+        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
         $groupedSubmissions = [];
 
         foreach ($submissions as $submission) {
@@ -425,17 +439,34 @@ class StatisticsService extends Component
     }
 
     /**
+     * Normalise a siteId value to a cache-safe string segment.
+     *
+     * @param int|string $siteId
+     * @return string
+     */
+    private function normaliseSiteIdForKey(int|string $siteId): string
+    {
+        if ($siteId === 'all') {
+            return 'all';
+        }
+
+        return (string)(int)$siteId;
+    }
+
+    /**
      * Generate cache key for Redis/database storage
      *
      * @param int $formId
      * @param string $fieldHandle
      * @param string $dateRange
      * @param string|null $groupByHandle
+     * @param int|string $siteId
      * @return string
      */
-    private function getCacheKey(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null): string
+    private function getCacheKey(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
     {
-        $key = "formie-rating-stats-{$formId}-{$fieldHandle}-{$dateRange}";
+        $siteSegment = $this->normaliseSiteIdForKey($siteId);
+        $key = "formie-rating-stats-{$formId}-{$fieldHandle}-{$dateRange}-{$siteSegment}";
 
         if ($groupByHandle) {
             $key .= "-{$groupByHandle}";
@@ -461,11 +492,13 @@ class StatisticsService extends Component
      * @param string $fieldHandle
      * @param string $dateRange
      * @param string|null $groupByHandle
+     * @param int|string $siteId
      * @return string
      */
-    public function getCacheFilename(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null): string
+    public function getCacheFilename(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
     {
-        $key = "{$formId}-{$fieldHandle}-{$dateRange}";
+        $siteSegment = $this->normaliseSiteIdForKey($siteId);
+        $key = "{$formId}-{$fieldHandle}-{$dateRange}-{$siteSegment}";
 
         if ($groupByHandle) {
             $key .= "-{$groupByHandle}";
@@ -481,22 +514,23 @@ class StatisticsService extends Component
      * @param string $fieldHandle
      * @param string $dateRange
      * @param string|null $groupByHandle
+     * @param int|string $siteId
      * @return array|null
      */
-    private function getFromCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null): ?array
+    private function getFromCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): ?array
     {
         $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
 
         // Use Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
-            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle);
+            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
             $cached = Craft::$app->cache->get($cacheKey);
             return $cached !== false ? $cached : null;
         }
 
         // Use file-based cache (default)
         $cachePath = $this->getCachePath();
-        $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle);
+        $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
         $filepath = $cachePath . $filename;
 
         if (!file_exists($filepath)) {
@@ -520,15 +554,16 @@ class StatisticsService extends Component
      * @param string $dateRange
      * @param string|null $groupByHandle
      * @param array $stats
+     * @param int|string $siteId
      * @return bool
      */
-    private function saveToCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats): bool
+    private function saveToCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats, int|string $siteId = 'all'): bool
     {
         $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
 
         // Use Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
-            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle);
+            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
             $cache = Craft::$app->cache;
 
             Craft::info("Attempting to save to cache. Type: " . get_class($cache) . ", Key: {$cacheKey}", __METHOD__);
@@ -554,7 +589,7 @@ class StatisticsService extends Component
             FileHelper::createDirectory($cachePath);
         }
 
-        $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle);
+        $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
         $filepath = $cachePath . $filename;
 
         // Serialize and save
@@ -780,11 +815,12 @@ class StatisticsService extends Component
      * @param Form $form
      * @param Rating $field
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array
      */
-    public function getTrendData(Form $form, Rating $field, string $dateRange = 'all'): array
+    public function getTrendData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
-        $submissions = $this->getSubmissions($form, $dateRange);
+        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
 
         $dateFormat = $this->getDateFormatForRange($dateRange);
         $trendData = [];
@@ -860,11 +896,12 @@ class StatisticsService extends Component
      * @param Form $form
      * @param Rating $field
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array
      */
-    public function getDistributionData(Form $form, Rating $field, string $dateRange = 'all'): array
+    public function getDistributionData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
-        $stats = $this->getFieldStatistics($form, $field, $dateRange);
+        $stats = $this->getFieldStatistics($form, $field, $dateRange, null, $siteId);
 
         if (isset($stats['distribution'])) {
             return [
@@ -886,11 +923,12 @@ class StatisticsService extends Component
      *
      * @param Form $form
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return int
      */
-    public function getTotalSubmissions(Form $form, string $dateRange = 'all'): int
+    public function getTotalSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): int
     {
-        return count($this->getSubmissions($form, $dateRange));
+        return count($this->getSubmissions($form, $dateRange, $siteId));
     }
 
     /**
@@ -902,10 +940,11 @@ class StatisticsService extends Component
      *
      * @param Form $form
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array{headers: string[], rows: array[]}
      * @since 3.16.0
      */
-    public function buildSummaryExportRows(Form $form, string $dateRange = 'all'): array
+    public function buildSummaryExportRows(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
@@ -932,7 +971,7 @@ class StatisticsService extends Component
         $rows = [];
 
         foreach ($ratingFields as $field) {
-            $stats = $this->getFieldStatistics($form, $field, $dateRange, null);
+            $stats = $this->getFieldStatistics($form, $field, $dateRange, null, $siteId);
             $isNps = $field->ratingType === Rating::RATING_TYPE_NPS;
 
             $row = [
@@ -978,10 +1017,11 @@ class StatisticsService extends Component
      *
      * @param Form $form
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array{headers: string[], rows: array[]}
      * @since 3.16.0
      */
-    public function buildRawResponsesExportRows(Form $form, string $dateRange = 'all'): array
+    public function buildRawResponsesExportRows(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
@@ -992,18 +1032,23 @@ class StatisticsService extends Component
         $headers = [
             Craft::t('formie-rating-field', 'Submission Date'),
             Craft::t('formie-rating-field', 'Submission ID'),
+            Craft::t('formie-rating-field', 'Site'),
         ];
         foreach ($ratingFields as $field) {
             $headers[] = $field->label;
         }
 
-        $submissions = $this->getSubmissions($form, $dateRange);
+        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
         $rows = [];
+        $sitesService = Craft::$app->getSites();
 
         foreach ($submissions as $submission) {
+            $site = $submission->siteId ? $sitesService->getSiteById($submission->siteId) : null;
+
             $row = [
                 $submission->dateCreated->format('Y-m-d H:i:s'),
                 $submission->id,
+                $site?->name ?? '—',
             ];
 
             foreach ($ratingFields as $field) {
@@ -1029,10 +1074,11 @@ class StatisticsService extends Component
      * @param Form $form
      * @param string $dateRange
      * @param string|null $groupByHandle
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array{headers: string[], rows: array[]}
      * @since 3.16.0
      */
-    public function buildGroupedExportRows(Form $form, string $dateRange = 'all', ?string $groupByHandle = null): array
+    public function buildGroupedExportRows(Form $form, string $dateRange = 'all', ?string $groupByHandle = null, int|string $siteId = 'all'): array
     {
         if (!$groupByHandle) {
             return ['headers' => [], 'rows' => []];
@@ -1072,7 +1118,7 @@ class StatisticsService extends Component
 
         // Use the first rating field to establish the group list
         $firstField = $ratingFields[0];
-        $groupedStats = $this->getFieldStatistics($form, $firstField, $dateRange, $groupByHandle);
+        $groupedStats = $this->getFieldStatistics($form, $firstField, $dateRange, $groupByHandle, $siteId);
 
         if (empty($groupedStats['groups'])) {
             return ['headers' => $headers, 'rows' => []];
@@ -1084,7 +1130,7 @@ class StatisticsService extends Component
             $row = [$group['label'], $group['count']];
 
             foreach ($ratingFields as $field) {
-                $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle);
+                $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
 
                 $groupStats = null;
                 foreach ($fieldStats['groups'] as $g) {
@@ -1124,17 +1170,28 @@ class StatisticsService extends Component
     }
 
     /**
-     * Get submissions for a form within a date range
+     * Get submissions for a form within a date range, optionally filtered by site.
+     *
+     * When $siteId is 'all', submissions are fetched cross-site via siteId('*').
+     * When $siteId is an int, the query is scoped to that specific site.
      *
      * @param Form $form
      * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
      * @return array
      */
-    private function getSubmissions(Form $form, string $dateRange = 'all'): array
+    private function getSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
         $query = Submission::find()
             ->formId($form->id)
             ->orderBy(['dateCreated' => SORT_DESC]);
+
+        if ($siteId === 'all') {
+            // Explicitly request all sites to override Craft's current-site default
+            $query->siteId('*');
+        } else {
+            $query->siteId((int)$siteId);
+        }
 
         $bounds = DateRangeHelper::getBounds($dateRange);
 

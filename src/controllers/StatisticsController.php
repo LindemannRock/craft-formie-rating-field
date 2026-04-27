@@ -15,6 +15,7 @@ use lindemannrock\base\helpers\ExportHelper;
 use lindemannrock\formieratingfield\FormieRatingField;
 use verbb\formie\elements\Form;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -27,6 +28,32 @@ use yii\web\Response;
  */
 class StatisticsController extends Controller
 {
+    /**
+     * Resolve a raw siteId query/body param to a validated int or 'all'.
+     *
+     * - null / empty / 'all' → 'all' (cross-site)
+     * - numeric string → cast to int and verify it is an editable site; throws ForbiddenHttpException if not
+     *
+     * @param string|null $rawSiteId
+     * @return int|string int for a specific site, 'all' for cross-site
+     * @throws ForbiddenHttpException
+     */
+    private function _resolveSiteId(?string $rawSiteId): int|string
+    {
+        if (!$rawSiteId || $rawSiteId === 'all') {
+            return 'all';
+        }
+
+        $siteId = (int)$rawSiteId;
+        $editableIds = Craft::$app->getSites()->getEditableSiteIds();
+
+        if (!in_array($siteId, $editableIds, true)) {
+            throw new ForbiddenHttpException('You do not have permission to access that site.');
+        }
+
+        return $siteId;
+    }
+
     /**
      * Display statistics index - list of all forms with rating fields
      */
@@ -49,6 +76,7 @@ class StatisticsController extends Controller
         $dir = $request->getQueryParam('dir', 'desc');
         $page = max(1, (int)$request->getQueryParam('page', 1));
         $limit = $settings->itemsPerPage;
+        $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
 
         // Get all forms that have rating fields
         $formsWithRatings = $statisticsService->getFormsWithRatingFields();
@@ -93,6 +121,8 @@ class StatisticsController extends Controller
             'offset' => $offset,
             'totalPages' => $totalPages,
             'totalItems' => $totalItems,
+            'siteId' => $siteId,
+            'editableSites' => Craft::$app->getSites()->getEditableSites(),
         ]);
     }
 
@@ -121,6 +151,7 @@ class StatisticsController extends Controller
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange('formie-rating-field'));
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
         $fieldFilter = Craft::$app->getRequest()->getQueryParam('field', null);
+        $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
 
         // Get rating fields for this form
         $ratingFields = $statisticsService->getRatingFieldsForForm($form);
@@ -142,7 +173,7 @@ class StatisticsController extends Controller
         // Get statistics for each rating field to display
         $fieldStats = [];
         foreach ($fieldsToDisplay as $field) {
-            $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, $groupBy);
+            $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, $groupBy, $siteId);
         }
 
         return $this->renderTemplate('formie-rating-field/statistics/form', [
@@ -154,6 +185,8 @@ class StatisticsController extends Controller
             'dateRange' => $dateRange,
             'groupBy' => $groupBy,
             'fieldFilter' => $fieldFilter,
+            'siteId' => $siteId,
+            'editableSites' => Craft::$app->getSites()->getEditableSites(),
         ]);
     }
 
@@ -177,6 +210,7 @@ class StatisticsController extends Controller
         $statisticsService = FormieRatingField::$plugin->statistics;
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy');
+        $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
 
         if (!$groupBy) {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Group by parameter is required'));
@@ -187,7 +221,7 @@ class StatisticsController extends Controller
         $groupValue = urldecode($groupValue);
 
         // Get submissions for this specific group
-        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
+        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId);
         $ratingFields = $statisticsService->getRatingFieldsForForm($form);
 
         // Get the groupBy field label
@@ -224,6 +258,7 @@ class StatisticsController extends Controller
         $fieldHandle = $request->getBodyParam('fieldHandle');
         $dateRange = $request->getBodyParam('dateRange', 'all');
         $type = $request->getBodyParam('type', 'summary');
+        $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
         if (!$formId) {
             return $this->asJson([
@@ -253,12 +288,12 @@ class StatisticsController extends Controller
                     $fieldStats = [];
 
                     foreach ($ratingFields as $field) {
-                        $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange);
+                        $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, null, $siteId);
                     }
 
                     $data = [
                         'fieldStats' => $fieldStats,
-                        'totalSubmissions' => $statisticsService->getTotalSubmissions($form, $dateRange),
+                        'totalSubmissions' => $statisticsService->getTotalSubmissions($form, $dateRange, $siteId),
                     ];
                     break;
 
@@ -273,7 +308,7 @@ class StatisticsController extends Controller
                         return $this->asJson(['success' => false, 'error' => 'Field not found']);
                     }
 
-                    $data = $statisticsService->getTrendData($form, $field, $dateRange);
+                    $data = $statisticsService->getTrendData($form, $field, $dateRange, $siteId);
                     break;
 
                 case 'distribution':
@@ -287,7 +322,7 @@ class StatisticsController extends Controller
                         return $this->asJson(['success' => false, 'error' => 'Field not found']);
                     }
 
-                    $data = $statisticsService->getDistributionData($form, $field, $dateRange);
+                    $data = $statisticsService->getDistributionData($form, $field, $dateRange, $siteId);
                     break;
             }
 
@@ -354,6 +389,7 @@ class StatisticsController extends Controller
         $groupValue = urldecode($request->getBodyParam('groupValue', ''));
         $dateRange = $request->getBodyParam('dateRange', 'all');
         $format = $request->getBodyParam('format', 'csv');
+        $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
         if (!$formId || !$groupBy || !$groupValue) {
             throw new BadRequestHttpException('Missing required parameters');
@@ -373,19 +409,24 @@ class StatisticsController extends Controller
         $statisticsService = FormieRatingField::$plugin->statistics;
 
         // Get submissions for this group
-        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange);
+        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId);
 
         $settings = FormieRatingField::$plugin->getSettings();
         $safeGroupValue = trim((string)preg_replace('/[^a-z0-9]+/i', '-', $groupValue), '-');
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
         $extension = in_array($format, ['xlsx', 'excel'], true) ? 'xlsx' : $format;
 
-        $filename = ExportHelper::filename($settings, [
+        $siteSlug = is_int($siteId)
+            ? strtolower(preg_replace('/[^a-z0-9]+/', '-', Craft::$app->getSites()->getSiteById($siteId)?->handle ?? '') ?: null)
+            : null;
+
+        $filename = ExportHelper::filename($settings, array_values(array_filter([
             'statistics',
             $form->handle,
+            $siteSlug,
             $safeGroupValue,
             $dateRangeLabel,
-        ], $extension);
+        ])), $extension);
 
         // Build headers and rows for CSV / Excel
         $headers = [
@@ -481,6 +522,7 @@ class StatisticsController extends Controller
         $dateRange = $request->getBodyParam('dateRange', 'all');
         $groupBy = $request->getBodyParam('groupBy', null);
         $format = $request->getBodyParam('format', 'csv');
+        $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
         // Gate by enabled export formats from config/formie-rating-field.php (or base default)
         if (!ExportHelper::isFormatEnabled($format, 'formie-rating-field')) {
@@ -491,18 +533,24 @@ class StatisticsController extends Controller
         $settings = FormieRatingField::$plugin->getSettings();
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
 
+        // Build site handle slug for filename when a specific site is selected
+        $siteSlug = is_int($siteId)
+            ? strtolower(preg_replace('/[^a-z0-9]+/', '-', Craft::$app->getSites()->getSiteById($siteId)?->handle ?? '') ?: null)
+            : null;
+
         try {
             // Build all sections
-            $summary = $statisticsService->buildSummaryExportRows($form, $dateRange);
-            $raw = $statisticsService->buildRawResponsesExportRows($form, $dateRange);
-            $byGroup = $groupBy ? $statisticsService->buildGroupedExportRows($form, $dateRange, $groupBy) : null;
+            $summary = $statisticsService->buildSummaryExportRows($form, $dateRange, $siteId);
+            $raw = $statisticsService->buildRawResponsesExportRows($form, $dateRange, $siteId);
+            $byGroup = $groupBy ? $statisticsService->buildGroupedExportRows($form, $dateRange, $groupBy, $siteId) : null;
 
             if ($format === 'xlsx' || $format === 'excel') {
-                $filename = ExportHelper::filename($settings, [
+                $filename = ExportHelper::filename($settings, array_values(array_filter([
                     'statistics',
                     $form->handle,
+                    $siteSlug,
                     $dateRangeLabel,
-                ], 'xlsx');
+                ])), 'xlsx');
 
                 $sheets = [
                     [
@@ -529,11 +577,12 @@ class StatisticsController extends Controller
             }
 
             if ($format === 'json') {
-                $filename = ExportHelper::filename($settings, [
+                $filename = ExportHelper::filename($settings, array_values(array_filter([
                     'statistics',
                     $form->handle,
+                    $siteSlug,
                     $dateRangeLabel,
-                ], 'json');
+                ])), 'json');
 
                 $payload = [
                     'exported' => date('c'),
@@ -565,14 +614,15 @@ class StatisticsController extends Controller
             }
 
             // CSV: ZIP of multiple CSV files
-            $filename = ExportHelper::filename($settings, [
+            $filename = ExportHelper::filename($settings, array_values(array_filter([
                 'statistics',
                 $form->handle,
+                $siteSlug,
                 $dateRangeLabel,
                 'csv',
-            ], 'zip');
+            ])), 'zip');
 
-            $suffix = $form->handle . '-' . $dateRangeLabel;
+            $suffix = $form->handle . ($siteSlug ? '-' . $siteSlug : '') . '-' . $dateRangeLabel;
             $files = [
                 "summary-{$suffix}.csv" => ExportHelper::csvContent($summary['rows'], $summary['headers']),
                 "raw-responses-{$suffix}.csv" => ExportHelper::csvContent($raw['rows'], $raw['headers']),

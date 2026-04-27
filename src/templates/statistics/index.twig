@@ -33,6 +33,32 @@
 				</div>
 			</form>
 		</div>
+
+		{% if editableSites|length > 1 %}
+			<div>
+				<div class="btngroup">
+					<button type="button" class="btn menubtn">
+						<span id="indexSiteFilterLabel">
+							{% if siteId != 'all' %}
+								{% for site in editableSites %}
+									{% if site.id == siteId %}{{ site.name }}{% endif %}
+								{% endfor %}
+							{% else %}
+								{{ "All Sites"|t('formie-rating-field') }}
+							{% endif %}
+						</span>
+					</button>
+					<div class="menu">
+						<ul>
+							<li><a href="#" data-site="all" class="index-site-filter-option {{ siteId == 'all' ? 'sel' : '' }}">{{ "All Sites"|t('formie-rating-field') }}</a></li>
+							{% for site in editableSites %}
+								<li><a href="#" data-site="{{ site.id }}" class="index-site-filter-option {{ siteId == site.id ? 'sel' : '' }}">{{ site.name }}</a></li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 	</div>
 {% endblock %}
 
@@ -167,6 +193,22 @@ document.querySelectorAll('.menubtn').forEach(btn => {
 	} else if (typeof Garnish !== 'undefined' && Garnish.MenuBtn) {
 		new Garnish.MenuBtn(btn);
 	}
+});
+
+// Site filter on index page
+document.querySelectorAll('.index-site-filter-option').forEach(function(link) {
+	link.addEventListener('click', function(e) {
+		e.preventDefault();
+		const site = this.dataset.site || 'all';
+		const url = new URL(window.location);
+		if (site && site !== 'all') {
+			url.searchParams.set('siteId', site);
+		} else {
+			url.searchParams.delete('siteId');
+		}
+		url.searchParams.set('page', '1');
+		window.location.replace(url.toString());
+	});
 });
 
 // Clear search
