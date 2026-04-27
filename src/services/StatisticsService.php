@@ -45,6 +45,13 @@ class StatisticsService extends Component
     private const REDIS_KEY_INDEX = 'formie-rating-cache-keys';
 
     /**
+     * Sentinel passed as `$groupByHandle` to segregate trend-chart cache cells
+     * from field-stats cells. Cannot collide with a real Formie field handle
+     * (handles must start with a letter).
+     */
+    private const TREND_CACHE_VARIANT = '__trend__';
+
+    /**
      * Get all forms that have at least one rating field
      *
      * @return array
@@ -858,6 +865,13 @@ class StatisticsService extends Component
      */
     public function getTrendData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
+        // Try cache. The sentinel groupByHandle '__trend__' segregates trend data from
+        // field-stats and from any real groupBy (Formie field handles must start with a letter).
+        $cached = $this->getFromCache($form->id, $field->handle, $dateRange, self::TREND_CACHE_VARIANT, $siteId);
+        if ($cached !== null) {
+            return $cached;
+        }
+
         $submissions = $this->getSubmissions($form, $dateRange, $siteId);
 
         $dateFormat = $this->getDateFormatForRange($dateRange);
@@ -919,13 +933,17 @@ class StatisticsService extends Component
             $chartData = $sampledData;
         }
 
-        return [
+        $result = [
             'labels' => array_column($chartData, 'date'),
             'values' => array_column($chartData, 'value'),
             'counts' => array_column($chartData, 'count'),
             'scaleMin' => $isNps ? -100 : 0,
             'scaleMax' => $isNps ? 100 : (int)$field->maxValue,
         ];
+
+        $this->saveToCache($form->id, $field->handle, $dateRange, self::TREND_CACHE_VARIANT, $result, $siteId);
+
+        return $result;
     }
 
     /**

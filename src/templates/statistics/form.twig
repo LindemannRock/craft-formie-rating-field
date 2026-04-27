@@ -592,6 +592,13 @@
     // Store chart instances globally
     window.statisticsCharts = window.statisticsCharts || {};
 
+    // Current page state — hoisted to script scope so initCharts() (which is also at
+    // script scope) can read currentSiteId / currentRange when building chart payloads.
+    let currentDateRange = '{{ dateRange|e('js') }}';
+    let currentGroupBy = '{{ (groupBy ?? '')|e('js') }}';
+    let currentFieldFilter = '{{ (fieldFilter ?? '')|e('js') }}';
+    let currentSiteId = '{{ siteId|e('js') }}';
+
     // Load Chart.js if not already loaded
     if (typeof Chart === 'undefined') {
         var script = document.createElement('script');
@@ -604,10 +611,6 @@
 
     // Date range change handler
     $(document).ready(function() {
-        let currentDateRange = '{{ dateRange|e('js') }}';
-        let currentGroupBy = '{{ (groupBy ?? '')|e('js') }}';
-        let currentFieldFilter = '{{ (fieldFilter ?? '')|e('js') }}';
-        let currentSiteId = '{{ siteId|e('js') }}';
         const formId = {{ form.id }};
 
         // Handle field filter selection
