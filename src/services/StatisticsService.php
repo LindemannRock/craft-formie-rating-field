@@ -227,9 +227,12 @@ class StatisticsService extends Component
      */
     private function calculateFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
-        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
+        // Pull just the rating values via SQL — avoids hydrating the full submission
+        // element graph for what's just a list of floats. Per-form path is the hot path
+        // on cache miss; this is where the slowness lived.
+        $values = $this->extractFieldValuesViaSql($form, $field, $dateRange, $siteId);
 
-        return $this->calculateStatsForSubmissions($submissions, $field);
+        return $this->buildStatsFromValues($values, $field);
     }
 
     /**
@@ -251,7 +254,22 @@ class StatisticsService extends Component
     public function calculateStatsForSubmissions(array $submissions, Rating $field): array
     {
         $values = $this->extractFieldValues($submissions, $field);
+        return $this->buildStatsFromValues($values, $field);
+    }
 
+    /**
+     * Build the stats array from a flat list of rating values.
+     *
+     * Shared body between `calculateStatsForSubmissions()` (public API — accepts
+     * pre-fetched submission elements) and `calculateFieldStatistics()` (private
+     * cache-miss path — pulls values directly via SQL).
+     *
+     * @param float[] $values
+     * @param Rating $field
+     * @return array
+     */
+    private function buildStatsFromValues(array $values, Rating $field): array
+    {
         $stats = [
             'fieldType' => $field->ratingType,
             'fieldLabel' => $field->label,
@@ -1095,7 +1113,30 @@ class StatisticsService extends Component
      */
     public function getTotalSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): int
     {
-        return count($this->getSubmissions($form, $dateRange, $siteId));
+        // SQL count — avoids hydrating every submission element just to call count() on the result.
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+
+        $query = (new Query())
+            ->from('{{%formie_submissions}}')
+            ->where(["{$submissionsTable}.formId" => $form->id]);
+
+        $bounds = DateRangeHelper::getBounds($dateRange);
+        if ($bounds['start']) {
+            $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['start'])]);
+        }
+        if ($bounds['end']) {
+            $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['end'])]);
+        }
+
+        if ($siteId !== 'all') {
+            $query->innerJoin(
+                '{{%elements_sites}} es_site_filter',
+                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
+                [':filterSiteId' => (int)$siteId]
+            );
+        }
+
+        return (int)$query->count();
     }
 
     /**
@@ -1402,6 +1443,54 @@ class StatisticsService extends Component
         }
 
         return $values;
+    }
+
+    /**
+     * Extract a flat list of rating values directly via SQL — replaces the prior
+     * `getSubmissions() + extractFieldValues()` element-walk for the cache-miss path.
+     *
+     * Filter semantics match the original `getSubmissions()`:
+     *  - formId match
+     *  - DateRangeHelper bounds
+     *  - 'all' = no site filter; specific = INNER JOIN elements_sites
+     *  - rating value extracted from JSON content; NULL/empty rows skipped (matches the
+     *    `$value !== null && $value !== ''` filter in the PHP version).
+     *
+     * @param Form $form
+     * @param Rating $field
+     * @param string $dateRange
+     * @param int|string $siteId
+     * @return float[]
+     */
+    private function extractFieldValuesViaSql(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
+    {
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+        $valueExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $field->uid);
+
+        $query = (new Query())
+            ->select(['valueRaw' => new Expression("CAST({$valueExpr} AS DECIMAL(10,2))")])
+            ->from('{{%formie_submissions}}')
+            ->where(["{$submissionsTable}.formId" => $form->id])
+            ->andWhere(['not', [$valueExpr => null]])
+            ->andWhere(['!=', $valueExpr, '']);
+
+        $bounds = DateRangeHelper::getBounds($dateRange);
+        if ($bounds['start']) {
+            $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['start'])]);
+        }
+        if ($bounds['end']) {
+            $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['end'])]);
+        }
+
+        if ($siteId !== 'all') {
+            $query->innerJoin(
+                '{{%elements_sites}} es_site_filter',
+                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
+                [':filterSiteId' => (int)$siteId]
+            );
+        }
+
+        return array_map('floatval', $query->column());
     }
 
     /**
