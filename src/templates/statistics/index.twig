@@ -231,29 +231,36 @@ if (searchInput) {
 	});
 }
 
-// Sort buttons
+// Sort buttons — read current state from URL (avoids unsafe Twig→JS interpolation),
+// let the browser handle encoding via URLSearchParams.
 document.querySelectorAll('th.orderable button').forEach(button => {
 	button.addEventListener('click', function () {
 		const sortField = this.dataset.sort;
-		const currentSort = '{{ sort }}';
-		const currentDir = '{{ dir }}';
-		let newDir = 'asc';
+		const url = new URL(window.location);
+		const currentSort = url.searchParams.get('sort') || 'totalSubmissions';
+		const currentDir = url.searchParams.get('dir') || 'desc';
+		const newDir = sortField === currentSort
+			? (currentDir === 'asc' ? 'desc' : 'asc')
+			: 'asc';
 
-		if (sortField === currentSort) {
-			newDir = currentDir === 'asc' ? 'desc' : 'asc';
-		}
-
-		window.location.href = '?search={{ search }}&sort=' + sortField + '&dir=' + newDir + '&page=1';
+		url.searchParams.set('sort', sortField);
+		url.searchParams.set('dir', newDir);
+		url.searchParams.set('page', '1');
+		window.location.href = url.toString();
 	});
 });
 
-// Pagination
+// Pagination — same approach: mutate the existing URL, never rebuild from interpolated strings.
 document.querySelector('.prev-page:not(.disabled)')?.addEventListener('click', function () {
-	window.location.href = '?search={{ search }}&sort={{ sort }}&dir={{ dir }}&page={{ page - 1 }}';
+	const url = new URL(window.location);
+	url.searchParams.set('page', {{ page - 1 }});
+	window.location.href = url.toString();
 });
 
 document.querySelector('.next-page:not(.disabled)')?.addEventListener('click', function () {
-	window.location.href = '?search={{ search }}&sort={{ sort }}&dir={{ dir }}&page={{ page + 1 }}';
+	const url = new URL(window.location);
+	url.searchParams.set('page', {{ page + 1 }});
+	window.location.href = url.toString();
 });
 	</script>
 {% endblock %}

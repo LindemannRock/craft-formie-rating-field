@@ -604,10 +604,10 @@
 
     // Date range change handler
     $(document).ready(function() {
-        let currentDateRange = '{{ dateRange }}';
-        let currentGroupBy = '{{ groupBy ?? '' }}';
-        let currentFieldFilter = '{{ fieldFilter ?? '' }}';
-        let currentSiteId = '{{ siteId }}';
+        let currentDateRange = '{{ dateRange|e('js') }}';
+        let currentGroupBy = '{{ (groupBy ?? '')|e('js') }}';
+        let currentFieldFilter = '{{ (fieldFilter ?? '')|e('js') }}';
+        let currentSiteId = '{{ siteId|e('js') }}';
         const formId = {{ form.id }};
 
         // Handle field filter selection
@@ -837,7 +837,7 @@
         }
 
         const formId = {{ form.id }};
-        const currentRange = '{{ dateRange }}';
+        const currentRange = '{{ dateRange|e('js') }}';
 
         // Chart colors
         const chartColors = [
@@ -852,7 +852,7 @@
 
             // Initialize charts for {{ field.handle }}
             (function() {
-                const fieldHandle = '{{ field.handle }}';
+                const fieldHandle = '{{ field.handle|e('js') }}';
 
                 {% if isGrouped and stats.groups|length <= 100 %}
                     // Comparison Chart for grouped data (Top 10 only, skip if too many groups)
