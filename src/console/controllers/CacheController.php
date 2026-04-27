@@ -10,6 +10,7 @@ namespace lindemannrock\formieratingfield\console\controllers;
 
 use Craft;
 use craft\console\Controller;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\formieratingfield\FormieRatingField;
 use yii\console\ExitCode;
 
@@ -78,7 +79,8 @@ class CacheController extends Controller
     {
         $statisticsService = FormieRatingField::$plugin->statistics;
         $cacheCount = $statisticsService->getCacheFileCount();
-        $cachePath = Craft::$app->getPath()->getStoragePath() . '/formie-rating-field/cache/statistics/';
+        // Use the same helper StatisticsService::getCachePath() uses (single source of truth)
+        $cachePath = PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics');
         $settings = FormieRatingField::$plugin->getSettings();
 
         $this->stdout("Rating Field Statistics Cache Info:\n");

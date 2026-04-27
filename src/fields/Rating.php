@@ -40,44 +40,44 @@ class Rating extends Field implements FieldInterface
     // =========================================================================
 
     /**
-     * @var string The rating type (star, emoji, nps)
+     * @var string|null The rating type (star, emoji, nps)
      */
-    public $ratingType;
+    public ?string $ratingType = null;
 
     /**
-     * @var string The rating size (small, medium, large, xlarge)
+     * @var string|null The rating size (small, medium, large, xlarge)
      */
-    public $ratingSize;
+    public ?string $ratingSize = null;
 
     /**
-     * @var int The minimum rating value
+     * @var int|null The minimum rating value
      */
-    public $minValue;
+    public ?int $minValue = null;
 
     /**
-     * @var int The maximum rating value
+     * @var int|null The maximum rating value
      */
-    public $maxValue;
+    public ?int $maxValue = null;
 
     /**
-     * @var bool Whether to allow half ratings (star type only)
+     * @var bool|null Whether to allow half ratings (star type only)
      */
-    public $allowHalfRatings;
+    public ?bool $allowHalfRatings = null;
 
     /**
-     * @var string Emoji render mode (system, noto-color, noto-simple)
+     * @var string|null Emoji render mode (system, noto-color, noto-simple)
      */
-    public $emojiRenderMode;
+    public ?string $emojiRenderMode = null;
 
     /**
-     * @var bool Whether to show the selected value label
+     * @var bool|null Whether to show the selected value label
      */
-    public $showSelectedLabel;
+    public ?bool $showSelectedLabel = null;
 
     /**
-     * @var bool Whether to show endpoint labels
+     * @var bool|null Whether to show endpoint labels
      */
-    public $showEndpointLabels;
+    public ?bool $showEndpointLabels = null;
 
     /**
      * @var array Custom labels for each rating value
@@ -85,69 +85,69 @@ class Rating extends Field implements FieldInterface
     public $customLabels = [];
 
     /**
-     * @var string The start label (for endpoint labels)
+     * @var string|null The start label (for endpoint labels)
      */
-    public $startLabel;
+    public ?string $startLabel = null;
 
     /**
-     * @var string The end label (for endpoint labels)
+     * @var string|null The end label (for endpoint labels)
      */
-    public $endLabel;
+    public ?string $endLabel = null;
 
     /**
-     * @var bool Whether to use single emoji selection mode (emoji type only)
+     * @var bool|null Whether to use single emoji selection mode (emoji type only)
      */
-    public $singleEmojiSelection;
+    public ?bool $singleEmojiSelection = null;
 
     /**
-     * @var bool Enable Google Review prompt for high ratings
+     * @var bool|null Enable Google Review prompt for high ratings
      */
-    public $enableGoogleReview;
+    public ?bool $enableGoogleReview = null;
 
     /**
      * @var int|null Minimum rating threshold to trigger Google Review prompt
      */
-    public $googleReviewThreshold;
+    public ?int $googleReviewThreshold = null;
 
     /**
-     * @var string Field handle containing the Google Place ID
+     * @var string|null Field handle containing the Google Place ID
      */
-    public $googlePlaceIdField;
+    public ?string $googlePlaceIdField = null;
 
     /**
-     * @var string Custom message for high ratings
+     * @var string|null Custom message for high ratings
      */
-    public $googleReviewMessageHigh;
+    public ?string $googleReviewMessageHigh = null;
 
     /**
-     * @var string Custom message for medium ratings
+     * @var string|null Custom message for medium ratings
      */
-    public $googleReviewMessageMedium;
+    public ?string $googleReviewMessageMedium = null;
 
     /**
-     * @var string Custom message for low ratings
+     * @var string|null Custom message for low ratings
      */
-    public $googleReviewMessageLow;
+    public ?string $googleReviewMessageLow = null;
 
     /**
-     * @var string Google Review button label
+     * @var string|null Google Review button label
      */
-    public $googleReviewButtonLabel;
+    public ?string $googleReviewButtonLabel = null;
 
     /**
-     * @var string Google Review button CSS classes
+     * @var string|null Google Review button CSS classes
      */
-    public $googleReviewButtonClass;
+    public ?string $googleReviewButtonClass = null;
 
     /**
-     * @var string Google Review URL template
+     * @var string|null Google Review URL template
      */
-    public $googleReviewUrl;
+    public ?string $googleReviewUrl = null;
 
     /**
-     * @var string Button alignment (start, center, end)
+     * @var string|null Button alignment (start, center, end)
      */
-    public $googleReviewButtonAlign;
+    public ?string $googleReviewButtonAlign = null;
 
     // Public Methods
     // =========================================================================
