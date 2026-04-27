@@ -51,23 +51,52 @@ class StatisticsService extends Component
      */
     public function getFormsWithRatingFields(): array
     {
-        $forms = Form::find()->all();
-        $formsWithRatings = [];
+        // 1) Aggregate query — which forms contain rating fields, and how many?
+        // Replaces the prior O(N forms) loop that called $form->getFields() per form.
+        $ratingCountRows = (new Query())
+            ->select(['formId' => 'fo.id', 'cnt' => new Expression('COUNT(*)')])
+            ->from(['fo' => '{{%formie_forms}}'])
+            ->innerJoin(['ff' => '{{%formie_fields}}'], '[[ff.layoutId]] = [[fo.fieldLayoutId]]')
+            ->where(['ff.type' => Rating::class])
+            ->groupBy('fo.id')
+            ->all();
 
+        if (empty($ratingCountRows)) {
+            return [];
+        }
+
+        $ratingCountByForm = array_column($ratingCountRows, 'cnt', 'formId');
+        $formIds = array_keys($ratingCountByForm);
+
+        // 2) Aggregate query — live submission count per matched form (one GROUP BY,
+        // not N count() calls). Joined through elements to skip trashed/draft/revision rows.
+        $submissionCountRows = (new Query())
+            ->select(['formId' => 's.formId', 'cnt' => new Expression('COUNT(*)')])
+            ->from(['s' => '{{%formie_submissions}}'])
+            ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[s.id]]')
+            ->where(['s.formId' => $formIds])
+            ->andWhere(['e.dateDeleted' => null])
+            ->andWhere(['e.draftId' => null])
+            ->andWhere(['e.revisionId' => null])
+            ->groupBy('s.formId')
+            ->all();
+
+        $submissionCountByForm = array_column($submissionCountRows, 'cnt', 'formId');
+
+        // 3) Hydrate the form elements in one element-query (Craft's normal eager-load).
+        $forms = Form::find()->id($formIds)->all();
+
+        $formsWithRatings = [];
         foreach ($forms as $form) {
             if (!$form instanceof Form) {
                 continue;
             }
 
-            $ratingFields = $this->getRatingFieldsForForm($form);
-
-            if (!empty($ratingFields)) {
-                $formsWithRatings[] = [
-                    'form' => $form,
-                    'ratingFieldCount' => count($ratingFields),
-                    'totalSubmissions' => Submission::find()->formId($form->id)->count(),
-                ];
-            }
+            $formsWithRatings[] = [
+                'form' => $form,
+                'ratingFieldCount' => (int)($ratingCountByForm[$form->id] ?? 0),
+                'totalSubmissions' => (int)($submissionCountByForm[$form->id] ?? 0),
+            ];
         }
 
         return $formsWithRatings;
