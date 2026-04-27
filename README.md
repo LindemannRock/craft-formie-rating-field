@@ -51,7 +51,8 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **Type-Aware Calculations**: Automatic NPS scoring, star/emoji averages, and distributions
 - **Performance Indicators**: Scale-aware insights (Excellent/Good/Fair/Poor) that adapt to any min/max range
 - **Date Range Filtering**: Analyze trends across today, yesterday, last 7/30/90 days, this month (MTD), last month, this year, last year, or all time
-- **Multi-Format Export**: Excel (multi-sheet: Summary / Raw Responses / By Group when grouping), CSV (ZIP of per-section CSVs), or JSON (single nested file); format availability gated via `exports` config key
+- **Site Filtering**: View per-site statistics or aggregate across all sites; defaults to All Sites for cross-site rollup
+- **Multi-Format Export**: Excel (multi-sheet: Summary / Raw Responses / By Group when grouping), CSV (ZIP of per-section CSVs), or JSON (single nested file); Raw Responses includes Site column per row; format availability gated via `exports` config key
 - **NPS Visual Indicators**: Stat boxes use traffic-light color coding (NPS Score: green ≥ 50, amber 0–49, red < 0; Promoters: green; Passives: amber; Detractors: red)
 - **Trend Charts**: NPS trend plots NPS Score (−100 to 100); Star/Emoji trend plots average rating
 - **File-Based or Redis Caching**: Fast performance with automatic cache invalidation on new submissions; configurable storage method and generation schedule
