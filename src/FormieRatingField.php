@@ -206,23 +206,17 @@ class FormieRatingField extends Plugin
             }
         );
 
-        // Invalidate statistics cache when submissions are saved/deleted
-        // Only if NOT using scheduled generation (to avoid conflicts)
+        // Invalidate this form's statistics cache when submissions are saved/deleted.
+        // Runs in every cacheGenerationSchedule mode — clearCacheForForm() is scoped
+        // to the form (per 2.1 fix), so the cost is bounded. A scheduled regeneration
+        // job will still recompute on its cycle; this just prevents stale stats between runs.
         Event::on(
             Submission::class,
             Submission::EVENT_AFTER_SAVE,
             function(Event $event) {
-                $settings = $this->getSettings();
-
-                // Skip auto-invalidation if using scheduled cache generation
-                if ($settings->cacheGenerationSchedule !== 'manual') {
-                    return;
-                }
-
                 /** @var Submission $submission */
                 $submission = $event->sender;
 
-                // Clear cache for this form's statistics
                 if ($submission->formId) {
                     $this->statistics->clearCacheForForm($submission->formId);
                 }
@@ -233,17 +227,9 @@ class FormieRatingField extends Plugin
             Submission::class,
             Submission::EVENT_AFTER_DELETE,
             function(Event $event) {
-                $settings = $this->getSettings();
-
-                // Skip auto-invalidation if using scheduled cache generation
-                if ($settings->cacheGenerationSchedule !== 'manual') {
-                    return;
-                }
-
                 /** @var Submission $submission */
                 $submission = $event->sender;
 
-                // Clear cache for this form's statistics
                 if ($submission->formId) {
                     $this->statistics->clearCacheForForm($submission->formId);
                 }
