@@ -18,6 +18,7 @@ use craft\fields\PlainText;
 use craft\fields\RadioButtons;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\base\helpers\PluginHelper;
@@ -670,6 +671,38 @@ class StatisticsService extends Component
      */
     public function clearCacheForForm(int $formId): bool
     {
+        $settings = FormieRatingField::$plugin->getSettings();
+
+        // Redis storage — filter the SADD index by form-id prefix and delete matching keys.
+        // (Without this branch, Redis users got silent no-ops on submission save/delete.)
+        if ($settings->cacheStorageMethod === 'redis') {
+            $cache = Craft::$app->cache;
+            if (!$cache instanceof \yii\redis\Cache) {
+                return true;
+            }
+
+            $tracked = $cache->redis->executeCommand('SMEMBERS', [self::REDIS_KEY_INDEX]);
+            if (!is_array($tracked)) {
+                return true;
+            }
+
+            // All cache keys for this form start with "formie-rating-stats-{$formId}-"
+            // (see getCacheKey() — formId always follows the static prefix).
+            $prefix = "formie-rating-stats-{$formId}-";
+            $cleared = true;
+            foreach ($tracked as $key) {
+                if (!str_starts_with((string)$key, $prefix)) {
+                    continue;
+                }
+                if (!$cache->delete($key)) {
+                    $cleared = false;
+                }
+                $cache->redis->executeCommand('SREM', [self::REDIS_KEY_INDEX, $key]);
+            }
+
+            return $cleared;
+        }
+
         $cachePath = $this->getCachePath();
 
         if (!is_dir($cachePath)) {
@@ -878,58 +911,82 @@ class StatisticsService extends Component
             return $cached;
         }
 
-        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
+        // SQL-aggregate per bucket — replaces the prior approach of materialising every
+        // submission element into PHP and grouping in a foreach (3.2 + 3.4 cold-path cost).
+        $isNps = $field->ratingType === Rating::RATING_TYPE_NPS;
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+        $ratingExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $field->uid);
+        $ratingCast = "CAST({$ratingExpr} AS DECIMAL(10,2))";
 
-        $dateFormat = $this->getDateFormatForRange($dateRange);
-        $trendData = [];
+        $bucketExpr = $this->buildTrendBucketExpression($dateRange, "{$submissionsTable}.dateCreated");
 
-        foreach ($submissions as $submission) {
-            $value = $submission->getFieldValue($field->handle);
+        $query = (new Query())
+            ->select([
+                'bucket' => $bucketExpr,
+                'cnt' => new Expression('COUNT(*)'),
+                'avgValue' => new Expression("AVG({$ratingCast})"),
+                'promoters' => new Expression("SUM(CASE WHEN {$ratingCast} >= 9 THEN 1 ELSE 0 END)"),
+                'detractors' => new Expression("SUM(CASE WHEN {$ratingCast} <= 6 THEN 1 ELSE 0 END)"),
+            ])
+            ->from('{{%formie_submissions}}')
+            ->where([
+                "{$submissionsTable}.formId" => $form->id,
+                "{$submissionsTable}.isIncomplete" => false,
+                "{$submissionsTable}.isSpam" => false,
+            ])
+            ->andWhere(['not', [$ratingExpr => null]])
+            ->andWhere(['!=', $ratingExpr, ''])
+            ->groupBy([$bucketExpr])
+            ->orderBy([$bucketExpr]);
 
-            if ($value !== null && $value !== '') {
-                $date = $submission->dateCreated->format($dateFormat);
-
-                if (!isset($trendData[$date])) {
-                    $trendData[$date] = [
-                        'values' => [],
-                        'count' => 0,
-                    ];
-                }
-
-                $trendData[$date]['values'][] = (float)$value;
-                $trendData[$date]['count']++;
-            }
+        // Date range filter (matches getSubmissions semantics)
+        $bounds = DateRangeHelper::getBounds($dateRange);
+        if ($bounds['start']) {
+            $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['start'])]);
+        }
+        if ($bounds['end']) {
+            $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['end'])]);
         }
 
-        $isNps = $field->ratingType === Rating::RATING_TYPE_NPS;
+        // Site filter — uses the resolved table name inside [[...]] (Yii's {{%table}} expansion
+        // doesn't nest cleanly inside [[col]] brackets; corrupts the column-reference parser).
+        if ($siteId !== 'all') {
+            $query->innerJoin(
+                '{{%elements_sites}} es_site_filter',
+                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
+                [':filterSiteId' => (int)$siteId]
+            );
+        }
 
-        // Calculate metric per bucket
+        $rows = $query->all();
+
+        // Compute the per-bucket metric in PHP — runs over O(buckets), not O(submissions)
         $chartData = [];
-        foreach ($trendData as $date => $data) {
-            $valueCount = count($data['values']);
+        foreach ($rows as $row) {
+            $cnt = (int)$row['cnt'];
+            if ($cnt === 0) {
+                continue;
+            }
 
             if ($isNps) {
-                // NPS buckets: 0–6 = detractors, 7–8 = passives, 9–10 = promoters
-                $promoters = count(array_filter($data['values'], fn($v) => $v >= 9));
-                $detractors = count(array_filter($data['values'], fn($v) => $v <= 6));
-                $bucketValue = round((($promoters - $detractors) / $valueCount) * 100, 1);
+                // NPS: 0–6 = detractors, 7–8 = passives, 9–10 = promoters
+                $promoters = (int)$row['promoters'];
+                $detractors = (int)$row['detractors'];
+                $bucketValue = round((($promoters - $detractors) / $cnt) * 100, 1);
             } else {
-                $bucketValue = round(array_sum($data['values']) / $valueCount, 2);
+                $bucketValue = round((float)$row['avgValue'], 2);
             }
 
             $chartData[] = [
-                'date' => $date,
+                'date' => (string)$row['bucket'],
                 'value' => $bucketValue,
-                'count' => $data['count'],
+                'count' => $cnt,
             ];
         }
 
-        // Sort by date
-        usort($chartData, fn($a, $b) => strcmp($a['date'], $b['date']));
-
-        // Limit to max 50 data points for performance
+        // Limit to max 50 data points for performance (preserves prior behaviour)
         if (count($chartData) > 50) {
-            $step = ceil(count($chartData) / 50);
+            $step = (int)ceil(count($chartData) / 50);
             $sampledData = [];
             foreach ($chartData as $index => $data) {
                 if ($index % $step === 0) {
@@ -950,6 +1007,46 @@ class StatisticsService extends Component
         $this->saveToCache($form->id, $field->handle, $dateRange, self::TREND_CACHE_VARIANT, $result, $siteId);
 
         return $result;
+    }
+
+    /**
+     * Build a SQL Expression that buckets a UTC datetime column into the same
+     * label format the prior PHP-based bucketing used (Y-m-d, Y-m-d H:00, Y-m, Y-W).
+     *
+     * Produces timezone-aware labels using Craft's site timezone, matching
+     * `DateFormatHelper::localDateExpression()` semantics.
+     */
+    private function buildTrendBucketExpression(string $dateRange, string $column): Expression
+    {
+        $offset = DateFormatHelper::getCraftTimezoneOffset();
+        $isMysql = Craft::$app->getDb()->getIsMysql();
+
+        if ($isMysql) {
+            $convertTz = "CONVERT_TZ([[{$column}]], '+00:00', :tzOffset)";
+            $format = match ($dateRange) {
+                'today', 'yesterday' => '%Y-%m-%d %H:00',
+                'thisYear', 'lastYear' => '%Y-%m',
+                'all', 'alltime' => '%x-%v',
+                default => '%Y-%m-%d',
+            };
+            return new Expression(
+                "DATE_FORMAT({$convertTz}, '{$format}')",
+                [':tzOffset' => $offset],
+            );
+        }
+
+        // PostgreSQL
+        $convertTz = "([[{$column}]] AT TIME ZONE 'UTC' AT TIME ZONE :tzOffset)";
+        $format = match ($dateRange) {
+            'today', 'yesterday' => 'YYYY-MM-DD HH24":00"',
+            'thisYear', 'lastYear' => 'YYYY-MM',
+            'all', 'alltime' => 'IYYY-IW',
+            default => 'YYYY-MM-DD',
+        };
+        return new Expression(
+            "TO_CHAR({$convertTz}, '{$format}')",
+            [':tzOffset' => $offset],
+        );
     }
 
     /**
@@ -1291,40 +1388,6 @@ class StatisticsService extends Component
         }
 
         return $values;
-    }
-
-    /**
-     * Get appropriate date format based on range
-     *
-     * @param string $dateRange
-     * @return string
-     */
-    private function getDateFormatForRange(string $dateRange): string
-    {
-        switch ($dateRange) {
-            case 'today':
-            case 'yesterday':
-                return 'Y-m-d H:00'; // Hourly
-
-            case 'last7days':
-                return 'Y-m-d'; // Daily
-
-            case 'last30days':
-            case 'last90days':
-            case 'thisMonth':
-            case 'lastMonth':
-                return 'Y-m-d'; // Daily
-
-            case 'thisYear':
-            case 'lastYear':
-                return 'Y-m'; // Monthly
-
-            case 'all':
-            case 'alltime':
-            default:
-                // For large datasets, group by week instead of month
-                return 'Y-W'; // Weekly (Year-Week)
-        }
     }
 
     /**
