@@ -1,18 +1,22 @@
 /**
  * Formie Rating Field JavaScript
- * 
+ *
  * @author LindemannRock
  * @since 1.0.0
  */
 
-console.log('[FormieRating] Script loaded!');
-console.log('[FormieRating] Window.Formie exists?', typeof window.Formie !== 'undefined');
+// Debug logger — set window.formieRatingDebug = true in DevTools to enable.
+// Default-silent so the field's settings object isn't leaked on every front-end render.
+const _log = (...args) => { if (window.formieRatingDebug) console.log('[FormieRating]', ...args); };
+const _warn = (...args) => { if (window.formieRatingDebug) console.warn('[FormieRating]', ...args); };
+
+_log('Script loaded! Window.Formie exists?', typeof window.Formie !== 'undefined');
 
 // Define the FormieRating class in the global scope
 window.FormieRating = class FormieRating {
         constructor(settings = {}) {
-            console.log('[FormieRating] Constructor called with settings:', settings);
-            
+            _log('Constructor called with settings:', settings);
+
             this.$form = settings.$form;
             this.form = this.$form ? this.$form.form : null;
             this.$field = settings.$field;
@@ -28,29 +32,27 @@ window.FormieRating = class FormieRating {
         }
 
         initializeField() {
-            console.log('[FormieRating] initializeField called');
-            console.log('[FormieRating] $field:', this.$field);
-            
+            _log('initializeField called', this.$field);
+
             const selectElement = this.$field.querySelector('select[data-rating]');
-            console.log('[FormieRating] Found select element:', selectElement);
-            
+            _log('Found select element:', selectElement);
+
             if (!selectElement) {
-                console.warn('[FormieRating] No select element found with data-rating attribute in field:', this.$field);
+                _warn('No select element found with data-rating attribute in field:', this.$field);
                 return;
             }
-            
+
             if (selectElement.dataset.ratingInitialized) {
-                console.log('[FormieRating] Skipping - already initialized');
+                _log('Skipping - already initialized');
                 return;
             }
-            
+
             try {
                 this.createRatingInterface(selectElement);
                 selectElement.dataset.ratingInitialized = 'true';
             } catch (error) {
+                // Errors are always-on — they indicate a bug, not info noise
                 console.error('[FormieRating] Error creating rating interface:', error);
-                console.error('[FormieRating] this:', this);
-                console.error('[FormieRating] this.createStarItem:', this.createStarItem);
             }
         }
 
@@ -471,43 +473,43 @@ window.FormieRating = class FormieRating {
         }
     };
 
-console.log('[FormieRating] Class defined on window:', typeof window.FormieRating);
-console.log('[FormieRating] Waiting for Formie to instantiate...');
+_log('Class defined on window:', typeof window.FormieRating);
+_log('Waiting for Formie to instantiate...');
 
 // Check if we can see what Formie has registered
 if (window.Formie) {
-    console.log('[FormieRating] Formie object:', window.Formie);
-    
+    _log('Formie object:', window.Formie);
+
     // Initialize rating fields
     const initializeRatingFields = () => {
-        console.log('[FormieRating] Initializing rating fields...');
-        
+        _log('Initializing rating fields...');
+
         // Get all Formie forms
         const forms = document.querySelectorAll('[data-fui-form]');
-        console.log('[FormieRating] Found forms:', forms.length);
-        
+        _log('Found forms:', forms.length);
+
         forms.forEach(form => {
             // Find rating select elements within this form
             const ratingSelects = form.querySelectorAll('select[data-rating]');
-            console.log('[FormieRating] Found rating select elements in form:', ratingSelects.length);
-            
+            _log('Found rating select elements in form:', ratingSelects.length);
+
             ratingSelects.forEach(select => {
                 // Skip if already initialized
                 if (select.dataset.ratingInitialized) {
                     return;
                 }
-                
+
                 // Get the Formie form instance
                 const formieForm = window.Formie ? window.Formie.forms.find(f => f.$form === form) : null;
-                
+
                 const settings = {
                     $form: form,
                     form: formieForm,
                     $field: select.parentElement, // Use the select's parent as the field container
                     settings: {}
                 };
-                
-                console.log('[FormieRating] Manually initializing select:', select);
+
+                _log('Manually initializing select:', select);
                 new window.FormieRating(settings);
             });
         });

@@ -617,15 +617,12 @@ class StatisticsService extends Component
             $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
             $cache = Craft::$app->cache;
 
-            Craft::info("Attempting to save to cache. Type: " . get_class($cache) . ", Key: {$cacheKey}", __METHOD__);
-
             $result = $cache->set($cacheKey, $stats);
 
             if ($result) {
                 // Track the key in our Redis index so we can scoped-flush later
                 // (Yii's $cache->flush() would wipe every other plugin's keys too)
                 $this->trackRedisCacheKey($cacheKey);
-                Craft::info("Cache saved successfully: {$cacheKey}", __METHOD__);
             } else {
                 Craft::error("Failed to save cache: {$cacheKey}", __METHOD__);
             }
@@ -654,9 +651,7 @@ class StatisticsService extends Component
 
         $result = file_put_contents($filepath, $data) !== false;
 
-        if ($result) {
-            Craft::info("Cache saved to file: {$filename}", __METHOD__);
-        } else {
+        if (!$result) {
             Craft::error("Failed to save cache to file: {$filename}", __METHOD__);
         }
 

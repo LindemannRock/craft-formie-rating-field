@@ -246,11 +246,6 @@ class FormieRatingField extends Plugin
         if ($settings->cacheGenerationSchedule !== 'manual') {
             $this->scheduleInitialCacheGeneration();
         }
-
-        Craft::info(
-            'Formie Rating Field plugin loaded',
-            __METHOD__
-        );
     }
 
     /**

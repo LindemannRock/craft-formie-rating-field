@@ -50,10 +50,7 @@ class RatingUtility extends Utility
     public static function contentHtml(): string
     {
         $statisticsService = FormieRatingField::$plugin->statistics;
-        $settings = FormieRatingField::$plugin->getSettings();
         $cacheCount = $statisticsService->getCacheFileCount();
-
-        Craft::info("Utilities: Cache count = {$cacheCount}, Storage method = {$settings->cacheStorageMethod}", __METHOD__);
 
         return Craft::$app->getView()->renderTemplate('formie-rating-field/utilities/index', [
             'cacheCount' => $cacheCount,

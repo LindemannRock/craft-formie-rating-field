@@ -988,10 +988,7 @@ class Rating extends Field implements FieldInterface
 
         // Add Google Review integration if enabled
         if ($this->enableGoogleReview) {
-            Craft::info("Registering Google Review JS for field: {$this->handle}", __METHOD__);
             $this->registerGoogleReviewJs();
-        } else {
-            Craft::info("Google Review NOT enabled for field: {$this->handle}", __METHOD__);
         }
 
         return $modules;
