@@ -29,6 +29,7 @@ class CacheController extends Controller
     {
         $this->requirePostRequest();
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:manageCache');
 
         try {
             // Push job to queue
@@ -57,6 +58,7 @@ class CacheController extends Controller
     {
         $this->requirePostRequest();
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:manageCache');
 
         try {
             $statisticsService = FormieRatingField::$plugin->get('statistics');

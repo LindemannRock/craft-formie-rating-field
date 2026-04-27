@@ -25,18 +25,20 @@
 ] %}
 
 {% block actionButton %}
-    <div id="action-button">
-        {% include 'lindemannrock-base/_components/export-menu' with {
-            action: 'formie-rating-field/statistics/export-group',
-            pluginHandle: 'formie-rating-field',
-            extraParams: {
-                formId: form.id,
-                groupBy: groupBy,
-                groupValue: groupValue,
-                dateRange: dateRange,
-            },
-        } only %}
-    </div>
+    {% if currentUser.can('formieRatingField:exportStatistics') %}
+        <div id="action-button">
+            {% include 'lindemannrock-base/_components/export-menu' with {
+                action: 'formie-rating-field/statistics/export-group',
+                pluginHandle: 'formie-rating-field',
+                extraParams: {
+                    formId: form.id,
+                    groupBy: groupBy,
+                    groupValue: groupValue,
+                    dateRange: dateRange,
+                },
+            } only %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

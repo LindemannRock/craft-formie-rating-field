@@ -18,12 +18,15 @@ use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\events\RegisterUserPermissionsEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
+use craft\services\UserPermissions;
 use craft\services\Utilities;
 use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\View;
+use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
@@ -122,6 +125,11 @@ class FormieRatingField extends Plugin
             ClearCaches::class,
             ClearCaches::EVENT_REGISTER_CACHE_OPTIONS,
             function(RegisterCacheOptionsEvent $event) {
+                // Only show cache option if user has permission to manage cache
+                if (!Craft::$app->getUser()->checkPermission('formieRatingField:manageCache')) {
+                    return;
+                }
+
                 $settings = $this->getSettings();
                 $displayName = $settings->getDisplayName();
 
@@ -133,6 +141,19 @@ class FormieRatingField extends Plugin
                     'action' => function() {
                         $this->statistics->clearAllCache();
                     },
+                ];
+            }
+        );
+
+        // Register permissions
+        Event::on(
+            UserPermissions::class,
+            UserPermissions::EVENT_REGISTER_PERMISSIONS,
+            function(RegisterUserPermissionsEvent $event) {
+                $settings = $this->getSettings();
+                $event->permissions[] = [
+                    'heading' => $settings->getFullName(),
+                    'permissions' => $this->getPluginPermissions(),
                 ];
             }
         );
@@ -303,22 +324,79 @@ class FormieRatingField extends Plugin
     public function getCpNavItem(): ?array
     {
         $item = parent::getCpNavItem();
+        $user = Craft::$app->getUser();
 
         if ($item) {
-            $item['label'] = $this->getSettings()->getFullName();
+            $settings = $this->getSettings();
 
-            $item['subnav'] = [
-                'statistics' => [
-                    'label' => Craft::t('formie-rating-field', 'Statistics'),
-                    'url' => 'formie-rating-field/statistics',
-                ],
-                'settings' => [
-                    'label' => Craft::t('formie-rating-field', 'Settings'),
-                    'url' => 'formie-rating-field/settings',
-                ],
-            ];
+            $item['label'] = $settings->getFullName();
+
+            $sections = $this->getCpSections($settings);
+            $item['subnav'] = CpNavHelper::buildSubnav($user, $settings, $sections);
+
+            // Hide from nav if no accessible subnav items
+            if (empty($item['subnav'])) {
+                return null;
+            }
         }
 
         return $item;
+    }
+
+    /**
+     * Get CP sections for nav + default route resolution
+     *
+     * @param Settings $settings
+     * @return array
+     * @since 3.5.0
+     */
+    public function getCpSections(Settings $settings): array
+    {
+        return [
+            [
+                'key' => 'statistics',
+                'label' => Craft::t('formie-rating-field', 'Statistics'),
+                'url' => 'formie-rating-field/statistics',
+                'permissionsAll' => ['formieRatingField:viewStatistics'],
+            ],
+            [
+                'key' => 'settings',
+                'label' => Craft::t('formie-rating-field', 'Settings'),
+                'url' => 'formie-rating-field/settings',
+                'permissionsAll' => ['formieRatingField:manageSettings'],
+            ],
+        ];
+    }
+
+    /**
+     * Get plugin permissions
+     *
+     * @return array
+     * @since 3.5.0
+     */
+    private function getPluginPermissions(): array
+    {
+        return [
+            // Statistics - grouped (view = parent, write/sub-actions nested)
+            'formieRatingField:viewStatistics' => [
+                'label' => Craft::t('formie-rating-field', 'View statistics'),
+                'nested' => [
+                    'formieRatingField:exportStatistics' => [
+                        'label' => Craft::t('formie-rating-field', 'Export statistics'),
+                    ],
+                    'formieRatingField:refreshStatistics' => [
+                        'label' => Craft::t('formie-rating-field', 'Refresh statistics'),
+                    ],
+                ],
+            ],
+            // Cache utility (generate-all / clear-all)
+            'formieRatingField:manageCache' => [
+                'label' => Craft::t('formie-rating-field', 'Manage cache'),
+            ],
+            // Settings
+            'formieRatingField:manageSettings' => [
+                'label' => Craft::t('formie-rating-field', 'Manage settings'),
+            ],
+        ];
     }
 }

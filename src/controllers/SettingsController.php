@@ -51,6 +51,7 @@ class SettingsController extends Controller
     public function actionGeneral(): Response
     {
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:manageSettings');
 
         $settings = FormieRatingField::$plugin->getSettings();
 
@@ -66,6 +67,7 @@ class SettingsController extends Controller
     public function actionInterface(): Response
     {
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:manageSettings');
 
         $settings = FormieRatingField::$plugin->getSettings();
 
@@ -81,6 +83,7 @@ class SettingsController extends Controller
     public function actionCache(): Response
     {
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:manageSettings');
 
         $settings = FormieRatingField::$plugin->getSettings();
 
@@ -97,6 +100,7 @@ class SettingsController extends Controller
     {
         $this->requirePostRequest();
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:manageSettings');
 
         // Prevent saving if in read-only mode
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {

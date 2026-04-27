@@ -34,24 +34,28 @@
 {% endif %}
 
 {% block actionButton %}
-    <div class="btngroup">
-        <button type="button" class="btn" id="refresh-stats" title="{{ 'Refresh statistics (clears cache)'|t('formie-rating-field') }}">
-            <span data-icon="refresh"></span>
-            {{ "Refresh"|t('formie-rating-field') }}
-        </button>
-    </div>
-    <div id="action-button">
-        {% include 'lindemannrock-base/_components/export-menu' with {
-            action: 'formie-rating-field/statistics/export',
-            pluginHandle: 'formie-rating-field',
-            extraParams: {
-                formId: form.id,
-                dateRange: dateRange,
-                groupBy: groupBy,
-                siteId: siteId,
-            },
-        } only %}
-    </div>
+    {% if currentUser.can('formieRatingField:refreshStatistics') %}
+        <div class="btngroup">
+            <button type="button" class="btn" id="refresh-stats" title="{{ 'Refresh statistics (clears cache)'|t('formie-rating-field') }}">
+                <span data-icon="refresh"></span>
+                {{ "Refresh"|t('formie-rating-field') }}
+            </button>
+        </div>
+    {% endif %}
+    {% if currentUser.can('formieRatingField:exportStatistics') %}
+        <div id="action-button">
+            {% include 'lindemannrock-base/_components/export-menu' with {
+                action: 'formie-rating-field/statistics/export',
+                pluginHandle: 'formie-rating-field',
+                extraParams: {
+                    formId: form.id,
+                    dateRange: dateRange,
+                    groupBy: groupBy,
+                    siteId: siteId,
+                },
+            } only %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block toolbar %}

@@ -5,6 +5,15 @@
 {% set cacheCount = plugin.statistics.getCacheFileCount() %}
 {% set storageMethod = settings.cacheStorageMethod %}
 
+{# Permission checks #}
+{% set canViewStatistics = currentUser.can('formieRatingField:viewStatistics') %}
+{% set canManageCache = currentUser.can('formieRatingField:manageCache') %}
+{% set canManageSettings = currentUser.can('formieRatingField:manageSettings') %}
+
+{% set hasNavigation = canViewStatistics or canManageSettings %}
+{% set hasCacheManagement = canManageCache %}
+{% set hasAnyQuickAction = hasNavigation or hasCacheManagement %}
+
 {% set utilitiesConfig = {
     plugin: {
         handle: 'formie-rating-field',
@@ -17,46 +26,61 @@
 } %}
 
 {% block overview %}
-    {% if storageMethod == 'redis' %}
-        {% include 'lindemannrock-base/_components/cards/unified-card' with {
-            title: 'Cache Status'|t('formie-rating-field') ~ ' (Redis)',
-            color: lrPaletteColor('emerald').color,
-            value: 'Active'|t('formie-rating-field'),
-        } only %}
-    {% else %}
-        {% include 'lindemannrock-base/_components/cards/unified-card' with {
-            title: 'Cache Status'|t('formie-rating-field') ~ ' (File)',
-            color: lrPaletteColor('emerald').color,
-            value: cacheCount,
-            description: 'Cached statistics'|t('formie-rating-field'),
-        } only %}
+    {# Cache Status Card - only show if user can manage cache #}
+    {% if canManageCache %}
+        {% if storageMethod == 'redis' %}
+            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                title: 'Cache Status'|t('formie-rating-field') ~ ' (Redis)',
+                color: lrPaletteColor('emerald').color,
+                value: 'Active'|t('formie-rating-field'),
+            } only %}
+        {% else %}
+            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                title: 'Cache Status'|t('formie-rating-field') ~ ' (File)',
+                color: lrPaletteColor('emerald').color,
+                value: cacheCount,
+                description: 'Cached statistics'|t('formie-rating-field'),
+            } only %}
+        {% endif %}
     {% endif %}
 {% endblock %}
 
 {% block quickActions %}
-    {# Navigation Section #}
-    {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
-        title: 'Navigation'|t('formie-rating-field'),
-        description: 'Access main plugin sections'|t('formie-rating-field'),
-        buttons: [
-            {type: 'link', label: 'View Statistics'|t('formie-rating-field'), url: url('formie-rating-field/statistics')},
-            {type: 'link', label: 'View Settings'|t('formie-rating-field'), url: url('formie-rating-field/settings')},
-        ],
-    } only %}
+    {% if hasAnyQuickAction %}
+        {# Navigation Section #}
+        {% if hasNavigation %}
+            {% set navButtons = [] %}
+            {% if canViewStatistics %}
+                {% set navButtons = navButtons|merge([{type: 'link', label: 'View Statistics'|t('formie-rating-field'), url: url('formie-rating-field/statistics')}]) %}
+            {% endif %}
+            {% if canManageSettings %}
+                {% set navButtons = navButtons|merge([{type: 'link', label: 'View Settings'|t('formie-rating-field'), url: url('formie-rating-field/settings')}]) %}
+            {% endif %}
 
-    {# Cache Management Section #}
-    {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
-        title: 'Cache Management'|t('formie-rating-field'),
-        description: 'Generate or clear statistics cache. Generation may take several minutes for large datasets.'|t('formie-rating-field'),
-        showSeparator: true,
-        buttons: [
-            {id: 'generate-cache', label: 'Generate Cache Now'|t('formie-rating-field')},
-            {id: 'clear-all-cache', label: 'Clear All Cache'|t('formie-rating-field'), class: 'btn secondary'},
-        ],
-    } only %}
+            {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+                title: 'Navigation'|t('formie-rating-field'),
+                description: 'Access main plugin sections'|t('formie-rating-field'),
+                buttons: navButtons,
+            } only %}
+        {% endif %}
+
+        {# Cache Management Section #}
+        {% if hasCacheManagement %}
+            {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
+                title: 'Cache Management'|t('formie-rating-field'),
+                description: 'Generate or clear statistics cache. Generation may take several minutes for large datasets.'|t('formie-rating-field'),
+                showSeparator: hasNavigation,
+                buttons: [
+                    {id: 'generate-cache', label: 'Generate Cache Now'|t('formie-rating-field')},
+                    {id: 'clear-all-cache', label: 'Clear All Cache'|t('formie-rating-field'), class: 'btn secondary'},
+                ],
+            } only %}
+        {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
+{% if canManageCache %}
 {% js %}
 {% include 'lindemannrock-base/_layouts/cp-utilities/_ajax-button' with {
     id: 'generate-cache',
@@ -76,4 +100,5 @@
     reloadDelay: 1000,
 } only %}
 {% endjs %}
+{% endif %}
 {% endblock %}

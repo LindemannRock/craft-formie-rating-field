@@ -10,6 +10,7 @@ namespace lindemannrock\formieratingfield\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\ExportHelper;
 use lindemannrock\formieratingfield\FormieRatingField;
@@ -66,8 +67,21 @@ class StatisticsController extends Controller
             throw new \yii\web\ServerErrorHttpException('Plugin not found');
         }
 
-        $statisticsService = $plugin->statistics;
+        $user = Craft::$app->getUser();
         $settings = $plugin->getSettings();
+
+        // If user doesn't have viewStatistics permission, redirect to first accessible section
+        if (!$user->checkPermission('formieRatingField:viewStatistics')) {
+            $sections = $plugin->getCpSections($settings);
+            $route = CpNavHelper::firstAccessibleRoute($user, $settings, $sections);
+            if ($route) {
+                return $this->redirect($route);
+            }
+            // No permissions at all - throw forbidden
+            $this->requirePermission('formieRatingField:viewStatistics');
+        }
+
+        $statisticsService = $plugin->statistics;
         $request = Craft::$app->getRequest();
 
         // Get query parameters
@@ -132,6 +146,7 @@ class StatisticsController extends Controller
     public function actionForm(?int $formId = null): Response
     {
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:viewStatistics');
 
         if (!$formId) {
             throw new \yii\web\BadRequestHttpException('Form ID is required');
@@ -196,6 +211,7 @@ class StatisticsController extends Controller
     public function actionGroupDetail(?int $formId = null, ?string $groupValue = null): Response
     {
         $this->requireCpRequest();
+        $this->requirePermission('formieRatingField:viewStatistics');
 
         if (!$formId || !$groupValue) {
             throw new \yii\web\BadRequestHttpException('Form ID and group value are required');
@@ -252,6 +268,7 @@ class StatisticsController extends Controller
     {
         $this->requireCpRequest();
         $this->requireAcceptsJson();
+        $this->requirePermission('formieRatingField:viewStatistics');
 
         $request = Craft::$app->getRequest();
         $formId = $request->getBodyParam('formId');
@@ -347,6 +364,7 @@ class StatisticsController extends Controller
     {
         $this->requireCpRequest();
         $this->requireAcceptsJson();
+        $this->requirePermission('formieRatingField:refreshStatistics');
 
         $formId = Craft::$app->getRequest()->getBodyParam('formId');
 
@@ -382,6 +400,7 @@ class StatisticsController extends Controller
     {
         $this->requireCpRequest();
         $this->requirePostRequest();
+        $this->requirePermission('formieRatingField:exportStatistics');
 
         $request = Craft::$app->getRequest();
         $formId = $request->getBodyParam('formId');
@@ -505,6 +524,7 @@ class StatisticsController extends Controller
     {
         $this->requireCpRequest();
         $this->requirePostRequest();
+        $this->requirePermission('formieRatingField:exportStatistics');
 
         $request = Craft::$app->getRequest();
         $formId = $request->getBodyParam('formId');

@@ -504,7 +504,7 @@ class StatisticsService extends Component
             $key .= "-{$groupByHandle}";
         }
 
-        return md5($key) . '.cache';
+        return $formId . '-' . md5($key) . '.cache';
     }
 
     /**
@@ -537,13 +537,15 @@ class StatisticsService extends Component
             return null;
         }
 
-        // Read and unserialize cache
+        // Read and decode cache (JSON — never unserialize untrusted file contents)
         $data = file_get_contents($filepath);
         if ($data === false) {
             return null;
         }
 
-        return unserialize($data);
+        $decoded = json_decode($data, true);
+
+        return is_array($decoded) ? $decoded : null;
     }
 
     /**
@@ -592,8 +594,13 @@ class StatisticsService extends Component
         $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
         $filepath = $cachePath . $filename;
 
-        // Serialize and save
-        $data = serialize($stats);
+        // Encode as JSON (avoids unsafe unserialize on read)
+        $data = json_encode($stats);
+
+        if ($data === false) {
+            Craft::error("Failed to JSON-encode cache for file: {$filename}", __METHOD__);
+            return false;
+        }
 
         $result = file_put_contents($filepath, $data) !== false;
 
@@ -620,9 +627,8 @@ class StatisticsService extends Component
             return true;
         }
 
-        // Find all cache files for this form
-        $pattern = $cachePath . md5($formId . '-*') . '*.cache';
-        $files = glob($cachePath . '*.cache');
+        // Cache filenames are prefixed with "{formId}-" (see getCacheFilename)
+        $files = glob($cachePath . $formId . '-*.cache');
 
         if ($files === false) {
             return false;
@@ -630,10 +636,6 @@ class StatisticsService extends Component
 
         $cleared = true;
         foreach ($files as $file) {
-            // Check if filename contains the form ID
-            $basename = basename($file, '.cache');
-            // Since we use md5, we need to delete all files and let them regenerate
-            // This is a simple approach - delete all cache files
             if (!@unlink($file)) {
                 $cleared = false;
             }
