@@ -1108,24 +1108,15 @@ class Rating extends Field implements FieldInterface
             return '';
         }
 
-        $fieldHandle = $this->handle;
-        $threshold = $this->googleReviewThreshold ?? 9;
-        $placeIdField = $this->googlePlaceIdField;
+        $threshold = (int)($this->googleReviewThreshold ?? 9);
 
         // Get values with English defaults
         $messageHigh = $this->googleReviewMessageHigh ?: 'Thank you for the excellent rating! We would love if you could share your experience with others.';
         $messageMedium = $this->googleReviewMessageMedium ?: 'Thank you for your feedback!';
         $messageLow = $this->googleReviewMessageLow ?: 'Thank you for your feedback. We will use it to improve our service.';
         $buttonLabel = $this->googleReviewButtonLabel ?: 'Review on Google';
-        $reviewUrl = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
+        $reviewUrlTemplate = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
         $buttonAlign = $this->googleReviewButtonAlign ?: 'start';
-
-        // Map alignment to flex justify class
-        $alignClass = match ($buttonAlign) {
-            'center' => 'justify-center',
-            'end' => 'justify-end',
-            default => 'justify-start',
-        };
 
         // Translate (whatever text is entered gets translated through Formie's category)
         $messageHigh = Craft::t('formie', $messageHigh);
@@ -1133,13 +1124,29 @@ class Rating extends Field implements FieldInterface
         $messageLow = Craft::t('formie', $messageLow);
         $buttonLabel = Craft::t('formie', $buttonLabel);
 
-        // Escape for JavaScript
-        $messageHigh = addslashes($messageHigh);
-        $messageMedium = addslashes($messageMedium);
-        $messageLow = addslashes($messageLow);
-        $buttonLabel = addslashes($buttonLabel);
-        $reviewUrl = addslashes($reviewUrl);
-        $alignClass = addslashes($alignClass);
+        // Validate URL template — only allow http(s) schemes (reject javascript:, data:, etc.)
+        if (!preg_match('#^https?://#i', $reviewUrlTemplate)) {
+            $reviewUrlTemplate = 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
+        }
+
+        // Map alignment to a CSS-class allow-list (defence in depth even though Json::encode would also escape)
+        $alignClass = match ($buttonAlign) {
+            'center' => 'justify-center',
+            'end' => 'justify-end',
+            default => 'justify-start',
+        };
+
+        // JSON-encode every PHP→JS string. Output is a fully-quoted JS literal with all
+        // escapes handled (backslashes, U+2028/U+2029, </script>, backticks). Replaces
+        // the prior addslashes() approach which was unsafe inside template literals.
+        $jsFieldHandle = Json::encode($this->handle);
+        $jsPlaceIdField = Json::encode($this->googlePlaceIdField);
+        $jsMessageHigh = Json::encode($messageHigh);
+        $jsMessageMedium = Json::encode($messageMedium);
+        $jsMessageLow = Json::encode($messageLow);
+        $jsButtonLabel = Json::encode($buttonLabel);
+        $jsReviewUrlTemplate = Json::encode($reviewUrlTemplate);
+        $jsAlignClass = Json::encode($alignClass);
 
         return <<<JS
 (function() {
@@ -1150,8 +1157,8 @@ class Rating extends Field implements FieldInterface
         let capturedPlaceId = '';
 
         \$form.addEventListener('onBeforeFormieSubmit', function() {
-            const ratingSelect = \$form.querySelector('select[name="fields[{$fieldHandle}]"]');
-            const placeIdInput = \$form.querySelector('input[name="fields[{$placeIdField}]"]');
+            const ratingSelect = \$form.querySelector('select[name="fields[' + {$jsFieldHandle} + ']"]');
+            const placeIdInput = \$form.querySelector('input[name="fields[' + {$jsPlaceIdField} + ']"]');
 
             capturedRating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
             capturedPlaceId = placeIdInput ? placeIdInput.value : '';
@@ -1165,28 +1172,58 @@ class Rating extends Field implements FieldInterface
                     return;
                 }
 
+                // Rebuild via DOM construction — never innerHTML
+                while (successMessage.firstChild) {
+                    successMessage.removeChild(successMessage.firstChild);
+                }
+
+                const p = document.createElement('p');
+
                 if (capturedRating >= {$threshold} && capturedPlaceId) {
-                    // Get Formie's submit button classes from the form
-                    const submitBtn = \$form.querySelector('[data-submit-action]');
-                    const btnClasses = submitBtn ? submitBtn.className : 'fui-btn';
+                    p.textContent = {$jsMessageHigh};
+                    successMessage.appendChild(p);
 
-                    // Build review URL by replacing placeholder with actual Place ID
-                    const reviewUrl = '{$reviewUrl}'.replace('{googlePlaceId}', capturedPlaceId).replace('{placeId}', capturedPlaceId);
+                    // Percent-encode the submitter-supplied Place ID before substitution
+                    const safePlaceId = encodeURIComponent(capturedPlaceId);
+                    const candidateUrl = ({$jsReviewUrlTemplate})
+                        .replace('{googlePlaceId}', safePlaceId)
+                        .replace('{placeId}', safePlaceId);
 
-                    successMessage.innerHTML = `
-                        <p>{$messageHigh}</p>
-                        <div class="flex {$alignClass}" style="margin-top: 16px;">
-                            <a href="\${reviewUrl}"
-                               target="_blank"
-                               class="\${btnClasses}">
-                                {$buttonLabel}
-                            </a>
-                        </div>
-                    `;
+                    // Defence-in-depth: validate the resulting URL is still http(s)
+                    let safeUrl = '';
+                    try {
+                        const parsed = new URL(candidateUrl);
+                        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+                            safeUrl = parsed.toString();
+                        }
+                    } catch (e) {
+                        // Invalid URL — skip the button entirely
+                    }
+
+                    if (safeUrl) {
+                        const submitBtn = \$form.querySelector('[data-submit-action]');
+                        const btnClasses = submitBtn ? submitBtn.className : 'fui-btn';
+
+                        const wrap = document.createElement('div');
+                        wrap.className = 'flex ' + {$jsAlignClass};
+                        wrap.style.marginTop = '16px';
+
+                        const link = document.createElement('a');
+                        link.href = safeUrl;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        link.className = btnClasses;
+                        link.textContent = {$jsButtonLabel};
+
+                        wrap.appendChild(link);
+                        successMessage.appendChild(wrap);
+                    }
                 } else if (capturedRating >= ({$threshold} - 2)) {
-                    successMessage.innerHTML = '<p>{$messageMedium}</p>';
+                    p.textContent = {$jsMessageMedium};
+                    successMessage.appendChild(p);
                 } else if (capturedRating >= 0) {
-                    successMessage.innerHTML = '<p>{$messageLow}</p>';
+                    p.textContent = {$jsMessageLow};
+                    successMessage.appendChild(p);
                 }
             }, 300);
         });
