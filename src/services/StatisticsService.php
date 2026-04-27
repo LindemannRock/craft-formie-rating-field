@@ -325,9 +325,13 @@ class StatisticsService extends Component
         $dateBounds = DateRangeHelper::getBounds($dateRange);
         $groupByUid = $groupByField->uid;
 
+        // Resolve the Craft table-prefix syntax to a raw table name. DbHelper's identifier
+        // validator only permits alphanumerics + underscores/dots/etc — not `{`, `}`, or `%`.
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+
         // Build the query using field UIDs with DB-agnostic helpers
-        $groupByExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $groupByUid);
-        $ratingExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $ratingFieldUid);
+        $groupByExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $groupByUid);
+        $ratingExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $ratingFieldUid);
         $ratingCast = new Expression("CAST($ratingExpr AS DECIMAL(10,2))");
 
         $query = (new Query())
@@ -350,9 +354,11 @@ class StatisticsService extends Component
         // Filter by site when a specific site is requested.
         // formie_submissions has no siteId column; site association lives in elements_sites.
         if ($siteId !== 'all') {
+            // Use the resolved table name inside [[...]] — Yii's {{%table}} expansion
+            // doesn't nest cleanly inside [[col]] brackets (corrupts the column parser).
             $query->innerJoin(
                 '{{%elements_sites}} es_site_filter',
-                '[[es_site_filter.elementId]] = [[{{%formie_submissions}}.id]] AND [[es_site_filter.siteId]] = :filterSiteId',
+                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
                 [':filterSiteId' => (int)$siteId]
             );
         }
