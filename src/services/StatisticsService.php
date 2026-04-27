@@ -842,6 +842,18 @@ class StatisticsService extends Component
 
         $npsScore = $total > 0 ? round((($promoters - $detractors) / $total) * 100, 1) : 0;
 
+        // Per-score distribution (0–10) — NPS scale is always integer 0–10.
+        // Without this, getDistributionData() silently returns empty arrays for NPS fields.
+        $distribution = [];
+        for ($i = 0; $i <= 10; $i++) {
+            $count = count(array_filter($values, fn($v) => floor($v) == $i));
+            $distribution[] = [
+                'value' => $i,
+                'count' => $count,
+                'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
+            ];
+        }
+
         return [
             'npsScore' => $npsScore,
             'promoters' => $promoters,
@@ -851,6 +863,7 @@ class StatisticsService extends Component
             'detractors' => $detractors,
             'detractorsPercentage' => $total > 0 ? round(($detractors / $total) * 100, 1) : 0,
             'average' => $total > 0 ? round(array_sum($values) / $total, 2) : 0,
+            'distribution' => $distribution,
         ];
     }
 
