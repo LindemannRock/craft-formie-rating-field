@@ -39,6 +39,12 @@ use yii\db\Expression;
 class StatisticsService extends Component
 {
     /**
+     * Redis SET key holding every cache key this plugin owns.
+     * Used to scope-delete only our keys instead of flushing the shared Craft cache.
+     */
+    private const REDIS_KEY_INDEX = 'formie-rating-cache-keys';
+
+    /**
      * Get all forms that have at least one rating field
      *
      * @return array
@@ -573,8 +579,9 @@ class StatisticsService extends Component
             $result = $cache->set($cacheKey, $stats);
 
             if ($result) {
-                // Increment count in Redis
-                $this->incrementRedisCacheCount();
+                // Track the key in our Redis index so we can scoped-flush later
+                // (Yii's $cache->flush() would wipe every other plugin's keys too)
+                $this->trackRedisCacheKey($cacheKey);
                 Craft::info("Cache saved successfully: {$cacheKey}", __METHOD__);
             } else {
                 Craft::error("Failed to save cache: {$cacheKey}", __METHOD__);
@@ -655,10 +662,23 @@ class StatisticsService extends Component
 
         // Clear Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
-            // Reset count
-            $this->resetRedisCacheCount();
-            // Flush all cache keys matching our pattern
-            return Craft::$app->cache->flush();
+            $cache = Craft::$app->cache;
+
+            // Delete only the keys this plugin owns — never call $cache->flush(),
+            // which would wipe every other plugin's cache keys too.
+            if ($cache instanceof \yii\redis\Cache) {
+                $tracked = $cache->redis->executeCommand('SMEMBERS', [self::REDIS_KEY_INDEX]);
+                if (is_array($tracked)) {
+                    foreach ($tracked as $key) {
+                        $cache->delete($key);
+                    }
+                }
+                $cache->redis->executeCommand('DEL', [self::REDIS_KEY_INDEX]);
+                // Sweep the legacy counter key (replaced by SCARD on the index set)
+                $cache->redis->executeCommand('DEL', ['formie-rating-cache-count']);
+            }
+
+            return true;
         }
 
         // Clear file-based cache (default)
@@ -685,26 +705,14 @@ class StatisticsService extends Component
     }
 
     /**
-     * Increment Redis cache count
+     * Track a cache key in our Redis index so we can scope-delete it later
+     * without flushing the whole shared Craft cache.
      */
-    private function incrementRedisCacheCount(): void
+    private function trackRedisCacheKey(string $cacheKey): void
     {
         $cache = Craft::$app->cache;
         if ($cache instanceof \yii\redis\Cache) {
-            $redis = $cache->redis;
-            $redis->executeCommand('INCR', ['formie-rating-cache-count']);
-        }
-    }
-
-    /**
-     * Reset Redis cache count
-     */
-    private function resetRedisCacheCount(): void
-    {
-        $cache = Craft::$app->cache;
-        if ($cache instanceof \yii\redis\Cache) {
-            $redis = $cache->redis;
-            $redis->executeCommand('SET', ['formie-rating-cache-count', 0]);
+            $cache->redis->executeCommand('SADD', [self::REDIS_KEY_INDEX, $cacheKey]);
         }
     }
 
@@ -717,13 +725,12 @@ class StatisticsService extends Component
     {
         $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
 
-        // For Redis, get count from tracking key
+        // For Redis, count members of our key-index set
         if ($settings->cacheStorageMethod === 'redis') {
             try {
                 $cache = Craft::$app->cache;
                 if ($cache instanceof \yii\redis\Cache) {
-                    $redis = $cache->redis;
-                    $count = $redis->executeCommand('GET', ['formie-rating-cache-count']);
+                    $count = $cache->redis->executeCommand('SCARD', [self::REDIS_KEY_INDEX]);
                     return (int)($count ?: 0);
                 }
                 return 0;
