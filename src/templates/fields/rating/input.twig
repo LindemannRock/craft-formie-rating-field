@@ -1,5 +1,5 @@
-{# Register the CSS asset for front-end #}
-{% do craft.app.getView().registerAssetBundle('\\lindemannrock\\formieratingfield\\web\\assets\\field\\RatingFieldAsset') %}
+{# Asset bundle is registered in Rating::getFrontEndJsModules() (PHP) — Formie's
+   canonical hook for field front-end resources. Don't double-register here. #}
 
 {# Register Google Review integration if enabled #}
 {% if field.enableGoogleReview %}
