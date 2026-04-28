@@ -42,12 +42,12 @@ class Settings extends Model
     /**
      * @var int Default minimum rating value
      */
-    public $defaultMinRating = 1;
+    public int $defaultMinRating = 1;
 
     /**
      * @var int Default maximum rating value
      */
-    public $defaultMaxRating = 5;
+    public int $defaultMaxRating = 5;
 
     /**
      * @var bool Allow half ratings by default (star type only)
