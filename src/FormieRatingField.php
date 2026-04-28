@@ -158,11 +158,22 @@ class FormieRatingField extends Plugin
             }
         );
 
-        // Register utility
+        // Register utility — only for users who have at least one plugin permission.
+        // Mirrors the gating used for the Clear Caches entry in 1.5; without it any
+        // user with Craft's accessUtility:formie-rating could see the utility page
+        // header and confirm the plugin is installed.
         Event::on(
             Utilities::class,
             Utilities::EVENT_REGISTER_UTILITIES,
             function(RegisterComponentTypesEvent $event) {
+                $user = Craft::$app->getUser();
+                if (
+                    !$user->checkPermission('formieRatingField:viewStatistics')
+                    && !$user->checkPermission('formieRatingField:manageCache')
+                    && !$user->checkPermission('formieRatingField:manageSettings')
+                ) {
+                    return;
+                }
                 $event->types[] = \lindemannrock\formieratingfield\utilities\RatingUtility::class;
             }
         );
