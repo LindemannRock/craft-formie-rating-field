@@ -90,6 +90,15 @@ class Settings extends Model
     public int $itemsPerPage = 50;
 
     /**
+     * @var int Maximum rows included in raw-responses exports. 0 = unlimited.
+     *
+     * Default 50,000 protects against PHP OOM when an admin exports the full
+     * "Raw Responses" sheet on a high-volume form (each row hydrates a Submission
+     * element + per-field-value rendering pipeline). Truncation is logged.
+     */
+    public int $maxExportRows = 50000;
+
+    /**
      * @var string Cache storage method (file or redis)
      */
     public string $cacheStorageMethod = 'file';
@@ -114,6 +123,7 @@ class Settings extends Model
             [['defaultMinRating'], 'integer', 'min' => 0, 'max' => 1],
             [['defaultMaxRating'], 'integer', 'min' => 3, 'max' => 10],
             [['itemsPerPage'], 'integer', 'min' => 10, 'max' => 500],
+            [['maxExportRows'], 'integer', 'min' => 0, 'max' => 1000000],
             [['defaultAllowHalfRatings', 'defaultShowSelectedLabel', 'defaultShowEndpointLabels', 'defaultSingleEmojiSelection'], 'boolean'],
             [['defaultRatingType'], 'in', 'range' => ['star', 'emoji', 'nps']],
             [['defaultRatingSize'], 'in', 'range' => ['small', 'medium', 'large', 'xlarge']],
@@ -145,6 +155,7 @@ class Settings extends Model
             'defaultEmojiRenderMode' => Craft::t('formie-rating-field', 'Default Emoji Render Mode'),
             'defaultSingleEmojiSelection' => Craft::t('formie-rating-field', 'Single Emoji Selection by Default'),
             'itemsPerPage' => Craft::t('formie-rating-field', 'Items Per Page'),
+            'maxExportRows' => Craft::t('formie-rating-field', 'Max Export Rows'),
             'cacheStorageMethod' => Craft::t('formie-rating-field', 'Cache Storage Method'),
             'cacheGenerationSchedule' => Craft::t('formie-rating-field', 'Cache Generation Schedule'),
             'defaultDateRange' => Craft::t('formie-rating-field', 'Default Date Range'),

@@ -53,6 +53,22 @@
         errors: settings.getErrors('itemsPerPage')
     }) }}
 
+	{{ forms.textField({
+        label: 'Max Export Rows'|t('formie-rating-field'),
+        instructions: 'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).'|t('formie-rating-field'),
+        id: 'maxExportRows',
+        name: 'settings[maxExportRows]',
+        type: 'number',
+        value: settings.maxExportRows ?? 50000,
+        min: 0,
+        max: 1000000,
+        required: true,
+        disabled: settings.isOverriddenByConfig('maxExportRows'),
+        warning: settings.isOverriddenByConfig('maxExportRows') ?
+            "This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        errors: settings.getErrors('maxExportRows')
+    }) }}
+
 	{{ forms.selectField({
         label: 'Default Date Range'|t('formie-rating-field'),
         instructions: 'Default date range for statistics when first loading the page. Shorter ranges load faster.'|t('formie-rating-field'),

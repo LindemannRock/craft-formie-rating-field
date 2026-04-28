@@ -136,6 +136,18 @@ return [
          */
         'itemsPerPage' => 50,
 
+        /**
+         * Maximum rows included in the "Raw Responses" export.
+         * Hard cap protects against PHP out-of-memory errors on high-volume forms
+         * (each row hydrates a full submission element through Formie's per-field-type
+         * value rendering pipeline). When the cap is hit, a warning is logged.
+         *
+         * Range: 0-1000000
+         * Default: 50000 (covers typical use)
+         * Set to 0 for unlimited (use only if PHP memory_limit is generous)
+         */
+        'maxExportRows' => 50000,
+
 
         // ========================================
         // CACHE SETTINGS
@@ -186,7 +198,11 @@ return [
          * Default date range for the statistics page
          * Options: 'today', 'yesterday', 'last7days', 'last30days', 'last90days',
          *          'thisMonth', 'lastMonth', 'thisYear', 'lastYear', 'all'
-         * Default: 'last30days' (from base plugin)
+         *
+         * Lives on the plugin's Settings model — set it via
+         * Settings → Interface → Default Date Range.
+         * Setting it here overrides the UI value.
+         * Default: 'last30days' (Settings model default)
          */
         // 'defaultDateRange' => 'last7days',
 

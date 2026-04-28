@@ -168,6 +168,7 @@ class SettingsController extends Controller
             ],
             'interface' => [
                 'itemsPerPage',
+                'maxExportRows',
                 'defaultDateRange',
             ],
             'cache' => [

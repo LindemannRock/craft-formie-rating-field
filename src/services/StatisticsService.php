@@ -1245,7 +1245,24 @@ class StatisticsService extends Component
             $headers[] = $field->label;
         }
 
-        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
+        // Apply the configured export row cap to prevent PHP OOM on busy forms.
+        // 0 = unlimited. Default (50,000) covers typical use; admins who genuinely
+        // need more can raise the setting or set 0 (and accept the OOM risk).
+        $maxRows = (int)(FormieRatingField::$plugin->getSettings()->maxExportRows ?? 50000);
+        $limit = $maxRows > 0 ? $maxRows : null;
+
+        $submissions = $this->getSubmissions($form, $dateRange, $siteId, $limit);
+
+        // Surface truncation to admins via the log so they know the export was capped.
+        if ($limit !== null && count($submissions) >= $limit) {
+            Craft::warning(
+                "Raw-responses export for form '{$form->handle}' (id {$form->id}) was truncated " .
+                "to {$limit} rows by the maxExportRows setting. Increase the setting or set to 0 " .
+                'for unlimited (at the cost of higher PHP memory usage).',
+                __METHOD__
+            );
+        }
+
         $rows = [];
         $sitesService = Craft::$app->getSites();
 
@@ -1391,9 +1408,11 @@ class StatisticsService extends Component
      * @param Form $form
      * @param string $dateRange
      * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|null $limit Optional row cap. Applied at the SQL layer via `->limit()`.
+     *                       Used by export paths to prevent OOM on huge result sets.
      * @return array
      */
-    private function getSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): array
+    private function getSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all', ?int $limit = null): array
     {
         $query = Submission::find()
             ->formId($form->id)
@@ -1415,9 +1434,9 @@ class StatisticsService extends Component
             $query->andWhere(['<', 'dateCreated', Db::prepareDateForDb($bounds['end'])]);
         }
 
-        // For very large datasets, consider limiting
-        // Uncomment if you need to cap at a maximum for performance
-        // $query->limit(10000);
+        if ($limit !== null && $limit > 0) {
+            $query->limit($limit);
+        }
 
         return $query->all();
     }
