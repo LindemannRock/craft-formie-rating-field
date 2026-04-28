@@ -253,24 +253,39 @@ class FormieRatingField extends Plugin
      */
     private function scheduleInitialCacheGeneration(): void
     {
-        // Check if a job is already scheduled
-        $existingJob = (new \craft\db\Query())
-            ->from('{{%queue}}')
-            ->where(['like', 'job', 'formieratingfield'])
-            ->andWhere(['like', 'job', 'GenerateCacheJob'])
-            ->exists();
+        // Mutex makes the check-then-push atomic across concurrent requests.
+        // Without it, two simultaneous web requests can both pass the existsCheck()
+        // and each push a duplicate job. Non-blocking acquire — if another request
+        // is currently scheduling, this one skips silently.
+        $mutex = Craft::$app->getMutex();
+        $lockName = 'formie-rating-field:schedule-cache-job';
 
-        if (!$existingJob) {
-            $job = new \lindemannrock\formieratingfield\jobs\GenerateCacheJob([
-                'reschedule' => true,
-            ]);
+        if (!$mutex->acquire($lockName)) {
+            return;
+        }
 
-            // Calculate delay until next scheduled run time
-            $delay = $job->calculateNextRunDelay();
+        try {
+            // Check if a job is already scheduled
+            $existingJob = (new \craft\db\Query())
+                ->from('{{%queue}}')
+                ->where(['like', 'job', 'formieratingfield'])
+                ->andWhere(['like', 'job', 'GenerateCacheJob'])
+                ->exists();
 
-            Craft::$app->getQueue()->delay($delay)->push($job);
+            if (!$existingJob) {
+                $job = new \lindemannrock\formieratingfield\jobs\GenerateCacheJob([
+                    'reschedule' => true,
+                ]);
 
-            Craft::info('Scheduled initial cache generation job. Delay: ' . $delay . 's, Next run: ' . date('Y-m-d H:i:s', time() + $delay), __METHOD__);
+                // Calculate delay until next scheduled run time
+                $delay = $job->calculateNextRunDelay();
+
+                Craft::$app->getQueue()->delay($delay)->push($job);
+
+                Craft::info('Scheduled initial cache generation job. Delay: ' . $delay . 's, Next run: ' . date('Y-m-d H:i:s', time() + $delay), __METHOD__);
+            }
+        } finally {
+            $mutex->release($lockName);
         }
     }
     

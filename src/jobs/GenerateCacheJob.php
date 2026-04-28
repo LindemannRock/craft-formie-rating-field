@@ -290,27 +290,42 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
      */
     private function scheduleNext(): void
     {
-        // Prevent duplicate scheduling - check if another job already exists
-        // This prevents fan-out if multiple jobs end up in the queue (manual runs, retries, etc.)
-        $existingJob = (new \craft\db\Query())
-            ->from('{{%queue}}')
-            ->where(['like', 'job', 'formieratingfield'])
-            ->andWhere(['like', 'job', 'GenerateCacheJob'])
-            ->exists();
+        // Mutex makes the check-then-push atomic across concurrent jobs/requests.
+        // Without it, two parallel finishing jobs could both pass the existsCheck()
+        // and each push a duplicate reschedule. Non-blocking acquire — if another
+        // job is currently scheduling, this one skips silently.
+        $mutex = Craft::$app->getMutex();
+        $lockName = 'formie-rating-field:schedule-cache-job';
 
-        if ($existingJob) {
-            Craft::info('Skipping reschedule - cache generation job already exists', __METHOD__);
+        if (!$mutex->acquire($lockName)) {
             return;
         }
 
-        $delay = $this->calculateNextRunDelay();
+        try {
+            // Prevent duplicate scheduling - check if another job already exists
+            // This prevents fan-out if multiple jobs end up in the queue (manual runs, retries, etc.)
+            $existingJob = (new \craft\db\Query())
+                ->from('{{%queue}}')
+                ->where(['like', 'job', 'formieratingfield'])
+                ->andWhere(['like', 'job', 'GenerateCacheJob'])
+                ->exists();
 
-        if ($delay > 0) {
-            Craft::$app->getQueue()->delay($delay)->push(new self([
-                'reschedule' => true,
-            ]));
+            if ($existingJob) {
+                Craft::info('Skipping reschedule - cache generation job already exists', __METHOD__);
+                return;
+            }
 
-            Craft::info('Scheduled next cache generation', __METHOD__);
+            $delay = $this->calculateNextRunDelay();
+
+            if ($delay > 0) {
+                Craft::$app->getQueue()->delay($delay)->push(new self([
+                    'reschedule' => true,
+                ]));
+
+                Craft::info('Scheduled next cache generation', __METHOD__);
+            }
+        } finally {
+            $mutex->release($lockName);
         }
     }
 }
