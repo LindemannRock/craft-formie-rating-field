@@ -689,9 +689,9 @@ class StatisticsService extends Component
         // Redis storage — filter the SADD index by form-id prefix and delete matching keys.
         // (Without this branch, Redis users got silent no-ops on submission save/delete.)
         if ($settings->cacheStorageMethod === 'redis') {
-            $cache = Craft::$app->cache;
-            if (!$cache instanceof \yii\redis\Cache) {
-                return true;
+            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+            if ($cache === null) {
+                return true; // misconfig already logged
             }
 
             $tracked = $cache->redis->executeCommand('SMEMBERS', [self::REDIS_KEY_INDEX]);
@@ -750,11 +750,10 @@ class StatisticsService extends Component
 
         // Clear Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
-            $cache = Craft::$app->cache;
-
             // Delete only the keys this plugin owns — never call $cache->flush(),
             // which would wipe every other plugin's cache keys too.
-            if ($cache instanceof \yii\redis\Cache) {
+            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+            if ($cache !== null) {
                 $tracked = $cache->redis->executeCommand('SMEMBERS', [self::REDIS_KEY_INDEX]);
                 if (is_array($tracked)) {
                     foreach ($tracked as $key) {
@@ -798,8 +797,8 @@ class StatisticsService extends Component
      */
     private function trackRedisCacheKey(string $cacheKey): void
     {
-        $cache = Craft::$app->cache;
-        if ($cache instanceof \yii\redis\Cache) {
+        $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+        if ($cache !== null) {
             $cache->redis->executeCommand('SADD', [self::REDIS_KEY_INDEX, $cacheKey]);
         }
     }
@@ -816,12 +815,12 @@ class StatisticsService extends Component
         // For Redis, count members of our key-index set
         if ($settings->cacheStorageMethod === 'redis') {
             try {
-                $cache = Craft::$app->cache;
-                if ($cache instanceof \yii\redis\Cache) {
-                    $count = $cache->redis->executeCommand('SCARD', [self::REDIS_KEY_INDEX]);
-                    return (int)($count ?: 0);
+                $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+                if ($cache === null) {
+                    return 0; // misconfig already logged
                 }
-                return 0;
+                $count = $cache->redis->executeCommand('SCARD', [self::REDIS_KEY_INDEX]);
+                return (int)($count ?: 0);
             } catch (\Exception $e) {
                 Craft::error('Failed to get Redis cache count: ' . $e->getMessage(), __METHOD__);
                 return 0;
