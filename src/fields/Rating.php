@@ -1017,19 +1017,20 @@ class Rating extends Field implements FieldInterface
 
         $threshold = (int)($this->googleReviewThreshold ?? 9);
 
-        // Get values with English defaults
-        $messageHigh = $this->googleReviewMessageHigh ?: 'Thank you for the excellent rating! We would love if you could share your experience with others.';
-        $messageMedium = $this->googleReviewMessageMedium ?: 'Thank you for your feedback!';
-        $messageLow = $this->googleReviewMessageLow ?: 'Thank you for your feedback. We will use it to improve our service.';
-        $buttonLabel = $this->googleReviewButtonLabel ?: 'Review on Google';
+        // Defaults are translatable via Formie's category — translation-manager scans
+        // these literals and registers them as translation keys. User-entered values
+        // are taken as-is (admin wrote what they want shown; live DB content isn't
+        // scanned, so a runtime Craft::t() lookup on user input would be a no-op).
+        $messageHigh = $this->googleReviewMessageHigh
+            ?: Craft::t('formie', 'Thank you for the excellent rating! We would love if you could share your experience with others.');
+        $messageMedium = $this->googleReviewMessageMedium
+            ?: Craft::t('formie', 'Thank you for your feedback!');
+        $messageLow = $this->googleReviewMessageLow
+            ?: Craft::t('formie', 'Thank you for your feedback. We will use it to improve our service.');
+        $buttonLabel = $this->googleReviewButtonLabel
+            ?: Craft::t('formie', 'Review on Google');
         $reviewUrlTemplate = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
         $buttonAlign = $this->googleReviewButtonAlign ?: 'start';
-
-        // Translate (whatever text is entered gets translated through Formie's category)
-        $messageHigh = Craft::t('formie', $messageHigh);
-        $messageMedium = Craft::t('formie', $messageMedium);
-        $messageLow = Craft::t('formie', $messageLow);
-        $buttonLabel = Craft::t('formie', $buttonLabel);
 
         // Validate URL template — only allow http(s) schemes (reject javascript:, data:, etc.)
         if (!preg_match('#^https?://#i', $reviewUrlTemplate)) {
