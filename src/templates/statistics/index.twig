@@ -25,8 +25,8 @@
 				<div class="flex">
 					<div class="search-container texticon flex-grow">
 						<span class="texticon-icon search icon" aria-hidden="true"></span>
-						<input type="text" class="clearable text fullwidth" name="search" value="{{ search }}" placeholder="{{ 'Search forms...'|t('formie-rating-field') }}" autocomplete="off" dir="ltr" aria-label="Search" {% if search %} autofocus {% endif %}>
-						<button type="button" class="clear-btn {{ search ? '' : 'hidden' }}" title="Clear search" role="button" aria-label="Clear search"></button>
+						<input type="text" class="clearable text fullwidth" name="search" value="{{ search }}" placeholder="{{ 'Search forms...'|t('formie-rating-field') }}" autocomplete="off" dir="ltr" aria-label="{{ 'Search'|t('formie-rating-field') }}" {% if search %} autofocus {% endif %}>
+						<button type="button" class="clear-btn {{ search ? '' : 'hidden' }}" title="{{ 'Clear search'|t('formie-rating-field') }}" role="button" aria-label="{{ 'Clear search'|t('formie-rating-field') }}"></button>
 						<input type="hidden" name="sort" value="{{ sort }}">
 						<input type="hidden" name="dir" value="{{ dir }}">
 					</div>
@@ -169,16 +169,21 @@
 	<div id="footer" class="flex flex-justify">
 		<div class="light">
 			<div class="flex pagination">
-				<nav class="flex" aria-label="statistics pagination">
-					<button type="button" class="page-link prev-page {{ page <= 1 ? 'disabled' : '' }}" {{ page <= 1 ? 'disabled' : '' }} title="Previous Page"></button>
-					<button type="button" class="page-link next-page {{ page >= totalPages ? 'disabled' : '' }}" {{ page >= totalPages ? 'disabled' : '' }} title="Next Page"></button>
+				<nav class="flex" aria-label="{{ 'statistics pagination'|t('formie-rating-field') }}">
+					<button type="button" class="page-link prev-page {{ page <= 1 ? 'disabled' : '' }}" {{ page <= 1 ? 'disabled' : '' }} title="{{ 'Previous Page'|t('formie-rating-field') }}"></button>
+					<button type="button" class="page-link next-page {{ page >= totalPages ? 'disabled' : '' }}" {{ page >= totalPages ? 'disabled' : '' }} title="{{ 'Next Page'|t('formie-rating-field') }}"></button>
 				</nav>
 				<div class="page-info">
 					{% set endRange = min(offset + limit, totalItems) %}
 					{% if totalItems == 0 %}
 						{{ 'no forms'|t('formie-rating-field') }}
 					{% else %}
-						{{ (offset + 1)|number }} – {{ endRange|number }} of {{ totalItems|number }} {{ totalItems == 1 ? 'form' : 'forms' }}
+						{{ '{start} – {end} of {total} {label}'|t('formie-rating-field', {
+							start: (offset + 1)|number,
+							end: endRange|number,
+							total: totalItems|number,
+							label: '{count, plural, =1{form} other{forms}}'|t('formie-rating-field', { count: totalItems }),
+						}) }}
 					{% endif %}
 				</div>
 			</div>

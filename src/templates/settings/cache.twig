@@ -57,7 +57,10 @@
 
 <div id="cache-location-file" class="{{ (settings.cacheStorageMethod ?? 'file') == 'redis' ? 'hidden' }}">
     {% include 'lindemannrock-base/_components/info-box' with {
-        message: '<strong>Cache Location:</strong> <code>' ~ ratingHelper.cacheBasePath ~ '</code>',
+        message: '<strong>{label}</strong> <code>{path}</code>'|t('formie-rating-field', {
+            label: 'Cache Location:'|t('formie-rating-field'),
+            path: ratingHelper.cacheBasePath,
+        })|raw,
         type: 'info'
     } %}
 </div>
@@ -66,12 +69,12 @@
     {% if craftUsesRedis %}
         {% include 'lindemannrock-base/_components/info-box' with {
             type: 'success',
-            message: '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>'
+            message: '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>'|t('formie-rating-field')|raw,
         } %}
     {% else %}
         {% include 'lindemannrock-base/_components/info-box' with {
             type: 'warning',
-            message: '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>'
+            message: '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>'|t('formie-rating-field')|raw,
         } %}
     {% endif %}
 </div>
@@ -100,7 +103,7 @@
 
 {% if settings.cacheGenerationSchedule == 'manual' or not settings.cacheGenerationSchedule %}
     {% include 'lindemannrock-base/_components/info-box' with {
-        message: '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.',
+        message: '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.'|t('formie-rating-field')|raw,
         type: 'warning'
     } %}
 {% endif %}
@@ -112,10 +115,10 @@
             <text x="8" y="12" text-anchor="middle" font-size="11" font-weight="bold" fill="currentColor">i</text>
         </svg>
         <span><strong>{{ "How it works:"|t('formie-rating-field') }}</strong><br>
-        • Statistics are calculated and cached to improve performance<br>
-        • Scheduled generation pre-calculates stats for all forms<br>
-        • Cache is regenerated on schedule with latest submission data<br>
-        • For manual cache management, go to <a href="{{ url('utilities/formie-rating') }}">{{ "Utilities"|t('formie-rating-field') }}</a></span>
+        • {{ "Statistics are calculated and cached to improve performance"|t('formie-rating-field') }}<br>
+        • {{ "Scheduled generation pre-calculates stats for all forms"|t('formie-rating-field') }}<br>
+        • {{ "Cache is regenerated on schedule with latest submission data"|t('formie-rating-field') }}<br>
+        • {{ "For manual cache management, go to {link}"|t('formie-rating-field', {link: '<a href="' ~ url('utilities/formie-rating') ~ '">' ~ "Utilities"|t('formie-rating-field') ~ '</a>'})|raw }}</span>
     </p>
 </div>
 

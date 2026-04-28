@@ -68,7 +68,7 @@
                         <span id="fieldFilterLabel">
                             {% if fieldFilter %}
                                 {% set selectedField = allRatingFields|filter(f => f.handle == fieldFilter)|first %}
-                                {{ selectedField ? selectedField.label|lrShortLabel : 'All Fields' }}
+                                {{ selectedField ? selectedField.label|lrShortLabel : 'All Fields'|t('formie-rating-field') }}
                             {% else %}
                                 {{ "All Fields"|t('formie-rating-field') }}
                             {% endif %}
@@ -168,7 +168,7 @@
             <div style="margin-bottom: 32px;">
                 <h2 style="margin: 0 0 6px;">{{ field.label }}</h2>
                 <p class="lr-text-muted" style="margin: 0 0 16px; font-size: 13px;">
-                    ({{ isNps ? 'NPS' : (stats.fieldType == 'star' ? 'Star Rating' : 'Emoji Rating') }})
+                    ({{ (isNps ? 'NPS' : (stats.fieldType == 'star' ? 'Star Rating' : 'Emoji Rating'))|t('formie-rating-field') }})
                     {% set settings = craft.app.plugins.getPlugin('formie-rating-field').settings %}
                     {% if settings.cacheGenerationSchedule != 'manual' %}
                         • {{ "Last updated: {time}"|t('formie-rating-field', {time: now|lrDatetime('short')}) }}
@@ -230,7 +230,7 @@
                     <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                             <div style="width: 12px; height: 12px; border-radius: 50%; background: #10b981;"></div>
-                            <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ isNps ? "Overall NPS" : "Overall Average"|t('formie-rating-field') }}</h4>
+                            <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ (isNps ? "Overall NPS" : "Overall Average")|t('formie-rating-field') }}</h4>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column;">
                             <div style="font-size: 28px; font-weight: 700; color: #10b981; line-height: 1; margin-bottom: 8px;">{{ overallAverage }}</div>
@@ -366,13 +366,13 @@
                                             </td>
                                             <td data-sort-value="{{ normalizedScore * 100 }}">
                                                 {% if isExcellent %}
-                                                    <span style="color: #10b981;">Excellent</span>
+                                                    <span style="color: #10b981;">{{ "Excellent"|t('formie-rating-field') }}</span>
                                                 {% elseif isGood %}
-                                                    <span style="color: #10b981;">Good</span>
+                                                    <span style="color: #10b981;">{{ "Good"|t('formie-rating-field') }}</span>
                                                 {% elseif isFair %}
-                                                    <span style="color: #f59e0b;">Fair</span>
+                                                    <span style="color: #f59e0b;">{{ "Fair"|t('formie-rating-field') }}</span>
                                                 {% else %}
-                                                    <span style="color: #ef4444;">Poor</span>
+                                                    <span style="color: #ef4444;">{{ "Poor"|t('formie-rating-field') }}</span>
                                                 {% endif %}
                                             </td>
                                             <td>
@@ -383,9 +383,9 @@
                                         {% endif %}
                                         <td>
                                             {% if hasEnoughReviews %}
-                                                <span style="color: #10b981;">Reliable</span>
+                                                <span style="color: #10b981;">{{ "Reliable"|t('formie-rating-field') }}</span>
                                             {% else %}
-                                                <span style="color: #f59e0b;">Low data</span>
+                                                <span style="color: #f59e0b;">{{ "Low data"|t('formie-rating-field') }}</span>
                                             {% endif %}
                                         </td>
                                     </tr>

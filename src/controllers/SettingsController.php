@@ -104,7 +104,7 @@ class SettingsController extends Controller
 
         // Prevent saving if in read-only mode
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
-            throw new \yii\web\ForbiddenHttpException('Administrative changes are disallowed in this environment.');
+            throw new \yii\web\ForbiddenHttpException(Craft::t('formie-rating-field', 'Administrative changes are disallowed in this environment.'));
         }
 
         $params = Craft::$app->getRequest()->getBodyParam('settings', []);
@@ -138,7 +138,7 @@ class SettingsController extends Controller
         // Save the settings
         if (!Craft::$app->getPlugins()->savePluginSettings($plugin, $params)) {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Could not save settings.'));
-            return $this->asFailure('Could not save settings.');
+            return $this->asFailure(Craft::t('formie-rating-field', 'Could not save settings.'));
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('formie-rating-field', 'Settings saved.'));

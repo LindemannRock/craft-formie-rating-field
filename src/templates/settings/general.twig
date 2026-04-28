@@ -207,7 +207,7 @@
         id: 'defaultStartLabel',
         name: 'settings[defaultStartLabel]',
         value: settings.defaultStartLabel ?? '',
-        placeholder: 'e.g., Poor',
+        placeholder: 'e.g., Poor'|t('formie-rating-field'),
         warning: settings.isOverriddenByConfig('defaultStartLabel') ?
             "This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
         disabled: settings.isOverriddenByConfig('defaultStartLabel'),
@@ -220,7 +220,7 @@
         id: 'defaultEndLabel',
         name: 'settings[defaultEndLabel]',
         value: settings.defaultEndLabel ?? '',
-        placeholder: 'e.g., Excellent',
+        placeholder: 'e.g., Excellent'|t('formie-rating-field'),
         warning: settings.isOverriddenByConfig('defaultEndLabel') ?
             "This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
         disabled: settings.isOverriddenByConfig('defaultEndLabel'),

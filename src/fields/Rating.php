@@ -459,6 +459,9 @@ class Rating extends Field implements FieldInterface
      */
     public function getPreviewInputHtml(): string
     {
+        // Translate the user-visible label before injecting into the Vue template literal.
+        $singleSelectionLabel = Html::encode(Craft::t('formie', 'Single selection mode'));
+
         return '<div class="fui-rating-preview">
             <div v-if="field.settings.ratingType === \'star\'" style="display: flex; gap: 4px;">
                 <template v-for="i in (parseInt(field.settings.maxValue) || 5) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 1) + 1">
@@ -472,7 +475,7 @@ class Rating extends Field implements FieldInterface
                     </template>
                 </div>
                 <div v-if="field.settings.singleEmojiSelection" style="margin-top: 6px; font-size: 11px; color: #6b7280; font-style: italic;">
-                    Single selection mode
+                    ' . $singleSelectionLabel . '
                 </div>
             </div>
             <div v-else-if="field.settings.ratingType === \'nps\'" style="display: flex; gap: 4px;">
@@ -973,6 +976,14 @@ class Rating extends Field implements FieldInterface
     {
         // Register the asset bundle to ensure CSS is also loaded
         Craft::$app->getView()->registerAssetBundle(RatingFieldAsset::class);
+
+        // Register front-end JS translation strings under our category. Consumed by
+        // rating.js via Craft.t('formie-rating-field', '...'). Add new strings to
+        // both this list and the JS to keep them in sync.
+        Craft::$app->getView()->registerTranslations('formie-rating-field', [
+            'Rating',
+            '{value} stars',
+        ]);
 
         // Get the published URL using the asset bundle's source path
         $assetPath = dirname((new \ReflectionClass(RatingFieldAsset::class))->getFileName());

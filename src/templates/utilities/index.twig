@@ -30,13 +30,13 @@
     {% if canManageCache %}
         {% if storageMethod == 'redis' %}
             {% include 'lindemannrock-base/_components/cards/unified-card' with {
-                title: 'Cache Status'|t('formie-rating-field') ~ ' (Redis)',
+                title: 'Cache Status (Redis)'|t('formie-rating-field'),
                 color: lrPaletteColor('emerald').color,
                 value: 'Active'|t('formie-rating-field'),
             } only %}
         {% else %}
             {% include 'lindemannrock-base/_components/cards/unified-card' with {
-                title: 'Cache Status'|t('formie-rating-field') ~ ' (File)',
+                title: 'Cache Status (File)'|t('formie-rating-field'),
                 color: lrPaletteColor('emerald').color,
                 value: cacheCount,
                 description: 'Cached statistics'|t('formie-rating-field'),

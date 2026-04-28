@@ -49,7 +49,7 @@ class StatisticsController extends Controller
         $editableIds = Craft::$app->getSites()->getEditableSiteIds();
 
         if (!in_array($siteId, $editableIds, true)) {
-            throw new ForbiddenHttpException('You do not have permission to access that site.');
+            throw new ForbiddenHttpException(Craft::t('formie-rating-field', 'You do not have permission to access that site.'));
         }
 
         return $siteId;
@@ -64,7 +64,7 @@ class StatisticsController extends Controller
 
         $plugin = FormieRatingField::$plugin;
         if (!$plugin) {
-            throw new \yii\web\ServerErrorHttpException('Plugin not found');
+            throw new \yii\web\ServerErrorHttpException(Craft::t('formie-rating-field', 'Plugin not found'));
         }
 
         $user = Craft::$app->getUser();
@@ -148,13 +148,13 @@ class StatisticsController extends Controller
         $this->requirePermission('formieRatingField:viewStatistics');
 
         if (!$formId) {
-            throw new \yii\web\BadRequestHttpException('Form ID is required');
+            throw new \yii\web\BadRequestHttpException(Craft::t('formie-rating-field', 'Form ID is required'));
         }
 
         $form = Form::find()->id($formId)->one();
 
         if (!$form instanceof Form) {
-            throw new \yii\web\NotFoundHttpException('Form not found');
+            throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
 
         $statisticsService = FormieRatingField::$plugin->statistics;
@@ -213,13 +213,13 @@ class StatisticsController extends Controller
         $this->requirePermission('formieRatingField:viewStatistics');
 
         if (!$formId || !$groupValue) {
-            throw new \yii\web\BadRequestHttpException('Form ID and group value are required');
+            throw new \yii\web\BadRequestHttpException(Craft::t('formie-rating-field', 'Form ID and group value are required'));
         }
 
         $form = Form::find()->id($formId)->one();
 
         if (!$form instanceof Form) {
-            throw new \yii\web\NotFoundHttpException('Form not found');
+            throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
 
         $statisticsService = FormieRatingField::$plugin->statistics;
@@ -279,7 +279,7 @@ class StatisticsController extends Controller
         if ($formId <= 0) {
             return $this->asJson([
                 'success' => false,
-                'error' => 'Form ID is required',
+                'error' => Craft::t('formie-rating-field', 'Form ID is required'),
             ]);
         }
 
@@ -288,7 +288,7 @@ class StatisticsController extends Controller
         if (!$form instanceof Form) {
             return $this->asJson([
                 'success' => false,
-                'error' => 'Form not found',
+                'error' => Craft::t('formie-rating-field', 'Form not found'),
             ]);
         }
 
@@ -316,12 +316,12 @@ class StatisticsController extends Controller
                 case 'trend':
                     // Get trend data for a specific field
                     if (!$fieldHandle) {
-                        return $this->asJson(['success' => false, 'error' => 'Field handle is required']);
+                        return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field handle is required')]);
                     }
 
                     $field = $statisticsService->getRatingFieldByHandle($form, $fieldHandle);
                     if (!$field) {
-                        return $this->asJson(['success' => false, 'error' => 'Field not found']);
+                        return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field not found')]);
                     }
 
                     $data = $statisticsService->getTrendData($form, $field, $dateRange, $siteId);
@@ -330,12 +330,12 @@ class StatisticsController extends Controller
                 case 'distribution':
                     // Get distribution data for a specific field
                     if (!$fieldHandle) {
-                        return $this->asJson(['success' => false, 'error' => 'Field handle is required']);
+                        return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field handle is required')]);
                     }
 
                     $field = $statisticsService->getRatingFieldByHandle($form, $fieldHandle);
                     if (!$field) {
-                        return $this->asJson(['success' => false, 'error' => 'Field not found']);
+                        return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field not found')]);
                     }
 
                     $data = $statisticsService->getDistributionData($form, $field, $dateRange, $siteId);
@@ -370,7 +370,7 @@ class StatisticsController extends Controller
         if ($formId <= 0) {
             return $this->asJson([
                 'success' => false,
-                'error' => 'Form ID is required',
+                'error' => Craft::t('formie-rating-field', 'Form ID is required'),
             ]);
         }
 
@@ -410,18 +410,18 @@ class StatisticsController extends Controller
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
         if ($formId <= 0 || !$groupBy || !$groupValue) {
-            throw new BadRequestHttpException('Missing required parameters');
+            throw new BadRequestHttpException(Craft::t('formie-rating-field', 'Missing required parameters'));
         }
 
         // Gate by enabled export formats from config/formie-rating-field.php (or base default)
         if (!ExportHelper::isFormatEnabled($format, 'formie-rating-field')) {
-            throw new BadRequestHttpException("Export format '{$format}' is not enabled.");
+            throw new BadRequestHttpException(Craft::t('formie-rating-field', "Export format '{format}' is not enabled.", ['format' => $format]));
         }
 
         $form = Form::find()->id($formId)->one();
 
         if (!$form instanceof Form) {
-            throw new \yii\web\NotFoundHttpException('Form not found');
+            throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
 
         $statisticsService = FormieRatingField::$plugin->statistics;
@@ -526,9 +526,9 @@ class StatisticsController extends Controller
             'csv' => ExportHelper::toCsv($rows, $headers, $filename),
             'json' => ExportHelper::toJson($jsonData, $filename),
             'xlsx', 'excel' => ExportHelper::toExcel($rows, $headers, $filename, [], [
-                'sheetTitle' => 'Statistics',
+                'sheetTitle' => Craft::t('formie-rating-field', 'Statistics'),
             ]),
-            default => throw new BadRequestHttpException("Unknown export format: {$format}"),
+            default => throw new BadRequestHttpException(Craft::t('formie-rating-field', "Unknown export format: {format}", ['format' => $format])),
         };
     }
 
@@ -548,13 +548,13 @@ class StatisticsController extends Controller
         $formId = (int) $request->getBodyParam('formId');
 
         if ($formId <= 0) {
-            throw new BadRequestHttpException('Form ID is required');
+            throw new BadRequestHttpException(Craft::t('formie-rating-field', 'Form ID is required'));
         }
 
         $form = Form::find()->id($formId)->one();
 
         if (!$form instanceof Form) {
-            throw new \yii\web\NotFoundHttpException('Form not found');
+            throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
 
         $dateRange = $request->getBodyParam('dateRange', 'all');
@@ -564,7 +564,7 @@ class StatisticsController extends Controller
 
         // Gate by enabled export formats from config/formie-rating-field.php (or base default)
         if (!ExportHelper::isFormatEnabled($format, 'formie-rating-field')) {
-            throw new BadRequestHttpException("Export format '{$format}' is not enabled.");
+            throw new BadRequestHttpException(Craft::t('formie-rating-field', "Export format '{format}' is not enabled.", ['format' => $format]));
         }
 
         $statisticsService = FormieRatingField::$plugin->statistics;

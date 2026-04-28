@@ -15,6 +15,20 @@
 const _log = (...args) => { if (window.formieRatingDebug) console.log('[FormieRating]', ...args); };
 const _warn = (...args) => { if (window.formieRatingDebug) console.warn('[FormieRating]', ...args); };
 
+// Translation helper — wraps Craft.t() with our category. Strings must be
+// registered server-side via View::registerTranslations() in Rating::getFrontEndJsModules().
+// Falls back to the source string if Craft global isn't available (e.g. preview contexts).
+const _t = (key, params = {}) => {
+    if (typeof Craft !== 'undefined' && typeof Craft.t === 'function') {
+        return Craft.t('formie-rating-field', key, params);
+    }
+    // Manual {param} substitution for fallback rendering
+    return Object.keys(params).reduce(
+        (s, k) => s.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]),
+        key
+    );
+};
+
 _log('Script loaded! Window.Formie exists?', typeof window.Formie !== 'undefined');
 
 // Define the FormieRating class in the global scope
@@ -256,7 +270,7 @@ window.FormieRating = class FormieRating {
             // Add keyboard navigation
             container.setAttribute('tabindex', '0');
             container.setAttribute('role', 'radiogroup');
-            container.setAttribute('aria-label', selectElement.getAttribute('aria-label') || 'Rating');
+            container.setAttribute('aria-label', selectElement.getAttribute('aria-label') || _t('Rating'));
             
             container.addEventListener('keydown', (e) => {
                 this.handleKeyboardNavigation(e, selectElement, options, container);
@@ -269,7 +283,7 @@ window.FormieRating = class FormieRating {
             item.className = 'fui-rating-item fui-rating-star-item';
             item.setAttribute('data-value', value);
             item.setAttribute('role', 'radio');
-            item.setAttribute('aria-label', `${value} stars`);
+            item.setAttribute('aria-label', _t('{value} stars', { value: value }));
             
             // Use two overlapping SVGs for half-star effect (like the working TypeScript version)
             item.innerHTML = `
