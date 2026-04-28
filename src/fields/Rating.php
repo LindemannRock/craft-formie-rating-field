@@ -674,7 +674,7 @@ class Rating extends Field implements FieldInterface
             ]),
             SchemaHelper::selectField([
                 'label' => Craft::t('formie', 'Emoji Render Mode'),
-                'help' => Craft::t('formie', 'Choose how emoji ratings are rendered.'),
+                'help' => Craft::t('formie-rating-field', 'Choose how emoji ratings are rendered. "System Emojis" uses the visitor\'s native platform emoji and stays fully local. The two "Noto" modes load fonts from Google Fonts CDN on every form render, which contacts Google\'s servers — may require user consent under GDPR in EU jurisdictions.'),
                 'name' => 'emojiRenderMode',
                 'options' => [
                     ['label' => Craft::t('formie', 'System Emojis (Native platform emojis)'), 'value' => 'system'],
