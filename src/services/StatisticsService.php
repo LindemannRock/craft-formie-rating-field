@@ -83,6 +83,8 @@ class StatisticsService extends Component
             ->from(['s' => '{{%formie_submissions}}'])
             ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[s.id]]')
             ->where(['s.formId' => $formIds])
+            ->andWhere(['s.isIncomplete' => false])
+            ->andWhere(['s.isSpam' => false])
             ->andWhere(['e.dateDeleted' => null])
             ->andWhere(['e.draftId' => null])
             ->andWhere(['e.revisionId' => null])
@@ -1117,7 +1119,11 @@ class StatisticsService extends Component
 
         $query = (new Query())
             ->from('{{%formie_submissions}}')
-            ->where(["{$submissionsTable}.formId" => $form->id]);
+            ->where([
+                "{$submissionsTable}.formId" => $form->id,
+                "{$submissionsTable}.isIncomplete" => false,
+                "{$submissionsTable}.isSpam" => false,
+            ]);
 
         $bounds = DateRangeHelper::getBounds($dateRange);
         if ($bounds['start']) {
@@ -1414,8 +1420,12 @@ class StatisticsService extends Component
      */
     private function getSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all', ?int $limit = null): array
     {
+        // Exclude incomplete and spam submissions to match Formie's default UI semantics
+        // (those submissions live in the spam folder and aren't counted in standard views).
         $query = Submission::find()
             ->formId($form->id)
+            ->isIncomplete(false)
+            ->isSpam(false)
             ->orderBy(['dateCreated' => SORT_DESC]);
 
         if ($siteId === 'all') {
@@ -1488,7 +1498,11 @@ class StatisticsService extends Component
         $query = (new Query())
             ->select(['valueRaw' => new Expression("CAST({$valueExpr} AS DECIMAL(10,2))")])
             ->from('{{%formie_submissions}}')
-            ->where(["{$submissionsTable}.formId" => $form->id])
+            ->where([
+                "{$submissionsTable}.formId" => $form->id,
+                "{$submissionsTable}.isIncomplete" => false,
+                "{$submissionsTable}.isSpam" => false,
+            ])
             ->andWhere(['not', [$valueExpr => null]])
             ->andWhere(['!=', $valueExpr, '']);
 
