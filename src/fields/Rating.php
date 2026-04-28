@@ -80,7 +80,12 @@ class Rating extends Field implements FieldInterface
     public ?bool $showEndpointLabels = null;
 
     /**
-     * @var array Custom labels for each rating value
+     * @var array|mixed Custom labels for each rating value.
+     *
+     * Deliberately untyped — Formie's table-field input and project-config sync
+     * round-trips can deliver this as null, '' or other non-array shapes in edge
+     * cases. Always normalize via getNormalizedCustomLabels() before use; that
+     * method's is_array() guard is the consumer-side defence and must stay.
      */
     public $customLabels = [];
 
