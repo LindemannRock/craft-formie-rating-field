@@ -425,11 +425,30 @@ class StatisticsController extends Controller
         }
 
         $statisticsService = FormieRatingField::$plugin->statistics;
-
-        // Get submissions for this group
-        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId);
-
         $settings = FormieRatingField::$plugin->getSettings();
+
+        // Apply the maxExportRows cap (default 50k, 0 = unlimited) so this export
+        // path matches the OOM safeguard already in buildRawResponsesExportRows.
+        // Note: the cap is on the underlying fetch, before per-group filtering, so
+        // a heavily-populated group on a >maxExportRows form may have group-matching
+        // submissions in the truncated tail. Acceptable trade-off for OOM safety.
+        $maxRows = (int)$settings->maxExportRows;
+        $limit = $maxRows > 0 ? $maxRows : null;
+        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId, $limit);
+
+        // Log if the underlying fetch was truncated — group-matching rows may be in the dropped tail.
+        if ($limit !== null) {
+            $unfilteredCount = $statisticsService->getTotalSubmissions($form, $dateRange, $siteId);
+            if ($unfilteredCount >= $limit) {
+                Craft::warning(
+                    "Group export for form '{$form->handle}' (id {$form->id}, group '{$groupValue}') " .
+                    "operated on a fetch capped at {$limit} rows by the maxExportRows setting; the form has " .
+                    "{$unfilteredCount} matching submissions in this date range. Group-matching rows may be " .
+                    'in the truncated tail. Increase maxExportRows or set to 0 for unlimited.',
+                    __METHOD__
+                );
+            }
+        }
         $safeGroupValue = trim((string)preg_replace('/[^a-z0-9]+/i', '-', $groupValue), '-');
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
         $extension = in_array($format, ['xlsx', 'excel'], true) ? 'xlsx' : $format;

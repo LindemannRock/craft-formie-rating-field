@@ -453,11 +453,14 @@ class StatisticsService extends Component
      * @param string $groupValue
      * @param string $dateRange
      * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|null $limit Optional row cap on the underlying fetch (NOT the post-filter
+     *                       group match). Used by the export path to prevent OOM. May
+     *                       silently drop group-matching rows if truncated.
      * @return array
      */
-    public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all', int|string $siteId = 'all'): array
+    public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all', int|string $siteId = 'all', ?int $limit = null): array
     {
-        $submissions = $this->getSubmissions($form, $dateRange, $siteId);
+        $submissions = $this->getSubmissions($form, $dateRange, $siteId, $limit);
         $groupedSubmissions = [];
 
         foreach ($submissions as $submission) {
