@@ -862,9 +862,9 @@
 
                 {% if isGrouped and stats.groups|length <= 100 %}
                     // Comparison Chart for grouped data (Top 10 only, skip if too many groups).
-                    // JSON_HEX_* flags escape `<`, `>`, `&`, `'`, `"` — group labels include
-                    // user-submitted form data (Hidden / PlainText), so a payload containing
-                    // </script> would otherwise break out of this <script> block.
+                    // JSON_HEX_* flags escape angle brackets, ampersands, and quotes — group
+                    // labels include user-submitted form data (Hidden / PlainText), so a
+                    // payload containing a script-close token would otherwise break out.
                     const comparisonData = {{ stats.groups|slice(0, 10)|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
                     const comparisonLabels = comparisonData.map(g => g.label.length > 20 ? g.label.substring(0, 20) + '...' : g.label);
                     {% if isNps %}
