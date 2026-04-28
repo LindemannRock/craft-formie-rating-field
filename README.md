@@ -218,6 +218,21 @@ ddev craft formie-rating-field/cache/info
 - **Manual Refresh**: Use CLI commands or "Refresh" button in CP
 - **No TTL**: Cache persists until invalidated (optimal performance)
 
+### Submission Filtering
+
+All statistics, charts, exports, and per-group detail pages exclude submissions that Formie marks as **spam** or **incomplete**. This matches Formie's own UI semantics — those submissions live in the spam folder and aren't counted in the standard Submissions list.
+
+This applies to:
+
+- **Summary tile** (Total Submissions count)
+- **Average / NPS score** and the distribution chart
+- **Trend chart** (per-bucket counts)
+- **By Group breakdown** (per-group counts and averages)
+- **Per-group detail page** (individual submission list)
+- **All exports** — Summary, Raw Responses, By Group (CSV / XLSX / JSON)
+
+To review spam or incomplete submissions, use Formie's own spam folder under **Formie → Submissions → Spam**.
+
 ## Usage
 
 ### Adding a Rating Field
