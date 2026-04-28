@@ -5,7 +5,9 @@
     @var value - The rating value
 #}
 
-{% if value %}
+{# Empty placeholder is rendered upstream by Rating::getValueAsHtml() — only get here for non-empty values.
+   Use strict null/empty check (not Twig truthiness) so legitimate `0` NPS scores still render. #}
+{% if value is not null and value != '' %}
 	<div class="fui-rating-value" style="font-size: 16px; line-height: 1.5;">
 		{% switch field.ratingType %}
 			{% case 'star' %}
@@ -52,6 +54,4 @@
 				{{ value }}
 		{% endswitch %}
 	</div>
-{% else %}
-	<span style="color: #9ca3af;">—</span>
 {% endif %}
