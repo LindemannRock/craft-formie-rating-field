@@ -5,6 +5,11 @@
  * @since 1.0.0
  */
 
+// Wrap everything in an IIFE so top-level `const` helpers don't collide if the
+// script ends up loaded twice (e.g. via both an asset bundle and getFrontEndJsModules()).
+// `window.FormieRating` and `window.statisticsCharts` assignments still work fine inside.
+(function () {
+
 // Debug logger — set window.formieRatingDebug = true in DevTools to enable.
 // Default-silent so the field's settings object isn't leaked on every front-end render.
 const _log = (...args) => { if (window.formieRatingDebug) console.log('[FormieRating]', ...args); };
@@ -523,3 +528,5 @@ if (window.Formie) {
         setTimeout(initializeRatingFields, 100);
     }
 }
+
+})();
