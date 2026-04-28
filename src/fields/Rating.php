@@ -237,18 +237,20 @@ class Rating extends Field implements FieldInterface
             $this->googleReviewButtonAlign = 'start';
         }
 
-        // Enforce NPS scale (must always be 0-10)
+        // Apply min/max defaults first; NPS then unconditionally overrides.
+        // Order matters for robustness: any future refactor that makes the NPS
+        // branch conditional won't accidentally leave min/max null.
+        if ($this->minValue === null) {
+            $this->minValue = 1;
+        }
+        if ($this->maxValue === null) {
+            $this->maxValue = 5;
+        }
+
+        // NPS always uses the 0-10 scale
         if ($this->ratingType === self::RATING_TYPE_NPS) {
             $this->minValue = 0;
             $this->maxValue = 10;
-        } else {
-            // For non-NPS types, use defaults
-            if ($this->minValue === null) {
-                $this->minValue = 1;
-            }
-            if ($this->maxValue === null) {
-                $this->maxValue = 5;
-            }
         }
         if ($this->allowHalfRatings === null) {
             $this->allowHalfRatings = false;
