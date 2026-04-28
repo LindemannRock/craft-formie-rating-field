@@ -264,7 +264,6 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
         // For daily2am, calculate seconds until next 2am
         if ($settings->cacheGenerationSchedule === 'daily2am') {
             $now = time();
-            $next2am = strtotime('tomorrow 2:00am');
             if (date('G') >= 2) {
                 // If past 2am today, schedule for tomorrow 2am
                 $next2am = strtotime('tomorrow 2:00am');
