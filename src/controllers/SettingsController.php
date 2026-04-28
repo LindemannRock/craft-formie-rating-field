@@ -112,12 +112,17 @@ class SettingsController extends Controller
         $plugin = FormieRatingField::$plugin;
         $settings = $plugin->getSettings();
 
+        // Filter $params to the section's allow-list. Prevents a forged or off-section
+        // submission from updating attributes the user isn't editing on this page —
+        // tightens the trust boundary even though it's already gated by manageSettings.
+        $sectionAttributes = $this->validationAttributesForSection($section);
+        $params = array_intersect_key($params, array_flip($sectionAttributes));
+
         // Set the new values
         $settings->setAttributes($params, false);
 
-        $attributesToValidate = $this->validationAttributesForSection($section);
         $attributesToValidate = array_values(array_filter(
-            $attributesToValidate,
+            $sectionAttributes,
             fn(string $attribute): bool => !$settings->isOverriddenByConfig($attribute),
         ));
 
