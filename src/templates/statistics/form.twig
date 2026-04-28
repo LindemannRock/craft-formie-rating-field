@@ -880,7 +880,7 @@
                             data: {
                                 labels: comparisonLabels,
                                 datasets: [{
-                                    label: '{{ isNps ? "NPS Score" : "Average Rating" }}',
+                                    label: '{{ (isNps ? "NPS Score" : "Average Rating")|e('js') }}',
                                     data: comparisonValues,
                                     backgroundColor: comparisonValues.map((v, i) => {
                                         {% if isNps %}
@@ -929,7 +929,7 @@
                         {
                             type: 'doughnut',
                             data: {
-                                labels: ['{{ "Promoters"|t('formie-rating-field') }}', '{{ "Passives"|t('formie-rating-field') }}', '{{ "Detractors"|t('formie-rating-field') }}'],
+                                labels: ['{{ "Promoters"|t('formie-rating-field')|e('js') }}', '{{ "Passives"|t('formie-rating-field')|e('js') }}', '{{ "Detractors"|t('formie-rating-field')|e('js') }}'],
                                 datasets: [{
                                     data: [{{ stats.promoters ?? 0 }}, {{ stats.passives ?? 0 }}, {{ stats.detractors ?? 0 }}],
                                     backgroundColor: ['#27ae60', '#f39c12', '#e74c3c']
@@ -977,7 +977,7 @@
                                         data: {
                                             labels: response.data.labels,
                                             datasets: [{
-                                                label: '{{ "Count"|t('formie-rating-field') }}',
+                                                label: '{{ "Count"|t('formie-rating-field')|e('js') }}',
                                                 data: response.data.values,
                                                 backgroundColor: chartColors[0],
                                                 borderColor: chartColors[0],
