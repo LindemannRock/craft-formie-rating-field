@@ -788,11 +788,13 @@
             const visibleCount = $table.find('.group-row:visible').length;
             const totalCount = $table.find('.group-row').length;
             if (searchTerm) {
-                $('#showing-count-' + fieldHandle).text('{{ "Showing {visible} of {total} groups"|t('formie-rating-field', {visible: 'VISIBLE', total: 'TOTAL'}) }}'.replace('VISIBLE', visibleCount).replace('TOTAL', totalCount));
+                // Sentinels (`__VISIBLE__` / `__TOTAL__`) are unique markers translators won't localize —
+                // protects the .replace() chain from breaking on translated count strings.
+                $('#showing-count-' + fieldHandle).text('{{ "Showing {visible} of {total} groups"|t('formie-rating-field', {visible: '__VISIBLE__', total: '__TOTAL__'}) }}'.replace('__VISIBLE__', visibleCount).replace('__TOTAL__', totalCount));
             } else if ($toggleBtn.data('showing') === 'all') {
-                $('#showing-count-' + fieldHandle).text('{{ "Showing all {total} groups"|t('formie-rating-field', {total: 'TOTAL'}) }}'.replace('TOTAL', totalCount));
+                $('#showing-count-' + fieldHandle).text('{{ "Showing all {total} groups"|t('formie-rating-field', {total: '__TOTAL__'}) }}'.replace('__TOTAL__', totalCount));
             } else {
-                $('#showing-count-' + fieldHandle).text('{{ "Showing top 10 of {total} groups"|t('formie-rating-field', {total: 'TOTAL'}) }}'.replace('TOTAL', totalCount));
+                $('#showing-count-' + fieldHandle).text('{{ "Showing top 10 of {total} groups"|t('formie-rating-field', {total: '__TOTAL__'}) }}'.replace('__TOTAL__', totalCount));
             }
         });
 
@@ -812,14 +814,14 @@
                 $btn.text('{{ "Show Top 10"|t('formie-rating-field') }}');
                 $btn.data('showing', 'all');
                 const total = $table.find('.group-row').length;
-                $countText.text('{{ "Showing all {total} groups"|t('formie-rating-field', {total: 'TOTAL'}) }}'.replace('TOTAL', total));
+                $countText.text('{{ "Showing all {total} groups"|t('formie-rating-field', {total: '__TOTAL__'}) }}'.replace('__TOTAL__', total));
             } else {
                 // Show top 10
                 $hiddenRows.hide();
                 const total = $table.find('.group-row').length;
                 $btn.text('{{ "Show All"|t('formie-rating-field') }} (' + total + ')');
                 $btn.data('showing', 'top10');
-                $countText.text('{{ "Showing top 10 of {total} groups"|t('formie-rating-field', {total: 'TOTAL'}) }}'.replace('TOTAL', total));
+                $countText.text('{{ "Showing top 10 of {total} groups"|t('formie-rating-field', {total: '__TOTAL__'}) }}'.replace('__TOTAL__', total));
 
                 // Scroll to top of table
                 $table[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
