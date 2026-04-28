@@ -98,7 +98,6 @@ class StatisticsController extends Controller
         // Apply search filter
         if ($search) {
             $formsWithRatings = array_filter($formsWithRatings, function($item) use ($search) {
-                $searchLower = strtolower($search);
                 return stripos($item['form']->title, $search) !== false ||
                        stripos($item['form']->handle, $search) !== false;
             });
