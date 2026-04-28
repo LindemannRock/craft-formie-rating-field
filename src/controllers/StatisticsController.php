@@ -270,13 +270,13 @@ class StatisticsController extends Controller
         $this->requirePermission('formieRatingField:viewStatistics');
 
         $request = Craft::$app->getRequest();
-        $formId = $request->getBodyParam('formId');
+        $formId = (int) $request->getBodyParam('formId');
         $fieldHandle = $request->getBodyParam('fieldHandle');
         $dateRange = $request->getBodyParam('dateRange', 'all');
         $type = $request->getBodyParam('type', 'summary');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
-        if (!$formId) {
+        if ($formId <= 0) {
             return $this->asJson([
                 'success' => false,
                 'error' => 'Form ID is required',
@@ -365,9 +365,9 @@ class StatisticsController extends Controller
         $this->requireAcceptsJson();
         $this->requirePermission('formieRatingField:refreshStatistics');
 
-        $formId = Craft::$app->getRequest()->getBodyParam('formId');
+        $formId = (int) Craft::$app->getRequest()->getBodyParam('formId');
 
-        if (!$formId) {
+        if ($formId <= 0) {
             return $this->asJson([
                 'success' => false,
                 'error' => 'Form ID is required',
@@ -402,14 +402,14 @@ class StatisticsController extends Controller
         $this->requirePermission('formieRatingField:exportStatistics');
 
         $request = Craft::$app->getRequest();
-        $formId = $request->getBodyParam('formId');
+        $formId = (int) $request->getBodyParam('formId');
         $groupBy = $request->getBodyParam('groupBy');
         $groupValue = urldecode($request->getBodyParam('groupValue', ''));
         $dateRange = $request->getBodyParam('dateRange', 'all');
         $format = $request->getBodyParam('format', 'csv');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
-        if (!$formId || !$groupBy || !$groupValue) {
+        if ($formId <= 0 || !$groupBy || !$groupValue) {
             throw new BadRequestHttpException('Missing required parameters');
         }
 
@@ -526,9 +526,9 @@ class StatisticsController extends Controller
         $this->requirePermission('formieRatingField:exportStatistics');
 
         $request = Craft::$app->getRequest();
-        $formId = $request->getBodyParam('formId');
+        $formId = (int) $request->getBodyParam('formId');
 
-        if (!$formId) {
+        if ($formId <= 0) {
             throw new BadRequestHttpException('Form ID is required');
         }
 
