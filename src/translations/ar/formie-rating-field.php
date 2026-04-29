@@ -3,7 +3,7 @@
  * Formie Rating Field translation file (Arabic)
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2026 LindemannRock
  */
 
 return [
