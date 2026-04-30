@@ -27,7 +27,7 @@ return [
     'Export statistics' => 'Exportar estadísticas',
     'Refresh statistics' => 'Actualizar estadísticas',
     'Manage cache' => 'Gestionar cache',
-    'Manage settings' => 'Gestionar ajustes',
+    'Manage settings' => 'Gestionar configuración',
 
     // Common
     'Actions' => 'Acciones',
@@ -93,7 +93,7 @@ return [
     'Single Emoji Selection by Default' => 'Selección única de emoji por defecto',
 
     // Settings: General
-    'General Settings' => 'Ajustes generales',
+    'General Settings' => 'Configuración general',
     'These settings will be used as defaults when creating new rating fields.' => 'Estos ajustes se utilizarán como valores predeterminados al crear nuevos campos de calificación.',
     'Default Field Settings' => 'Ajustes de campo predeterminados',
     'The default rating type for new rating fields' => 'El tipo de calificación predeterminado para nuevos campos de calificación',
@@ -257,7 +257,35 @@ return [
     'Clear all statistics cache?' => '¿Borrar todo el cache de estadísticas?',
     'Utilities' => 'Utilidades',
 
-    // Field schema (Google Review section — formie-rating-field category, not formie)
+    // Field schema (rating settings)
+    'Allow users to select half-star ratings (star type only).' => 'Permite a los usuarios seleccionar calificaciones de media estrella (solo tipo estrella).',
+    'Choose how emoji ratings are rendered. "System Emojis" uses the visitor\'s native platform emoji and stays fully local. The two "Noto" modes load fonts from Google Fonts CDN on every form render, which contacts Google\'s servers — may require user consent under GDPR in EU jurisdictions.' => 'Elija cómo se renderizan las evaluaciones con emoji. «System Emojis» utiliza el emoji nativo de la plataforma del visitante y permanece totalmente local. Los dos modos «Noto» cargan fuentes desde Google Fonts CDN en cada renderizado del formulario, lo que contacta con los servidores de Google — puede requerir el consentimiento del usuario según el RGPD en jurisdicciones de la UE.',
+    'Choose the size of the rating elements.' => 'Elija el tamaño de los elementos de calificación.',
+    'Choose the type of rating display. For NPS, set range to 0-10.' => 'Elija el tipo de visualización de calificación. Para NPS, establezca el rango en 0-10.',
+    'Custom Labels' => 'Etiquetas personalizadas',
+    'Define custom labels for each rating value (e.g., Value: 1, Label: Terrible). Labels will display beneath selected emoji.' => 'Defina etiquetas personalizadas para cada valor de calificación (p. ej., Valor: 1, Etiqueta: Terrible). Las etiquetas se mostrarán debajo del emoji seleccionado.',
+    'Display labels at the start and end of the rating scale.' => 'Mostrar etiquetas al inicio y al final de la escala de calificación.',
+    'Display the selected rating value as a text label.' => 'Mostrar el valor de calificación seleccionado como etiqueta de texto.',
+    'Emoji Render Mode' => 'Modo de renderizado de emoji',
+    'End Label' => 'Etiqueta final',
+    'Highlight only the selected emoji instead of cumulative selection. When enabled, a custom label will display beneath the selected emoji.' => 'Resaltar solo el emoji seleccionado en lugar de una selección acumulativa. Cuando está habilitado, se mostrará una etiqueta personalizada debajo del emoji seleccionado.',
+    'Label for the highest rating value.' => 'Etiqueta para el valor de calificación más alto.',
+    'Label for the lowest rating value.' => 'Etiqueta para el valor de calificación más bajo.',
+    'Maximum Value' => 'Valor máximo',
+    'Minimum Value' => 'Valor mínimo',
+    'NPS (Number) Rating' => 'Calificación NPS (número)',
+    'Rating Type' => 'Tipo de calificación',
+    'Review on Google' => 'Reseñar en Google',
+    'Set the maximum rating value. NPS is always 0-10.' => 'Establecer el valor máximo de calificación. NPS siempre es 0-10.',
+    'Set the minimum rating value. NPS is always 0-10.' => 'Establecer el valor mínimo de calificación. NPS siempre es 0-10.',
+    'Single Emoji Selection' => 'Selección única de emoji',
+    'Size' => 'Tamaño',
+    'Start Label' => 'Etiqueta inicial',
+    'Thank you for the excellent rating! We would love if you could share your experience with others.' => '¡Gracias por la excelente calificación! Nos encantaría que pudiera compartir su experiencia con otros.',
+    'Thank you for your feedback!' => '¡Gracias por sus comentarios!',
+    'Thank you for your feedback. We will use it to improve our service.' => 'Gracias por sus comentarios. Los utilizaremos para mejorar nuestro servicio.',
+
+    // Field schema (Google Review)
     'Enable Google Review Prompt' => 'Habilitar mensaje de reseña de Google',
     'Show a Google Review link when users give high ratings. This will override the form\'s success message. Only one rating field per form should have this enabled.' => 'Mostrar un enlace de reseña de Google cuando los usuarios den calificaciones altas. Esto anulará el mensaje de éxito del formulario. Solo un campo de calificación por formulario debería tener esto habilitado.',
     'Rating Threshold' => 'Umbral de calificación',

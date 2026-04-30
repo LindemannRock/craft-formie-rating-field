@@ -27,7 +27,7 @@ return [
     'Export statistics' => '統計をエクスポート',
     'Refresh statistics' => '統計を更新',
     'Manage cache' => 'キャッシュを管理',
-    'Manage settings' => '設定を管理',
+    'Manage settings' => '設定を管理する',
 
     // Common
     'Actions' => 'アクション',
@@ -257,7 +257,35 @@ return [
     'Clear all statistics cache?' => 'すべての統計キャッシュをクリアしますか ?',
     'Utilities' => 'ユーティリティ',
 
-    // Field schema (Google Review section — formie-rating-field category, not formie)
+    // Field schema (rating settings)
+    'Allow users to select half-star ratings (star type only).' => 'ユーザーが半星評価を選択できるようにします（スタータイプのみ）。',
+    'Choose how emoji ratings are rendered. "System Emojis" uses the visitor\'s native platform emoji and stays fully local. The two "Noto" modes load fonts from Google Fonts CDN on every form render, which contacts Google\'s servers — may require user consent under GDPR in EU jurisdictions.' => '絵文字評価の描画方法を選択してください。「 System Emojis 」はアクセス者のプラットフォーム標準の絵文字を使用し、完全にローカルで処理されます。2 つの「 Noto 」モードはフォーム描画のたびに Google Fonts CDN からフォントを読み込み、Google のサーバーへ通信します — EU の管轄では GDPR に基づきユーザーの同意が必要となる場合があります。',
+    'Choose the size of the rating elements.' => '評価要素のサイズを選択してください。',
+    'Choose the type of rating display. For NPS, set range to 0-10.' => '評価の表示タイプを選択してください。 NPS の場合は範囲を 0 〜 10 に設定してください。',
+    'Custom Labels' => 'カスタムラベル',
+    'Define custom labels for each rating value (e.g., Value: 1, Label: Terrible). Labels will display beneath selected emoji.' => '各評価値にカスタムラベルを定義してください（例 : 値 : 1 、ラベル : 最悪）。ラベルは選択した絵文字の下に表示されます。',
+    'Display labels at the start and end of the rating scale.' => '評価スケールの先頭と末尾にラベルを表示します。',
+    'Display the selected rating value as a text label.' => '選択した評価値をテキストラベルとして表示します。',
+    'Emoji Render Mode' => '絵文字描画モード',
+    'End Label' => '終了ラベル',
+    'Highlight only the selected emoji instead of cumulative selection. When enabled, a custom label will display beneath the selected emoji.' => '累積選択ではなく、選択した絵文字のみをハイライト表示します。有効にすると、選択した絵文字の下にカスタムラベルが表示されます。',
+    'Label for the highest rating value.' => '最高評価値のラベルです。',
+    'Label for the lowest rating value.' => '最低評価値のラベルです。',
+    'Maximum Value' => '最大値',
+    'Minimum Value' => '最小値',
+    'NPS (Number) Rating' => 'NPS （数値）評価',
+    'Rating Type' => '評価タイプ',
+    'Review on Google' => 'Google でレビューする',
+    'Set the maximum rating value. NPS is always 0-10.' => '評価の最大値を設定してください。 NPS は常に 0 〜 10 です。',
+    'Set the minimum rating value. NPS is always 0-10.' => '評価の最小値を設定してください。 NPS は常に 0 〜 10 です。',
+    'Single Emoji Selection' => '単一絵文字選択',
+    'Size' => 'サイズ',
+    'Start Label' => '開始ラベル',
+    'Thank you for the excellent rating! We would love if you could share your experience with others.' => '素晴らしい評価をいただき、ありがとうございます！ぜひご体験を他の方々にもお伝えください。',
+    'Thank you for your feedback!' => 'フィードバックをいただき、ありがとうございます！',
+    'Thank you for your feedback. We will use it to improve our service.' => 'フィードバックをいただき、ありがとうございます。サービス向上に役立てまいります。',
+
+    // Field schema (Google Review)
     'Enable Google Review Prompt' => 'Google レビュープロンプトを有効化',
     'Show a Google Review link when users give high ratings. This will override the form\'s success message. Only one rating field per form should have this enabled.' => 'ユーザーが高い評価を付けたときに Google レビューのリンクを表示します。これによりフォームの成功メッセージが上書きされます。1 つのフォームにつき有効化できる評価フィールドは 1 つだけです。',
     'Rating Threshold' => '評価しきい値',
