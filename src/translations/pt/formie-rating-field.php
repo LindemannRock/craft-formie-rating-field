@@ -8,6 +8,9 @@
 
 return [
     // Plugin meta
+    'Formie Rating Field' => 'Formie Rating Field',
+    'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Configure campos de classificação, reveja as estatísticas de submissões e faça a gestão do comportamento da cache a partir de um único espaço de trabalho no painel de controlo.',
+    'Open Formie Rating Field' => 'Abrir Formie Rating Field',
     'Plugin Name' => 'Nome do plugin',
     'The name of the plugin as it appears in the Control Panel menu' => 'O nome público do plugin',
     '{displayName} caches' => 'Caches de {displayName}',

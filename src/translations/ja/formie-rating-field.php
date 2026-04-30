@@ -8,6 +8,9 @@
 
 return [
     // Plugin meta
+    'Formie Rating Field' => 'Formie Rating Field',
+    'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'レーティングフィールドの設定、送信統計の確認、キャッシュ動作の管理を 1 つのコントロールパネルワークスペースから行えます。',
+    'Open Formie Rating Field' => 'Formie Rating Field を開く',
     'Plugin Name' => 'プラグイン名',
     'The name of the plugin as it appears in the Control Panel menu' => '一般に表示されるプラグインの名前',
     '{displayName} caches' => '{displayName} のキャッシュ',
