@@ -666,23 +666,23 @@ class Rating extends Field implements FieldInterface
         return [
             SchemaHelper::labelField(),
             SchemaHelper::selectField([
-                'label' => Craft::t('formie', 'Rating Type'),
-                'help' => Craft::t('formie', 'Choose the type of rating display. For NPS, set range to 0-10.'),
+                'label' => Craft::t('formie-rating-field', 'Rating Type'),
+                'help' => Craft::t('formie-rating-field', 'Choose the type of rating display. For NPS, set range to 0-10.'),
                 'name' => 'ratingType',
                 'options' => [
-                    ['label' => Craft::t('formie', 'Star Rating'), 'value' => self::RATING_TYPE_STAR],
-                    ['label' => Craft::t('formie', 'Emoji Rating'), 'value' => self::RATING_TYPE_EMOJI],
-                    ['label' => Craft::t('formie', 'NPS (Number) Rating'), 'value' => self::RATING_TYPE_NPS],
+                    ['label' => Craft::t('formie-rating-field', 'Star Rating'), 'value' => self::RATING_TYPE_STAR],
+                    ['label' => Craft::t('formie-rating-field', 'Emoji Rating'), 'value' => self::RATING_TYPE_EMOJI],
+                    ['label' => Craft::t('formie-rating-field', 'NPS (Number) Rating'), 'value' => self::RATING_TYPE_NPS],
                 ],
             ]),
             SchemaHelper::selectField([
-                'label' => Craft::t('formie', 'Emoji Render Mode'),
+                'label' => Craft::t('formie-rating-field', 'Emoji Render Mode'),
                 'help' => Craft::t('formie-rating-field', 'Choose how emoji ratings are rendered. "System Emojis" uses the visitor\'s native platform emoji and stays fully local. The two "Noto" modes load fonts from Google Fonts CDN on every form render, which contacts Google\'s servers — may require user consent under GDPR in EU jurisdictions.'),
                 'name' => 'emojiRenderMode',
                 'options' => [
-                    ['label' => Craft::t('formie', 'System Emojis (Native platform emojis)'), 'value' => 'system'],
-                    ['label' => Craft::t('formie', 'Noto Color Emoji (Detailed, colorful style)'), 'value' => 'noto-color'],
-                    ['label' => Craft::t('formie', 'Noto Emoji (Simple, clean style)'), 'value' => 'noto-simple'],
+                    ['label' => Craft::t('formie-rating-field', 'System Emojis (Native platform emojis)'), 'value' => 'system'],
+                    ['label' => Craft::t('formie-rating-field', 'Noto Color Emoji (Detailed, colorful style)'), 'value' => 'noto-color'],
+                    ['label' => Craft::t('formie-rating-field', 'Noto Emoji (Simple, clean style)'), 'value' => 'noto-simple'],
                 ],
                 'if' => '$get(ratingType).value == emoji',
             ]),
@@ -713,19 +713,19 @@ class Rating extends Field implements FieldInterface
                 'if' => '$get(required).value',
             ]),
             SchemaHelper::selectField([
-                'label' => Craft::t('formie', 'Size'),
-                'help' => Craft::t('formie', 'Choose the size of the rating elements.'),
+                'label' => Craft::t('formie-rating-field', 'Size'),
+                'help' => Craft::t('formie-rating-field', 'Choose the size of the rating elements.'),
                 'name' => 'ratingSize',
                 'options' => [
-                    ['label' => Craft::t('formie', 'Small'), 'value' => 'small'],
-                    ['label' => Craft::t('formie', 'Medium'), 'value' => 'medium'],
-                    ['label' => Craft::t('formie', 'Large'), 'value' => 'large'],
-                    ['label' => Craft::t('formie', 'Extra Large'), 'value' => 'xlarge'],
+                    ['label' => Craft::t('formie-rating-field', 'Small'), 'value' => 'small'],
+                    ['label' => Craft::t('formie-rating-field', 'Medium'), 'value' => 'medium'],
+                    ['label' => Craft::t('formie-rating-field', 'Large'), 'value' => 'large'],
+                    ['label' => Craft::t('formie-rating-field', 'Extra Large'), 'value' => 'xlarge'],
                 ],
             ]),
             SchemaHelper::selectField([
-                'label' => Craft::t('formie', 'Minimum Value'),
-                'help' => Craft::t('formie', 'Set the minimum rating value. NPS is always 0-10.'),
+                'label' => Craft::t('formie-rating-field', 'Minimum Value'),
+                'help' => Craft::t('formie-rating-field', 'Set the minimum rating value. NPS is always 0-10.'),
                 'name' => 'minValue',
                 'options' => [
                     ['label' => '0', 'value' => 0],
@@ -734,8 +734,8 @@ class Rating extends Field implements FieldInterface
                 'if' => '$get(ratingType).value != nps',
             ]),
             SchemaHelper::selectField([
-                'label' => Craft::t('formie', 'Maximum Value'),
-                'help' => Craft::t('formie', 'Set the maximum rating value. NPS is always 0-10.'),
+                'label' => Craft::t('formie-rating-field', 'Maximum Value'),
+                'help' => Craft::t('formie-rating-field', 'Set the maximum rating value. NPS is always 0-10.'),
                 'name' => 'maxValue',
                 'options' => [
                     ['label' => '3', 'value' => 3],
@@ -750,42 +750,42 @@ class Rating extends Field implements FieldInterface
                 'if' => '$get(ratingType).value != nps',
             ]),
             SchemaHelper::lightswitchField([
-                'label' => Craft::t('formie', 'Allow Half Ratings'),
-                'help' => Craft::t('formie', 'Allow users to select half-star ratings (star type only).'),
+                'label' => Craft::t('formie-rating-field', 'Allow Half Ratings'),
+                'help' => Craft::t('formie-rating-field', 'Allow users to select half-star ratings (star type only).'),
                 'name' => 'allowHalfRatings',
                 'if' => '$get(ratingType).value == star',
             ]),
             SchemaHelper::lightswitchField([
-                'label' => Craft::t('formie', 'Show Selected Label'),
-                'help' => Craft::t('formie', 'Display the selected rating value as a text label.'),
+                'label' => Craft::t('formie-rating-field', 'Show Selected Label'),
+                'help' => Craft::t('formie-rating-field', 'Display the selected rating value as a text label.'),
                 'name' => 'showSelectedLabel',
             ]),
             SchemaHelper::lightswitchField([
-                'label' => Craft::t('formie', 'Show Endpoint Labels'),
-                'help' => Craft::t('formie', 'Display labels at the start and end of the rating scale.'),
+                'label' => Craft::t('formie-rating-field', 'Show Endpoint Labels'),
+                'help' => Craft::t('formie-rating-field', 'Display labels at the start and end of the rating scale.'),
                 'name' => 'showEndpointLabels',
             ]),
             SchemaHelper::variableTextField([
-                'label' => Craft::t('formie', 'Start Label'),
-                'help' => Craft::t('formie', 'Label for the lowest rating value.'),
+                'label' => Craft::t('formie-rating-field', 'Start Label'),
+                'help' => Craft::t('formie-rating-field', 'Label for the lowest rating value.'),
                 'name' => 'startLabel',
                 'if' => '$get(showEndpointLabels).value',
             ]),
             SchemaHelper::variableTextField([
-                'label' => Craft::t('formie', 'End Label'),
-                'help' => Craft::t('formie', 'Label for the highest rating value.'),
+                'label' => Craft::t('formie-rating-field', 'End Label'),
+                'help' => Craft::t('formie-rating-field', 'Label for the highest rating value.'),
                 'name' => 'endLabel',
                 'if' => '$get(showEndpointLabels).value',
             ]),
             SchemaHelper::lightswitchField([
-                'label' => Craft::t('formie', 'Single Emoji Selection'),
-                'help' => Craft::t('formie', 'Highlight only the selected emoji instead of cumulative selection. When enabled, a custom label will display beneath the selected emoji.'),
+                'label' => Craft::t('formie-rating-field', 'Single Emoji Selection'),
+                'help' => Craft::t('formie-rating-field', 'Highlight only the selected emoji instead of cumulative selection. When enabled, a custom label will display beneath the selected emoji.'),
                 'name' => 'singleEmojiSelection',
                 'if' => '$get(ratingType).value == emoji',
             ]),
             SchemaHelper::tableField([
-                'label' => Craft::t('formie', 'Custom Labels'),
-                'help' => Craft::t('formie', 'Define custom labels for each rating value (e.g., Value: 1, Label: Terrible). Labels will display beneath selected emoji.'),
+                'label' => Craft::t('formie-rating-field', 'Custom Labels'),
+                'help' => Craft::t('formie-rating-field', 'Define custom labels for each rating value (e.g., Value: 1, Label: Terrible). Labels will display beneath selected emoji.'),
                 'name' => 'customLabels',
                 'validation' => 'optional',
                 'generateValue' => false,
@@ -1040,13 +1040,13 @@ class Rating extends Field implements FieldInterface
         // are taken as-is (admin wrote what they want shown; live DB content isn't
         // scanned, so a runtime Craft::t() lookup on user input would be a no-op).
         $messageHigh = $this->googleReviewMessageHigh
-            ?: Craft::t('formie', 'Thank you for the excellent rating! We would love if you could share your experience with others.');
+            ?: Craft::t('formie-rating-field', 'Thank you for the excellent rating! We would love if you could share your experience with others.');
         $messageMedium = $this->googleReviewMessageMedium
-            ?: Craft::t('formie', 'Thank you for your feedback!');
+            ?: Craft::t('formie-rating-field', 'Thank you for your feedback!');
         $messageLow = $this->googleReviewMessageLow
-            ?: Craft::t('formie', 'Thank you for your feedback. We will use it to improve our service.');
+            ?: Craft::t('formie-rating-field', 'Thank you for your feedback. We will use it to improve our service.');
         $buttonLabel = $this->googleReviewButtonLabel
-            ?: Craft::t('formie', 'Review on Google');
+            ?: Craft::t('formie-rating-field', 'Review on Google');
         $reviewUrlTemplate = $this->googleReviewUrl ?: 'https://search.google.com/local/writereview?placeid={googlePlaceId}';
         $buttonAlign = $this->googleReviewButtonAlign ?: 'start';
 
