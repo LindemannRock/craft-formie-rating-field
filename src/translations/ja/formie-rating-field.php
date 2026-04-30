@@ -9,7 +9,7 @@
 return [
     // Plugin meta
     'Plugin Name' => 'プラグイン名',
-    'The public-facing name of the plugin' => '一般に表示されるプラグインの名前',
+    'The name of the plugin as it appears in the Control Panel menu' => '一般に表示されるプラグインの名前',
     '{displayName} caches' => '{displayName} のキャッシュ',
 
     // Navigation

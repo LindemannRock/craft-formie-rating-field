@@ -9,7 +9,7 @@
 return [
     // Plugin meta
     'Plugin Name' => 'Plugin-namn',
-    'The public-facing name of the plugin' => 'Det offentliga namnet på pluginet',
+    'The name of the plugin as it appears in the Control Panel menu' => 'Det offentliga namnet på pluginet',
     '{displayName} caches' => '{displayName} cache',
 
     // Navigation

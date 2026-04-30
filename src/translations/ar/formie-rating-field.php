@@ -9,7 +9,7 @@
 return [
     // Plugin meta
     'Plugin Name' => 'اسم الإضافة',
-    'The public-facing name of the plugin' => 'الاسم الظاهر للعموم للإضافة',
+    'The name of the plugin as it appears in the Control Panel menu' => 'الاسم الظاهر للعموم للإضافة',
     '{displayName} caches' => 'ذاكرات التخزين المؤقت لـ {displayName}',
 
     // Navigation
