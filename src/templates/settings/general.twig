@@ -36,12 +36,12 @@
     {% endif %}
     {{ hiddenInput('section', 'general') }}
 
-<fieldset style="margin-top: 0;">
+<fieldset class="first">
 	<h2>{{ 'General Settings'|t('formie-rating-field') }}</h2>
 
 	{{ forms.textField({
         label: 'Plugin Name'|t('formie-rating-field'),
-        instructions: 'The public-facing name of the plugin'|t('formie-rating-field'),
+        instructions: 'The name of the plugin as it appears in the Control Panel menu'|t('formie-rating-field'),
         id: 'pluginName',
         name: 'settings[pluginName]',
         value: settings.pluginName ?? 'Formie Rating Field',

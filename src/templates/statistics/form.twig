@@ -2,10 +2,9 @@
 {% set title = form.title ~ " - " ~ "Rating Statistics"|t('formie-rating-field') %}
 {% set selectedSubnavItem = 'statistics' %}
 
-{% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
 {% set crumbs = [
     {
-        label: plugin.name|t('formie-rating-field'),
+        label: ratingHelper.fullName|t('formie-rating-field'),
         url: url('formie-rating-field'),
     },
     {

@@ -7,10 +7,9 @@
 
 {% extends "formie-rating-field/_layouts/settings" %}
 
-{% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
 {% set crumbs = [
     {
-        label: plugin.name|t('formie-rating-field'),
+        label: ratingHelper.fullName|t('formie-rating-field'),
         url: url('formie-rating-field'),
     },
     {
@@ -34,7 +33,7 @@
     {% endif %}
     {{ hiddenInput('section', 'interface') }}
 
-<fieldset style="margin-top: 0;">
+<fieldset class="first">
 	<h2>{{ 'Interface Settings'|t('formie-rating-field') }}</h2>
 
 	{{ forms.textField({

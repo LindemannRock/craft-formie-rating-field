@@ -14,7 +14,7 @@
 {# Page, limit, offset, totalPages come from controller #}
 
 {% set crumbs = [
-    { label: ratingHelper.fullName, url: url('formie-rating-field') },
+    { label: ratingHelper.fullName|t('formie-rating-field'), url: url('formie-rating-field') },
     { label: 'Statistics'|t('formie-rating-field'), url: url('formie-rating-field/statistics') }
 ] %}
 
