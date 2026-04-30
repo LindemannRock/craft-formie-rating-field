@@ -28,13 +28,11 @@
 
 {% block content %}
 
-<form method="post" accept-charset="UTF-8">
-    {% if not (readOnly ?? false) %}
-        {{ actionInput('formie-rating-field/settings/save') }}
-        {{ csrfInput() }}
-        {{ redirectInput('formie-rating-field/settings/general') }}
-    {% endif %}
+{% if not (readOnly ?? false) %}
+    {{ actionInput('formie-rating-field/settings/save') }}
+    {{ redirectInput('formie-rating-field/settings/general') }}
     {{ hiddenInput('section', 'general') }}
+{% endif %}
 
 <fieldset class="first">
 	<h2>{{ 'General Settings'|t('formie-rating-field') }}</h2>
@@ -227,8 +225,6 @@
         errors: settings.getErrors('defaultEndLabel')
     }) }}
 </fieldset>
-
-</form>
 
 {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}

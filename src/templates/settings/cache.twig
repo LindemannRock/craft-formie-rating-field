@@ -27,13 +27,11 @@
 
 {% block content %}
 
-<form method="post" accept-charset="UTF-8">
-    {% if not (readOnly ?? false) %}
-        {{ actionInput('formie-rating-field/settings/save') }}
-        {{ csrfInput() }}
-        {{ redirectInput('formie-rating-field/settings/cache') }}
-    {% endif %}
+{% if not (readOnly ?? false) %}
+    {{ actionInput('formie-rating-field/settings/save') }}
+    {{ redirectInput('formie-rating-field/settings/cache') }}
     {{ hiddenInput('section', 'cache') }}
+{% endif %}
 
 <h2 class="first">{{ "Statistics Cache Settings"|t('formie-rating-field') }}</h2>
 
@@ -121,8 +119,6 @@
         • {{ "For manual cache management, go to {link}"|t('formie-rating-field', {link: '<a href="' ~ url('utilities/formie-rating') ~ '">' ~ "Utilities"|t('formie-rating-field') ~ '</a>'})|raw }}</span>
     </p>
 </div>
-
-</form>
 
 {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}

@@ -25,13 +25,11 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-<form method="post" accept-charset="UTF-8">
-    {% if not (readOnly ?? false) %}
-        {{ actionInput('formie-rating-field/settings/save') }}
-        {{ csrfInput() }}
-        {{ redirectInput('formie-rating-field/settings/interface') }}
-    {% endif %}
+{% if not (readOnly ?? false) %}
+    {{ actionInput('formie-rating-field/settings/save') }}
+    {{ redirectInput('formie-rating-field/settings/interface') }}
     {{ hiddenInput('section', 'interface') }}
+{% endif %}
 
 <fieldset class="first">
 	<h2>{{ 'Interface Settings'|t('formie-rating-field') }}</h2>
@@ -81,8 +79,6 @@
         errors: settings.getErrors('defaultDateRange')
     }) }}
 </fieldset>
-
-</form>
 
 {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}
