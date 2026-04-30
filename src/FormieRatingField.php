@@ -84,7 +84,16 @@ class FormieRatingField extends Plugin
         self::$plugin = $this;
 
         // Bootstrap the base plugin helper (registers ratingHelper Twig global)
-        PluginHelper::bootstrap($this, 'ratingHelper');
+        PluginHelper::bootstrap($this, 'ratingHelper', [], [], [
+            'installExperience' => [
+                'headline' => Craft::t('formie-rating-field', 'Formie Rating Field'),
+                'body' => Craft::t('formie-rating-field', 'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.'),
+                'ctaLabel' => Craft::t('formie-rating-field', 'Open Formie Rating Field'),
+                'ctaUrl' => 'formie-rating-field',
+                'redirectUri' => 'formie-rating-field',
+                'confettiPreset' => 'surprise',
+            ],
+        ]);
 
         // Set the alias for this module
         Craft::setAlias('@lindemannrock/formieratingfield', __DIR__);
