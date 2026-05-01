@@ -364,7 +364,7 @@ class FormieRatingField extends Plugin
      *
      * @param Settings $settings
      * @return array
-     * @since 3.5.0
+     * @since 3.17.0
      */
     public function getCpSections(Settings $settings): array
     {
@@ -388,7 +388,6 @@ class FormieRatingField extends Plugin
      * Get plugin permissions
      *
      * @return array
-     * @since 3.5.0
      */
     private function getPluginPermissions(): array
     {

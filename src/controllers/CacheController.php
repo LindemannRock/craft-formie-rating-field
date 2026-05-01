@@ -18,7 +18,7 @@ use yii\web\Response;
  * Cache Controller
  *
  * @author LindemannRock
- * @since 3.3.0
+ * @since 3.10.0
  */
 class CacheController extends Controller
 {

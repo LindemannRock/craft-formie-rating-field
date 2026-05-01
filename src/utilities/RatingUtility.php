@@ -16,7 +16,7 @@ use lindemannrock\formieratingfield\FormieRatingField;
  * Rating Utility
  *
  * @author LindemannRock
- * @since 3.3.0
+ * @since 3.10.0
  */
 class RatingUtility extends Utility
 {

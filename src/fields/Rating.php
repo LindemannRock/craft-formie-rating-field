@@ -492,14 +492,6 @@ class Rating extends Field implements FieldInterface
     /**
      * @inheritdoc
      */
-    public function getInputTypeName(): string
-    {
-        return 'rating';
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getSettingsHtml(): string
     {
         return Craft::$app->getView()->renderTemplate('formie-rating-field/fields/rating/settings', [

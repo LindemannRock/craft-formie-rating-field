@@ -26,7 +26,7 @@ use yii\queue\RetryableJobInterface;
  * meaningful benefit for the typical single-site or cross-site view.
  *
  * @author LindemannRock
- * @since 3.3.0
+ * @since 3.10.0
  */
 class GenerateCacheJob extends BaseJob implements RetryableJobInterface
 {

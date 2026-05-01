@@ -22,7 +22,7 @@ use verbb\formie\integrations\feedme\fields\BaseFieldTrait;
  * Uses Formie's BaseFieldTrait to handle field scoping.
  *
  * @author LindemannRock
- * @since 1.0.0
+ * @since 3.2.0
  */
 class Rating extends FeedMeNumber
 {
