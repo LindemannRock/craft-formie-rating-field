@@ -1,5 +1,40 @@
 # Changelog
 
+## [3.17.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.16.0...v3.17.0) (2026-05-06)
+
+
+### Features
+
+* **cp:** enhance plugin bootstrap with installation experience details ([c9cb5d4](https://github.com/LindemannRock/craft-formie-rating-field/commit/c9cb5d4e9bb2be9bc0a1e7fc19e8287200131952))
+* **google-reviews:** enhance Google review handling with URL validation and secure encoding ([8e1c434](https://github.com/LindemannRock/craft-formie-rating-field/commit/8e1c434cde818a00e81fbe370961f4680e88a009))
+* **issue-templates:** add bug report, feature request, and question templates ([a35a091](https://github.com/LindemannRock/craft-formie-rating-field/commit/a35a0910fbbb12213be6d356f707f022a2f91964))
+* **permissions:** add user permissions for cache management and statistics viewing ([442dae3](https://github.com/LindemannRock/craft-formie-rating-field/commit/442dae3253e2f22f90c630400aa89adfb281443c))
+* **rating:** add translation support for user-facing strings in templates and JS ([a1ff5f4](https://github.com/LindemannRock/craft-formie-rating-field/commit/a1ff5f47a405959efc215526b35608b8dc1cb154))
+* **settings:** add max export rows setting for raw responses export ([0991b85](https://github.com/LindemannRock/craft-formie-rating-field/commit/0991b85425e3804b7cb75b3ff52911ca9e4e59e2))
+* **statistics:** add per-score distribution for NPS fields in statistics calculation ([297cefe](https://github.com/LindemannRock/craft-formie-rating-field/commit/297cefed62e3b3155d88f6616bcc1cce9189963a))
+* **statistics:** add site filtering to statistics views and exports ([4978e6f](https://github.com/LindemannRock/craft-formie-rating-field/commit/4978e6ff184dcab43a8024f4f3bc6785dd367a03))
+* **statistics:** exclude incomplete and spam submissions from statistics queries ([705d472](https://github.com/LindemannRock/craft-formie-rating-field/commit/705d4727d7c00fc05d4e48d3223edc9c21e3f29d))
+* **statistics:** implement maxExportRows limit for group submissions ([6d54ab0](https://github.com/LindemannRock/craft-formie-rating-field/commit/6d54ab02461a5a8d2ad495248145589055571389))
+* **statistics:** implement Redis cache clearing for form submissions ([882c60e](https://github.com/LindemannRock/craft-formie-rating-field/commit/882c60e9e35295752dc2c44f6672239ddaf7cb6b))
+* **statistics:** implement Redis key tracking for scoped cache deletion ([50626db](https://github.com/LindemannRock/craft-formie-rating-field/commit/50626db62b2f9a20c509d91749b56bac44ecb30f))
+* **statistics:** implement trend data caching for improved performance ([67143c1](https://github.com/LindemannRock/craft-formie-rating-field/commit/67143c15ec81aced69ccd93fb0b5ce0f416a5cd8))
+* **statistics:** optimize form retrieval with aggregated queries for ratings and submissions ([fdec9b8](https://github.com/LindemannRock/craft-formie-rating-field/commit/fdec9b88312ceaaeee14a61b00e5eacc3f671c8f))
+* **statistics:** secure JavaScript variables with URL encoding for date range and sorting ([d73bbde](https://github.com/LindemannRock/craft-formie-rating-field/commit/d73bbde06405bbda81506a5b3aeeb3118790df48))
+* **translations:** add new rating settings and feedback messages in multiple languages ([9341dc7](https://github.com/LindemannRock/craft-formie-rating-field/commit/9341dc7c0356e191d540e711ad335708e1d87f0f))
+* **translations:** add new translations for multiple languages ([816bdac](https://github.com/LindemannRock/craft-formie-rating-field/commit/816bdac4ea64858a766e80ad570c85318f396967))
+* **translations:** add Swedish translation for rating field plugin ([29d8ee4](https://github.com/LindemannRock/craft-formie-rating-field/commit/29d8ee41c0788bce8240e48d54dc463eb2b0f2b1))
+* **utilities:** gate utility registration based on user permissions ([f8ca216](https://github.com/LindemannRock/craft-formie-rating-field/commit/f8ca21615b784e6871bb89343c07501c170821e7))
+
+
+### Bug Fixes
+
+* **statistics:** correct join condition for form fields retrieval ([9586be6](https://github.com/LindemannRock/craft-formie-rating-field/commit/9586be676c6de0486edd38e89b70397c66546383))
+* **statistics:** escape JSON output to prevent script injection vulnerabilities ([b3d44bf](https://github.com/LindemannRock/craft-formie-rating-field/commit/b3d44bf9d5ed35248d2eca2fca45032247a799db))
+* **statistics:** invalidate statistics cache on submission save/delete ([d386a22](https://github.com/LindemannRock/craft-formie-rating-field/commit/d386a225d4b82bd6af9a9426b4081fbd837452a5))
+* **statistics:** resolve table name syntax for submissions in queries ([cd45024](https://github.com/LindemannRock/craft-formie-rating-field/commit/cd450248829911707e0006d97e67a815011ddf76))
+* **translations:** correct plugin name description in multiple languages ([42c4099](https://github.com/LindemannRock/craft-formie-rating-field/commit/42c4099f803a46f328f15b369db302dea8e03bdb))
+* **translations:** update copyright year in translation files ([4a170b6](https://github.com/LindemannRock/craft-formie-rating-field/commit/4a170b67eb66119f73873f7d2eb28dd0bd423b37))
+
 ## [3.16.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.1...v3.16.0) (2026-04-25)
 
 
