@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.18.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.17.0...v3.18.0) (2026-05-09)
+
+
+### Features
+
+* **statistics:** enhance statistics retrieval with site filtering ([0fc8536](https://github.com/LindemannRock/craft-formie-rating-field/commit/0fc8536581f1caaf7a1d6e11c79e0fd4eda236d2))
+
 ## [3.17.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.16.0...v3.17.0) (2026-05-06)
 
 
