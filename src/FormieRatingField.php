@@ -372,7 +372,7 @@ class FormieRatingField extends Plugin
             [
                 'key' => 'statistics',
                 'label' => Craft::t('formie-rating-field', 'Statistics'),
-                'url' => 'formie-rating-field/statistics',
+                'url' => 'formie-rating-field',
                 'permissionsAll' => ['formieRatingField:viewStatistics'],
             ],
             [

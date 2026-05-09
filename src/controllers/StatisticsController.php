@@ -92,8 +92,8 @@ class StatisticsController extends Controller
         $limit = $settings->itemsPerPage;
         $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
 
-        // Get all forms that have rating fields
-        $formsWithRatings = $statisticsService->getFormsWithRatingFields();
+        // Get all forms that have rating fields (totalSubmissions count respects site filter)
+        $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteId);
 
         // Apply search filter
         if ($search) {

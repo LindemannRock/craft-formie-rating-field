@@ -57,7 +57,7 @@ class StatisticsService extends Component
      *
      * @return array
      */
-    public function getFormsWithRatingFields(): array
+    public function getFormsWithRatingFields(int|string $siteId = 'all'): array
     {
         // 1) Aggregate query — which forms contain rating fields, and how many?
         // Replaces the prior O(N forms) loop that called $form->getFields() per form.
@@ -78,7 +78,8 @@ class StatisticsService extends Component
 
         // 2) Aggregate query — live submission count per matched form (one GROUP BY,
         // not N count() calls). Joined through elements to skip trashed/draft/revision rows.
-        $submissionCountRows = (new Query())
+        // formie_submissions has no siteId column — site association lives in elements_sites.
+        $submissionCountQuery = (new Query())
             ->select(['formId' => 's.formId', 'cnt' => new Expression('COUNT(*)')])
             ->from(['s' => '{{%formie_submissions}}'])
             ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[s.id]]')
@@ -88,8 +89,17 @@ class StatisticsService extends Component
             ->andWhere(['e.dateDeleted' => null])
             ->andWhere(['e.draftId' => null])
             ->andWhere(['e.revisionId' => null])
-            ->groupBy('s.formId')
-            ->all();
+            ->groupBy('s.formId');
+
+        // Site scoping: when a specific siteId is selected, count only submissions that
+        // exist in that site (via elements_sites). 'all' keeps the cross-site total.
+        if (is_int($siteId)) {
+            $submissionCountQuery
+                ->innerJoin(['es' => '{{%elements_sites}}'], '[[es.elementId]] = [[s.id]]')
+                ->andWhere(['es.siteId' => $siteId]);
+        }
+
+        $submissionCountRows = $submissionCountQuery->all();
 
         $submissionCountByForm = array_column($submissionCountRows, 'cnt', 'formId');
 
