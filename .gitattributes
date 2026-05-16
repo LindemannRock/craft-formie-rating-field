@@ -1,6 +1,8 @@
 # Exclude dev/build files from Packagist distribution
 ecs.php export-ignore
 phpstan.neon export-ignore
+phpunit.xml.dist export-ignore
+tests/ export-ignore
 
 # Field assets: only dist/ is needed
 src/web/assets/field/src/ export-ignore
