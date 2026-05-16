@@ -356,13 +356,10 @@ class StatisticsService extends Component
         $dateBounds = DateRangeHelper::getBounds($dateRange);
         $groupByUid = $groupByField->uid;
 
-        // Resolve the Craft table-prefix syntax to a raw table name. DbHelper's identifier
-        // validator only permits alphanumerics + underscores/dots/etc — not `{`, `}`, or `%`.
-        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
-
         // Build the query using field UIDs with DB-agnostic helpers
-        $groupByExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $groupByUid);
-        $ratingExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $ratingFieldUid);
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+        $groupByExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $groupByUid);
+        $ratingExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $ratingFieldUid);
         $ratingCast = new Expression("CAST($ratingExpr AS DECIMAL(10,2))");
 
         $query = (new Query())
@@ -955,7 +952,7 @@ class StatisticsService extends Component
         // submission element into PHP and grouping in a foreach (3.2 + 3.4 cold-path cost).
         $isNps = $field->ratingType === Rating::RATING_TYPE_NPS;
         $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
-        $ratingExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $field->uid);
+        $ratingExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $field->uid);
         $ratingCast = "CAST({$ratingExpr} AS DECIMAL(10,2))";
 
         $bucketExpr = $this->buildTrendBucketExpression($dateRange, "{$submissionsTable}.dateCreated");
@@ -1506,7 +1503,7 @@ class StatisticsService extends Component
     private function extractFieldValuesViaSql(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
         $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
-        $valueExpr = DbHelper::jsonExtract("{$submissionsTable}.content", $field->uid);
+        $valueExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $field->uid);
 
         $query = (new Query())
             ->select(['valueRaw' => new Expression("CAST({$valueExpr} AS DECIMAL(10,2))")])
