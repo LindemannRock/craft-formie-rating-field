@@ -413,7 +413,7 @@
                     {% set npsDisplay = (npsScore == npsScore|round(0)) ? npsScore|number_format(0) : npsScore|number_format(1) %}
                     {% set npsColor = npsScore >= 50 ? '#10b981' : (npsScore >= 0 ? '#f59e0b' : '#ef4444') %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: npsDisplay,
                         valueIsFormatted: true,
                         valueColor: npsColor,
@@ -421,53 +421,53 @@
                         align: 'center',
                     } only %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: promoters,
                         valueColor: '#10b981',
                         description: 'Promoters ({pct}%)'|t('formie-rating-field', {pct: promotersPercentage}),
                         align: 'center',
                     } only %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: passives,
                         valueColor: '#f59e0b',
                         description: 'Passives ({pct}%)'|t('formie-rating-field', {pct: passivesPercentage}),
                         align: 'center',
                     } only %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: detractors,
                         valueColor: '#ef4444',
                         description: 'Detractors ({pct}%)'|t('formie-rating-field', {pct: detractorsPercentage}),
                         align: 'center',
                     } only %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: stats.totalResponses ?? 0,
                         description: 'Responses'|t('formie-rating-field'),
                         align: 'center',
                     } only %}
 
                 {% else %}
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: stats.totalResponses > 0 ? (stats.average ?? 0) : '—',
                         description: 'Average Rating'|t('formie-rating-field'),
                         align: 'center',
                     } only %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: stats.totalResponses > 0 ? (stats.median ?? '—') : '—',
                         description: 'Median'|t('formie-rating-field'),
                         align: 'center',
                     } only %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: stats.totalResponses > 0 ? (stats.mode ?? '—') : '—',
                         description: 'Most Common'|t('formie-rating-field'),
                         align: 'center',
                     } only %}
 
-                    {% include 'lindemannrock-base/_components/cards/unified-card' with {
+                    {% include 'lindemannrock-base/_components/unified-card' with {
                         value: stats.totalResponses ?? 0,
                         description: 'Responses'|t('formie-rating-field'),
                         align: 'center',

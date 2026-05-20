@@ -29,13 +29,13 @@
     {# Cache Status Card - only show if user can manage cache #}
     {% if canManageCache %}
         {% if storageMethod == 'redis' %}
-            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            {% include 'lindemannrock-base/_components/unified-card' with {
                 title: 'Cache Status (Redis)'|t('formie-rating-field'),
                 color: lrPaletteColor('emerald').color,
                 value: 'Active'|t('formie-rating-field'),
             } only %}
         {% else %}
-            {% include 'lindemannrock-base/_components/cards/unified-card' with {
+            {% include 'lindemannrock-base/_components/unified-card' with {
                 title: 'Cache Status (File)'|t('formie-rating-field'),
                 color: lrPaletteColor('emerald').color,
                 value: cacheCount,
