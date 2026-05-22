@@ -118,6 +118,20 @@ class SettingsController extends Controller
         $sectionAttributes = $this->validationAttributesForSection($section);
         $params = array_intersect_key($params, array_flip($sectionAttributes));
 
+        // Multi-state selects (e.g. "Use global default" = '') need '' → null so
+        // nullable cascade properties — and the project-config YAML that backs
+        // them — hold null rather than a coerced '' / false / 0. Applied to
+        // $params (not just the model) because savePluginSettings persists
+        // $params directly to project config.
+        foreach ($params as $key => $value) {
+            if ($value === '' && property_exists($settings, $key)) {
+                $type = (new \ReflectionProperty($settings, $key))->getType();
+                if ($type instanceof \ReflectionNamedType && $type->allowsNull()) {
+                    $params[$key] = null;
+                }
+            }
+        }
+
         // Set the new values
         $settings->setAttributes($params, false);
 
@@ -175,6 +189,14 @@ class SettingsController extends Controller
                 'itemsPerPage',
                 'maxExportRows',
                 'defaultDateRange',
+                'timeFormat',
+                'monthFormat',
+                'dateOrder',
+                'dateSeparator',
+                'showSeconds',
+                'exportsCsv',
+                'exportsJson',
+                'exportsExcel',
             ],
             'cache' => [
                 'cacheStorageMethod',
