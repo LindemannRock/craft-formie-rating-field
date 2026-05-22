@@ -11,8 +11,6 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Configura i campi di valutazione, rivedi le statistiche degli invii e gestisci il comportamento della cache da un unico spazio di lavoro nel pannello di controllo.',
     'Open Formie Rating Field' => 'Apri Formie Rating Field',
-    'Plugin Name' => 'Nome del plugin',
-    'The name of the plugin as it appears in the Control Panel menu' => 'Il nome del plugin visibile al pubblico',
     '{displayName} caches' => 'Cache di {displayName}',
 
     // Navigation
@@ -78,7 +76,6 @@ return [
     'Allow Half Ratings by Default' => 'Consenti valutazioni a metà per impostazione predefinita',
     'Cache Generation Schedule' => 'Pianificazione generazione cache',
     'Cache Storage Method' => 'Metodo di archiviazione cache',
-    'Default Date Range' => 'Intervallo di date predefinito',
     'Default Emoji Render Mode' => 'Modalità di rendering emoji predefinita',
     'Default End Label' => 'Etichetta finale predefinita',
     'Default Maximum Rating' => 'Valutazione massima predefinita',
@@ -86,7 +83,6 @@ return [
     'Default Rating Size' => 'Dimensione valutazione predefinita',
     'Default Rating Type' => 'Tipo di valutazione predefinito',
     'Default Start Label' => 'Etichetta iniziale predefinita',
-    'Items Per Page' => 'Elementi per pagina',
     'Max Export Rows' => 'Numero massimo di righe di esportazione',
     'Show Endpoint Labels by Default' => 'Mostra etichette degli estremi per impostazione predefinita',
     'Show Selected Label by Default' => 'Mostra etichetta selezionata per impostazione predefinita',
@@ -125,9 +121,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Impostazioni interfaccia',
-    'Number of items to display per page in statistics lists' => 'Numero di elementi da visualizzare per pagina negli elenchi delle statistiche',
     'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite massimo sul numero di righe incluse nell\'esportazione "Risposte grezze". Protegge dagli errori di memoria esaurita di PHP su moduli ad alto volume (ogni riga idrata un intero elemento di invio). Impostare su 0 per illimitato (utilizzare con cautela).',
-    'Default date range for statistics when first loading the page. Shorter ranges load faster.' => 'Intervallo di date predefinito per le statistiche al primo caricamento della pagina. Intervalli più brevi si caricano più velocemente.',
 
     // Settings: Cache
     'Cache Settings' => 'Impostazioni cache',
@@ -315,7 +309,6 @@ return [
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>cacheGenerationSchedule</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>cacheStorageMethod</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultAllowHalfRatings</code> in <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultDateRange</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultEmojiRenderMode</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultEndLabel</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultMaxRating</code> in <code>config/formie-rating-field.php</code>.',
@@ -325,7 +318,5 @@ return [
     'This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultShowEndpointLabels</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultShowSelectedLabel</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>defaultStartLabel</code> in <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>itemsPerPage</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>maxExportRows</code> in <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>.' => 'Questo valore è sovrascritto dall\'impostazione <code>pluginName</code> in <code>config/formie-rating-field.php</code>.',
 ];

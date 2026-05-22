@@ -11,8 +11,6 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Configurez les champs de notation, consultez les statistiques de soumissions et gérez le comportement du cache depuis un seul espace de travail dans le panneau de configuration.',
     'Open Formie Rating Field' => 'Ouvrir Formie Rating Field',
-    'Plugin Name' => 'Nom du plugin',
-    'The name of the plugin as it appears in the Control Panel menu' => 'Le nom public du plugin',
     '{displayName} caches' => 'Caches {displayName}',
 
     // Navigation
@@ -78,7 +76,6 @@ return [
     'Allow Half Ratings by Default' => 'Autoriser les demi-évaluations par défaut',
     'Cache Generation Schedule' => 'Planification de la génération du cache',
     'Cache Storage Method' => 'Méthode de stockage du cache',
-    'Default Date Range' => 'Plage de dates par défaut',
     'Default Emoji Render Mode' => 'Mode de rendu des emojis par défaut',
     'Default End Label' => 'Libellé de fin par défaut',
     'Default Maximum Rating' => 'Évaluation maximale par défaut',
@@ -86,7 +83,6 @@ return [
     'Default Rating Size' => 'Taille d\'évaluation par défaut',
     'Default Rating Type' => 'Type d\'évaluation par défaut',
     'Default Start Label' => 'Libellé de début par défaut',
-    'Items Per Page' => 'Éléments par page',
     'Max Export Rows' => 'Nombre maximum de lignes exportées',
     'Show Endpoint Labels by Default' => 'Afficher les libellés d\'extrémité par défaut',
     'Show Selected Label by Default' => 'Afficher le libellé sélectionné par défaut',
@@ -125,9 +121,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Paramètres de l\'interface',
-    'Number of items to display per page in statistics lists' => 'Nombre d\'éléments à afficher par page dans les listes de statistiques',
     'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite stricte du nombre de lignes incluses dans l\'export « Réponses brutes ». Protège contre les erreurs de mémoire insuffisante PHP sur les formulaires à fort volume (chaque ligne hydrate un élément de soumission complet). Définissez sur 0 pour illimité (à utiliser avec prudence).',
-    'Default date range for statistics when first loading the page. Shorter ranges load faster.' => 'Plage de dates par défaut pour les statistiques lors du premier chargement de la page. Les plages plus courtes se chargent plus rapidement.',
 
     // Settings: Cache
     'Cache Settings' => 'Paramètres du cache',
@@ -315,7 +309,6 @@ return [
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>cacheGenerationSchedule</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>cacheStorageMethod</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultAllowHalfRatings</code> dans <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultDateRange</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultEmojiRenderMode</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultEndLabel</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultMaxRating</code> dans <code>config/formie-rating-field.php</code>.',
@@ -325,7 +318,5 @@ return [
     'This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultShowEndpointLabels</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultShowSelectedLabel</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>defaultStartLabel</code> dans <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>itemsPerPage</code> dans <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>maxExportRows</code> dans <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>pluginName</code> dans <code>config/formie-rating-field.php</code>.',
 ];

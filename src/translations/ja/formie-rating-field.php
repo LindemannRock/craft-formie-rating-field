@@ -11,8 +11,6 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'レーティングフィールドの設定、送信統計の確認、キャッシュ動作の管理を 1 つのコントロールパネルワークスペースから行えます。',
     'Open Formie Rating Field' => 'Formie Rating Field を開く',
-    'Plugin Name' => 'プラグイン名',
-    'The name of the plugin as it appears in the Control Panel menu' => '一般に表示されるプラグインの名前',
     '{displayName} caches' => '{displayName} のキャッシュ',
 
     // Navigation
@@ -78,7 +76,6 @@ return [
     'Allow Half Ratings by Default' => 'デフォルトで半分評価を許可',
     'Cache Generation Schedule' => 'キャッシュ生成スケジュール',
     'Cache Storage Method' => 'キャッシュ保存方式',
-    'Default Date Range' => 'デフォルトの日付範囲',
     'Default Emoji Render Mode' => 'デフォルトの絵文字描画モード',
     'Default End Label' => 'デフォルトの終了ラベル',
     'Default Maximum Rating' => 'デフォルトの最大評価値',
@@ -86,7 +83,6 @@ return [
     'Default Rating Size' => 'デフォルトの評価サイズ',
     'Default Rating Type' => 'デフォルトの評価タイプ',
     'Default Start Label' => 'デフォルトの開始ラベル',
-    'Items Per Page' => '1 ページあたりの件数',
     'Max Export Rows' => 'エクスポート行数の上限',
     'Show Endpoint Labels by Default' => 'デフォルトでエンドポイントラベルを表示',
     'Show Selected Label by Default' => 'デフォルトで選択ラベルを表示',
@@ -125,9 +121,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'インターフェース設定',
-    'Number of items to display per page in statistics lists' => '統計リストの 1 ページあたりに表示する項目数',
     'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => '「 Raw Responses 」エクスポートに含まれる行数のハードリミットです。大量のフォーム送信がある場合の PHP のメモリ不足エラーを防ぎます（各行が完全な送信エレメントを読み込むため）。0 に設定すると無制限になります（注意して使用してください）。',
-    'Default date range for statistics when first loading the page. Shorter ranges load faster.' => 'ページを最初に読み込む際の統計のデフォルトの日付範囲です。範囲が短いほど読み込みが速くなります。',
 
     // Settings: Cache
     'Cache Settings' => 'キャッシュ設定',
@@ -315,7 +309,6 @@ return [
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>cacheGenerationSchedule</code> 設定によって上書きされています。',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>cacheStorageMethod</code> 設定によって上書きされています。',
     'This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultAllowHalfRatings</code> 設定によって上書きされています。',
-    'This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultDateRange</code> 設定によって上書きされています。',
     'This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultEmojiRenderMode</code> 設定によって上書きされています。',
     'This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultEndLabel</code> 設定によって上書きされています。',
     'This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultMaxRating</code> 設定によって上書きされています。',
@@ -325,7 +318,5 @@ return [
     'This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultShowEndpointLabels</code> 設定によって上書きされています。',
     'This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultShowSelectedLabel</code> 設定によって上書きされています。',
     'This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>defaultStartLabel</code> 設定によって上書きされています。',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>itemsPerPage</code> 設定によって上書きされています。',
     'This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>maxExportRows</code> 設定によって上書きされています。',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>pluginName</code> 設定によって上書きされています。',
 ];

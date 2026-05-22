@@ -11,8 +11,6 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Konfigurera betygsfält, granska inlämningsstatistik och hantera cachebeteende från en enda arbetsyta i kontrollpanelen.',
     'Open Formie Rating Field' => 'Öppna Formie Rating Field',
-    'Plugin Name' => 'Plugin-namn',
-    'The name of the plugin as it appears in the Control Panel menu' => 'Det offentliga namnet på pluginet',
     '{displayName} caches' => '{displayName} cache',
 
     // Navigation
@@ -78,7 +76,6 @@ return [
     'Allow Half Ratings by Default' => 'Tillåt halva betyg som standard',
     'Cache Generation Schedule' => 'Schema för cache-generering',
     'Cache Storage Method' => 'Lagringsmetod för cache',
-    'Default Date Range' => 'Standard datumintervall',
     'Default Emoji Render Mode' => 'Standardläge för emoji-rendering',
     'Default End Label' => 'Standardetikett för slut',
     'Default Maximum Rating' => 'Standard maxbetyg',
@@ -86,7 +83,6 @@ return [
     'Default Rating Size' => 'Standardstorlek för betyg',
     'Default Rating Type' => 'Standardtyp för betyg',
     'Default Start Label' => 'Standardetikett för start',
-    'Items Per Page' => 'Objekt per sida',
     'Max Export Rows' => 'Max exportrader',
     'Show Endpoint Labels by Default' => 'Visa ändpunktsetiketter som standard',
     'Show Selected Label by Default' => 'Visa vald etikett som standard',
@@ -125,9 +121,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Gränssnittsinställningar',
-    'Number of items to display per page in statistics lists' => 'Antal objekt som visas per sida i statistiklistor',
     'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hård gräns för antalet rader som inkluderas i exporten "Råa svar". Skyddar mot PHP-minnesfel på formulär med hög volym (varje rad hydratiserar ett komplett inskickningselement). Sätt till 0 för obegränsat (använd med försiktighet).',
-    'Default date range for statistics when first loading the page. Shorter ranges load faster.' => 'Standard datumintervall för statistik när sidan först laddas. Kortare intervall laddas snabbare.',
 
     // Settings: Cache
     'Cache Settings' => 'Cacheinställningar',
@@ -315,7 +309,6 @@ return [
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>cacheGenerationSchedule</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>cacheStorageMethod</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultAllowHalfRatings</code> i <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultDateRange</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultEmojiRenderMode</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultEndLabel</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultMaxRating</code> i <code>config/formie-rating-field.php</code>.',
@@ -325,7 +318,5 @@ return [
     'This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultShowEndpointLabels</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultShowSelectedLabel</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>defaultStartLabel</code> i <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>itemsPerPage</code> i <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>maxExportRows</code> i <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>pluginName</code> i <code>config/formie-rating-field.php</code>.',
 ];

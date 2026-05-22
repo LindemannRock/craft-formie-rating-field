@@ -11,8 +11,6 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Configure campos de classificação, reveja as estatísticas de submissões e faça a gestão do comportamento da cache a partir de um único espaço de trabalho no painel de controlo.',
     'Open Formie Rating Field' => 'Abrir Formie Rating Field',
-    'Plugin Name' => 'Nome do plugin',
-    'The name of the plugin as it appears in the Control Panel menu' => 'O nome público do plugin',
     '{displayName} caches' => 'Caches de {displayName}',
 
     // Navigation
@@ -78,7 +76,6 @@ return [
     'Allow Half Ratings by Default' => 'Permitir meias avaliações por predefinição',
     'Cache Generation Schedule' => 'Agendamento de geração de cache',
     'Cache Storage Method' => 'Método de armazenamento de cache',
-    'Default Date Range' => 'Intervalo de datas predefinido',
     'Default Emoji Render Mode' => 'Modo de renderização de emoji predefinido',
     'Default End Label' => 'Etiqueta final predefinida',
     'Default Maximum Rating' => 'Avaliação máxima predefinida',
@@ -86,7 +83,6 @@ return [
     'Default Rating Size' => 'Tamanho de avaliação predefinido',
     'Default Rating Type' => 'Tipo de avaliação predefinido',
     'Default Start Label' => 'Etiqueta inicial predefinida',
-    'Items Per Page' => 'Itens por página',
     'Max Export Rows' => 'Máximo de linhas de exportação',
     'Show Endpoint Labels by Default' => 'Mostrar etiquetas de extremidade por predefinição',
     'Show Selected Label by Default' => 'Mostrar etiqueta selecionada por predefinição',
@@ -125,9 +121,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Definições de interface',
-    'Number of items to display per page in statistics lists' => 'Número de itens a apresentar por página nas listas de estatísticas',
     'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite máximo do número de linhas incluídas na exportação "Respostas brutas". Protege contra erros de falta de memória do PHP em formulários de elevado volume (cada linha hidrata um elemento de submissão completo). Defina como 0 para ilimitado (utilize com cuidado).',
-    'Default date range for statistics when first loading the page. Shorter ranges load faster.' => 'Intervalo de datas predefinido para as estatísticas ao carregar a página pela primeira vez. Intervalos mais curtos carregam mais rapidamente.',
 
     // Settings: Cache
     'Cache Settings' => 'Definições de cache',
@@ -315,7 +309,6 @@ return [
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>cacheGenerationSchedule</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>cacheStorageMethod</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultAllowHalfRatings</code> em <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultDateRange</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultEmojiRenderMode</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultEndLabel</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultMaxRating</code> em <code>config/formie-rating-field.php</code>.',
@@ -325,7 +318,5 @@ return [
     'This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultShowEndpointLabels</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultShowSelectedLabel</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>defaultStartLabel</code> em <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>itemsPerPage</code> em <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>maxExportRows</code> em <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esta definição está a ser substituída pela definição <code>pluginName</code> em <code>config/formie-rating-field.php</code>.',
 ];

@@ -11,8 +11,6 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'قم بتكوين حقول التقييم ومراجعة إحصائيات الإرسال وإدارة سلوك Cache من مساحة عمل واحدة في لوحة التحكم.',
     'Open Formie Rating Field' => 'فتح Formie Rating Field',
-    'Plugin Name' => 'اسم الإضافة',
-    'The name of the plugin as it appears in the Control Panel menu' => 'الاسم الظاهر للعموم للإضافة',
     '{displayName} caches' => 'ذاكرات التخزين المؤقت لـ {displayName}',
 
     // Navigation
@@ -78,7 +76,6 @@ return [
     'Allow Half Ratings by Default' => 'السماح بأنصاف التقييمات افتراضيًا',
     'Cache Generation Schedule' => 'جدولة إنشاء الـ Cache',
     'Cache Storage Method' => 'طريقة تخزين الـ Cache',
-    'Default Date Range' => 'النطاق الزمني الافتراضي',
     'Default Emoji Render Mode' => 'وضع عرض الإيموجي الافتراضي',
     'Default End Label' => 'تسمية النهاية الافتراضية',
     'Default Maximum Rating' => 'الحد الأقصى للتقييم الافتراضي',
@@ -86,7 +83,6 @@ return [
     'Default Rating Size' => 'حجم التقييم الافتراضي',
     'Default Rating Type' => 'نوع التقييم الافتراضي',
     'Default Start Label' => 'تسمية البداية الافتراضية',
-    'Items Per Page' => 'العناصر في الصفحة',
     'Max Export Rows' => 'الحد الأقصى لصفوف التصدير',
     'Show Endpoint Labels by Default' => 'عرض تسميات الطرفين افتراضيًا',
     'Show Selected Label by Default' => 'عرض تسمية القيمة المختارة افتراضيًا',
@@ -125,9 +121,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'إعدادات الواجهة',
-    'Number of items to display per page in statistics lists' => 'عدد العناصر المعروضة في كل صفحة ضمن قوائم الإحصائيات',
     'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'حدّ أقصى صارم لعدد الصفوف المُضمَّنة في تصدير "الاستجابات الخام". يحمي من أخطاء نفاد الذاكرة في PHP للنماذج ذات الحجم الكبير (كل صف يُحمِّل عنصر استمارة كاملًا). اضبطه على 0 لإلغاء الحد (استخدمه بحذر).',
-    'Default date range for statistics when first loading the page. Shorter ranges load faster.' => 'النطاق الزمني الافتراضي للإحصائيات عند أول تحميل للصفحة. النطاقات الأقصر تُحمَّل بسرعة أكبر.',
 
     // Settings: Cache
     'Cache Settings' => 'إعدادات Cache',
@@ -315,7 +309,6 @@ return [
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>cacheGenerationSchedule</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>cacheStorageMethod</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultAllowHalfRatings</code> في <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultDateRange</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultEmojiRenderMode</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultEndLabel</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultMaxRating</code> في <code>config/formie-rating-field.php</code>.',
@@ -325,7 +318,5 @@ return [
     'This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultShowEndpointLabels</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultShowSelectedLabel</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>defaultStartLabel</code> في <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>itemsPerPage</code> في <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>maxExportRows</code> في <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>pluginName</code> في <code>config/formie-rating-field.php</code>.',
 ];

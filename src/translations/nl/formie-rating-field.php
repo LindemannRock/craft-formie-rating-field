@@ -11,8 +11,6 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Configureer beoordelingsvelden, bekijk inzendingsstatistieken en beheer het cachegedrag vanuit één werkruimte in het Control Panel.',
     'Open Formie Rating Field' => 'Formie Rating Field openen',
-    'Plugin Name' => 'Pluginnaam',
-    'The name of the plugin as it appears in the Control Panel menu' => 'De openbare naam van de plugin',
     '{displayName} caches' => '{displayName} caches',
 
     // Navigation
@@ -78,7 +76,6 @@ return [
     'Allow Half Ratings by Default' => 'Halve beoordelingen standaard toestaan',
     'Cache Generation Schedule' => 'Schema voor cachegeneratie',
     'Cache Storage Method' => 'Cache-opslagmethode',
-    'Default Date Range' => 'Standaard datumbereik',
     'Default Emoji Render Mode' => 'Standaard emoji-weergavemodus',
     'Default End Label' => 'Standaard eindlabel',
     'Default Maximum Rating' => 'Standaard maximumbeoordeling',
@@ -86,7 +83,6 @@ return [
     'Default Rating Size' => 'Standaard beoordelingsgrootte',
     'Default Rating Type' => 'Standaard beoordelingstype',
     'Default Start Label' => 'Standaard startlabel',
-    'Items Per Page' => 'Items per pagina',
     'Max Export Rows' => 'Maximaal aantal exportrijen',
     'Show Endpoint Labels by Default' => 'Eindpuntlabels standaard tonen',
     'Show Selected Label by Default' => 'Geselecteerd label standaard tonen',
@@ -125,9 +121,7 @@ return [
 
     // Settings: Interface
     'Interface Settings' => 'Interface-instellingen',
-    'Number of items to display per page in statistics lists' => 'Aantal items om per pagina weer te geven in statistiekenlijsten',
     'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hard maximum op het aantal rijen in de export "Ruwe reacties". Beschermt tegen PHP out-of-memory-fouten bij formulieren met groot volume (elke rij laadt een volledig inzendingselement). Stel in op 0 voor onbeperkt (voorzichtig gebruiken).',
-    'Default date range for statistics when first loading the page. Shorter ranges load faster.' => 'Standaard datumbereik voor statistieken bij het eerst laden van de pagina. Kortere bereiken laden sneller.',
 
     // Settings: Cache
     'Cache Settings' => 'Cache-instellingen',
@@ -315,7 +309,6 @@ return [
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>cacheGenerationSchedule</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>cacheStorageMethod</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultAllowHalfRatings</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultAllowHalfRatings</code> in <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultDateRange</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEmojiRenderMode</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultEmojiRenderMode</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultEndLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultEndLabel</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultMaxRating</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultMaxRating</code> in <code>config/formie-rating-field.php</code>.',
@@ -325,7 +318,5 @@ return [
     'This is being overridden by the <code>defaultShowEndpointLabels</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultShowEndpointLabels</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultShowSelectedLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultShowSelectedLabel</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>defaultStartLabel</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>defaultStartLabel</code> in <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>itemsPerPage</code> in <code>config/formie-rating-field.php</code>.',
     'This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>maxExportRows</code> in <code>config/formie-rating-field.php</code>.',
-    'This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dit wordt overschreven door de instelling <code>pluginName</code> in <code>config/formie-rating-field.php</code>.',
 ];
