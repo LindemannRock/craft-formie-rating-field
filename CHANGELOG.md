@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.19.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.18.0...v3.19.0) (2026-05-22)
+## [3.19.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.18.0...v3.19.0) - 2026-05-22
 
 
 ### Added
@@ -9,14 +9,14 @@
 * **i18n:** add translation issue template for reporting language problems ([e7213db](https://github.com/LindemannRock/craft-formie-rating-field/commit/e7213db9986cc11a69c03789d0c148a5ea9a8328))
 * **tests:** add PHPUnit configuration and integration tests for Rating field ([b254501](https://github.com/LindemannRock/craft-formie-rating-field/commit/b254501d2fbc517cdcac21a6b4203ac6c0a8db4f))
 
-## [3.18.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.17.0...v3.18.0) (2026-05-09)
+## [3.18.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.17.0...v3.18.0) - 2026-05-09
 
 
 ### Features
 
 * **statistics:** enhance statistics retrieval with site filtering ([0fc8536](https://github.com/LindemannRock/craft-formie-rating-field/commit/0fc8536581f1caaf7a1d6e11c79e0fd4eda236d2))
 
-## [3.17.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.16.0...v3.17.0) (2026-05-06)
+## [3.17.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.16.0...v3.17.0) - 2026-05-06
 
 
 ### Features
@@ -51,7 +51,7 @@
 * **translations:** correct plugin name description in multiple languages ([42c4099](https://github.com/LindemannRock/craft-formie-rating-field/commit/42c4099f803a46f328f15b369db302dea8e03bdb))
 * **translations:** update copyright year in translation files ([4a170b6](https://github.com/LindemannRock/craft-formie-rating-field/commit/4a170b67eb66119f73873f7d2eb28dd0bd423b37))
 
-## [3.16.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.1...v3.16.0) (2026-04-25)
+## [3.16.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.1...v3.16.0) - 2026-04-25
 
 
 ### Features
@@ -69,14 +69,14 @@
 * drop PAT requirement for release-please — use built-in GITHUB_TOKEN ([c5652b2](https://github.com/LindemannRock/craft-formie-rating-field/commit/c5652b216440bfade9119a46fb5991ba6deb7756))
 * **statistics:** update card values to handle zero responses gracefully ([1bf1726](https://github.com/LindemannRock/craft-formie-rating-field/commit/1bf17264125e079f3e5b3609e18fe5023fa1b834))
 
-## [3.15.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.0...v3.15.1) (2026-04-05)
+## [3.15.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.15.0...v3.15.1) - 2026-04-05
 
 
 ### Bug Fixes
 
 * read-only settings response ([c12cef9](https://github.com/LindemannRock/craft-formie-rating-field/commit/c12cef95dbf40d01bc66350001573334664f5282))
 
-## [3.15.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.3...v3.15.0) (2026-04-02)
+## [3.15.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.3...v3.15.0) - 2026-04-02
 
 
 ### Features
@@ -97,7 +97,7 @@
 * **package:** add package.json for project configuration and scripts ([9d409a2](https://github.com/LindemannRock/craft-formie-rating-field/commit/9d409a294baf0e1df4efd3db4849ec42d215387e))
 * **package:** remove unused minify scripts from package.json ([bc2f00e](https://github.com/LindemannRock/craft-formie-rating-field/commit/bc2f00e85c929e87a98ed4aa774b997e2009cd99))
 
-## [3.14.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.2...v3.14.3) (2026-03-04)
+## [3.14.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.2...v3.14.3) - 2026-03-04
 
 
 ### Bug Fixes
@@ -112,7 +112,7 @@
 * add .gitattributes with export-ignore for Packagist distribution ([f6a2300](https://github.com/LindemannRock/craft-formie-rating-field/commit/f6a230049770f57348a2a35a5a56cf8991123a50))
 * switch to Craft License for commercial release ([3e72082](https://github.com/LindemannRock/craft-formie-rating-field/commit/3e7208234381fe4813ac74c082fadb47342a51ab))
 
-## [3.14.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.1...v3.14.2) (2026-02-05)
+## [3.14.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.1...v3.14.2) - 2026-02-05
 
 
 ### Miscellaneous Chores
@@ -120,14 +120,14 @@
 * **package.json:** update package name and add author/company details ([89de567](https://github.com/LindemannRock/craft-formie-rating-field/commit/89de567610f0da041a77bad0a7d0718f912f6afe))
 * **statistics:** remove backup of StatisticsController.php ([5bc7ead](https://github.com/LindemannRock/craft-formie-rating-field/commit/5bc7ead6e837f1ff536111b753bbee062ebc8ea7))
 
-## [3.14.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.0...v3.14.1) (2026-01-26)
+## [3.14.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.14.0...v3.14.1) - 2026-01-26
 
 
 ### Bug Fixes
 
 * **jobs:** prevent duplicate scheduling of backup jobs ([0d887ea](https://github.com/LindemannRock/craft-formie-rating-field/commit/0d887ea2f5953f8a216111de1e49ee23f43ff202))
 
-## [3.14.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.13.0...v3.14.0) (2026-01-16)
+## [3.14.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.13.0...v3.14.0) - 2026-01-16
 
 
 ### Features
@@ -142,7 +142,7 @@
 * update hardcoded cache paths with PluginHelper for consistency ([0b8a720](https://github.com/LindemannRock/craft-formie-rating-field/commit/0b8a720fa204ada6d32a6482f9f75a1379b50651))
 * update plugin credit component path to use shared base component ([cda5121](https://github.com/LindemannRock/craft-formie-rating-field/commit/cda5121c312297215a63d6e0c3ae58486cc98955))
 
-## [3.13.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.4...v3.13.0) (2026-01-11)
+## [3.13.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.4...v3.13.0) - 2026-01-11
 
 
 ### Features
@@ -160,56 +160,56 @@
 
 * update composer.json to include missing dev dependencies ([69ddde8](https://github.com/LindemannRock/craft-formie-rating-field/commit/69ddde82e03162114bda1c64e00e0b01a5243f51))
 
-## [3.12.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.3...v3.12.4) (2025-12-19)
+## [3.12.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.3...v3.12.4) - 2025-12-19
 
 
 ### Bug Fixes
 
 * trim whitespace in display name methods and update cache label ([95235f0](https://github.com/LindemannRock/craft-formie-rating-field/commit/95235f00a805c83339d919e9df1e40afbc6bbec1))
 
-## [3.12.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.2...v3.12.3) (2025-12-16)
+## [3.12.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.2...v3.12.3) - 2025-12-16
 
 
 ### Bug Fixes
 
 * update icon method to return a star icon ([2d9eab7](https://github.com/LindemannRock/craft-formie-rating-field/commit/2d9eab7aabcab3960f93be7372e876fded3a48f3))
 
-## [3.12.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.1...v3.12.2) (2025-12-16)
+## [3.12.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.1...v3.12.2) - 2025-12-16
 
 
 ### Bug Fixes
 
 * read-only mode for settings based on project config ([2b8b864](https://github.com/LindemannRock/craft-formie-rating-field/commit/2b8b86404298a609bcf332e7903cfd541185ed20))
 
-## [3.12.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.0...v3.12.1) (2025-12-16)
+## [3.12.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.12.0...v3.12.1) - 2025-12-16
 
 
 ### Bug Fixes
 
 * update cache job scheduling logic to use dynamic delay calculation ([7032414](https://github.com/LindemannRock/craft-formie-rating-field/commit/7032414cd4017b2fa2d6ee60cb1f99996f5dc189))
 
-## [3.12.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.11.0...v3.12.0) (2025-12-16)
+## [3.12.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.11.0...v3.12.0) - 2025-12-16
 
 
 ### Features
 
 * add cache storage method configuration and Redis support ([fad55f0](https://github.com/LindemannRock/craft-formie-rating-field/commit/fad55f0e0ab6659fd7786a88ca12dfd5ec66b436))
 
-## [3.11.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.10.0...v3.11.0) (2025-12-11)
+## [3.11.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.10.0...v3.11.0) - 2025-12-11
 
 
 ### Features
 
 * enhance GenerateCacheJob with batch processing and improved cache management ([736c1b9](https://github.com/LindemannRock/craft-formie-rating-field/commit/736c1b97a3f60c0e0c1c3c6f97c4285ccd92d309))
 
-## [3.10.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.9.0...v3.10.0) (2025-12-11)
+## [3.10.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.9.0...v3.10.0) - 2025-12-11
 
 
 ### Features
 
 * add cache management features including settings for automatic cache generation and a utility for cache operations ([2604ccb](https://github.com/LindemannRock/craft-formie-rating-field/commit/2604ccb9b81f44bcff5e25f0e642026695ff3584))
 
-## [3.9.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.8.0...v3.9.0) (2025-12-11)
+## [3.9.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.8.0...v3.9.0) - 2025-12-11
 
 
 ### Features
@@ -222,42 +222,42 @@
 
 * enhance group detail template with field handle support and improved URL parameters ([0d2d7af](https://github.com/LindemannRock/craft-formie-rating-field/commit/0d2d7af2595ad8f110d7e9448595b41a2180a19c))
 
-## [3.8.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.1...v3.8.0) (2025-12-10)
+## [3.8.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.1...v3.8.0) - 2025-12-10
 
 
 ### Features
 
 * add group detail view and export functionality for statistics ([677a60f](https://github.com/LindemannRock/craft-formie-rating-field/commit/677a60f9a0aa3f18e747e01de0dec61954d29d8a))
 
-## [3.7.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.0...v3.7.1) (2025-12-09)
+## [3.7.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.7.0...v3.7.1) - 2025-12-09
 
 
 ### Bug Fixes
 
 * update Google Review button alignment to use flex classes ([8969b4a](https://github.com/LindemannRock/craft-formie-rating-field/commit/8969b4ad8d5d876ce21d5f5fc53e88e48dcff679))
 
-## [3.7.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.4...v3.7.0) (2025-12-09)
+## [3.7.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.4...v3.7.0) - 2025-12-09
 
 
 ### Features
 
 * add button alignment option for Google Review integration ([7d70de1](https://github.com/LindemannRock/craft-formie-rating-field/commit/7d70de14cf78d2af20652ba427671c9f4e643ece))
 
-## [3.6.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.3...v3.6.4) (2025-12-09)
+## [3.6.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.3...v3.6.4) - 2025-12-09
 
 
 ### Bug Fixes
 
 * enhance Google Review integration with logging and JS registration ([fd1b97e](https://github.com/LindemannRock/craft-formie-rating-field/commit/fd1b97e09d5f58cb654312dcda114a7514f0ced9))
 
-## [3.6.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.2...v3.6.3) (2025-12-09)
+## [3.6.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.2...v3.6.3) - 2025-12-09
 
 
 ### Bug Fixes
 
 * remove emoji from high rating message for consistency ([d6fe53e](https://github.com/LindemannRock/craft-formie-rating-field/commit/d6fe53e677a10d8528623cbd1142314852fabcc4))
 
-## [3.6.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.1...v3.6.2) (2025-12-09)
+## [3.6.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.1...v3.6.2) - 2025-12-09
 
 
 ### Bug Fixes
@@ -265,35 +265,35 @@
 * update comments and default messages for clarity in Rating field ([3c8d9ef](https://github.com/LindemannRock/craft-formie-rating-field/commit/3c8d9ef969aad5a646420a9d6d008e55f62a3a96))
 * update default messages to use static strings in Rating field ([012f41b](https://github.com/LindemannRock/craft-formie-rating-field/commit/012f41b98611fd59db1cd7bae704e4555ef89c01))
 
-## [3.6.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.0...v3.6.1) (2025-12-09)
+## [3.6.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.6.0...v3.6.1) - 2025-12-09
 
 
 ### Bug Fixes
 
 * remove dummy PlaceID for testing in Rating field ([1656d24](https://github.com/LindemannRock/craft-formie-rating-field/commit/1656d248a83d7ac58ace203eb76169a98d848d05))
 
-## [3.6.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.5.0...v3.6.0) (2025-12-09)
+## [3.6.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.5.0...v3.6.0) - 2025-12-09
 
 
 ### Features
 
 * add Google Review integration to Rating field ([2ba47a9](https://github.com/LindemannRock/craft-formie-rating-field/commit/2ba47a9e694bd4c8ab28e64d4c348eb7d6666309))
 
-## [3.5.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.4.0...v3.5.0) (2025-12-09)
+## [3.5.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.4.0...v3.5.0) - 2025-12-09
 
 
 ### Features
 
 * add 'Show Selected Label' option to Rating field schema ([cb672fd](https://github.com/LindemannRock/craft-formie-rating-field/commit/cb672fd4fcdc8f85d6a5dc70345e5e5ccf8d2e4b))
 
-## [3.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.3.0...v3.4.0) (2025-12-09)
+## [3.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.3.0...v3.4.0) - 2025-12-09
 
 
 ### Features
 
 * enhance Formie Rating Field with cache clearing option and loading indicators for charts ([7997bbc](https://github.com/LindemannRock/craft-formie-rating-field/commit/7997bbca8cd8f804e9257bb76ff3a731228d6ac6))
 
-## [3.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.2.0...v3.3.0) (2025-12-08)
+## [3.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.2.0...v3.3.0) - 2025-12-08
 
 
 ### Features
@@ -311,7 +311,7 @@
 
 * update config.php documentation for clarity ([0479024](https://github.com/LindemannRock/craft-formie-rating-field/commit/0479024c7984218b1d13ce03c8fd48ab3facad89))
 
-## [3.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.2...v3.2.0) (2025-11-25)
+## [3.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.2...v3.2.0) - 2025-11-25
 
 
 ### Features
@@ -323,21 +323,21 @@
 
 * update plugin property descriptions for clarity and add missing newline ([605a6ab](https://github.com/LindemannRock/craft-formie-rating-field/commit/605a6ab62e538034593615627fe5481b450aa6bc))
 
-## [3.1.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.1...v3.1.2) (2025-11-01)
+## [3.1.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.1...v3.1.2) - 2025-11-01
 
 
 ### Bug Fixes
 
 * update validation method names for consistency and improve formatting in settings ([40f0ae5](https://github.com/LindemannRock/craft-formie-rating-field/commit/40f0ae5bddc60df7fcb23954c3cfd91b0094b8c2))
 
-## [3.1.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.0...v3.1.1) (2025-10-27)
+## [3.1.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.1.0...v3.1.1) - 2025-10-27
 
 
 ### Bug Fixes
 
 * update README and configuration documentation for clarity and accuracy ([b68d573](https://github.com/LindemannRock/craft-formie-rating-field/commit/b68d573539f8064b304accf8e189e5ea97b291e5))
 
-## [3.1.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.0.1...v3.1.0) (2025-10-20)
+## [3.1.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.0.1...v3.1.0) - 2025-10-20
 
 
 ### Features
@@ -345,91 +345,91 @@
 * add default emoji render mode setting and update related configurations ([1e6d686](https://github.com/LindemannRock/craft-formie-rating-field/commit/1e6d6860e8e4530142bdf110803c6ee3f32cadc3))
 * add single emoji selection mode with custom labels ([1332dbd](https://github.com/LindemannRock/craft-formie-rating-field/commit/1332dbdcab5df0bf0840af2c29c43335226d11ba))
 
-## [3.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.0.0...v3.0.1) (2025-10-20)
+## [3.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.0.0...v3.0.1) - 2025-10-20
 
 
 ### Miscellaneous Chores
 
 * update README with additional badges ([81fc2b8](https://github.com/LindemannRock/craft-formie-rating-field/commit/81fc2b843d265de1c3a256a8760e349c7d0bd8e2))
 
-## [3.0.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.1...v3.0.0) (2025-10-20)
+## [3.0.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.1...v3.0.0) - 2025-10-20
 
 
 ### Miscellaneous Chores
 
 * bump version scheme to match Formie 3 ([b1eb1b0](https://github.com/LindemannRock/craft-formie-rating-field/commit/b1eb1b0771c27d6749f0697af345c51c85fe7763))
 
-## [1.4.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.0...v1.4.1) (2025-10-16)
+## [1.4.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.4.0...v1.4.1) - 2025-10-16
 
 
 ### Bug Fixes
 
 * update CSS variable naming for rating fields to remove 'fui-' prefix ([7f481c6](https://github.com/LindemannRock/craft-formie-rating-field/commit/7f481c67c875792301d39399d1ced703fb32817d))
 
-## [1.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.4...v1.4.0) (2025-10-16)
+## [1.4.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.4...v1.4.0) - 2025-10-16
 
 
 ### Features
 
 * add sentiment-based gradient colors for emoji ratings ([a7f6385](https://github.com/LindemannRock/craft-formie-rating-field/commit/a7f6385433bdf5218a324a9ebd9eb55222aef32a))
 
-## [1.3.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.3...v1.3.4) (2025-10-16)
+## [1.3.4](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.3...v1.3.4) - 2025-10-16
 
 
 ### Bug Fixes
 
 * prevent numeric rating labels from being translated ([70a9974](https://github.com/LindemannRock/craft-formie-rating-field/commit/70a99742cfbc5d6b8ee6af799247fb1fc07171c9))
 
-## [1.3.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.2...v1.3.3) (2025-10-16)
+## [1.3.3](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.2...v1.3.3) - 2025-10-16
 
 
 ### Bug Fixes
 
 * update installation instructions for Composer and DDEV ([1c1f172](https://github.com/LindemannRock/craft-formie-rating-field/commit/1c1f172f37335889af8dc25b6942d764102a21be))
 
-## [1.3.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.1...v1.3.2) (2025-10-16)
+## [1.3.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.1...v1.3.2) - 2025-10-16
 
 
 ### Bug Fixes
 
 * change license from proprietary to MIT in composer.json ([9bf312c](https://github.com/LindemannRock/craft-formie-rating-field/commit/9bf312c5cccb6bd3280eb9d2799bce9a85b777a1))
 
-## [1.3.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.0...v1.3.1) (2025-10-16)
+## [1.3.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.3.0...v1.3.1) - 2025-10-16
 
 
 ### Bug Fixes
 
 * update author information and add RSS feed to support section in composer.json ([db2bffb](https://github.com/LindemannRock/craft-formie-rating-field/commit/db2bffb8ee9b85994687e3f82d30cd2a8d94c9e3))
 
-## [1.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.2...v1.3.0) (2025-10-14)
+## [1.3.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.2...v1.3.0) - 2025-10-14
 
 
 ### Features
 
 * add emoji web font support with Noto Color Emoji option ([ae7100b](https://github.com/LindemannRock/craft-formie-rating-field/commit/ae7100b044d312a336fb365339542b7bf395f409))
 
-## [1.2.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.1...v1.2.2) (2025-10-09)
+## [1.2.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.1...v1.2.2) - 2025-10-09
 
 
 ### Bug Fixes
 
 * smart emoji selection based on rating range size ([6ae1891](https://github.com/LindemannRock/craft-formie-rating-field/commit/6ae1891e0913c632fd9a1e194f4106e7caf883be))
 
-## [1.2.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.0...v1.2.1) (2025-10-09)
+## [1.2.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.2.0...v1.2.1) - 2025-10-09
 
 
 ### Bug Fixes
 
 * emoji rating to support full 0-10 range with 11 unique emojis ([077ae99](https://github.com/LindemannRock/craft-formie-rating-field/commit/077ae99910c5cc1142ad0971e720f914177bfe22))
 
-## [1.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.1.0...v1.2.0) (2025-10-07)
+## [1.2.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.1.0...v1.2.0) - 2025-10-07
 
 
 ### Features
 
 * add font-family CSS variable for NPS rating buttons ([212c2de](https://github.com/LindemannRock/craft-formie-rating-field/commit/212c2de0eb13818792fe1ff24884f63c5d79f7e2))
 
-## [1.1.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.2...v1.1.0) (2025-10-06)
+## [1.1.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.2...v1.1.0) - 2025-10-06
 
 
 ### Features
@@ -443,21 +443,21 @@
 * remove getFrontEndInputHtml override and fix CSS to prevent error display issues ([3d489a0](https://github.com/LindemannRock/craft-formie-rating-field/commit/3d489a0bb6b8fedf2951fc677815b88271d88493))
 * update PHP requirement to ^8.2 in composer.json ([91bb729](https://github.com/LindemannRock/craft-formie-rating-field/commit/91bb729229384dd37dec76f5f11a90cfdfc7fd22))
 
-## [1.0.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.1...v1.0.2) (2025-09-26)
+## [1.0.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.1...v1.0.2) - 2025-09-26
 
 
 ### Bug Fixes
 
 * corrupted minified JS file causing syntax errors in production ([a567a64](https://github.com/LindemannRock/craft-formie-rating-field/commit/a567a64791259b730a67228878a901f7423623bd))
 
-## [1.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.0...v1.0.1) (2025-09-24)
+## [1.0.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v1.0.0...v1.0.1) - 2025-09-24
 
 
 ### Bug Fixes
 
 * update repository references and improve .gitignore entries ([65acf0e](https://github.com/LindemannRock/craft-formie-rating-field/commit/65acf0eafa28c6e4e1d0729ce8fb2328d02a49f4))
 
-## 1.0.0 (2025-09-15)
+## 1.0.0 - 2025-09-15
 
 
 ### Features
