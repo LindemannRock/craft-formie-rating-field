@@ -37,18 +37,10 @@
 <fieldset class="first">
 	<h2>{{ 'General Settings'|t('formie-rating-field') }}</h2>
 
-	{{ forms.textField({
-        label: 'Plugin Name'|t('formie-rating-field'),
-        instructions: 'The name of the plugin as it appears in the Control Panel menu'|t('formie-rating-field'),
-        id: 'pluginName',
-        name: 'settings[pluginName]',
-        value: settings.pluginName ?? 'Formie Rating Field',
-        placeholder: 'Formie Rating Field',
-        warning: settings.isOverriddenByConfig('pluginName') ?
-            "This is being overridden by the <code>pluginName</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('pluginName'),
-        errors: settings.getErrors('pluginName')
-    }) }}
+	{% include 'lindemannrock-base/_partials/field-plugin-name' with {
+        settings: settings,
+        pluginHandle: 'formie-rating-field',
+    } only %}
 </fieldset>
 
 <hr>

@@ -34,21 +34,10 @@
 <fieldset class="first">
 	<h2>{{ 'Interface Settings'|t('formie-rating-field') }}</h2>
 
-	{{ forms.textField({
-        label: 'Items Per Page'|t('formie-rating-field'),
-        instructions: 'Number of items to display per page in statistics lists'|t('formie-rating-field'),
-        id: 'itemsPerPage',
-        name: 'settings[itemsPerPage]',
-        type: 'number',
-        value: settings.itemsPerPage ?? 50,
-        min: 10,
-        max: 500,
-        required: true,
-        disabled: settings.isOverriddenByConfig('itemsPerPage'),
-        warning: settings.isOverriddenByConfig('itemsPerPage') ?
-            "This is being overridden by the <code>itemsPerPage</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        errors: settings.getErrors('itemsPerPage')
-    }) }}
+	{% include 'lindemannrock-base/_partials/field-items-per-page' with {
+        settings: settings,
+        pluginHandle: 'formie-rating-field',
+    } only %}
 
 	{{ forms.textField({
         label: 'Max Export Rows'|t('formie-rating-field'),
@@ -65,20 +54,19 @@
             "This is being overridden by the <code>maxExportRows</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
         errors: settings.getErrors('maxExportRows')
     }) }}
-
-	{{ forms.selectField({
-        label: 'Default Date Range'|t('formie-rating-field'),
-        instructions: 'Default date range for statistics when first loading the page. Shorter ranges load faster.'|t('formie-rating-field'),
-        id: 'defaultDateRange',
-        name: 'settings[defaultDateRange]',
-        value: settings.defaultDateRange ?? 'last30days',
-        options: lrDateRangeOptions(),
-        disabled: settings.isOverriddenByConfig('defaultDateRange'),
-        warning: settings.isOverriddenByConfig('defaultDateRange') ?
-            "This is being overridden by the <code>defaultDateRange</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        errors: settings.getErrors('defaultDateRange')
-    }) }}
 </fieldset>
+
+<hr>
+
+{% include 'lindemannrock-base/_partials/cascade-base-overrides' with {
+    settings: settings,
+    pluginHandle: 'formie-rating-field',
+    sections: {
+        dateFormat: {},
+        dateRange: {},
+        exports: {},
+    },
+} only %}
 
 {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}
