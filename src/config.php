@@ -132,9 +132,9 @@ return [
         /**
          * Number of items to display per page in statistics lists
          * Range: 10-500
-         * Default: 50
+         * Default: 100
          */
-        'itemsPerPage' => 50,
+        'itemsPerPage' => 100,
 
         /**
          * Maximum rows included in the "Raw Responses" export.
@@ -199,10 +199,10 @@ return [
          * Options: 'today', 'yesterday', 'last7days', 'last30days', 'last90days',
          *          'thisMonth', 'lastMonth', 'thisYear', 'lastYear', 'all'
          *
-         * Lives on the plugin's Settings model — set it via
-         * Settings → Interface → Default Date Range.
-         * Setting it here overrides the UI value.
-         * Default: 'last30days' (Settings model default)
+         * Cascades: plugin config → plugin DB/CP value → base config → 'last30days'.
+         * Set it here to force a value for this plugin; otherwise edit it in
+         * Settings → Interface → Default Date Range, or set globally in
+         * config/lindemannrock-base.php.
          */
         // 'defaultDateRange' => 'last7days',
 
