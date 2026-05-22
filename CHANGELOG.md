@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.19.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.18.0...v3.19.0) (2026-05-22)
+
+
+### Added
+
+* add pre-commit hook for ECS and PHPStan code quality checks ([cf4d32b](https://github.com/LindemannRock/craft-formie-rating-field/commit/cf4d32ba97ec1e09c3225ca2a69251937c843c80))
+* **i18n:** add translation issue template for reporting language problems ([e7213db](https://github.com/LindemannRock/craft-formie-rating-field/commit/e7213db9986cc11a69c03789d0c148a5ea9a8328))
+* **tests:** add PHPUnit configuration and integration tests for Rating field ([b254501](https://github.com/LindemannRock/craft-formie-rating-field/commit/b254501d2fbc517cdcac21a6b4203ac6c0a8db4f))
+
 ## [3.18.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.17.0...v3.18.0) (2026-05-09)
 
 
