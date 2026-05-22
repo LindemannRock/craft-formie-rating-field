@@ -10,6 +10,11 @@ namespace lindemannrock\formieratingfield\models;
 
 use Craft;
 use craft\base\Model;
+use lindemannrock\base\traits\DateFormatSettingsTrait;
+use lindemannrock\base\traits\DateRangeSettingsTrait;
+use lindemannrock\base\traits\ExportFormatSettingsTrait;
+use lindemannrock\base\traits\ItemsPerPageSettingsTrait;
+use lindemannrock\base\traits\PluginNameSettingsTrait;
 use lindemannrock\base\traits\SettingsConfigTrait;
 use lindemannrock\base\traits\SettingsDisplayNameTrait;
 
@@ -22,8 +27,14 @@ use lindemannrock\base\traits\SettingsDisplayNameTrait;
  */
 class Settings extends Model
 {
+    use DateFormatSettingsTrait;
+    use DateRangeSettingsTrait;
+    use ExportFormatSettingsTrait;
+    use ItemsPerPageSettingsTrait;
+    use PluginNameSettingsTrait;
     use SettingsConfigTrait;
     use SettingsDisplayNameTrait;
+
     /**
      * @var string The name of the plugin as it appears in the Control Panel menu
      */
@@ -85,11 +96,6 @@ class Settings extends Model
     public bool $defaultSingleEmojiSelection = false;
 
     /**
-     * @var int Number of items to display per page in lists
-     */
-    public int $itemsPerPage = 50;
-
-    /**
      * @var int Maximum rows included in raw-responses exports. 0 = unlimited.
      *
      * Default 50,000 protects against PHP OOM when an admin exports the full
@@ -109,20 +115,14 @@ class Settings extends Model
     public string $cacheGenerationSchedule = 'manual';
 
     /**
-     * @var string Default date range for statistics
-     */
-    public string $defaultDateRange = 'last30days';
-
-    /**
      * @inheritdoc
      */
     public function defineRules(): array
     {
-        return [
-            [['pluginName', 'defaultRatingType', 'defaultRatingSize', 'defaultStartLabel', 'defaultEndLabel'], 'string'],
+        return array_merge([
+            [['defaultRatingType', 'defaultRatingSize', 'defaultStartLabel', 'defaultEndLabel'], 'string'],
             [['defaultMinRating'], 'integer', 'min' => 0, 'max' => 1],
             [['defaultMaxRating'], 'integer', 'min' => 3, 'max' => 10],
-            [['itemsPerPage'], 'integer', 'min' => 10, 'max' => 500],
             [['maxExportRows'], 'integer', 'min' => 0, 'max' => 1000000],
             [['defaultAllowHalfRatings', 'defaultShowSelectedLabel', 'defaultShowEndpointLabels', 'defaultSingleEmojiSelection'], 'boolean'],
             [['defaultRatingType'], 'in', 'range' => ['star', 'emoji', 'nps']],
@@ -132,8 +132,7 @@ class Settings extends Model
             [['defaultEmojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
             [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
             [['cacheGenerationSchedule'], 'in', 'range' => ['manual', 'every3hours', 'every6hours', 'every12hours', 'daily', 'daily2am', 'twicedaily', 'weekly']],
-            [['defaultDateRange'], 'in', 'range' => ['today', 'yesterday', 'last7days', 'last30days', 'last90days', 'thisMonth', 'lastMonth', 'thisYear', 'lastYear', 'all']],
-        ];
+        ], $this->pluginNameSettingsRules(), $this->dateFormatSettingsRules(), $this->dateRangeSettingsRules(), $this->exportFormatSettingsRules(), $this->itemsPerPageSettingsRules());
     }
 
     /**
@@ -141,8 +140,7 @@ class Settings extends Model
      */
     public function attributeLabels(): array
     {
-        return [
-            'pluginName' => Craft::t('formie-rating-field', 'Plugin Name'),
+        return array_merge([
             'defaultRatingType' => Craft::t('formie-rating-field', 'Default Rating Type'),
             'defaultRatingSize' => Craft::t('formie-rating-field', 'Default Rating Size'),
             'defaultMinRating' => Craft::t('formie-rating-field', 'Default Minimum Rating'),
@@ -154,12 +152,10 @@ class Settings extends Model
             'defaultEndLabel' => Craft::t('formie-rating-field', 'Default End Label'),
             'defaultEmojiRenderMode' => Craft::t('formie-rating-field', 'Default Emoji Render Mode'),
             'defaultSingleEmojiSelection' => Craft::t('formie-rating-field', 'Single Emoji Selection by Default'),
-            'itemsPerPage' => Craft::t('formie-rating-field', 'Items Per Page'),
             'maxExportRows' => Craft::t('formie-rating-field', 'Max Export Rows'),
             'cacheStorageMethod' => Craft::t('formie-rating-field', 'Cache Storage Method'),
             'cacheGenerationSchedule' => Craft::t('formie-rating-field', 'Cache Generation Schedule'),
-            'defaultDateRange' => Craft::t('formie-rating-field', 'Default Date Range'),
-        ];
+        ], $this->pluginNameSettingsLabel(), $this->dateFormatSettingsLabels(), $this->dateRangeSettingsLabel(), $this->exportFormatSettingsLabels(), $this->itemsPerPageSettingsLabel());
     }
 
     /**
