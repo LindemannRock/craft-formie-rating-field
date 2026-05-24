@@ -196,8 +196,10 @@ return [
 
         /**
          * Default date range for the statistics page
-         * Options: 'today', 'yesterday', 'last7days', 'last30days', 'last90days',
-         *          'thisMonth', 'lastMonth', 'thisYear', 'lastYear', 'all'
+         * Options: 'today', 'yesterday', 'thisWeek', 'lastWeek', 'last7days',
+         *          'last14days', 'last30days', 'last90days', 'thisMonth',
+         *          'lastMonth', 'thisQuarter', 'lastQuarter', 'thisYear',
+         *          'lastYear', 'last12months', 'all'
          *
          * Cascades: plugin config → plugin DB/CP value → base config → 'last30days'.
          * Set it here to force a value for this plugin; otherwise edit it in
