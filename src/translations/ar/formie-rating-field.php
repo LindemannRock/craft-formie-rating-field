@@ -11,7 +11,7 @@ return [
     'Formie Rating Field' => 'Formie Rating Field',
     'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'قم بتكوين حقول التقييم ومراجعة إحصائيات الإرسال وإدارة سلوك Cache من مساحة عمل واحدة في لوحة التحكم.',
     'Open Formie Rating Field' => 'فتح Formie Rating Field',
-    '{displayName} caches' => 'ذاكرات التخزين المؤقت لـ {displayName}',
+    '{displayName} caches' => 'Caches الخاصة بـ {displayName}',
 
     // Navigation
     'Statistics' => 'الإحصائيات',

@@ -49,12 +49,12 @@ return [
 
     // Controller messages
     'Administrative changes are disallowed in this environment.' => 'この環境では管理者による変更は許可されていません。',
-    'Cache cleared successfully' => 'キャッシュを正常にクリアしました',
+    'Cache cleared successfully' => 'キャッシュを正常に削除しました',
     'Cache generation started' => 'キャッシュの生成を開始しました',
     'Could not save settings.' => '設定を保存できませんでした。',
     'Export failed. Please check the logs for details.' => 'エクスポートに失敗しました。詳細はログをご確認ください。',
     "Export format '{format}' is not enabled." => "エクスポート形式 '{format}' は有効になっていません。",
-    'Failed to clear cache' => 'キャッシュのクリアに失敗しました',
+    'Failed to clear cache' => 'キャッシュの削除に失敗しました',
     'Failed to refresh statistics' => '統計の更新に失敗しました',
     'Failed to start cache generation' => 'キャッシュ生成の開始に失敗しました',
     'Field handle is required' => 'フィールドハンドルは必須です',
@@ -66,7 +66,7 @@ return [
     'Missing required parameters' => '必須パラメーターが不足しています',
     'Plugin not found' => 'プラグインが見つかりません',
     'Settings saved.' => '設定を保存しました。',
-    'Statistics cache cleared' => '統計キャッシュをクリアしました',
+    'Statistics cache cleared' => '統計キャッシュを削除しました',
     'Statistics refreshed' => '統計を更新しました',
     'This form does not contain any rating fields.' => 'このフォームには評価フィールドが含まれていません。',
     'Unknown export format: {format}' => '不明なエクスポート形式 : {format}',
@@ -169,7 +169,7 @@ return [
 
     // Statistics: Form
     'Refresh' => '更新',
-    'Refresh statistics (clears cache)' => '統計を更新（キャッシュをクリア）',
+    'Refresh statistics (clears cache)' => '統計を更新（キャッシュを削除）',
     'All Fields' => 'すべてのフィールド',
     'All Products' => 'すべての製品',
     'Search products...' => '製品を検索...',
@@ -241,14 +241,14 @@ return [
     'Cache Status (Redis)' => 'キャッシュステータス（ Redis ）',
     'Cached statistics' => 'キャッシュされた統計',
     'Navigation' => 'ナビゲーション',
-    'Access main plugin sections' => 'プラグインの主要セクションにアクセス',
+    'Access main plugin sections' => 'プラグインのメインセクションにアクセスする',
     'View Settings' => '設定を表示',
     'Cache Management' => 'キャッシュ管理',
-    'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => '統計キャッシュを生成またはクリアします。大規模なデータセットでは生成に数分かかる場合があります。',
+    'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => '統計キャッシュを生成または削除します。大規模なデータセットでは生成に数分かかる場合があります。',
     'Generate Cache Now' => '今すぐキャッシュを生成',
-    'Clear All Cache' => 'すべてのキャッシュをクリア',
+    'Clear All Cache' => 'すべてのキャッシュを削除する',
     'This will generate cache for all forms with rating fields. This may take several minutes. Continue?' => '評価フィールドを持つすべてのフォームのキャッシュを生成します。数分かかる場合があります。続行しますか ?',
-    'Clear all statistics cache?' => 'すべての統計キャッシュをクリアしますか ?',
+    'Clear all statistics cache?' => 'すべての統計キャッシュを削除しますか ?',
     'Utilities' => 'ユーティリティ',
 
     // Field schema (rating settings)

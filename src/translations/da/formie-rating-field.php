@@ -75,7 +75,7 @@ return [
     // Validation messages
     'Allow Half Ratings by Default' => 'Tillad halve vurderinger som standard',
     'Cache Generation Schedule' => 'Plan for cache-generering',
-    'Cache Storage Method' => 'Cache-lagringsmetode',
+    'Cache Storage Method' => 'Metode for cache-lagring',
     'Default Emoji Render Mode' => 'Standard emoji-gengivelsestilstand',
     'Default End Label' => 'Standard slutmærkat',
     'Default Maximum Rating' => 'Standard maksimumvurdering',
@@ -97,7 +97,7 @@ return [
     'The default minimum and maximum values for rating fields' => 'Standardminimum- og maksimumværdier for vurderingsfelter',
     'Rating Range' => 'Vurderingsinterval',
     'Allow Half Ratings' => 'Tillad halve vurderinger',
-    'Enable half-star ratings by default (star type only)' => 'Aktivér halv-stjerne-vurderinger som standard (kun stjernetype)',
+    'Enable half-star ratings by default (star type only)' => 'Aktiver halv-stjerne-vurderinger som standard (kun stjernetype)',
     'The default emoji render mode for new emoji rating fields. "System Emojis" uses the visitor\'s native platform emoji and stays fully local. The two "Noto" modes load fonts from Google Fonts CDN on every form render, which contacts Google\'s servers — may require user consent under GDPR in EU jurisdictions.' => 'Standard emoji-gengivelsestilstand for nye emoji-vurderingsfelter. "Systememojis" bruger besøgendes platformsspecifikke emojis og forbliver fuldt lokal. De to "Noto"-tilstande indlæser skrifttyper fra Google Fonts CDN ved hver formularvisning, hvilket kontakter Googles servere — kan kræve brugersamtykke under GDPR i EU-jurisdiktioner.',
     'System Emojis (Native platform emojis)' => 'Systememojis (platformsspecifikke emojis)',
     'Noto Color Emoji (Detailed, colorful style)' => 'Noto Color Emoji (detaljeret, farverig stil)',
@@ -280,7 +280,7 @@ return [
     'Thank you for your feedback. We will use it to improve our service.' => 'Tak for din feedback. Vi vil bruge den til at forbedre vores service.',
 
     // Field schema (Google Review)
-    'Enable Google Review Prompt' => 'Aktivér Google-anmeldelsesprompt',
+    'Enable Google Review Prompt' => 'Aktiver Google-anmeldelsesprompt',
     'Show a Google Review link when users give high ratings. This will override the form\'s success message. Only one rating field per form should have this enabled.' => 'Vis et Google-anmeldelseslink, når brugere giver høje vurderinger. Dette tilsidesætter formularens succesmeddelelse. Kun ét vurderingsfelt pr. formular bør have dette aktiveret.',
     'Rating Threshold' => 'Vurderingstærskel',
     'Minimum rating value to show the Google Review prompt (e.g., 9 for NPS).' => 'Minimum vurderingsværdi for at vise Google-anmeldelsesprompten (f.eks. 9 for NPS).',
