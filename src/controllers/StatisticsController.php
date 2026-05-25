@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\controllers;
@@ -84,36 +84,62 @@ class StatisticsController extends Controller
         $statisticsService = $plugin->statistics;
         $request = Craft::$app->getRequest();
 
-        // Get query parameters
-        $search = $request->getQueryParam('search', '');
-        $sort = $request->getQueryParam('sort', 'totalSubmissions');
-        $dir = $request->getQueryParam('dir', 'desc');
-        $page = max(1, (int)$request->getQueryParam('page', 1));
-        $limit = $settings->itemsPerPage;
-        $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
+        // ---- Param parsing + allowlist validation -------------------------
+        // Every parameter that controls filtering or sorting goes through an
+        // explicit allowlist. Off-list values snap back to the default.
 
-        // Get all forms that have rating fields (totalSubmissions count respects site filter)
-        $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteId);
-
-        // Apply search filter
-        if ($search) {
-            $formsWithRatings = array_filter($formsWithRatings, function($item) use ($search) {
-                return stripos($item['form']->title, $search) !== false ||
-                       stripos($item['form']->handle, $search) !== false;
-            });
+        // 64-char defensive clamp on free-text search. Keeps a runaway payload
+        // (URL of any length) from reaching the filter loop.
+        $search = trim((string) $request->getQueryParam('search', ''));
+        if (mb_strlen($search) > 64) {
+            $search = mb_substr($search, 0, 64);
         }
 
-        // Apply sorting
-        usort($formsWithRatings, function($a, $b) use ($sort, $dir) {
-            $aVal = $sort === 'title' ? $a['form']->title :
-                   ($sort === 'ratingFieldCount' ? $a['ratingFieldCount'] : $a['totalSubmissions']);
-            $bVal = $sort === 'title' ? $b['form']->title :
-                   ($sort === 'ratingFieldCount' ? $b['ratingFieldCount'] : $b['totalSubmissions']);
+        $validSortFields = ['title', 'handle', 'ratingFieldCount', 'totalSubmissions'];
+        $sort = (string) $request->getQueryParam('sort', 'totalSubmissions');
+        if (!in_array($sort, $validSortFields, true)) {
+            $sort = 'totalSubmissions';
+        }
+        $dir = strtolower((string) $request->getQueryParam('dir', 'desc')) === 'asc' ? 'asc' : 'desc';
 
-            if ($dir === 'asc') {
-                return $aVal <=> $bVal;
+        $page = max(1, (int) $request->getQueryParam('page', 1));
+        $limit = max(1, (int) $settings->itemsPerPage);
+
+        // _resolveSiteId() throws ForbiddenHttpException for non-editable site
+        // IDs and otherwise returns int|'all'. That's the per-request site
+        // allowlist (driven by the user's editable-sites permission set), so
+        // no second guard is needed here.
+        $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
+
+        // ---- Load + filter ------------------------------------------------
+        // Get all forms that have rating fields (totalSubmissions count respects site filter).
+        $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteId);
+
+        if ($search !== '') {
+            $needle = mb_strtolower($search);
+            $formsWithRatings = array_values(array_filter($formsWithRatings, fn($item): bool =>
+                stripos((string) $item['form']->title, $needle) !== false ||
+                stripos((string) $item['form']->handle, $needle) !== false
+            ));
+        }
+
+        // ---- Sort ---------------------------------------------------------
+        $multiplier = $dir === 'desc' ? -1 : 1;
+        usort($formsWithRatings, function($a, $b) use ($sort, $multiplier): int {
+            $cmp = match ($sort) {
+                'title' => strcasecmp((string) $a['form']->title, (string) $b['form']->title),
+                'handle' => strcasecmp((string) $a['form']->handle, (string) $b['form']->handle),
+                'ratingFieldCount' => $a['ratingFieldCount'] <=> $b['ratingFieldCount'],
+                default => $a['totalSubmissions'] <=> $b['totalSubmissions'],
+            };
+
+            // Stable tie-break by form title so equal primary keys don't
+            // shuffle between requests — keeps pagination predictable.
+            if ($cmp === 0 && $sort !== 'title') {
+                $cmp = strcasecmp((string) $a['form']->title, (string) $b['form']->title);
             }
-            return $bVal <=> $aVal;
+
+            return $cmp * $multiplier;
         });
 
         // Calculate pagination
