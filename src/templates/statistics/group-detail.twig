@@ -64,7 +64,7 @@
                     <tbody>
                         {% for submission in submissions %}
                             <tr>
-                                <td>{{ submission.dateCreated|datetime('short') }}</td>
+                                <td>{{ submission.dateCreated|lrDatetime }}</td>
                                 <td>
                                     <a href="{{ submission.cpEditUrl }}" target="_blank" class="go">
                                         <code>{{ submission.id }}</code>
