@@ -56,7 +56,7 @@
     table: {
         columns: [
             {key: 'title', label: 'Form Title'|t('formie-rating-field'), sortable: true},
-            {key: 'handle', label: 'Handle'|t('formie-rating-field'), hideable: true},
+            {key: 'handle', label: 'Handle'|t('formie-rating-field'), sortable: true, hideable: true},
             {key: 'ratingFieldCount', label: 'Rating Fields'|t('formie-rating-field'), sortable: true},
             {key: 'totalSubmissions', label: 'Total Submissions'|t('formie-rating-field'), sortable: true},
         ],
@@ -69,6 +69,8 @@
         totalCount: totalItems,
         itemLabel: {singular: 'form'|t('formie-rating-field'), plural: 'forms'|t('formie-rating-field')},
     },
+    checkboxes: false,
+    rowActions: false,
 } %}
 
 {# ============================================================================
