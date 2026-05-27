@@ -172,19 +172,18 @@ return [
          * Pre-generating cache improves performance for large datasets
          *
          * Options:
-         * - 'manual': Generate on-demand only (may be slow for 1000+ submissions)
+         * - 'disabled': Generate on-demand only (may be slow for 1000+ submissions)
          * - 'every3hours': Every 3 hours
          * - 'every6hours': Every 6 hours
          * - 'every12hours': Every 12 hours
          * - 'daily': Daily at midnight
          * - 'daily2am': Daily at 2am (recommended for low traffic)
-         * - 'twicedaily': Twice daily (midnight and noon)
          * - 'weekly': Weekly (Sunday midnight)
          *
-         * Default: 'manual'
+         * Default: 'disabled'
          * Recommended for production: 'daily2am' or 'every6hours'
          */
-        'cacheGenerationSchedule' => 'manual',
+        'cacheGenerationSchedule' => 'disabled',
 
 
         // ========================================
