@@ -14,6 +14,7 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
+use craft\db\Query;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
@@ -27,9 +28,12 @@ use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\View;
 use lindemannrock\base\helpers\CpNavHelper;
+use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
+use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\services\StatisticsService;
 use verbb\formie\elements\Submission;
@@ -263,7 +267,7 @@ class FormieRatingField extends Plugin
         }
 
         // Schedule cache generation job if enabled and not already queued
-        if ($settings->cacheGenerationSchedule !== 'manual') {
+        if ($settings->getEffectiveCacheGenerationSchedule() !== 'disabled') {
             $this->scheduleInitialCacheGeneration();
         }
     }
@@ -285,28 +289,101 @@ class FormieRatingField extends Plugin
         }
 
         try {
-            // Check if a job is already scheduled
-            $existingJob = (new \craft\db\Query())
-                ->from('{{%queue}}')
-                ->where(['like', 'job', 'formieratingfield'])
-                ->andWhere(['like', 'job', 'GenerateCacheJob'])
-                ->exists();
+            $settings = $this->getSettings();
+            $schedule = $settings->getEffectiveCacheGenerationSchedule();
+            $nextRun = ScheduleHelper::calculateNext($schedule);
+            $delay = ScheduleHelper::calculateDelaySeconds($schedule);
+            $existingJob = $this->hasScheduledCacheGenerationJob();
 
-            if (!$existingJob) {
-                $job = new \lindemannrock\formieratingfield\jobs\GenerateCacheJob([
+            if (!$existingJob && $nextRun !== null && $delay > 0) {
+                $job = new GenerateCacheJob([
                     'reschedule' => true,
+                    'scheduledMaster' => true,
+                    'nextRunTime' => DateFormatHelper::formatCompactDatetimeFromSettings(
+                        $nextRun,
+                        $settings,
+                        false,
+                        false,
+                    ),
                 ]);
-
-                // Calculate delay until next scheduled run time
-                $delay = $job->calculateNextRunDelay();
 
                 Craft::$app->getQueue()->delay($delay)->push($job);
 
-                Craft::info('Scheduled initial cache generation job. Delay: ' . $delay . 's, Next run: ' . date('Y-m-d H:i:s', time() + $delay), __METHOD__);
+                Craft::info('Scheduled initial cache generation job', __METHOD__);
             }
         } finally {
             $mutex->release($lockName);
         }
+    }
+
+    /**
+     * Handle automatic cache-generation schedule changes when settings are saved.
+     *
+     * @since 3.20.0
+     */
+    public function handleCacheGenerationScheduleChange(Settings $newSettings, string $oldSchedule): void
+    {
+        if ($newSettings->getEffectiveCacheGenerationSchedule() === $this->normalizeCacheGenerationSchedule($oldSchedule)) {
+            return;
+        }
+
+        $this->cancelScheduledCacheGenerationJobs();
+
+        if ($newSettings->getEffectiveCacheGenerationSchedule() === 'disabled') {
+            Craft::info('Automatic cache generation disabled', __METHOD__);
+            return;
+        }
+
+        $this->scheduleInitialCacheGeneration();
+
+        Craft::info('Automatic cache generation schedule updated', __METHOD__);
+    }
+
+    /**
+     * Determine if a recurring cache-generation master job is already queued.
+     */
+    private function hasScheduledCacheGenerationJob(): bool
+    {
+        return (new Query())
+            ->from('{{%queue}}')
+            ->where(['like', 'job', 'formieratingfield'])
+            ->andWhere(['like', 'job', 'GenerateCacheJob'])
+            ->andWhere([
+                'or',
+                ['like', 'job', '"scheduledMaster";b:1'],
+                ['like', 'job', '"scheduledMaster":true'],
+            ])
+            ->exists();
+    }
+
+    /**
+     * Cancel pending recurring cache-generation master jobs.
+     */
+    private function cancelScheduledCacheGenerationJobs(): void
+    {
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%queue}}', [
+                'and',
+                ['like', 'job', 'formieratingfield'],
+                ['like', 'job', 'GenerateCacheJob'],
+                [
+                    'or',
+                    ['like', 'job', '"scheduledMaster";b:1'],
+                    ['like', 'job', '"scheduledMaster":true'],
+                ],
+            ])
+            ->execute();
+    }
+
+    /**
+     * Normalize cache-generation schedule values.
+     */
+    private function normalizeCacheGenerationSchedule(string $schedule): string
+    {
+        $settings = new Settings();
+        $settings->cacheGenerationSchedule = $schedule;
+
+        return $settings->getEffectiveCacheGenerationSchedule();
     }
     
     /**
