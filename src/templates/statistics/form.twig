@@ -169,7 +169,7 @@
                 <p class="lr-text-muted" style="margin: 0 0 16px; font-size: 13px;">
                     ({{ (isNps ? 'NPS' : (stats.fieldType == 'star' ? 'Star Rating' : 'Emoji Rating'))|t('formie-rating-field') }})
                     {% set settings = craft.app.plugins.getPlugin('formie-rating-field').settings %}
-                    {% if settings.cacheGenerationSchedule != 'manual' %}
+                    {% if settings.getEffectiveCacheGenerationSchedule() != 'disabled' %}
                         • {{ "Last updated: {time}"|t('formie-rating-field', {time: now|lrDatetime}) }}
                     {% endif %}
                 </p>

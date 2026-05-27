@@ -82,24 +82,15 @@
     instructions: 'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.'|t('formie-rating-field'),
     id: 'cacheGenerationSchedule',
     name: 'settings[cacheGenerationSchedule]',
-    value: settings.cacheGenerationSchedule ?? 'manual',
-    options: [
-        { value: 'manual', label: 'Manual Only'|t('formie-rating-field') },
-        { value: 'every3hours', label: 'Every 3 Hours'|t('formie-rating-field') },
-        { value: 'every6hours', label: 'Every 6 Hours'|t('formie-rating-field') },
-        { value: 'every12hours', label: 'Every 12 Hours'|t('formie-rating-field') },
-        { value: 'daily', label: 'Daily (Midnight)'|t('formie-rating-field') },
-        { value: 'daily2am', label: 'Daily at 2am (Low Traffic)'|t('formie-rating-field') },
-        { value: 'twicedaily', label: 'Twice Daily (Midnight & Noon)'|t('formie-rating-field') },
-        { value: 'weekly', label: 'Weekly (Sunday Midnight)'|t('formie-rating-field') },
-    ],
+    value: settings.getEffectiveCacheGenerationSchedule(),
+    options: settings.getCacheGenerationScheduleOptions(),
     disabled: settings.isOverriddenByConfig('cacheGenerationSchedule'),
     warning: settings.isOverriddenByConfig('cacheGenerationSchedule') ?
         "This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
     errors: settings.getErrors('cacheGenerationSchedule')
 }) }}
 
-{% if settings.cacheGenerationSchedule == 'manual' or not settings.cacheGenerationSchedule %}
+{% if settings.getEffectiveCacheGenerationSchedule() == 'disabled' %}
     {% include 'lindemannrock-base/_components/info-box' with {
         message: '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.'|t('formie-rating-field')|raw,
         type: 'warning'
