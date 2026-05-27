@@ -111,6 +111,7 @@ class SettingsController extends Controller
         $section = $this->validSection((string) Craft::$app->getRequest()->getBodyParam('section', 'general'));
         $plugin = FormieRatingField::$plugin;
         $settings = $plugin->getSettings();
+        $oldCacheGenerationSchedule = $settings->cacheGenerationSchedule;
 
         // Filter $params to the section's allow-list. Prevents a forged or off-section
         // submission from updating attributes the user isn't editing on this page —
@@ -153,6 +154,13 @@ class SettingsController extends Controller
         if (!Craft::$app->getPlugins()->savePluginSettings($plugin, $params)) {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Could not save settings.'));
             return $this->asFailure(Craft::t('formie-rating-field', 'Could not save settings.'));
+        }
+
+        if (in_array('cacheGenerationSchedule', $attributesToValidate, true)) {
+            $plugin->setSettings([]);
+            /** @var \lindemannrock\formieratingfield\models\Settings $settings */
+            $settings = $plugin->getSettings();
+            $plugin->handleCacheGenerationScheduleChange($settings, $oldCacheGenerationSchedule);
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('formie-rating-field', 'Settings saved.'));
