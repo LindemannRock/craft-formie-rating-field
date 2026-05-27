@@ -10,6 +10,9 @@ namespace lindemannrock\formieratingfield\jobs;
 
 use Craft;
 use craft\queue\BaseJob;
+use DateTime;
+use lindemannrock\base\helpers\DateFormatHelper;
+use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\base\traits\QueueTtrTrait;
 use lindemannrock\formieratingfield\FormieRatingField;
 use yii\queue\RetryableJobInterface;
@@ -36,6 +39,13 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
      * @var bool Whether to reschedule after completion
      */
     public bool $reschedule = false;
+
+    /**
+     * @var bool Whether this row is the recurring scheduler master job
+     *
+     * @since 3.20.0
+     */
+    public bool $scheduledMaster = false;
 
     /**
      * @var string|null Next run time display string
@@ -87,12 +97,8 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
     {
         parent::init();
 
-        // Calculate next run time if rescheduling
         if ($this->reschedule && !$this->nextRunTime) {
-            $delay = $this->calculateNextRunDelay();
-            if ($delay > 0) {
-                $this->nextRunTime = date('M j, g:ia', time() + $delay);
-            }
+            $this->nextRunTime = $this->formatNextRunTime($this->calculateNextRun());
         }
     }
 
@@ -101,7 +107,6 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
      */
     public function execute($queue): void
     {
-        $settings = FormieRatingField::$plugin->getSettings();
         $statisticsService = FormieRatingField::$plugin->statistics;
 
         // If this is the first batch, calculate total batches and clear cache
@@ -112,6 +117,11 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
 
             // Calculate and queue all batches
             $this->queueAllBatches($statisticsService);
+
+            if ($this->reschedule) {
+                $this->scheduleNext();
+            }
+
             return;
         }
 
@@ -174,6 +184,7 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
                 'currentBatch' => $index + 1,
                 'totalBatches' => $totalBatches,
                 'reschedule' => false,
+                'scheduledMaster' => false,
             ]));
         }
 
@@ -260,29 +271,36 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
     public function calculateNextRunDelay(): int
     {
         $settings = FormieRatingField::$plugin->getSettings();
+        $schedule = $settings->getEffectiveCacheGenerationSchedule();
 
-        // For daily2am, calculate seconds until next 2am
-        if ($settings->cacheGenerationSchedule === 'daily2am') {
-            $now = time();
-            if (date('G') >= 2) {
-                // If past 2am today, schedule for tomorrow 2am
-                $next2am = strtotime('tomorrow 2:00am');
-            } else {
-                // Before 2am today, schedule for today 2am
-                $next2am = strtotime('today 2:00am');
-            }
-            return $next2am - $now;
+        return ScheduleHelper::calculateDelaySeconds($schedule);
+    }
+
+    /**
+     * Calculate the next scheduled run.
+     */
+    private function calculateNextRun(): ?DateTime
+    {
+        $settings = FormieRatingField::$plugin->getSettings();
+
+        return ScheduleHelper::calculateNext($settings->getEffectiveCacheGenerationSchedule());
+    }
+
+    /**
+     * Format the next run for the serialized queue description.
+     */
+    private function formatNextRunTime(?DateTime $nextRun): ?string
+    {
+        if ($nextRun === null) {
+            return null;
         }
 
-        return match ($settings->cacheGenerationSchedule) {
-            'every3hours' => 3 * 3600,
-            'every6hours' => 6 * 3600,
-            'every12hours' => 12 * 3600,
-            'daily' => 24 * 3600,
-            'twicedaily' => 12 * 3600,
-            'weekly' => 7 * 24 * 3600,
-            default => 0,
-        };
+        return DateFormatHelper::formatCompactDatetimeFromSettings(
+            $nextRun,
+            FormieRatingField::$plugin->getSettings(),
+            false,
+            false,
+        );
     }
 
     /**
@@ -290,10 +308,8 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
      */
     private function scheduleNext(): void
     {
-        // Mutex makes the check-then-push atomic across concurrent jobs/requests.
-        // Without it, two parallel finishing jobs could both pass the existsCheck()
-        // and each push a duplicate reschedule. Non-blocking acquire — if another
-        // job is currently scheduling, this one skips silently.
+        // Mutex prevents parallel master jobs from pushing the same next row.
+        // Non-blocking acquire: if another job is currently scheduling, skip.
         $mutex = Craft::$app->getMutex();
         $lockName = 'formie-rating-field:schedule-cache-job';
 
@@ -302,24 +318,14 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
         }
 
         try {
-            // Prevent duplicate scheduling - check if another job already exists
-            // This prevents fan-out if multiple jobs end up in the queue (manual runs, retries, etc.)
-            $existingJob = (new \craft\db\Query())
-                ->from('{{%queue}}')
-                ->where(['like', 'job', 'formieratingfield'])
-                ->andWhere(['like', 'job', 'GenerateCacheJob'])
-                ->exists();
-
-            if ($existingJob) {
-                Craft::info('Skipping reschedule - cache generation job already exists', __METHOD__);
-                return;
-            }
-
+            $nextRun = $this->calculateNextRun();
             $delay = $this->calculateNextRunDelay();
 
-            if ($delay > 0) {
+            if ($nextRun !== null && $delay > 0) {
                 Craft::$app->getQueue()->delay($delay)->push(new self([
                     'reschedule' => true,
+                    'scheduledMaster' => true,
+                    'nextRunTime' => $this->formatNextRunTime($nextRun),
                 ]));
 
                 Craft::info('Scheduled next cache generation', __METHOD__);
