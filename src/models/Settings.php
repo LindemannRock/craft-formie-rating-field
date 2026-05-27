@@ -10,6 +10,7 @@ namespace lindemannrock\formieratingfield\models;
 
 use Craft;
 use craft\base\Model;
+use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\base\traits\DateFormatSettingsTrait;
 use lindemannrock\base\traits\DateRangeSettingsTrait;
 use lindemannrock\base\traits\ExportFormatSettingsTrait;
@@ -34,6 +35,16 @@ class Settings extends Model
     use PluginNameSettingsTrait;
     use SettingsConfigTrait;
     use SettingsDisplayNameTrait;
+
+    private const CACHE_GENERATION_SCHEDULE_OPTIONS = [
+        'disabled',
+        'every3hours',
+        'every6hours',
+        'every12hours',
+        'daily',
+        'daily2am',
+        'weekly',
+    ];
 
     /**
      * @var string The name of the plugin as it appears in the Control Panel menu
@@ -112,7 +123,7 @@ class Settings extends Model
     /**
      * @var string Schedule for automatic cache generation
      */
-    public string $cacheGenerationSchedule = 'manual';
+    public string $cacheGenerationSchedule = 'disabled';
 
     /**
      * @inheritdoc
@@ -131,8 +142,35 @@ class Settings extends Model
             [['defaultMaxRating'], 'in', 'range' => [3, 4, 5, 6, 7, 8, 9, 10]],
             [['defaultEmojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
             [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
-            [['cacheGenerationSchedule'], 'in', 'range' => ['manual', 'every3hours', 'every6hours', 'every12hours', 'daily', 'daily2am', 'twicedaily', 'weekly']],
+            [['cacheGenerationSchedule'], 'in', 'range' => array_merge(self::CACHE_GENERATION_SCHEDULE_OPTIONS, ['manual', 'twicedaily'])],
         ], $this->pluginNameSettingsRules(), $this->dateFormatSettingsRules(), $this->dateRangeSettingsRules(), $this->exportFormatSettingsRules(), $this->itemsPerPageSettingsRules());
+    }
+
+    /**
+     * Get the normalized cache-generation schedule.
+     *
+     * @since 3.20.0
+     */
+    public function getEffectiveCacheGenerationSchedule(): string
+    {
+        return match ($this->cacheGenerationSchedule) {
+            'manual' => 'disabled',
+            'twicedaily' => 'every12hours',
+            default => in_array($this->cacheGenerationSchedule, self::CACHE_GENERATION_SCHEDULE_OPTIONS, true)
+                ? $this->cacheGenerationSchedule
+                : 'disabled',
+        };
+    }
+
+    /**
+     * Get cache-generation schedule options for settings UI.
+     *
+     * @return array<int, array{value: string, label: string}>
+     * @since 3.20.0
+     */
+    public function getCacheGenerationScheduleOptions(): array
+    {
+        return ScheduleHelper::getOptions(self::CACHE_GENERATION_SCHEDULE_OPTIONS);
     }
 
     /**
