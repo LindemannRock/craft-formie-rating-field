@@ -56,6 +56,7 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **NPS Visual Indicators**: Stat boxes use traffic-light color coding (NPS Score: green ≥ 50, amber 0–49, red < 0; Promoters: green; Passives: amber; Detractors: red)
 - **Trend Charts**: NPS trend plots NPS Score (−100 to 100); Star/Emoji trend plots average rating
 - **File-Based or Redis Caching**: Fast performance with automatic cache invalidation on new submissions; configurable storage method and generation schedule
+- **Scheduled Cache Generation**: Optional pre-generation with disabled, hourly-style, daily, 2 AM, and weekly cadence presets
 - **CLI Cache Management**: Clear, inspect, and pre-generate cache via command line tools
 
 ## Installation
@@ -128,6 +129,7 @@ return [
     'defaultEndLabel' => 'Very Likely',
     'defaultEmojiRenderMode' => 'noto-simple',  // 'system', 'noto-color', 'noto-simple'
     'itemsPerPage' => 50,  // Number of items per page in statistics lists
+    'cacheGenerationSchedule' => 'daily2am', // 'disabled', 'every3hours', 'every6hours', 'every12hours', 'daily', 'daily2am', 'weekly'
 ];
 ```
 
