@@ -87,7 +87,7 @@ class CacheController extends Controller
         $this->stdout("-----------------------------------\n");
         $this->stdout("Cache path: {$cachePath}\n");
         $this->stdout("Cache files: {$cacheCount}\n");
-        $this->stdout("Generation schedule: {$settings->cacheGenerationSchedule}\n");
+        $this->stdout("Generation schedule: {$settings->getEffectiveCacheGenerationSchedule()}\n");
         $this->stdout("Manual clear: php craft formie-rating-field/cache/clear\n");
         $this->stdout("Manual generate: php craft formie-rating-field/cache/generate\n");
 
