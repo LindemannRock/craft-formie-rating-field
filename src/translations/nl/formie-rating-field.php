@@ -242,7 +242,6 @@ return [
     'Cached statistics' => 'Gecachte statistieken',
     'Navigation' => 'Navigatie',
     'Access main plugin sections' => 'Toegang tot de belangrijkste pluginsecties',
-    'View Settings' => 'Instellingen bekijken',
     'Cache Management' => 'Cachebeheer',
     'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => 'Statistiekencache genereren of wissen. Genereren kan enkele minuten duren bij grote datasets.',
     'Generate Cache Now' => 'Cache nu genereren',

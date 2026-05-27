@@ -242,7 +242,6 @@ return [
     'Cached statistics' => 'Cachet statistikk',
     'Navigation' => 'Navigasjon',
     'Access main plugin sections' => 'Få tilgang til pluginets hovedseksjoner',
-    'View Settings' => 'Vis innstillinger',
     'Cache Management' => 'Cache-administrasjon',
     'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => 'Generer eller tøm statistikkcache. Generering kan ta flere minutter for store datasett.',
     'Generate Cache Now' => 'Generer cache nå',

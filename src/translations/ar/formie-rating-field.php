@@ -242,7 +242,6 @@ return [
     'Cached statistics' => 'الإحصائيات المُخزَّنة مؤقتًا',
     'Navigation' => 'التنقّل',
     'Access main plugin sections' => 'الوصول إلى الأقسام الرئيسية للإضافة',
-    'View Settings' => 'عرض الإعدادات',
     'Cache Management' => 'إدارة الـ Cache',
     'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => 'إنشاء Cache الإحصائيات أو مسحه. قد يستغرق الإنشاء عدة دقائق لمجموعات البيانات الكبيرة.',
     'Generate Cache Now' => 'إنشاء الـ Cache الآن',

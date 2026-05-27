@@ -242,7 +242,6 @@ return [
     'Cached statistics' => 'キャッシュされた統計',
     'Navigation' => 'ナビゲーション',
     'Access main plugin sections' => 'プラグインのメインセクションにアクセスする',
-    'View Settings' => '設定を表示',
     'Cache Management' => 'キャッシュ管理',
     'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => '統計キャッシュを生成または削除します。大規模なデータセットでは生成に数分かかる場合があります。',
     'Generate Cache Now' => '今すぐキャッシュを生成',

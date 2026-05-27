@@ -242,7 +242,6 @@ return [
     'Cached statistics' => 'Statistiche memorizzate nella cache',
     'Navigation' => 'Navigazione',
     'Access main plugin sections' => 'Accedi alle sezioni principali del plugin',
-    'View Settings' => 'Visualizza impostazioni',
     'Cache Management' => 'Gestione cache',
     'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => 'Generi o svuoti la cache delle statistiche. La generazione può richiedere diversi minuti per grandi set di dati.',
     'Generate Cache Now' => 'Genera cache ora',
