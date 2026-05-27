@@ -54,7 +54,7 @@
                 {% set navButtons = navButtons|merge([{type: 'link', label: 'View Statistics'|t('formie-rating-field'), url: url('formie-rating-field/statistics')}]) %}
             {% endif %}
             {% if canManageSettings %}
-                {% set navButtons = navButtons|merge([{type: 'link', label: 'View Settings'|t('formie-rating-field'), url: url('formie-rating-field/settings')}]) %}
+                {% set navButtons = navButtons|merge([{type: 'link', label: 'Manage settings'|t('formie-rating-field'), url: url('formie-rating-field/settings')}]) %}
             {% endif %}
 
             {% include 'lindemannrock-base/_layouts/cp-utilities/_action-section' with {
