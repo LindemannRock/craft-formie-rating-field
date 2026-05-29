@@ -610,96 +610,73 @@ class StatisticsController extends Controller
             $raw = $statisticsService->buildRawResponsesExportRows($form, $dateRange, $siteId);
             $byGroup = $groupBy ? $statisticsService->buildGroupedExportRows($form, $dateRange, $groupBy, $siteId) : null;
 
-            if ($format === 'xlsx' || $format === 'excel') {
-                $filename = ExportHelper::filename($settings, array_values(array_filter([
-                    'statistics',
-                    $form->handle,
-                    $siteSlug,
-                    $dateRangeLabel,
-                ])), 'xlsx');
-
-                $sheets = [
-                    [
-                        'title' => Craft::t('formie-rating-field', 'Summary'),
-                        'headers' => $summary['headers'],
-                        'rows' => $summary['rows'],
-                    ],
-                    [
-                        'title' => Craft::t('formie-rating-field', 'Raw Responses'),
-                        'headers' => $raw['headers'],
-                        'rows' => $raw['rows'],
-                    ],
-                ];
-
-                if ($byGroup) {
-                    $sheets[] = [
-                        'title' => Craft::t('formie-rating-field', 'By Group'),
-                        'headers' => $byGroup['headers'],
-                        'rows' => $byGroup['rows'],
-                    ];
-                }
-
-                return ExportHelper::toExcelMulti($sheets, $filename);
-            }
-
-            if ($format === 'json') {
-                $filename = ExportHelper::filename($settings, array_values(array_filter([
-                    'statistics',
-                    $form->handle,
-                    $siteSlug,
-                    $dateRangeLabel,
-                ])), 'json');
-
-                $payload = [
-                    'exported' => date('c'),
-                    'form' => [
-                        'id' => $form->id,
-                        'title' => $form->title,
-                        'handle' => $form->handle,
-                    ],
-                    'dateRange' => $dateRange,
-                    'summary' => [
-                        'columns' => $summary['headers'],
-                        'rows' => $summary['rows'],
-                    ],
-                    'rawResponses' => [
-                        'columns' => $raw['headers'],
-                        'rows' => $raw['rows'],
-                    ],
-                ];
-
-                if ($byGroup) {
-                    $payload['byGroup'] = [
-                        'groupBy' => $groupBy,
-                        'columns' => $byGroup['headers'],
-                        'rows' => $byGroup['rows'],
-                    ];
-                }
-
-                return ExportHelper::toJson($payload, $filename);
-            }
-
-            // CSV: ZIP of multiple CSV files
-            $filename = ExportHelper::filename($settings, array_values(array_filter([
+            $extension = ExportHelper::normalizeFormat($format) === 'csv'
+                ? 'zip'
+                : ExportHelper::extensionForFormat($format);
+            $filenameParts = [
                 'statistics',
                 $form->handle,
                 $siteSlug,
                 $dateRangeLabel,
-                'csv',
-            ])), 'zip');
+            ];
+            if (ExportHelper::normalizeFormat($format) === 'csv') {
+                $filenameParts[] = 'csv';
+            }
+            $filename = ExportHelper::filename($settings, array_values(array_filter($filenameParts)), $extension);
 
             $suffix = $form->handle . ($siteSlug ? '-' . $siteSlug : '') . '-' . $dateRangeLabel;
-            $files = [
-                "summary-{$suffix}.csv" => ExportHelper::csvContent($summary['rows'], $summary['headers']),
-                "raw-responses-{$suffix}.csv" => ExportHelper::csvContent($raw['rows'], $raw['headers']),
+            $sections = [
+                [
+                    'key' => 'summary',
+                    'title' => Craft::t('formie-rating-field', 'Summary'),
+                    'filename' => "summary-{$suffix}.csv",
+                    'headers' => $summary['headers'],
+                    'rows' => $summary['rows'],
+                ],
+                [
+                    'key' => 'rawResponses',
+                    'title' => Craft::t('formie-rating-field', 'Raw Responses'),
+                    'filename' => "raw-responses-{$suffix}.csv",
+                    'headers' => $raw['headers'],
+                    'rows' => $raw['rows'],
+                ],
+            ];
+
+            $payload = [
+                'exported' => date('c'),
+                'form' => [
+                    'id' => $form->id,
+                    'title' => $form->title,
+                    'handle' => $form->handle,
+                ],
+                'dateRange' => $dateRange,
+                'summary' => [
+                    'columns' => $summary['headers'],
+                    'rows' => $summary['rows'],
+                ],
+                'rawResponses' => [
+                    'columns' => $raw['headers'],
+                    'rows' => $raw['rows'],
+                ],
             ];
 
             if ($byGroup) {
                 $safeGroupBy = trim((string)preg_replace('/[^a-z0-9]+/i', '-', (string)$groupBy), '-');
-                $files["by-group-{$safeGroupBy}-{$suffix}.csv"] = ExportHelper::csvContent($byGroup['rows'], $byGroup['headers']);
+                $sections[] = [
+                    'key' => 'byGroup',
+                    'title' => Craft::t('formie-rating-field', 'By Group'),
+                    'filename' => "by-group-{$safeGroupBy}-{$suffix}.csv",
+                    'headers' => $byGroup['headers'],
+                    'rows' => $byGroup['rows'],
+                ];
+                $payload['byGroup'] = [
+                    'groupBy' => $groupBy,
+                    'columns' => $byGroup['headers'],
+                    'rows' => $byGroup['rows'],
+                ];
             }
 
-            return ExportHelper::toZip($files, $filename);
+            return ExportHelper::dispatchSections($sections, $format, $filename, $payload);
         } catch (\Exception $e) {
             Craft::error('Statistics export failed: ' . $e->getMessage(), __METHOD__);
 
