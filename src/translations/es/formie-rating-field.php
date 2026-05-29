@@ -56,7 +56,7 @@ return [
     "Export format '{format}' is not enabled." => "El formato de exportación '{format}' no está activado.",
     'Failed to clear cache' => 'Error al borrar el caché',
     'Failed to refresh statistics' => 'Error al actualizar las estadísticas',
-    'Failed to start cache generation' => 'Error al iniciar la generación de cache',
+    'Failed to start cache generation' => 'Error al iniciar la generación de caché',
     'Field handle is required' => 'El handle del campo es obligatorio',
     'Field not found' => 'Campo no encontrado',
     'Form ID and group value are required' => 'El ID del formulario y el valor del grupo son obligatorios',
@@ -74,8 +74,8 @@ return [
 
     // Validation messages
     'Allow Half Ratings by Default' => 'Permitir medias calificaciones por defecto',
-    'Cache Generation Schedule' => 'Programación de generación de cache',
-    'Cache Storage Method' => 'Método de almacenamiento de cache',
+    'Cache Generation Schedule' => 'Programación de generación de caché',
+    'Cache Storage Method' => 'Método de almacenamiento de caché',
     'Default Emoji Render Mode' => 'Modo de renderizado de emoji predeterminado',
     'Default End Label' => 'Etiqueta final predeterminada',
     'Default Maximum Rating' => 'Calificación máxima predeterminada',
@@ -133,7 +133,7 @@ return [
     '<strong>{label}</strong> <code>{path}</code>' => '<strong>{label}</strong> <code>{path}</code>',
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Ubicación del caché:</strong> Usando el caché de Redis configurado de Craft desde <code>config/app.php</code>',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis no configurado:</strong> Para usar el caché de Redis, instale <code>yiisoft/yii2-redis</code> y configúrelo en <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Más información</a>',
-    'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Con qué frecuencia generar automáticamente el caché de estadísticas. La pregeneración del cache mejora el rendimiento para grandes conjuntos de datos.',
+    'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Con qué frecuencia generar automáticamente el caché de estadísticas. La pregeneración del caché mejora el rendimiento para grandes conjuntos de datos.',
     'Manual Only' => 'Solo manual',
     'Every 3 Hours' => 'Cada 3 horas',
     'Every 6 Hours' => 'Cada 6 horas',
@@ -146,7 +146,7 @@ return [
     'How it works:' => 'Cómo funciona:',
     'Statistics are calculated and cached to improve performance' => 'Las estadísticas se calculan y se almacenan en caché para mejorar el rendimiento',
     'Scheduled generation pre-calculates stats for all forms' => 'La generación programada precalcula las estadísticas para todos los formularios',
-    'Cache is regenerated on schedule with latest submission data' => 'El cache se regenera según la programación con los últimos datos de envíos',
+    'Cache is regenerated on schedule with latest submission data' => 'El caché se regenera según la programación con los últimos datos de envíos',
     'For manual cache management, go to {link}' => 'Para la gestión manual del caché, vaya a {link}',
 
     // Statistics: Index
