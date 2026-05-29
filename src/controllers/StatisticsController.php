@@ -477,7 +477,7 @@ class StatisticsController extends Controller
         }
         $safeGroupValue = trim((string)preg_replace('/[^a-z0-9]+/i', '-', $groupValue), '-');
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
-        $extension = in_array($format, ['xlsx', 'excel'], true) ? 'xlsx' : $format;
+        $extension = ExportHelper::extensionForFormat($format);
 
         $siteSlug = is_int($siteId)
             ? strtolower(preg_replace('/[^a-z0-9]+/', '-', Craft::$app->getSites()->getSiteById($siteId)?->handle ?? '') ?: null)
@@ -548,14 +548,16 @@ class StatisticsController extends Controller
             $jsonData['submissions'][] = $submissionData;
         }
 
-        return match ($format) {
-            'csv' => ExportHelper::toCsv($rows, $headers, $filename),
-            'json' => ExportHelper::toJson($jsonData, $filename),
-            'xlsx', 'excel' => ExportHelper::toExcel($rows, $headers, $filename, [], [
+        return ExportHelper::dispatchTable(
+            rows: $rows,
+            headers: $headers,
+            format: $format,
+            filename: $filename,
+            excelOptions: [
                 'sheetTitle' => Craft::t('formie-rating-field', 'Statistics'),
-            ]),
-            default => throw new BadRequestHttpException(Craft::t('formie-rating-field', "Unknown export format: {format}", ['format' => $format])),
-        };
+            ],
+            jsonData: $jsonData,
+        );
     }
 
     /**
