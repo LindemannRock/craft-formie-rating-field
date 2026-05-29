@@ -40,12 +40,6 @@ use yii\db\Expression;
 class StatisticsService extends Component
 {
     /**
-     * Redis SET key holding every cache key this plugin owns.
-     * Used to scope-delete only our keys instead of flushing the shared Craft cache.
-     */
-    private const REDIS_KEY_INDEX = 'formie-rating-cache-keys';
-
-    /**
      * Sentinel passed as `$groupByHandle` to segregate trend-chart cache cells
      * from field-stats cells. Cannot collide with a real Formie field handle
      * (handles must start with a letter).
@@ -706,7 +700,7 @@ class StatisticsService extends Component
                 return true; // misconfig already logged
             }
 
-            $tracked = $cache->redis->executeCommand('SMEMBERS', [self::REDIS_KEY_INDEX]);
+            $tracked = $cache->redis->executeCommand('SMEMBERS', [$this->getRedisKeyIndex()]);
             if (!is_array($tracked)) {
                 return true;
             }
@@ -722,7 +716,7 @@ class StatisticsService extends Component
                 if (!$cache->delete($key)) {
                     $cleared = false;
                 }
-                $cache->redis->executeCommand('SREM', [self::REDIS_KEY_INDEX, $key]);
+                $cache->redis->executeCommand('SREM', [$this->getRedisKeyIndex(), $key]);
             }
 
             return $cleared;
@@ -766,13 +760,13 @@ class StatisticsService extends Component
             // which would wipe every other plugin's cache keys too.
             $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
             if ($cache !== null) {
-                $tracked = $cache->redis->executeCommand('SMEMBERS', [self::REDIS_KEY_INDEX]);
+                $tracked = $cache->redis->executeCommand('SMEMBERS', [$this->getRedisKeyIndex()]);
                 if (is_array($tracked)) {
                     foreach ($tracked as $key) {
                         $cache->delete($key);
                     }
                 }
-                $cache->redis->executeCommand('DEL', [self::REDIS_KEY_INDEX]);
+                $cache->redis->executeCommand('DEL', [$this->getRedisKeyIndex()]);
                 // Sweep the legacy counter key (replaced by SCARD on the index set)
                 $cache->redis->executeCommand('DEL', ['formie-rating-cache-count']);
             }
@@ -811,7 +805,7 @@ class StatisticsService extends Component
     {
         $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
         if ($cache !== null) {
-            $cache->redis->executeCommand('SADD', [self::REDIS_KEY_INDEX, $cacheKey]);
+            $cache->redis->executeCommand('SADD', [$this->getRedisKeyIndex(), $cacheKey]);
         }
     }
 
@@ -831,7 +825,7 @@ class StatisticsService extends Component
                 if ($cache === null) {
                     return 0; // misconfig already logged
                 }
-                $count = $cache->redis->executeCommand('SCARD', [self::REDIS_KEY_INDEX]);
+                $count = $cache->redis->executeCommand('SCARD', [$this->getRedisKeyIndex()]);
                 return (int)($count ?: 0);
             } catch (\Exception $e) {
                 Craft::error('Failed to get Redis cache count: ' . $e->getMessage(), __METHOD__);
@@ -849,6 +843,14 @@ class StatisticsService extends Component
         $files = glob($cachePath . '*.cache');
 
         return $files !== false ? count($files) : 0;
+    }
+
+    /**
+     * Redis SET key holding every cache key this plugin owns.
+     */
+    private function getRedisKeyIndex(): string
+    {
+        return PluginHelper::getCacheKeySet(FormieRatingField::$plugin->id, 'stats');
     }
 
     /**
