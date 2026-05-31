@@ -9,7 +9,7 @@
 return [
     // Plugin meta
     'Formie Rating Field' => 'Formie Rating Field',
-    'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Configure campos de valoración, revise las estadísticas de envíos y gestione el comportamiento del caché desde un único espacio de trabajo en el panel de control.',
+    'Configure rating fields, review submission statistics, and manage cache behavior from one control panel workspace.' => 'Configure campos de valoración, revise las estadísticas de envíos y gestione el comportamiento de la caché desde un único espacio de trabajo en el panel de control.',
     'Open Formie Rating Field' => 'Abrir Formie Rating Field',
     '{displayName} caches' => 'Cachés de {displayName}',
 
@@ -54,7 +54,7 @@ return [
     'Could not save settings.' => 'No se pudo guardar la configuración.',
     'Export failed. Please check the logs for details.' => 'La exportación falló. Por favor, consulte los registros para más detalles.',
     "Export format '{format}' is not enabled." => "El formato de exportación '{format}' no está activado.",
-    'Failed to clear cache' => 'Error al borrar el caché',
+    'Failed to clear cache' => 'Error al borrar la caché',
     'Failed to refresh statistics' => 'Error al actualizar las estadísticas',
     'Failed to start cache generation' => 'Error al iniciar la generación de caché',
     'Field handle is required' => 'El handle del campo es obligatorio',
@@ -121,15 +121,15 @@ return [
 
     // Settings: Cache
     'Cache Settings' => 'Configuración de caché',
-    'Statistics Cache Settings' => 'Ajustes del caché de estadísticas',
-    'How to store cache data. Use Redis/Database for load-balanced or multi-server environments.' => 'Cómo almacenar los datos del caché. Use Redis/Base de datos para entornos con balanceo de carga o multiservidor.',
+    'Statistics Cache Settings' => 'Ajustes de la caché de estadísticas',
+    'How to store cache data. Use Redis/Database for load-balanced or multi-server environments.' => 'Cómo almacenar los datos de la caché. Use Redis/Base de datos para entornos con balanceo de carga o multiservidor.',
     'File System (default, single server)' => 'Sistema de archivos (predeterminado, servidor único)',
     'Redis/Database (load-balanced, multi-server, cloud hosting)' => 'Redis/Base de datos (con balanceo de carga, multiservidor, alojamiento en la nube)',
-    'Cache Location:' => 'Ubicación del caché:',
+    'Cache Location:' => 'Ubicación de la caché:',
     '<strong>{label}</strong> <code>{path}</code>' => '<strong>{label}</strong> <code>{path}</code>',
-    '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Ubicación del caché:</strong> Usando el caché de Redis configurado de Craft desde <code>config/app.php</code>',
-    '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis no configurado:</strong> Para usar el caché de Redis, instale <code>yiisoft/yii2-redis</code> y configúrelo en <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Más información</a>',
-    'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Con qué frecuencia generar automáticamente el caché de estadísticas. La pregeneración del caché mejora el rendimiento para grandes conjuntos de datos.',
+    '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Ubicación de la caché:</strong> Usando la caché de Redis configurado de Craft desde <code>config/app.php</code>',
+    '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis no configurado:</strong> Para usar la caché de Redis, instale <code>yiisoft/yii2-redis</code> y configúrelo en <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Más información</a>',
+    'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Con qué frecuencia generar automáticamente la caché de estadísticas. La pregeneración de la caché mejora el rendimiento para grandes conjuntos de datos.',
     'Manual Only' => 'Solo manual',
     'Every 3 Hours' => 'Cada 3 horas',
     'Every 6 Hours' => 'Cada 6 horas',
@@ -138,12 +138,12 @@ return [
     'Daily at 2am (Low Traffic)' => 'Diariamente a las 2:00 (poco tráfico)',
     'Twice Daily (Midnight & Noon)' => 'Dos veces al día (medianoche y mediodía)',
     'Weekly (Sunday Midnight)' => 'Semanalmente (domingo medianoche)',
-    '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Advertencia de rendimiento:</strong> Con la generación manual del caché, las estadísticas se calcularán bajo demanda cuando los usuarios vean la página. Para formularios con más de 1000 envíos, esto puede provocar tiempos de carga lentos o tiempos de espera agotados. Considere habilitar la generación programada del caché para un mejor rendimiento.',
+    '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Advertencia de rendimiento:</strong> Con la generación manual de la caché, las estadísticas se calcularán bajo demanda cuando los usuarios vean la página. Para formularios con más de 1000 envíos, esto puede provocar tiempos de carga lentos o tiempos de espera agotados. Considere habilitar la generación programada de la caché para un mejor rendimiento.',
     'How it works:' => 'Cómo funciona:',
     'Statistics are calculated and cached to improve performance' => 'Las estadísticas se calculan y se almacenan en caché para mejorar el rendimiento',
     'Scheduled generation pre-calculates stats for all forms' => 'La generación programada precalcula las estadísticas para todos los formularios',
-    'Cache is regenerated on schedule with latest submission data' => 'El caché se regenera según la programación con los últimos datos de envíos',
-    'For manual cache management, go to {link}' => 'Para la gestión manual del caché, vaya a {link}',
+    'Cache is regenerated on schedule with latest submission data' => 'La caché se regenera según la programación con los últimos datos de envíos',
+    'For manual cache management, go to {link}' => 'Para la gestión manual de la caché, vaya a {link}',
 
     // Settings: Interface
     'Interface Settings' => 'Configuración de interfaz',
@@ -169,7 +169,7 @@ return [
 
     // Statistics: Form
     'Refresh' => 'Actualizar',
-    'Refresh statistics (clears cache)' => 'Actualizar estadísticas (borra el caché)',
+    'Refresh statistics (clears cache)' => 'Actualizar estadísticas (borra la caché)',
     'All Fields' => 'Todos los campos',
     'All Products' => 'Todos los productos',
     'Search products...' => 'Buscar productos...',
@@ -235,19 +235,19 @@ return [
 
     // Utilities
     'Overview' => 'Resumen',
-    'Manage statistics cache and monitor performance.' => 'Gestione el caché de estadísticas y supervise el rendimiento.',
+    'Manage statistics cache and monitor performance.' => 'Gestione la caché de estadísticas y supervise el rendimiento.',
     'Active' => 'Activo',
-    'Cache Status (File)' => 'Estado del caché (archivo)',
-    'Cache Status (Redis)' => 'Estado del caché (Redis)',
+    'Cache Status (File)' => 'Estado de la caché (archivo)',
+    'Cache Status (Redis)' => 'Estado de la caché (Redis)',
     'Cached statistics' => 'Estadísticas en caché',
     'Navigation' => 'Navegación',
     'Access main plugin sections' => 'Acceder a las secciones principales del plugin',
-    'Cache Management' => 'Gestión del caché',
-    'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => 'Genere o borre el caché de estadísticas. La generación puede tardar varios minutos para grandes conjuntos de datos.',
+    'Cache Management' => 'Gestión de la caché',
+    'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => 'Genere o borre la caché de estadísticas. La generación puede tardar varios minutos para grandes conjuntos de datos.',
     'Generate Cache Now' => 'Generar caché ahora',
-    'Clear All Cache' => 'Borrar todo el caché',
-    'This will generate cache for all forms with rating fields. This may take several minutes. Continue?' => 'Esto generará el caché para todos los formularios con campos de calificación. Puede tardar varios minutos. ¿Continuar?',
-    'Clear all statistics cache?' => '¿Borrar todo el caché de estadísticas?',
+    'Clear All Cache' => 'Borrar toda la caché',
+    'This will generate cache for all forms with rating fields. This may take several minutes. Continue?' => 'Esto generará la caché para todos los formularios con campos de calificación. Puede tardar varios minutos. ¿Continuar?',
+    'Clear all statistics cache?' => '¿Borrar todo la caché de estadísticas?',
     'Utilities' => 'Utilidades',
 
     // Field schema (rating settings)
