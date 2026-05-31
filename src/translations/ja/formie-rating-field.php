@@ -246,8 +246,8 @@ return [
     'Generate or clear statistics cache. Generation may take several minutes for large datasets.' => '統計キャッシュを生成または削除します。大規模なデータセットでは生成に数分かかる場合があります。',
     'Generate Cache Now' => '今すぐキャッシュを生成',
     'Clear All Cache' => 'すべてのキャッシュを削除する',
-    'This will generate cache for all forms with rating fields. This may take several minutes. Continue?' => '評価フィールドを持つすべてのフォームのキャッシュを生成します。数分かかる場合があります。続行しますか ?',
-    'Clear all statistics cache?' => 'すべての統計キャッシュを削除しますか ?',
+    'This will generate cache for all forms with rating fields. This may take several minutes. Continue?' => '評価フィールドを持つすべてのフォームのキャッシュを生成します。数分かかる場合があります。続行しますか？',
+    'Clear all statistics cache?' => 'すべての統計キャッシュを削除しますか？',
     'Utilities' => 'ユーティリティ',
 
     // Field schema (rating settings)
