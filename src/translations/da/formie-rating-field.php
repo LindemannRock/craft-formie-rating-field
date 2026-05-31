@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emojis (1-5 skala med udtryk)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0-10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Indstillinger for brugerflade',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Fast loft over antallet af rækker, der inkluderes i eksporten "Rådata". Beskytter mod PHP out-of-memory-fejl på formularer med høj volumen (hver række hydrerer et fuldt indsendelseselement). Sæt til 0 for ubegrænset (bruges med omtanke).',
-
     // Settings: Cache
     'Cache Settings' => 'Cache-indstillinger',
     'Statistics Cache Settings' => 'Indstillinger for statistik-cache',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'Planlagt generering forhåndsberegner statistik for alle formularer',
     'Cache is regenerated on schedule with latest submission data' => 'Cachen regenereres efter en plan med de seneste indsendelsesdata',
     'For manual cache management, go to {link}' => 'For manuel cache-administration, gå til {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Indstillinger for brugerflade',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Fast loft over antallet af rækker, der inkluderes i eksporten "Rådata". Beskytter mod PHP out-of-memory-fejl på formularer med høj volumen (hver række hydrerer et fuldt indsendelseselement). Sæt til 0 for ubegrænset (bruges med omtanke).',
 
     // Statistics: Index
     'Rating Statistics' => 'Vurderingsstatistik',

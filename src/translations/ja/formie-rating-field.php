@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 絵文字（表情付きの 1 〜 5 スケール）',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS （ Net Promoter Score 、 0 〜 10 ）',
 
-    // Settings: Interface
-    'Interface Settings' => 'インターフェース設定',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => '「 Raw Responses 」エクスポートに含まれる行数のハードリミットです。大量のフォーム送信がある場合の PHP のメモリ不足エラーを防ぎます（各行が完全な送信エレメントを読み込むため）。0 に設定すると無制限になります（注意して使用してください）。',
-
     // Settings: Cache
     'Cache Settings' => 'キャッシュ設定',
     'Statistics Cache Settings' => '統計キャッシュ設定',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'スケジュールされた生成により、すべてのフォームの統計が事前に計算されます',
     'Cache is regenerated on schedule with latest submission data' => '最新の送信データを使用して、スケジュールに従ってキャッシュが再生成されます',
     'For manual cache management, go to {link}' => '手動でキャッシュを管理するには、{link} に移動してください',
+
+    // Settings: Interface
+    'Interface Settings' => 'インターフェース設定',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => '「 Raw Responses 」エクスポートに含まれる行数のハードリミットです。大量のフォーム送信がある場合の PHP のメモリ不足エラーを防ぎます（各行が完全な送信エレメントを読み込むため）。0 に設定すると無制限になります（注意して使用してください）。',
 
     // Statistics: Index
     'Rating Statistics' => '評価統計',

@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emojis (1-5 scale with expressions)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0-10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Interface Settings',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).',
-
     // Settings: Cache
     'Cache Settings' => 'Cache Settings',
     'Statistics Cache Settings' => 'Statistics Cache Settings',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'Scheduled generation pre-calculates stats for all forms',
     'Cache is regenerated on schedule with latest submission data' => 'Cache is regenerated on schedule with latest submission data',
     'For manual cache management, go to {link}' => 'For manual cache management, go to {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Interface Settings',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).',
 
     // Statistics: Index
     'Rating Statistics' => 'Rating Statistics',

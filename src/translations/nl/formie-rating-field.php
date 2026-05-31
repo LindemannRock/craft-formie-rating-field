@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emoji\'s (1-5 schaal met expressies)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0-10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Interface-instellingen',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hard maximum op het aantal rijen in de export "Ruwe reacties". Beschermt tegen PHP out-of-memory-fouten bij formulieren met groot volume (elke rij laadt een volledig inzendingselement). Stel in op 0 voor onbeperkt (voorzichtig gebruiken).',
-
     // Settings: Cache
     'Cache Settings' => 'Cache-instellingen',
     'Statistics Cache Settings' => 'Instellingen statistiekencache',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'Geplande generatie berekent statistieken vooraf voor alle formulieren',
     'Cache is regenerated on schedule with latest submission data' => 'Cache wordt volgens schema opnieuw gegenereerd met de nieuwste inzendingsgegevens',
     'For manual cache management, go to {link}' => 'Voor handmatig cachebeheer, ga naar {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Interface-instellingen',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hard maximum op het aantal rijen in de export "Ruwe reacties". Beschermt tegen PHP out-of-memory-fouten bij formulieren met groot volume (elke rij laadt een volledig inzendingselement). Stel in op 0 voor onbeperkt (voorzichtig gebruiken).',
 
     // Statistics: Index
     'Rating Statistics' => 'Beoordelingsstatistieken',

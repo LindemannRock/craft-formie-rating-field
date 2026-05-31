@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emojis (échelle 1-5 avec expressions)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0-10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Paramètres de l\'interface',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite stricte du nombre de lignes incluses dans l\'export « Réponses brutes ». Protège contre les erreurs de mémoire insuffisante PHP sur les formulaires à fort volume (chaque ligne hydrate un élément de soumission complet). Définissez sur 0 pour illimité (à utiliser avec prudence).',
-
     // Settings: Cache
     'Cache Settings' => 'Paramètres du cache',
     'Statistics Cache Settings' => 'Paramètres du cache de statistiques',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'La génération planifiée pré-calcule les statistiques pour tous les formulaires',
     'Cache is regenerated on schedule with latest submission data' => 'Le cache est régénéré selon le planning avec les dernières données de soumission',
     'For manual cache management, go to {link}' => 'Pour la gestion manuelle du cache, accédez à {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Paramètres de l\'interface',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite stricte du nombre de lignes incluses dans l\'export « Réponses brutes ». Protège contre les erreurs de mémoire insuffisante PHP sur les formulaires à fort volume (chaque ligne hydrate un élément de soumission complet). Définissez sur 0 pour illimité (à utiliser avec prudence).',
 
     // Statistics: Index
     'Rating Statistics' => 'Statistiques d\'évaluation',

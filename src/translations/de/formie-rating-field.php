@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emojis (Skala 1–5 mit Ausdrücken)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0–10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Oberflächen-Einstellungen',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hartes Limit für die Anzahl der Zeilen im Export „Rohdaten". Schützt vor PHP-Speicherfehlern bei Formularen mit hohem Aufkommen (jede Zeile lädt eine vollständige Einsendung). Auf 0 setzen für unbegrenzt (mit Vorsicht verwenden).',
-
     // Settings: Cache
     'Cache Settings' => 'Cache-Einstellungen',
     'Statistics Cache Settings' => 'Statistik-Cache-Einstellungen',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'Die geplante Erstellung berechnet Statistiken für alle Formulare im Voraus',
     'Cache is regenerated on schedule with latest submission data' => 'Der Cache wird planmäßig mit den neuesten Einsendungsdaten neu erstellt',
     'For manual cache management, go to {link}' => 'Für die manuelle Cache-Verwaltung gehen Sie zu {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Oberflächen-Einstellungen',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hartes Limit für die Anzahl der Zeilen im Export „Rohdaten". Schützt vor PHP-Speicherfehlern bei Formularen mit hohem Aufkommen (jede Zeile lädt eine vollständige Einsendung). Auf 0 setzen für unbegrenzt (mit Vorsicht verwenden).',
 
     // Statistics: Index
     'Rating Statistics' => 'Bewertungsstatistiken',

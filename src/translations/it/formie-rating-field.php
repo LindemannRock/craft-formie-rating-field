@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emoji (scala 1-5 con espressioni)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0-10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Impostazioni interfaccia',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite massimo sul numero di righe incluse nell\'esportazione "Risposte grezze". Protegge dagli errori di memoria esaurita di PHP su moduli ad alto volume (ogni riga idrata un intero elemento di invio). Impostare su 0 per illimitato (utilizzare con cautela).',
-
     // Settings: Cache
     'Cache Settings' => 'Impostazioni cache',
     'Statistics Cache Settings' => 'Impostazioni cache delle statistiche',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'La generazione pianificata pre-calcola le statistiche per tutti i moduli',
     'Cache is regenerated on schedule with latest submission data' => 'La cache viene rigenerata secondo pianificazione con i dati di invio più recenti',
     'For manual cache management, go to {link}' => 'Per la gestione manuale della cache, vada a {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Impostazioni interfaccia',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite massimo sul numero di righe incluse nell\'esportazione "Risposte grezze". Protegge dagli errori di memoria esaurita di PHP su moduli ad alto volume (ogni riga idrata un intero elemento di invio). Impostare su 0 per illimitato (utilizzare con cautela).',
 
     // Statistics: Index
     'Rating Statistics' => 'Statistiche valutazioni',

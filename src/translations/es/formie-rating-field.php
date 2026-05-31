@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emojis (escala 1-5 con expresiones)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0-10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Configuración de interfaz',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Límite máximo del número de filas incluidas en la exportación de «Respuestas en bruto». Protege contra errores de memoria insuficiente de PHP en formularios de gran volumen (cada fila hidrata un elemento de envío completo). Establezca 0 para ilimitado (úselo con precaución).',
-
     // Settings: Cache
     'Cache Settings' => 'Configuración de caché',
     'Statistics Cache Settings' => 'Ajustes del caché de estadísticas',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'La generación programada precalcula las estadísticas para todos los formularios',
     'Cache is regenerated on schedule with latest submission data' => 'El caché se regenera según la programación con los últimos datos de envíos',
     'For manual cache management, go to {link}' => 'Para la gestión manual del caché, vaya a {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Configuración de interfaz',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Límite máximo del número de filas incluidas en la exportación de «Respuestas en bruto». Protege contra errores de memoria insuficiente de PHP en formularios de gran volumen (cada fila hidrata un elemento de envío completo). Establezca 0 para ilimitado (úselo con precaución).',
 
     // Statistics: Index
     'Rating Statistics' => 'Estadísticas de calificación',

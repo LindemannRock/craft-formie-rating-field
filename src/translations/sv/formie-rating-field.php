@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emojis (1–5-skala med uttryck)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0–10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Gränssnittsinställningar',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hård gräns för antalet rader som inkluderas i exporten "Råa svar". Skyddar mot PHP-minnesfel på formulär med hög volym (varje rad hydratiserar ett komplett inskickningselement). Sätt till 0 för obegränsat (använd med försiktighet).',
-
     // Settings: Cache
     'Cache Settings' => 'Cacheinställningar',
     'Statistics Cache Settings' => 'Inställningar för statistik-cache',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'Schemalagd generering förberäknar statistik för alla formulär',
     'Cache is regenerated on schedule with latest submission data' => 'Cachen återgenereras enligt schema med senaste inskickningsdata',
     'For manual cache management, go to {link}' => 'För manuell cachehantering, gå till {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Gränssnittsinställningar',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Hård gräns för antalet rader som inkluderas i exporten "Råa svar". Skyddar mot PHP-minnesfel på formulär med hög volym (varje rad hydratiserar ett komplett inskickningselement). Sätt till 0 för obegränsat (använd med försiktighet).',
 
     // Statistics: Index
     'Rating Statistics' => 'Betygsstatistik',

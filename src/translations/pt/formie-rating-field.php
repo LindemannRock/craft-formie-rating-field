@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 Emojis (escala de 1-5 com expressões)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (Net Promoter Score, 0-10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'Definições de interface',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite máximo do número de linhas incluídas na exportação "Respostas brutas". Protege contra erros de falta de memória do PHP em formulários de elevado volume (cada linha hidrata um elemento de submissão completo). Defina como 0 para ilimitado (utilize com cuidado).',
-
     // Settings: Cache
     'Cache Settings' => 'Definições de cache',
     'Statistics Cache Settings' => 'Definições de cache de estatísticas',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'A geração agendada pré-calcula as estatísticas para todos os formulários',
     'Cache is regenerated on schedule with latest submission data' => 'A cache é regenerada conforme o agendamento com os dados de submissão mais recentes',
     'For manual cache management, go to {link}' => 'Para a gestão manual da cache, aceda a {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'Definições de interface',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'Limite máximo do número de linhas incluídas na exportação "Respostas brutas". Protege contra erros de falta de memória do PHP em formulários de elevado volume (cada linha hidrata um elemento de submissão completo). Defina como 0 para ilimitado (utilize com cuidado).',
 
     // Statistics: Index
     'Rating Statistics' => 'Estatísticas de avaliação',

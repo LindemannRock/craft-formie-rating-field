@@ -119,10 +119,6 @@ return [
     '😊 Emojis (1-5 scale with expressions)' => '😊 إيموجي (مقياس من 1 إلى 5 مع تعابير)',
     '📊 NPS (Net Promoter Score, 0-10)' => '📊 NPS (مؤشر صافي المروّجين، من 0 إلى 10)',
 
-    // Settings: Interface
-    'Interface Settings' => 'إعدادات الواجهة',
-    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'حدّ أقصى صارم لعدد الصفوف المُضمَّنة في تصدير "الاستجابات الخام". يحمي من أخطاء نفاد الذاكرة في PHP للنماذج ذات الحجم الكبير (كل صف يُحمِّل عنصر استمارة كاملًا). اضبطه على 0 لإلغاء الحد (استخدمه بحذر).',
-
     // Settings: Cache
     'Cache Settings' => 'إعدادات Cache',
     'Statistics Cache Settings' => 'إعدادات Cache الإحصائيات',
@@ -148,6 +144,10 @@ return [
     'Scheduled generation pre-calculates stats for all forms' => 'الإنشاء المُجدوَل يحتسب الإحصائيات مسبقًا لجميع النماذج',
     'Cache is regenerated on schedule with latest submission data' => 'يُعاد إنشاء الـ Cache وفق الجدولة باستخدام أحدث بيانات الاستمارات',
     'For manual cache management, go to {link}' => 'للإدارة اليدوية للـ Cache، انتقل إلى {link}',
+
+    // Settings: Interface
+    'Interface Settings' => 'إعدادات الواجهة',
+    'Hard cap on the number of rows included in the "Raw Responses" export. Protects against PHP out-of-memory errors on high-volume forms (each row hydrates a full submission element). Set to 0 for unlimited (use with care).' => 'حدّ أقصى صارم لعدد الصفوف المُضمَّنة في تصدير "الاستجابات الخام". يحمي من أخطاء نفاد الذاكرة في PHP للنماذج ذات الحجم الكبير (كل صف يُحمِّل عنصر استمارة كاملًا). اضبطه على 0 لإلغاء الحد (استخدمه بحذر).',
 
     // Statistics: Index
     'Rating Statistics' => 'إحصائيات التقييم',
