@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => 'Statistik opdateret',
     'This form does not contain any rating fields.' => 'Denne formular indeholder ingen vurderingsfelter.',
     'Unknown export format: {format}' => 'Ukendt eksportformat: {format}',
-    'You do not have permission to access that site.' => 'Du har ikke tilladelse til at tilgå dette site.',
+    'User does not have permission to access that site.' => 'Brugeren har ikke tilladelse til at tilgå dette site.',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'Tillad halve vurderinger som standard',

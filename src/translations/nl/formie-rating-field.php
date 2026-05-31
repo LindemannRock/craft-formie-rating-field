@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => 'Statistieken vernieuwd',
     'This form does not contain any rating fields.' => 'Dit formulier bevat geen beoordelingsvelden.',
     'Unknown export format: {format}' => 'Onbekend exportformaat: {format}',
-    'You do not have permission to access that site.' => 'U heeft geen toestemming om die site te openen.',
+    'User does not have permission to access that site.' => 'De gebruiker heeft geen toestemming om die site te openen.',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'Halve beoordelingen standaard toestaan',

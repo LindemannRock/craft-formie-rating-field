@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => 'تم تحديث الإحصائيات',
     'This form does not contain any rating fields.' => 'لا يحتوي هذا النموذج على أي حقول تقييم.',
     'Unknown export format: {format}' => 'صيغة تصدير غير معروفة: {format}',
-    'You do not have permission to access that site.' => 'ليس لديك صلاحية للوصول إلى هذا الموقع.',
+    'User does not have permission to access that site.' => 'ليس لدى المستخدم صلاحية للوصول إلى هذا الموقع.',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'السماح بأنصاف التقييمات افتراضيًا',

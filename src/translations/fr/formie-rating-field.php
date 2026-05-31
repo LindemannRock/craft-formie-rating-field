@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => 'Statistiques actualisées',
     'This form does not contain any rating fields.' => 'Ce formulaire ne contient aucun champ d\'évaluation.',
     'Unknown export format: {format}' => 'Format d\'export inconnu : {format}',
-    'You do not have permission to access that site.' => 'Vous n\'avez pas la permission d\'accéder à ce site.',
+    'User does not have permission to access that site.' => 'L\'utilisateur n\'a pas la permission d\'accéder à ce site.',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'Autoriser les demi-évaluations par défaut',

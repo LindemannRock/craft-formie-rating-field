@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => 'Statistics refreshed',
     'This form does not contain any rating fields.' => 'This form does not contain any rating fields.',
     'Unknown export format: {format}' => 'Unknown export format: {format}',
-    'You do not have permission to access that site.' => 'You do not have permission to access that site.',
+    'User does not have permission to access that site.' => 'User does not have permission to access that site.',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'Allow Half Ratings by Default',

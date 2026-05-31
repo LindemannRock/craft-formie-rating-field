@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => '統計を更新しました',
     'This form does not contain any rating fields.' => 'このフォームには評価フィールドが含まれていません。',
     'Unknown export format: {format}' => '不明なエクスポート形式 : {format}',
-    'You do not have permission to access that site.' => 'そのサイトにアクセスする権限がありません。',
+    'User does not have permission to access that site.' => 'ユーザーにそのサイトへアクセスする権限がありません。',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'デフォルトで半分評価を許可',

@@ -49,7 +49,7 @@ class StatisticsController extends Controller
         $editableIds = Craft::$app->getSites()->getEditableSiteIds();
 
         if (!in_array($siteId, $editableIds, true)) {
-            throw new ForbiddenHttpException(Craft::t('formie-rating-field', 'You do not have permission to access that site.'));
+            throw new ForbiddenHttpException(Craft::t('formie-rating-field', 'User does not have permission to access that site.'));
         }
 
         return $siteId;

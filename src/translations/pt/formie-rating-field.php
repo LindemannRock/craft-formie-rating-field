@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => 'Estatísticas atualizadas',
     'This form does not contain any rating fields.' => 'Este formulário não contém quaisquer campos de avaliação.',
     'Unknown export format: {format}' => 'Formato de exportação desconhecido: {format}',
-    'You do not have permission to access that site.' => 'Não tem permissão para aceder a esse site.',
+    'User does not have permission to access that site.' => 'O utilizador não tem permissão para aceder a esse site.',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'Permitir meias avaliações por predefinição',

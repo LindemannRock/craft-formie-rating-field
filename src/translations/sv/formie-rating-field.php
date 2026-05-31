@@ -70,7 +70,7 @@ return [
     'Statistics refreshed' => 'Statistik uppdaterad',
     'This form does not contain any rating fields.' => 'Detta formulär innehåller inga betygsfält.',
     'Unknown export format: {format}' => 'Okänt exportformat: {format}',
-    'You do not have permission to access that site.' => 'Du har inte behörighet att komma åt den webbplatsen.',
+    'User does not have permission to access that site.' => 'Användaren har inte behörighet att komma åt den webbplatsen.',
 
     // Validation messages
     'Allow Half Ratings by Default' => 'Tillåt halva betyg som standard',
