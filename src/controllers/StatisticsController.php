@@ -475,19 +475,18 @@ class StatisticsController extends Controller
                 );
             }
         }
-        $safeGroupValue = trim((string)preg_replace('/[^a-z0-9]+/i', '-', $groupValue), '-');
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
         $extension = ExportHelper::extensionForFormat($format);
 
         $siteSlug = is_int($siteId)
-            ? strtolower(preg_replace('/[^a-z0-9]+/', '-', Craft::$app->getSites()->getSiteById($siteId)?->handle ?? '') ?: null)
+            ? Craft::$app->getSites()->getSiteById($siteId)?->handle
             : null;
 
         $filename = ExportHelper::filename($settings, array_values(array_filter([
             'statistics',
             $form->handle,
             $siteSlug,
-            $safeGroupValue,
+            $groupValue,
             $dateRangeLabel,
         ])), $extension);
 
@@ -599,9 +598,8 @@ class StatisticsController extends Controller
         $settings = FormieRatingField::$plugin->getSettings();
         $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
 
-        // Build site handle slug for filename when a specific site is selected
         $siteSlug = is_int($siteId)
-            ? strtolower(preg_replace('/[^a-z0-9]+/', '-', Craft::$app->getSites()->getSiteById($siteId)?->handle ?? '') ?: null)
+            ? Craft::$app->getSites()->getSiteById($siteId)?->handle
             : null;
 
         try {
@@ -661,11 +659,10 @@ class StatisticsController extends Controller
             ];
 
             if ($byGroup) {
-                $safeGroupBy = trim((string)preg_replace('/[^a-z0-9]+/i', '-', (string)$groupBy), '-');
                 $sections[] = [
                     'key' => 'byGroup',
                     'title' => Craft::t('formie-rating-field', 'By Group'),
-                    'filename' => "by-group-{$safeGroupBy}-{$suffix}.csv",
+                    'filename' => "by-group-{$groupBy}-{$suffix}.csv",
                     'headers' => $byGroup['headers'],
                     'rows' => $byGroup['rows'],
                 ];
