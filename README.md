@@ -196,6 +196,17 @@ Navigate to the plugin's CP section:
 Manage statistics cache via command line:
 
 ```bash
+# See available Formie Rating Field console commands
+ddev craft formie-rating-field/help
+
+# Focused help for cache generation
+ddev craft formie-rating-field/help cache/generate
+
+# Native Craft/Yii signature help
+ddev craft help formie-rating-field/cache/generate
+```
+
+```bash
 # Clear all statistics cache
 php craft formie-rating-field/cache/clear
 
@@ -206,7 +217,7 @@ php craft formie-rating-field/cache/clear-form 34
 php craft formie-rating-field/cache/generate
 
 # Generate cache for a specific form
-php craft formie-rating-field/cache/generate --formId=34
+php craft formie-rating-field/cache/generate --form-id=34
 
 # View cache information
 php craft formie-rating-field/cache/info
@@ -218,7 +229,7 @@ Or with DDEV:
 ddev craft formie-rating-field/cache/clear
 ddev craft formie-rating-field/cache/clear-form 34
 ddev craft formie-rating-field/cache/generate
-ddev craft formie-rating-field/cache/generate --formId=34
+ddev craft formie-rating-field/cache/generate --form-id=34
 ddev craft formie-rating-field/cache/info
 ```
 

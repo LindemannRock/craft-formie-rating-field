@@ -118,7 +118,7 @@ class CacheController extends Controller
      * Generate cache for all forms with rating fields
      *
      * Example: php craft formie-rating-field/cache/generate
-     * Example: php craft formie-rating-field/cache/generate --formId=34
+     * Example: php craft formie-rating-field/cache/generate --form-id=34
      */
     public function actionGenerate(): int
     {
