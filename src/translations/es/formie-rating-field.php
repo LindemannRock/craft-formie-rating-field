@@ -225,7 +225,7 @@ return [
     // Statistics: Group Detail
     'Individual Submissions for' => 'Envíos individuales para',
     ' - Individual Submissions' => ' - Envíos individuales',
-    'Submission Date' => 'Fecha del envío',
+    'Submission Date' => 'Fecha de envío',
     'Submission ID' => 'ID del envío',
 
     // Import/Export

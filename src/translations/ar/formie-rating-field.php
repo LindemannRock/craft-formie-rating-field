@@ -225,7 +225,7 @@ return [
     // Statistics: Group Detail
     'Individual Submissions for' => 'الاستمارات الفردية لـ',
     ' - Individual Submissions' => ' - الاستمارات الفردية',
-    'Submission Date' => 'تاريخ الاستمارة',
+    'Submission Date' => 'تاريخ الإرسال',
     'Submission ID' => 'مُعرِّف الاستمارة',
 
     // Import/Export
