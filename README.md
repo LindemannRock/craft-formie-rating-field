@@ -200,7 +200,13 @@ Manage statistics cache via command line:
 php craft formie-rating-field/cache/clear
 
 # Clear cache for specific form
-php craft formie-rating-field/cache/clear-form --formId=34
+php craft formie-rating-field/cache/clear-form 34
+
+# Generate cache for all forms
+php craft formie-rating-field/cache/generate
+
+# Generate cache for a specific form
+php craft formie-rating-field/cache/generate --formId=34
 
 # View cache information
 php craft formie-rating-field/cache/info
@@ -210,6 +216,9 @@ Or with DDEV:
 
 ```bash
 ddev craft formie-rating-field/cache/clear
+ddev craft formie-rating-field/cache/clear-form 34
+ddev craft formie-rating-field/cache/generate
+ddev craft formie-rating-field/cache/generate --formId=34
 ddev craft formie-rating-field/cache/info
 ```
 

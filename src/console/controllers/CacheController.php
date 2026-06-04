@@ -23,6 +23,26 @@ use yii\console\ExitCode;
 class CacheController extends Controller
 {
     /**
+     * @var int|null Optional form ID filter for cache generation.
+     * @since 3.20.0
+     */
+    public ?int $formId = null;
+
+    /**
+     * @inheritdoc
+     */
+    public function options($actionID): array
+    {
+        $options = parent::options($actionID);
+
+        if ($actionID === 'generate') {
+            $options[] = 'formId';
+        }
+
+        return $options;
+    }
+
+    /**
      * Clear all rating field statistics cache
      *
      * Example: php craft formie-rating-field/cache/clear
@@ -53,7 +73,7 @@ class CacheController extends Controller
     /**
      * Clear statistics cache for a specific form
      *
-     * Example: php craft formie-rating-field/cache/clear-form --formId=34
+     * Example: php craft formie-rating-field/cache/clear-form 34
      */
     public function actionClearForm(int $formId): int
     {
@@ -100,13 +120,13 @@ class CacheController extends Controller
      * Example: php craft formie-rating-field/cache/generate
      * Example: php craft formie-rating-field/cache/generate --formId=34
      */
-    public function actionGenerate(?int $formId = null): int
+    public function actionGenerate(): int
     {
         $this->stdout("Queuing cache generation job...\n");
 
         // Push to queue instead of running directly
         Craft::$app->getQueue()->push(new \lindemannrock\formieratingfield\jobs\GenerateCacheJob([
-            'formId' => $formId,
+            'formId' => $this->formId,
             'reschedule' => false, // Manual trigger
         ]));
 
