@@ -10,6 +10,7 @@ namespace lindemannrock\formieratingfield\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\SettingsPostHelper;
 use lindemannrock\formieratingfield\FormieRatingField;
 use yii\web\Response;
 
@@ -107,42 +108,24 @@ class SettingsController extends Controller
             throw new \yii\web\ForbiddenHttpException(Craft::t('formie-rating-field', 'Administrative changes are disallowed in this environment.'));
         }
 
-        $params = Craft::$app->getRequest()->getBodyParam('settings', []);
+        $params = (array)Craft::$app->getRequest()->getBodyParam('settings', []);
         $section = $this->validSection((string) Craft::$app->getRequest()->getBodyParam('section', 'general'));
         $plugin = FormieRatingField::$plugin;
         $settings = $plugin->getSettings();
         $oldCacheGenerationSchedule = $settings->cacheGenerationSchedule;
 
-        // Filter $params to the section's allow-list. Prevents a forged or off-section
-        // submission from updating attributes the user isn't editing on this page —
-        // tightens the trust boundary even though it's already gated by manageSettings.
         $sectionAttributes = $this->validationAttributesForSection($section);
-        $params = array_intersect_key($params, array_flip($sectionAttributes));
-
-        // Multi-state selects (e.g. "Use global default" = '') need '' → null so
-        // nullable cascade properties — and the project-config YAML that backs
-        // them — hold null rather than a coerced '' / false / 0. Applied to
-        // $params (not just the model) because savePluginSettings persists
-        // $params directly to project config.
-        foreach ($params as $key => $value) {
-            if ($value === '' && property_exists($settings, $key)) {
-                $type = (new \ReflectionProperty($settings, $key))->getType();
-                if ($type instanceof \ReflectionNamedType && $type->allowsNull()) {
-                    $params[$key] = null;
-                }
-            }
-        }
-
-        // Set the new values
-        $settings->setAttributes($params, false);
-
-        $attributesToValidate = array_values(array_filter(
-            $sectionAttributes,
-            fn(string $attribute): bool => !$settings->isOverriddenByConfig($attribute),
-        ));
+        $result = SettingsPostHelper::apply(
+            model: $settings,
+            postedValues: $params,
+            allowedAttributes: $sectionAttributes,
+            isOverridden: fn(string $attribute): bool => $settings->isOverriddenByConfig($attribute),
+        );
+        $attributesToValidate = $result->attributesToValidate;
+        $params = array_intersect_key($settings->getAttributes($result->assignedAttributes), array_flip($attributesToValidate));
 
         // Validate
-        if (!$settings->validate($attributesToValidate)) {
+        if ($result->hasErrors || !$settings->validate($attributesToValidate)) {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Could not save settings.'));
             return $this->renderTemplate("formie-rating-field/settings/{$section}", [
                 'settings' => $settings,

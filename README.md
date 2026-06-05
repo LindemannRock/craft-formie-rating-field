@@ -135,6 +135,10 @@ return [
 
 See [Configuration Documentation](docs/CONFIGURATION.md) for all available options.
 
+### Settings Validation
+
+Numeric settings such as default rating range, max export rows, and items per page must use values within the range shown in the field instructions. If a settings save fails, keep the submitted form open and check the inline field errors.
+
 ## Statistics & Analytics
 
 The plugin includes a comprehensive analytics dashboard for analyzing rating field submissions.
