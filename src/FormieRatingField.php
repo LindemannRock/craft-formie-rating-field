@@ -353,6 +353,8 @@ class FormieRatingField extends Plugin
                 ['like', 'job', '"scheduledMaster";b:1'],
                 ['like', 'job', '"scheduledMaster":true'],
             ])
+            ->andWhere(['fail' => false])
+            ->andWhere(['timeUpdated' => null])
             ->exists();
     }
 

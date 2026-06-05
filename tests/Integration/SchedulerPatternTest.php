@@ -82,6 +82,36 @@ final class SchedulerPatternTest extends TestCase
         self::assertSame(2, $this->countScheduledMasterJobs());
     }
 
+    public function testBootstrapIgnoresFailedScheduledMasterRow(): void
+    {
+        FormieRatingField::$plugin->getSettings()->cacheGenerationSchedule = 'daily';
+
+        Craft::$app->getQueue()->push(new GenerateCacheJob([
+            'reschedule' => true,
+            'scheduledMaster' => true,
+        ]));
+        self::assertSame(1, $this->countScheduledMasterJobs());
+
+        Craft::$app->getDb()->createCommand()
+            ->update('{{%queue}}', ['fail' => true], [
+                'and',
+                ['like', 'job', 'formieratingfield'],
+                ['like', 'job', 'GenerateCacheJob'],
+                [
+                    'or',
+                    ['like', 'job', '"scheduledMaster";b:1'],
+                    ['like', 'job', '"scheduledMaster":true'],
+                ],
+            ])
+            ->execute();
+
+        $scheduleInitial = new ReflectionMethod(FormieRatingField::$plugin, 'scheduleInitialCacheGeneration');
+        $scheduleInitial->setAccessible(true);
+        $scheduleInitial->invoke(FormieRatingField::$plugin);
+
+        self::assertSame(2, $this->countScheduledMasterJobs());
+    }
+
     public function testScheduleChangeReplacesScheduledMasterOnly(): void
     {
         $settings = FormieRatingField::$plugin->getSettings();
