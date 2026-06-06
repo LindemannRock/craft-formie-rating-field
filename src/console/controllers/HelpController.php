@@ -25,7 +25,10 @@ final class HelpController extends AbstractHelpController
         return [
             'title' => 'Formie Rating Field',
             'pluginHandle' => 'formie-rating-field',
-            'commandPrefix' => 'ddev craft',
+            'commandPrefixes' => [
+                'php craft',
+                'ddev craft',
+            ],
             'summary' => 'Use these commands to inspect, clear, and regenerate cached rating-field statistics.',
             'common' => [
                 'cache/info',
