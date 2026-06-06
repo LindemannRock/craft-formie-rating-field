@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\controllers;
@@ -46,7 +46,9 @@ class CacheController extends Controller
 
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
             ]);
         }
     }
@@ -73,7 +75,9 @@ class CacheController extends Controller
 
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
             ]);
         }
     }
