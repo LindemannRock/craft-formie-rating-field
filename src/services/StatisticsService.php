@@ -385,12 +385,14 @@ class StatisticsService extends Component
             );
         }
 
-        // Add date filter if specified
+        // Add date filter if specified. Qualify the column — when the site filter
+        // joins elements_sites (which also has dateCreated), an unqualified column
+        // is ambiguous and errors on PostgreSQL.
         if ($dateBounds['start']) {
-            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($dateBounds['start'])]);
+            $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($dateBounds['start'])]);
         }
         if ($dateBounds['end']) {
-            $query->andWhere(['<', 'dateCreated', Db::prepareDateForDb($dateBounds['end'])]);
+            $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($dateBounds['end'])]);
         }
 
         $results = $query->all();
