@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\services;
@@ -596,8 +596,15 @@ class StatisticsService extends Component
 
         // Use Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
+            // Fail-closed on misconfig (setting=redis but cache component isn't Redis):
+            // treat as a miss so the caller recomputes, matching the clear paths' no-op.
+            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+            if ($cache === null) {
+                return null;
+            }
+
             $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
-            $cached = Craft::$app->cache->get($cacheKey);
+            $cached = $cache->get($cacheKey);
             return $cached !== false ? $cached : null;
         }
 
@@ -638,8 +645,14 @@ class StatisticsService extends Component
 
         // Use Redis/database cache if configured
         if ($settings->cacheStorageMethod === 'redis') {
+            // Fail-closed on misconfig (setting=redis but cache component isn't Redis):
+            // skip the write so nothing lands in an unclearable store, matching the clear paths' no-op.
+            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+            if ($cache === null) {
+                return false;
+            }
+
             $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
-            $cache = Craft::$app->cache;
 
             $result = $cache->set($cacheKey, $stats);
 
