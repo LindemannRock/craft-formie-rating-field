@@ -377,7 +377,9 @@ class StatisticsController extends Controller
 
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
             ]);
         }
     }
@@ -413,7 +415,9 @@ class StatisticsController extends Controller
 
             return $this->asJson([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
             ]);
         }
     }

@@ -49,6 +49,7 @@ return [
 
     // Controller messages
     'Administrative changes are disallowed in this environment.' => 'Le modifiche amministrative non sono consentite in questo ambiente.',
+    'An error occurred. Please check the logs for details.' => 'Si è verificato un errore. Controlli i log per i dettagli.',
     'Cache cleared successfully' => 'Cache svuotata con successo',
     'Cache generation started' => 'Generazione cache avviata',
     'Could not save settings.' => 'Impossibile salvare le impostazioni.',

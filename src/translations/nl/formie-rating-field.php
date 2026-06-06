@@ -49,6 +49,7 @@ return [
 
     // Controller messages
     'Administrative changes are disallowed in this environment.' => 'Beheerwijzigingen zijn niet toegestaan in deze omgeving.',
+    'An error occurred. Please check the logs for details.' => 'Er is een fout opgetreden. Raadpleeg de logboeken voor details.',
     'Cache cleared successfully' => 'Cache succesvol gewist',
     'Cache generation started' => 'Cachegeneratie gestart',
     'Could not save settings.' => 'Instellingen konden niet worden opgeslagen.',

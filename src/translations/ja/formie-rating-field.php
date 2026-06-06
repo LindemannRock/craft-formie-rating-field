@@ -49,6 +49,7 @@ return [
 
     // Controller messages
     'Administrative changes are disallowed in this environment.' => 'この環境では管理者による変更は許可されていません。',
+    'An error occurred. Please check the logs for details.' => 'エラーが発生しました。詳細はログをご確認ください。',
     'Cache cleared successfully' => 'キャッシュを正常に削除しました',
     'Cache generation started' => 'キャッシュの生成を開始しました',
     'Could not save settings.' => '設定を保存できませんでした。',

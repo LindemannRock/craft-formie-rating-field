@@ -49,6 +49,7 @@ return [
 
     // Controller messages
     'Administrative changes are disallowed in this environment.' => 'Administrative endringer er ikke tillatt i dette miljøet.',
+    'An error occurred. Please check the logs for details.' => 'Det oppstod en feil. Se loggene for detaljer.',
     'Cache cleared successfully' => 'Cache tømt',
     'Cache generation started' => 'Cachegenerering startet',
     'Could not save settings.' => 'Kunne ikke lagre innstillinger.',
