@@ -1465,10 +1465,10 @@ class StatisticsService extends Component
         $bounds = DateRangeHelper::getBounds($dateRange);
 
         if ($bounds['start']) {
-            $query->andWhere(['>=', 'dateCreated', Db::prepareDateForDb($bounds['start'])]);
+            $query->andWhere(['>=', 'elements.dateCreated', Db::prepareDateForDb($bounds['start'])]);
         }
         if ($bounds['end']) {
-            $query->andWhere(['<', 'dateCreated', Db::prepareDateForDb($bounds['end'])]);
+            $query->andWhere(['<', 'elements.dateCreated', Db::prepareDateForDb($bounds['end'])]);
         }
 
         if ($limit !== null && $limit > 0) {
