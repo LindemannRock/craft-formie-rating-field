@@ -1,5 +1,37 @@
 # Changelog
 
+## [3.20.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.19.0...v3.20.0) (2026-06-07)
+
+
+### Added
+
+* add static analysis script for CI workflow ([ccd1261](https://github.com/LindemannRock/craft-formie-rating-field/commit/ccd1261420a7231859e503f3fbedbac375160c98))
+* **cli:** add HelpController for cli command assistance ([f92ba20](https://github.com/LindemannRock/craft-formie-rating-field/commit/f92ba2047bcc066d6318b1c5f9f3866033086b68))
+* **cp:** rename 'View Settings' link to 'Manage settings' ([3eecb30](https://github.com/LindemannRock/craft-formie-rating-field/commit/3eecb30222f00c2dfa77f0578c82d0ed1c2cc41d))
+* **jobs:** add recurring scheduler master job and next run time formatting ([67e6d81](https://github.com/LindemannRock/craft-formie-rating-field/commit/67e6d818b6afe88708093080539156dee53f2c5e))
+* **queue:** schedule automatic cache generation based on settings ([7342439](https://github.com/LindemannRock/craft-formie-rating-field/commit/7342439be443102d902b54b96d50c2a7532b19b0))
+* **settings:** add cache generation schedule options and effective schedule method ([d5e84f9](https://github.com/LindemannRock/craft-formie-rating-field/commit/d5e84f987af2e13a92ed5cc0957c8e36b68098bf))
+* **settings:** handle cache generation schedule changes on save ([134dc62](https://github.com/LindemannRock/craft-formie-rating-field/commit/134dc628477196f88c2c48b8f6ed5a14d788424e))
+* **settings:** replace cache generation schedule options with dynamic retrieval ([cb595b0](https://github.com/LindemannRock/craft-formie-rating-field/commit/cb595b0b99512a1a9f14bf9f49a85f70c1be0f37))
+* **tests:** add SchedulerPatternTest for cache generation scheduling ([8356138](https://github.com/LindemannRock/craft-formie-rating-field/commit/83561388ff80485f573e6e30e941fffd2096947d))
+
+
+### Fixed
+
+* **cache:** handle error messages based on dev mode in CacheController ([a32e8db](https://github.com/LindemannRock/craft-formie-rating-field/commit/a32e8dbd82db7c67be2718e75ad8fdb19fcfd1ed))
+* **cache:** handle Redis misconfiguration gracefully ([bd49fbe](https://github.com/LindemannRock/craft-formie-rating-field/commit/bd49fbe7358e2f73d15cd281276f03413644e04a))
+* change default items per page to 100 in config ([334efd1](https://github.com/LindemannRock/craft-formie-rating-field/commit/334efd1c5fe10c211e88cd3e6641467f732ddd89))
+* correct permission error message in site access validation ([f7891a7](https://github.com/LindemannRock/craft-formie-rating-field/commit/f7891a7ef7bec99a5f0e4b7b7c0a1fbfe8e325e9))
+* filter out failed jobs and unupdated entries in query ([1826cdc](https://github.com/LindemannRock/craft-formie-rating-field/commit/1826cdc4bf882dd3f28ede2bb4567cb025c041cb))
+* handle error messages based on dev mode in StatisticsController ([d645b15](https://github.com/LindemannRock/craft-formie-rating-field/commit/d645b15995d58dc804188f9b1755b608849ac280))
+* **i18n:** correct cache generation messages in Spanish translations ([1a4d4f6](https://github.com/LindemannRock/craft-formie-rating-field/commit/1a4d4f626839cf0358e68b295f3ac5d6d7d11c34))
+* **i18n:** correct punctuation in Japanese cache messages ([9da5277](https://github.com/LindemannRock/craft-formie-rating-field/commit/9da52779970942dc0eac73ea2cde1d64c8cd12ce))
+* **i18n:** correct punctuation in Spanish cache messages ([ecff3a9](https://github.com/LindemannRock/craft-formie-rating-field/commit/ecff3a9a789b7355519875aa4b4b3203cea56273))
+* **i18n:** correct translation for submission date in Arabic, Spanish, and Italian ([87b886e](https://github.com/LindemannRock/craft-formie-rating-field/commit/87b886e1b2a5f34675476bd6d6262d7c2bc0c669))
+* **settings:** handle empty multi-state select values correctly ([8948b9b](https://github.com/LindemannRock/craft-formie-rating-field/commit/8948b9b7496bcbfcec6982e5717b2239ba349810))
+* **statistics:** qualify dateCreated column in query to prevent ambiguity ([922655f](https://github.com/LindemannRock/craft-formie-rating-field/commit/922655ffaed58f4e51d11f79364de21260d4a9bd))
+* **statistics:** qualify dateCreated column to prevent ambiguity in PostgreSQL ([59244d3](https://github.com/LindemannRock/craft-formie-rating-field/commit/59244d3de2bf4073ed5e67f6753ce25685e267de))
+
 ## [3.19.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.18.0...v3.19.0) - 2026-05-22
 
 
