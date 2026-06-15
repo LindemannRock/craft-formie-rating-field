@@ -112,6 +112,35 @@ final class SchedulerPatternTest extends TestCase
         self::assertSame(2, $this->countScheduledMasterJobs());
     }
 
+    public function testBootstrapRecognizesLegacyScheduledMasterRowWithoutMarker(): void
+    {
+        FormieRatingField::$plugin->getSettings()->cacheGenerationSchedule = 'daily';
+
+        $this->pushLegacyScheduledMasterJob();
+        self::assertSame(1, $this->countCacheGenerationJobs());
+
+        $scheduleInitial = new ReflectionMethod(FormieRatingField::$plugin, 'scheduleInitialCacheGeneration');
+        $scheduleInitial->setAccessible(true);
+        $scheduleInitial->invoke(FormieRatingField::$plugin);
+
+        self::assertSame(1, $this->countCacheGenerationJobs());
+    }
+
+    public function testBootstrapCollapsesDuplicateLegacyScheduledMasterRows(): void
+    {
+        FormieRatingField::$plugin->getSettings()->cacheGenerationSchedule = 'daily';
+
+        $this->pushLegacyScheduledMasterJob();
+        $this->pushLegacyScheduledMasterJob();
+        self::assertSame(2, $this->countCacheGenerationJobs());
+
+        $scheduleInitial = new ReflectionMethod(FormieRatingField::$plugin, 'scheduleInitialCacheGeneration');
+        $scheduleInitial->setAccessible(true);
+        $scheduleInitial->invoke(FormieRatingField::$plugin);
+
+        self::assertSame(1, $this->countCacheGenerationJobs());
+    }
+
     public function testScheduleChangeReplacesScheduledMasterOnly(): void
     {
         $settings = FormieRatingField::$plugin->getSettings();
@@ -134,6 +163,26 @@ final class SchedulerPatternTest extends TestCase
         self::assertSame(1, $this->countManualCacheGenerationJobs());
     }
 
+    public function testScheduleChangeReplacesLegacyScheduledMasterOnly(): void
+    {
+        $settings = FormieRatingField::$plugin->getSettings();
+        $settings->cacheGenerationSchedule = 'daily';
+
+        $this->pushLegacyScheduledMasterJob();
+        Craft::$app->getQueue()->push(new GenerateCacheJob([
+            'reschedule' => false,
+            'scheduledMaster' => false,
+            'formId' => self::TEST_FORM_ID,
+        ]));
+
+        $settings->cacheGenerationSchedule = 'weekly';
+        FormieRatingField::$plugin->handleCacheGenerationScheduleChange($settings, 'daily');
+
+        self::assertSame(1, $this->countScheduledMasterJobs());
+        self::assertSame(1, $this->countManualCacheGenerationJobs());
+        self::assertSame(2, $this->countCacheGenerationJobs());
+    }
+
     private function countScheduledMasterJobs(): int
     {
         return (int) $this->cacheGenerationQueueQuery()
@@ -154,6 +203,34 @@ final class SchedulerPatternTest extends TestCase
                 ['like', 'job', '"scheduledMaster":false'],
             ])
             ->count();
+    }
+
+    private function countCacheGenerationJobs(): int
+    {
+        return (int) $this->cacheGenerationQueueQuery()->count();
+    }
+
+    private function pushLegacyScheduledMasterJob(): void
+    {
+        Craft::$app->getQueue()->push(new GenerateCacheJob([
+            'reschedule' => true,
+            'scheduledMaster' => false,
+        ]));
+
+        $row = $this->cacheGenerationQueueQuery()
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+
+        self::assertIsArray($row);
+
+        $job = (string) $row['job'];
+        $job = str_replace('s:15:"scheduledMaster";b:0;', '', $job);
+        $job = str_replace('"scheduledMaster":false,', '', $job);
+        $job = str_replace(',"scheduledMaster":false', '', $job);
+
+        Craft::$app->getDb()->createCommand()
+            ->update('{{%queue}}', ['job' => $job], ['id' => (int) $row['id']])
+            ->execute();
     }
 
     private function deleteCacheGenerationQueueRows(): void

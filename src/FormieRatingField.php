@@ -293,9 +293,13 @@ class FormieRatingField extends Plugin
             $schedule = $settings->getEffectiveCacheGenerationSchedule();
             $nextRun = ScheduleHelper::calculateNext($schedule);
             $delay = ScheduleHelper::calculateDelaySeconds($schedule);
-            $existingJob = $this->hasScheduledCacheGenerationJob();
+            $existingJobIds = $this->findPendingScheduledCacheGenerationJobIds();
+            if (!empty($existingJobIds)) {
+                $this->collapseDuplicateScheduledCacheGenerationJobs($existingJobIds);
+                return;
+            }
 
-            if (!$existingJob && $nextRun !== null && $delay > 0) {
+            if ($nextRun !== null && $delay > 0) {
                 $job = new GenerateCacheJob([
                     'reschedule' => true,
                     'scheduledMaster' => true,
@@ -340,22 +344,34 @@ class FormieRatingField extends Plugin
     }
 
     /**
-     * Determine if a recurring cache-generation master job is already queued.
+     * Find pending recurring cache-generation master queue rows.
+     *
+     * @return int[]
      */
-    private function hasScheduledCacheGenerationJob(): bool
+    private function findPendingScheduledCacheGenerationJobIds(): array
     {
-        return (new Query())
+        return array_map('intval', (new Query())
+            ->select(['id'])
             ->from('{{%queue}}')
-            ->where(['like', 'job', 'formieratingfield'])
-            ->andWhere(['like', 'job', 'GenerateCacheJob'])
-            ->andWhere([
-                'or',
-                ['like', 'job', '"scheduledMaster";b:1'],
-                ['like', 'job', '"scheduledMaster":true'],
-            ])
-            ->andWhere(['fail' => false])
-            ->andWhere(['timeUpdated' => null])
-            ->exists();
+            ->where($this->scheduledCacheGenerationJobCondition(true))
+            ->orderBy(['id' => SORT_ASC])
+            ->column());
+    }
+
+    /**
+     * @param int[] $jobIds
+     */
+    private function collapseDuplicateScheduledCacheGenerationJobs(array $jobIds): void
+    {
+        $duplicateIds = array_slice($jobIds, 1);
+
+        if (empty($duplicateIds)) {
+            return;
+        }
+
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%queue}}', ['id' => $duplicateIds])
+            ->execute();
     }
 
     /**
@@ -364,17 +380,41 @@ class FormieRatingField extends Plugin
     private function cancelScheduledCacheGenerationJobs(): void
     {
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%queue}}', [
-                'and',
-                ['like', 'job', 'formieratingfield'],
-                ['like', 'job', 'GenerateCacheJob'],
-                [
-                    'or',
-                    ['like', 'job', '"scheduledMaster";b:1'],
-                    ['like', 'job', '"scheduledMaster":true'],
-                ],
-            ])
+            ->delete('{{%queue}}', $this->scheduledCacheGenerationJobCondition(false))
             ->execute();
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function scheduledCacheGenerationJobCondition(bool $pendingOnly): array
+    {
+        $condition = [
+            'and',
+            ['like', 'job', 'formieratingfield'],
+            ['like', 'job', 'GenerateCacheJob'],
+            [
+                'or',
+                ['like', 'job', '"scheduledMaster";b:1'],
+                ['like', 'job', '"scheduledMaster":true'],
+                [
+                    'and',
+                    ['not like', 'job', 'scheduledMaster'],
+                    [
+                        'or',
+                        ['like', 'job', '"reschedule";b:1'],
+                        ['like', 'job', '"reschedule":true'],
+                    ],
+                ],
+            ],
+        ];
+
+        if ($pendingOnly) {
+            $condition[] = ['fail' => false];
+            $condition[] = ['timeUpdated' => null];
+        }
+
+        return $condition;
     }
 
     /**
