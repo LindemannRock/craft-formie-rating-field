@@ -1,0 +1,7 @@
+{
+    "plugin": {
+        "name": "Formie Rating Field",
+        "handle": "formie-rating-field",
+        "description": "Star, emoji, and NPS rating field types for Formie, with a submission statistics dashboard."
+    }
+}

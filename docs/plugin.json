@@ -1,0 +1,9 @@
+{
+    "name": "Formie Rating Field",
+    "handle": "formie-rating-field",
+    "description": "Rating field for Formie - Provides star rating, emoji rating, and numeric rating field types for Craft CMS Formie plugin",
+    "version": "3.20.0",
+    "developer": "LindemannRock",
+    "developerUrl": "https://lindemannrock.com",
+    "documentationUrl": "https://github.com/LindemannRock/craft-formie-rating-field/blob/main/README.md"
+}

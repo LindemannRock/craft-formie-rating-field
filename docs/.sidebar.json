@@ -1,0 +1,63 @@
+[
+    {
+        "title": "Get Started",
+        "collapsable": false,
+        "children": [
+            "get-started/requirements",
+            "get-started/installation",
+            "get-started/quickstart",
+            "get-started/configuration"
+        ]
+    },
+    {
+        "title": "Feature Tour",
+        "collapsable": true,
+        "open": true,
+        "children": [
+            "feature-tour/overview",
+            "feature-tour/rating-field",
+            "feature-tour/google-review-prompt",
+            "feature-tour/statistics",
+            "feature-tour/exporting-data",
+            "feature-tour/caching"
+        ]
+    },
+    {
+        "title": "Template Guides",
+        "collapsable": true,
+        "open": false,
+        "children": [
+            "template-guides/displaying-ratings"
+        ]
+    },
+    {
+        "title": "Integrations",
+        "collapsable": true,
+        "open": false,
+        "children": [
+            "integrations/feed-me"
+        ]
+    },
+    {
+        "title": "Developers",
+        "collapsable": true,
+        "open": false,
+        "children": [
+            "developers/permissions",
+            "developers/console-commands",
+            "developers/statistics-service",
+            "developers/front-end-css",
+            "developers/twig-globals",
+            "developers/shared-features"
+        ]
+    },
+    {
+        "title": "Resources",
+        "collapsable": true,
+        "open": false,
+        "children": [
+            "resources/troubleshooting",
+            "resources/translations"
+        ]
+    }
+]

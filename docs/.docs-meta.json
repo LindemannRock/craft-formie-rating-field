@@ -1,0 +1,14 @@
+{
+    "generated": [
+        "get-started/configuration.md",
+        "developers/console-commands.md",
+        "developers/permissions.md",
+        "developers/twig-globals.md",
+        "developers/shared-features.md"
+    ],
+    "manual": [
+        "get-started/installation.md",
+        "get-started/requirements.md"
+    ],
+    "lastGenerated": "2026-06-15T14:11:30+03:00"
+}
