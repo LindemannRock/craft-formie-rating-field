@@ -122,7 +122,7 @@ return [
 
     // Settings: Cache
     'Cache Settings' => 'Configuración de caché',
-    'Statistics Cache Settings' => 'Ajustes de la caché de estadísticas',
+    'Statistics Cache Settings' => 'Configuración de caché de estadísticas',
     'How to store cache data. Use Redis/Database for load-balanced or multi-server environments.' => 'Cómo almacenar los datos de la caché. Use Redis/Base de datos para entornos con balanceo de carga o multiservidor.',
     'File System (default, single server)' => 'Sistema de archivos (predeterminado, servidor único)',
     'Redis/Database (load-balanced, multi-server, cloud hosting)' => 'Redis/Base de datos (con balanceo de carga, multiservidor, alojamiento en la nube)',
@@ -139,7 +139,7 @@ return [
     'Daily at 2am (Low Traffic)' => 'Diariamente a las 2:00 (poco tráfico)',
     'Twice Daily (Midnight & Noon)' => 'Dos veces al día (medianoche y mediodía)',
     'Weekly (Sunday Midnight)' => 'Semanalmente (domingo medianoche)',
-    '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Advertencia de rendimiento:</strong> Con la generación manual de la caché, las estadísticas se calcularán bajo demanda cuando los usuarios vean la página. Para formularios con más de 1000 envíos, esto puede provocar tiempos de carga lentos o tiempos de espera agotados. Considere habilitar la generación programada de la caché para un mejor rendimiento.',
+    '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Advertencia de rendimiento:</strong> Con la generación manual de la caché, las estadísticas se calcularán bajo demanda cuando los usuarios vean la página. Para formularios con más de 1000 envíos, esto puede provocar tiempos de carga lentos o tiempos de espera agotados. Considere activar la generación programada de la caché para un mejor rendimiento.',
     'How it works:' => 'Cómo funciona:',
     'Statistics are calculated and cached to improve performance' => 'Las estadísticas se calculan y se almacenan en caché para mejorar el rendimiento',
     'Scheduled generation pre-calculates stats for all forms' => 'La generación programada precalcula las estadísticas para todos los formularios',
@@ -281,7 +281,7 @@ return [
 
     // Field schema (Google Review)
     'Enable Google Review Prompt' => 'Activar mensaje de reseña de Google',
-    'Show a Google Review link when users give high ratings. This will override the form\'s success message. Only one rating field per form should have this enabled.' => 'Mostrar un enlace de reseña de Google cuando los usuarios den calificaciones altas. Esto anulará el mensaje de éxito del formulario. Solo un campo de calificación por formulario debería tener esto habilitado.',
+    'Show a Google Review link when users give high ratings. This will override the form\'s success message. Only one rating field per form should have this enabled.' => 'Mostrar un enlace de reseña de Google cuando los usuarios den calificaciones altas. Esto anulará el mensaje de éxito del formulario. Solo un campo de calificación por formulario debería tener esto activado.',
     'Rating Threshold' => 'Umbral de calificación',
     'Minimum rating value to show the Google Review prompt (e.g., 9 for NPS).' => 'Valor mínimo de calificación para mostrar el mensaje de reseña de Google (p. ej., 9 para NPS).',
     'Google Place ID Field Handle' => 'Handle del campo Google Place ID',
