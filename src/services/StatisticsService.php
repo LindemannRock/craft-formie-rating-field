@@ -49,9 +49,10 @@ class StatisticsService extends Component
     /**
      * Get all forms that have at least one rating field
      *
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array
      */
-    public function getFormsWithRatingFields(int|string $siteId = 'all'): array
+    public function getFormsWithRatingFields(int|string|array $siteId = 'all'): array
     {
         // 1) Aggregate query — which forms contain rating fields, and how many?
         // Replaces the prior O(N forms) loop that called $form->getFields() per form.
@@ -74,7 +75,7 @@ class StatisticsService extends Component
         // not N count() calls). Joined through elements to skip trashed/draft/revision rows.
         // formie_submissions has no siteId column — site association lives in elements_sites.
         $submissionCountQuery = (new Query())
-            ->select(['formId' => 's.formId', 'cnt' => new Expression('COUNT(*)')])
+            ->select(['formId' => 's.formId', 'cnt' => new Expression(is_array($siteId) ? 'COUNT(DISTINCT [[s.id]])' : 'COUNT(*)')])
             ->from(['s' => '{{%formie_submissions}}'])
             ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[s.id]]')
             ->where(['s.formId' => $formIds])
@@ -85,12 +86,20 @@ class StatisticsService extends Component
             ->andWhere(['e.revisionId' => null])
             ->groupBy('s.formId');
 
-        // Site scoping: when a specific siteId is selected, count only submissions that
-        // exist in that site (via elements_sites). 'all' keeps the cross-site total.
+        // Site scoping: when a specific siteId or list is selected, count only
+        // submissions that exist in those sites via elements_sites.
         if (is_int($siteId)) {
             $submissionCountQuery
                 ->innerJoin(['es' => '{{%elements_sites}}'], '[[es.elementId]] = [[s.id]]')
                 ->andWhere(['es.siteId' => $siteId]);
+        } elseif (is_array($siteId)) {
+            if ($siteId === []) {
+                $submissionCountQuery->andWhere('0=1');
+            } else {
+                $submissionCountQuery
+                    ->innerJoin(['es' => '{{%elements_sites}}'], '[[es.elementId]] = [[s.id]]')
+                    ->andWhere(['es.siteId' => $siteId]);
+            }
         }
 
         $submissionCountRows = $submissionCountQuery->all();

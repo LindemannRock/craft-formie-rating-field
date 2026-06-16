@@ -25,6 +25,7 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **Emoji render modes** — native system emoji, Noto Color Emoji, or Noto Emoji
 - **Google Review prompt** — turn a high rating into a tiered thank-you and a button to your Google review page
 - **Statistics dashboard** — type-aware averages, NPS scoring, value distributions, trend charts, grouping by another form field, and date-range / per-site filtering
+- **Craft dashboard widget** — optional, site-scoped rating statistics widget for quick access to active rating forms
 - **Exports** — Excel (multi-sheet), CSV (zipped per section), or JSON
 - **Caching** — file system or Redis, automatic invalidation on new submissions, optional scheduled pre-generation, and CLI management
 - **Feed Me import** — map a feed column onto a Rating field when Feed Me is installed

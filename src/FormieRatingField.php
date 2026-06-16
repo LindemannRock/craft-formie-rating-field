@@ -22,6 +22,7 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\feedme\events\RegisterFeedMeFieldsEvent;
 use craft\feedme\services\Fields as FeedMeFields;
+use craft\services\Dashboard;
 use craft\services\UserPermissions;
 use craft\services\Utilities;
 use craft\utilities\ClearCaches;
@@ -36,6 +37,7 @@ use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeR
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\services\StatisticsService;
+use lindemannrock\formieratingfield\widgets\RatingStatisticsWidget;
 use verbb\formie\elements\Submission;
 use verbb\formie\events\RegisterFieldsEvent;
 use verbb\formie\services\Fields;
@@ -188,6 +190,15 @@ class FormieRatingField extends Plugin
                     return;
                 }
                 $event->types[] = \lindemannrock\formieratingfield\utilities\RatingUtility::class;
+            }
+        );
+
+        // Register dashboard widgets
+        Event::on(
+            Dashboard::class,
+            Dashboard::EVENT_REGISTER_WIDGET_TYPES,
+            function(RegisterComponentTypesEvent $event) {
+                $event->types[] = RatingStatisticsWidget::class;
             }
         );
 

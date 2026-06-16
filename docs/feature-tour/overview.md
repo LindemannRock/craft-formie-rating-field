@@ -47,6 +47,8 @@ Nothing about your submission data changes. The plugin reads Formie's submission
 
 ![The Statistics dashboard listing forms with rating fields](images/overview-statistics.webp)
 
+The plugin also provides an optional Craft dashboard widget that lists forms with rating fields by submission volume. Editors can choose all editable sites or a single site for the widget, then jump into busy rating forms without opening the plugin section first.
+
 ## Next steps
 
 1. [Install the plugin](../get-started/installation.md)

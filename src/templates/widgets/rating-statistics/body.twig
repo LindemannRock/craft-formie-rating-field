@@ -1,0 +1,23 @@
+{% set rows = [] %}
+
+{% for item in forms %}
+    {% set rows = rows|merge([{
+        primary: item.form.title,
+        primaryUrl: cpUrl('formie-rating-field/statistics/form/' ~ item.form.id, siteId != 'all' ? {siteId: siteId} : {}),
+        meta: item.ratingFieldCount|number ~ ' ' ~ "Rating Fields"|t('formie-rating-field'),
+        value: item.totalSubmissions|number,
+    }]) %}
+{% endfor %}
+
+{% include 'lindemannrock-base/_components/dashboard-widget-list' with {
+    primaryHeader: "Statistics"|t('formie-rating-field'),
+    valueHeader: "Total Submissions"|t('formie-rating-field'),
+    rows: rows,
+    empty: {
+        title: "No forms with rating fields found."|t('formie-rating-field'),
+    },
+    footer: {
+        url: cpUrl('formie-rating-field/statistics'),
+        label: "View Statistics"|t('formie-rating-field'),
+    },
+} only %}
