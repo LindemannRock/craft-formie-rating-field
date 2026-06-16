@@ -158,6 +158,7 @@ return [
     'Submissions Count' => 'Aantal inzendingen',
     'Total Submissions' => 'Totaal aantal inzendingen',
     'View Statistics' => 'Statistieken bekijken',
+    'View all statistics' => 'Alle statistieken bekijken',
     'Search forms...' => 'Formulieren zoeken...',
     'Clear search' => 'Zoekopdracht wissen',
     'No forms with rating fields found.' => 'Geen formulieren met beoordelingsvelden gevonden.',

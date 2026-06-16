@@ -158,6 +158,7 @@ return [
     'Submissions Count' => 'عدد الاستمارات',
     'Total Submissions' => 'إجمالي الاستمارات',
     'View Statistics' => 'عرض الإحصائيات',
+    'View all statistics' => 'عرض جميع الإحصائيات',
     'Search forms...' => 'البحث في النماذج...',
     'Clear search' => 'مسح البحث',
     'No forms with rating fields found.' => 'لم يتم العثور على نماذج تحتوي على حقول تقييم.',

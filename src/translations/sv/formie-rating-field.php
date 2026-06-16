@@ -158,6 +158,7 @@ return [
     'Submissions Count' => 'Antal inskickningar',
     'Total Submissions' => 'Totalt antal inskickningar',
     'View Statistics' => 'Visa statistik',
+    'View all statistics' => 'Visa all statistik',
     'Search forms...' => 'Sök formulär...',
     'Clear search' => 'Rensa sökning',
     'No forms with rating fields found.' => 'Inga formulär med betygsfält hittades.',

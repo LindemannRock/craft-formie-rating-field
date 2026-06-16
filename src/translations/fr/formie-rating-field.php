@@ -158,6 +158,7 @@ return [
     'Submissions Count' => 'Nombre de soumissions',
     'Total Submissions' => 'Total des soumissions',
     'View Statistics' => 'Afficher les statistiques',
+    'View all statistics' => 'Afficher toutes les statistiques',
     'Search forms...' => 'Rechercher des formulaires...',
     'Clear search' => 'Effacer la recherche',
     'No forms with rating fields found.' => 'Aucun formulaire avec des champs d\'évaluation trouvé.',

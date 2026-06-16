@@ -158,6 +158,7 @@ return [
     'Submissions Count' => 'Antal indsendelser',
     'Total Submissions' => 'Indsendelser i alt',
     'View Statistics' => 'Vis statistik',
+    'View all statistics' => 'Vis al statistik',
     'Search forms...' => 'Søg formularer ...',
     'Clear search' => 'Ryd søgning',
     'No forms with rating fields found.' => 'Ingen formularer med vurderingsfelter fundet.',

@@ -158,6 +158,7 @@ return [
     'Submissions Count' => 'Numero di invii',
     'Total Submissions' => 'Invii totali',
     'View Statistics' => 'Visualizza statistiche',
+    'View all statistics' => 'Visualizza tutte le statistiche',
     'Search forms...' => 'Cerca moduli...',
     'Clear search' => 'Cancella ricerca',
     'No forms with rating fields found.' => 'Nessun modulo con campi di valutazione trovato.',

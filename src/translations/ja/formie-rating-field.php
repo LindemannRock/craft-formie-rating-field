@@ -158,6 +158,7 @@ return [
     'Submissions Count' => '送信数',
     'Total Submissions' => '送信合計',
     'View Statistics' => '統計を表示',
+    'View all statistics' => 'すべての統計を表示',
     'Search forms...' => 'フォームを検索...',
     'Clear search' => '検索をクリア',
     'No forms with rating fields found.' => '評価フィールドを持つフォームが見つかりません。',

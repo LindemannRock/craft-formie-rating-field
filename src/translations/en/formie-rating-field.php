@@ -158,6 +158,7 @@ return [
     'Submissions Count' => 'Submissions Count',
     'Total Submissions' => 'Total Submissions',
     'View Statistics' => 'View Statistics',
+    'View all statistics' => 'View all statistics',
     'Search forms...' => 'Search forms...',
     'Clear search' => 'Clear search',
     'No forms with rating fields found.' => 'No forms with rating fields found.',
