@@ -306,8 +306,9 @@ class FormieRatingField extends Plugin
                     'nextRunTime' => DateFormatHelper::formatCompactDatetimeFromSettings(
                         $nextRun,
                         $settings,
+                        null,
                         false,
-                        false,
+                        pluginHandle: 'formie-rating-field',
                     ),
                 ]);
 

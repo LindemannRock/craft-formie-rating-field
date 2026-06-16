@@ -298,8 +298,9 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
         return DateFormatHelper::formatCompactDatetimeFromSettings(
             $nextRun,
             FormieRatingField::$plugin->getSettings(),
+            null,
             false,
-            false,
+            pluginHandle: 'formie-rating-field',
         );
     }
 
