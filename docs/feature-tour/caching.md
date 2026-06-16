@@ -35,6 +35,8 @@ By default the cache is built **on demand** — the first view of a form's stats
 
 `daily2am` or `every6hours` are good production choices. A scheduled run queues a job that walks every form's rating fields across common date ranges and groupings and warms the cache, then reschedules itself for the next run.
 
+Craft stores queue job descriptions when rows are queued, so date/time format changes apply to newly queued rows. Existing delayed rows keep their old label until they run or are requeued. Queue labels stay compact: numeric months render numerically, while short and long month settings both render as short month names.
+
 > [!NOTE]
 > Scheduled generation pre-warms the **cross-site aggregate** (all sites). Per-site views compute live on their first load and are cached from then on.
 

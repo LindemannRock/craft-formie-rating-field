@@ -40,6 +40,14 @@ Common issues and how to resolve them. If something here doesn't cover your case
 
 **Why:** Stats are cached for speed and invalidated when submissions change. A manual refresh forces a recompute if a cache entry is stale for any other reason.
 
+## Scheduled cache generation appears more than once
+
+Formie Rating Field keeps one recurring scheduled cache-generation master job in Craft's queue. Manual cache-generation jobs and per-batch jobs can appear separately while a cache rebuild is running.
+
+During bootstrap, the plugin collapses duplicate pending scheduled-master rows automatically, including older pre-release scheduled rows that do not carry the current `scheduledMaster` marker. If duplicates keep returning after a deployment, confirm all web workers are running the same plugin version and that old queue workers have been restarted.
+
+Craft stores queue job descriptions when rows are queued, so date/time format changes apply to newly queued rows. Existing delayed rows keep their old label until they run or are requeued. Queue labels stay compact: numeric months render numerically, while short and long month settings both render as short month names.
+
 ## "Redis Not Configured" on the Cache settings page
 
 **Quick checks:**
