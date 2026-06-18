@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.21.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.20.0...v3.21.0) - 2026-06-18
+
+
+### Added
+
+* **i18n:** add "View all statistics" translation key across locales ([8a2c701](https://github.com/LindemannRock/craft-formie-rating-field/commit/8a2c7019ca62b9a9793d36df2ce50e3434cc77a9))
+* **widgets:** add RatingStatisticsWidget ([1a1d916](https://github.com/LindemannRock/craft-formie-rating-field/commit/1a1d916f3a8627fd60a5580873117884e3aed586))
+
+
+### Fixed
+
+* **i18n:** correct Spanish translations for cache settings and Google Review prompt ([baf6d0f](https://github.com/LindemannRock/craft-formie-rating-field/commit/baf6d0f7c23bf10618c2f7e2dfe22cc30fc9bbb9))
+
 ## [3.20.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.19.0...v3.20.0) - 2026-06-07
 
 
