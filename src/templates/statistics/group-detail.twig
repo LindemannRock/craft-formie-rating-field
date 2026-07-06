@@ -73,8 +73,9 @@
                                 {% for formField in form.getFields() %}
                                     {% if formField.handle != groupBy %}
                                         {% set value = submission.getFieldValue(formField.handle) %}
+                                        {% set hasValue = value is iterable and value is not string ? value|length : value is not null and value is not same as('') %}
                                         <td>
-                                            {% if value %}
+                                            {% if hasValue %}
                                                 {% if value is iterable and value is not string %}
                                                     {{ value|join(', ') }}
                                                 {% else %}

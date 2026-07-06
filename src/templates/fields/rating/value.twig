@@ -16,14 +16,18 @@
 				{% set emptyStars = field.maxValue - value|round(0, 'ceil') %}
 
 				<span style="color: #f59e0b;">
-					{%- for i in 1..fullStars -%}★
-					{%- endfor -%}
+					{%- if fullStars > 0 -%}
+						{%- for i in 1..fullStars -%}★
+						{%- endfor -%}
+					{%- endif -%}
 					{%- if hasHalf -%}½
 					{%- endif -%}
 				</span>
 				<span style="color: #e5e7eb;">
-					{%- for i in 1..emptyStars -%}☆
-					{%- endfor -%}
+					{%- if emptyStars > 0 -%}
+						{%- for i in 1..emptyStars -%}☆
+						{%- endfor -%}
+					{%- endif -%}
 				</span>
 				<span style="color: #6b7280; font-size: 14px; margin-left: 8px;">
 					({{ value }}/{{ field.maxValue }})
