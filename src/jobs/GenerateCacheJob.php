@@ -15,6 +15,8 @@ use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\base\traits\QueueTtrTrait;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\services\StatisticsService;
+use verbb\formie\elements\Form;
 use yii\queue\RetryableJobInterface;
 
 /**
@@ -34,6 +36,8 @@ use yii\queue\RetryableJobInterface;
 class GenerateCacheJob extends BaseJob implements RetryableJobInterface
 {
     use QueueTtrTrait;
+
+    private const DATE_RANGES = ['last7days', 'last30days', 'last90days', 'all'];
 
     /**
      * @var bool Whether to reschedule after completion
@@ -109,14 +113,16 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
     {
         $statisticsService = FormieRatingField::$plugin->statistics;
 
-        // If this is the first batch, calculate total batches and clear cache
-        if ($this->currentBatch === 1 && !$this->formId) {
-            // Clear all cache first
-            $statisticsService->clearAllCache();
-            Craft::info('Cleared all statistics cache before regeneration', __METHOD__);
-
-            // Calculate and queue all batches
-            $this->queueAllBatches($statisticsService);
+        // A job with no field handle is a master job. It expands into concrete
+        // per-field batches for either all forms or one requested form.
+        if ($this->currentBatch === 1 && $this->fieldHandle === null) {
+            if ($this->formId === null) {
+                $statisticsService->clearAllCache();
+                Craft::info('Cleared all statistics cache before regeneration', __METHOD__);
+                $this->queueAllBatches($statisticsService);
+            } else {
+                $this->queueFormBatches($statisticsService, $this->formId);
+            }
 
             if ($this->reschedule) {
                 $this->scheduleNext();
@@ -137,44 +143,51 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
     /**
      * Calculate and queue all batches
      */
-    private function queueAllBatches($statisticsService): void
+    private function queueAllBatches(StatisticsService $statisticsService): void
     {
         $formsWithRatings = $statisticsService->getFormsWithRatingFields();
-        $dateRanges = ['last7days', 'last30days', 'last90days', 'all'];
 
         $batches = [];
 
         foreach ($formsWithRatings as $item) {
             $form = $item['form'];
-            $ratingFields = $statisticsService->getRatingFieldsForForm($form);
-            $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
-
-            foreach ($ratingFields as $field) {
-                foreach ($dateRanges as $range) {
-                    // Batch 1: Ungrouped stats for this field + range
-                    $batches[] = [
-                        'formId' => $form->id,
-                        'fieldHandle' => $field->handle,
-                        'dateRange' => $range,
-                        'groupBy' => null,
-                    ];
-
-                    // Batches 2-N: Each grouping
-                    foreach ($groupableFields as $groupField) {
-                        $batches[] = [
-                            'formId' => $form->id,
-                            'fieldHandle' => $field->handle,
-                            'dateRange' => $range,
-                            'groupBy' => $groupField['handle'],
-                        ];
-                    }
-                }
+            if (!$form instanceof Form) {
+                continue;
             }
+
+            $batches = array_merge($batches, $this->buildBatchesForForm($statisticsService, $form));
         }
 
+        $this->queueBatches($batches);
+    }
+
+    /**
+     * Calculate and queue batches for one form.
+     */
+    private function queueFormBatches(StatisticsService $statisticsService, int $formId): void
+    {
+        $form = Form::find()->id($formId)->one();
+
+        if (!$form instanceof Form) {
+            Craft::warning("Skipping cache generation for missing form ID {$formId}", __METHOD__);
+            return;
+        }
+
+        $statisticsService->clearCacheForForm($formId);
+        Craft::info("Cleared statistics cache for form {$formId} before regeneration", __METHOD__);
+
+        $this->queueBatches($this->buildBatchesForForm($statisticsService, $form));
+    }
+
+    /**
+     * Queue concrete batch jobs.
+     *
+     * @param list<array{formId: int, fieldHandle: string, dateRange: string, groupBy: string|null}> $batches
+     */
+    private function queueBatches(array $batches): void
+    {
         $totalBatches = count($batches);
 
-        // Queue each batch
         foreach ($batches as $index => $batchConfig) {
             Craft::$app->getQueue()->push(new self([
                 'formId' => $batchConfig['formId'],
@@ -192,14 +205,48 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
     }
 
     /**
+     * Build the pre-warm batch matrix for one form.
+     *
+     * @return list<array{formId: int, fieldHandle: string, dateRange: string, groupBy: string|null}>
+     */
+    private function buildBatchesForForm(StatisticsService $statisticsService, Form $form): array
+    {
+        $ratingFields = $statisticsService->getRatingFieldsForForm($form);
+        $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
+        $batches = [];
+
+        foreach ($ratingFields as $field) {
+            foreach (self::DATE_RANGES as $range) {
+                $batches[] = [
+                    'formId' => (int)$form->id,
+                    'fieldHandle' => $field->handle,
+                    'dateRange' => $range,
+                    'groupBy' => null,
+                ];
+
+                foreach ($groupableFields as $groupField) {
+                    $batches[] = [
+                        'formId' => (int)$form->id,
+                        'fieldHandle' => $field->handle,
+                        'dateRange' => $range,
+                        'groupBy' => $groupField['handle'],
+                    ];
+                }
+            }
+        }
+
+        return $batches;
+    }
+
+    /**
      * Process a single batch
      */
-    private function processBatch($statisticsService, $queue): void
+    private function processBatch(StatisticsService $statisticsService, $queue): void
     {
         // Get the specific form and field
         $form = \verbb\formie\elements\Form::find()->id($this->formId)->one();
 
-        if (!$form) {
+        if (!$form instanceof Form) {
             return;
         }
 

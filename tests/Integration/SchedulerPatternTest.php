@@ -16,6 +16,7 @@ use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\tests\TestCase;
 use ReflectionMethod;
+use verbb\formie\elements\Form;
 
 /**
  * Verifies the recurring cache-generation scheduler pattern.
@@ -183,6 +184,50 @@ final class SchedulerPatternTest extends TestCase
         self::assertSame(2, $this->countCacheGenerationJobs());
     }
 
+    public function testManualFormScopedMasterQueuesConcreteBatches(): void
+    {
+        $form = $this->findFirstFormWithRatingFields();
+
+        if (!$form instanceof Form) {
+            self::markTestSkipped('No Formie form with rating fields is available in the test database.');
+        }
+
+        $ratingFields = $this->statistics->getRatingFieldsForForm($form);
+        $groupableFields = $this->statistics->getGroupableFieldsForForm($form);
+        $expectedBatches = count($ratingFields) * 4 * (count($groupableFields) + 1);
+
+        self::assertGreaterThan(0, $expectedBatches);
+
+        $job = new GenerateCacheJob([
+            'formId' => (int)$form->id,
+            'reschedule' => false,
+            'scheduledMaster' => false,
+        ]);
+
+        $job->execute(Craft::$app->getQueue());
+
+        self::assertSame($expectedBatches, $this->countManualCacheGenerationJobs());
+
+        foreach ($this->cacheGenerationQueueQuery()->all() as $row) {
+            self::assertIsArray($row);
+            self::assertStringContainsString('fieldHandle', (string)$row['job']);
+            self::assertStringContainsString('dateRange', (string)$row['job']);
+        }
+    }
+
+    public function testManualFormScopedMasterForMissingFormQueuesNoBatches(): void
+    {
+        $job = new GenerateCacheJob([
+            'formId' => self::TEST_FORM_ID,
+            'reschedule' => false,
+            'scheduledMaster' => false,
+        ]);
+
+        $job->execute(Craft::$app->getQueue());
+
+        self::assertSame(0, $this->countCacheGenerationJobs());
+    }
+
     private function countScheduledMasterJobs(): int
     {
         return (int) $this->cacheGenerationQueueQuery()
@@ -242,6 +287,19 @@ final class SchedulerPatternTest extends TestCase
                 ['like', 'job', 'GenerateCacheJob'],
             ])
             ->execute();
+    }
+
+    private function findFirstFormWithRatingFields(): ?Form
+    {
+        foreach ($this->statistics->getFormsWithRatingFields() as $item) {
+            $form = $item['form'] ?? null;
+
+            if ($form instanceof Form) {
+                return $form;
+            }
+        }
+
+        return null;
     }
 
     private function cacheGenerationQueueQuery(): Query

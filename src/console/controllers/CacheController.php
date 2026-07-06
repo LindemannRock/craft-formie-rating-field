@@ -12,6 +12,8 @@ use Craft;
 use craft\console\Controller;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
+use verbb\formie\elements\Form;
 use yii\console\ExitCode;
 
 /**
@@ -122,10 +124,26 @@ class CacheController extends Controller
      */
     public function actionGenerate(): int
     {
+        $statisticsService = FormieRatingField::$plugin->statistics;
+
+        if ($this->formId !== null) {
+            $form = Form::find()->id($this->formId)->one();
+
+            if (!$form instanceof Form) {
+                $this->stderr("Error: Form ID {$this->formId} was not found.\n");
+                return ExitCode::DATAERR;
+            }
+
+            if ($statisticsService->getRatingFieldsForForm($form) === []) {
+                $this->stdout("No rating fields found for form ID {$this->formId}; no cache generation job queued.\n");
+                return ExitCode::OK;
+            }
+        }
+
         $this->stdout("Queuing cache generation job...\n");
 
         // Push to queue instead of running directly
-        Craft::$app->getQueue()->push(new \lindemannrock\formieratingfield\jobs\GenerateCacheJob([
+        Craft::$app->getQueue()->push(new GenerateCacheJob([
             'formId' => $this->formId,
             'reschedule' => false, // Manual trigger
         ]));
