@@ -140,11 +140,6 @@ class Rating extends Field implements FieldInterface
     public ?string $googleReviewButtonLabel = null;
 
     /**
-     * @var string|null Google Review button CSS classes
-     */
-    public ?string $googleReviewButtonClass = null;
-
-    /**
      * @var string|null Google Review URL template
      */
     public ?string $googleReviewUrl = null;
@@ -231,9 +226,6 @@ class Rating extends Field implements FieldInterface
         }
         if ($this->googleReviewButtonLabel === null) {
             $this->googleReviewButtonLabel = '';
-        }
-        if ($this->googleReviewButtonClass === null) {
-            $this->googleReviewButtonClass = '';
         }
         if ($this->googleReviewUrl === null) {
             $this->googleReviewUrl = '';
@@ -932,7 +924,6 @@ class Rating extends Field implements FieldInterface
         $attributes[] = 'googleReviewMessageMedium';
         $attributes[] = 'googleReviewMessageLow';
         $attributes[] = 'googleReviewButtonLabel';
-        $attributes[] = 'googleReviewButtonClass';
         $attributes[] = 'googleReviewUrl';
         $attributes[] = 'googleReviewButtonAlign';
 
