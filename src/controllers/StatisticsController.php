@@ -56,6 +56,25 @@ class StatisticsController extends Controller
     }
 
     /**
+     * @param mixed $rawGroupBy
+     * @param array $groupableFields
+     */
+    private function _normalizeGroupByHandle(mixed $rawGroupBy, array $groupableFields): ?string
+    {
+        if (!is_string($rawGroupBy) || $rawGroupBy === '') {
+            return null;
+        }
+
+        foreach ($groupableFields as $field) {
+            if (($field['handle'] ?? null) === $rawGroupBy) {
+                return $rawGroupBy;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Display statistics index - list of all forms with rating fields
      */
     public function actionIndex(): Response
@@ -203,6 +222,7 @@ class StatisticsController extends Controller
 
         // Get groupable fields for this form
         $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
+        $groupBy = $this->_normalizeGroupByHandle($groupBy, $groupableFields);
 
         // Filter rating fields if specified
         $fieldsToDisplay = $ratingFields;

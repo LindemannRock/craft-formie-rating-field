@@ -133,11 +133,6 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
 
         // Process this specific batch
         $this->processBatch($statisticsService, $queue);
-
-        // Reschedule master job if needed
-        if ($this->reschedule && $this->currentBatch === 1) {
-            $this->scheduleNext();
-        }
     }
 
     /**
