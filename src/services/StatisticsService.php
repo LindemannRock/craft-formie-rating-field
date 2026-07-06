@@ -363,79 +363,56 @@ class StatisticsService extends Component
         $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
         $groupByExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $groupByUid);
         $ratingExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $ratingFieldUid);
-        $ratingCast = new Expression("CAST($ratingExpr AS DECIMAL(10,2))");
+        $ratingCast = "CAST($ratingExpr AS DECIMAL(10,2))";
+
+        $select = [
+            'groupValue' => "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')",
+            'count' => new Expression('COUNT(*)'),
+            'average' => new Expression("AVG($ratingCast)"),
+        ];
+
+        if ($field->ratingType === Rating::RATING_TYPE_NPS) {
+            $select['promoters'] = new Expression("SUM(CASE WHEN $ratingCast >= 9 THEN 1 ELSE 0 END)");
+            $select['passives'] = new Expression("SUM(CASE WHEN $ratingCast >= 7 AND $ratingCast <= 8 THEN 1 ELSE 0 END)");
+            $select['detractors'] = new Expression("SUM(CASE WHEN $ratingCast <= 6 THEN 1 ELSE 0 END)");
+
+            for ($i = 0; $i <= 10; $i++) {
+                $select["score{$i}"] = new Expression("SUM(CASE WHEN FLOOR($ratingCast) = $i THEN 1 ELSE 0 END)");
+            }
+        }
 
         $query = (new Query())
-            ->select([
-                'groupValue' => "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')",
-                'count' => 'COUNT(*)',
-                'ratingValues' => DbHelper::groupConcat($ratingCast),
-            ])
-            ->from('{{%formie_submissions}}')
-            ->where([
-                '{{%formie_submissions}}.formId' => $form->id,
-                '{{%formie_submissions}}.isIncomplete' => false,
-                '{{%formie_submissions}}.isSpam' => false,
-            ])
-            ->andWhere(['not', [$ratingExpr => null]])
-            ->andWhere(['!=', $ratingExpr, ''])
+            ->select($select)
+            ->from('{{%formie_submissions}}');
+
+        $this->applyGroupedStatisticsFilters($query, $form->id, $ratingExpr, $submissionsTable, $dateBounds, $siteId)
             ->groupBy('groupValue')
             ->orderBy(['count' => SORT_DESC]);
 
-        // Filter by site when a specific site is requested.
-        // formie_submissions has no siteId column; site association lives in elements_sites.
-        if ($siteId !== 'all') {
-            // Use the resolved table name inside [[...]] — Yii's {{%table}} expansion
-            // doesn't nest cleanly inside [[col]] brackets (corrupts the column parser).
-            $query->innerJoin(
-                '{{%elements_sites}} es_site_filter',
-                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
-                [':filterSiteId' => (int)$siteId]
-            );
-        }
-
-        // Add date filter if specified. Qualify the column — when the site filter
-        // joins elements_sites (which also has dateCreated), an unqualified column
-        // is ambiguous and errors on PostgreSQL.
-        if ($dateBounds['start']) {
-            $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($dateBounds['start'])]);
-        }
-        if ($dateBounds['end']) {
-            $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($dateBounds['end'])]);
-        }
-
         $results = $query->all();
 
-        // Calculate statistics for each group
-        $groupedStats = [];
+        $medianValuesByGroup = [];
 
-        foreach ($results as $row) {
-            $groupLabel = $row['groupValue'] ?? '(Not Set)';
-            $count = (int)$row['count'];
+        if (
+            $field->ratingType === Rating::RATING_TYPE_STAR ||
+            $field->ratingType === Rating::RATING_TYPE_EMOJI
+        ) {
+            $valuesQuery = (new Query())
+                ->select([
+                    'groupValue' => "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')",
+                    'ratingValue' => new Expression($ratingCast),
+                ])
+                ->from('{{%formie_submissions}}');
 
-            // Parse the rating values
-            $values = array_map('floatval', explode(',', $row['ratingValues']));
+            $this->applyGroupedStatisticsFilters($valuesQuery, $form->id, $ratingExpr, $submissionsTable, $dateBounds, $siteId);
 
-            $stats = [
-                'label' => $groupLabel,
-                'count' => $count,
-            ];
-
-            // Calculate type-specific statistics
-            switch ($field->ratingType) {
-                case Rating::RATING_TYPE_NPS:
-                    $stats = array_merge($stats, $this->calculateNpsStats($values));
-                    break;
-
-                case Rating::RATING_TYPE_STAR:
-                case Rating::RATING_TYPE_EMOJI:
-                    $stats['average'] = round(array_sum($values) / $count, 2);
-                    $stats['median'] = $this->calculateMedian($values);
-                    break;
+            foreach ($valuesQuery->all() as $valueRow) {
+                $groupLabel = $valueRow['groupValue'] ?? '(Not Set)';
+                $medianValuesByGroup[$groupLabel][] = (float)$valueRow['ratingValue'];
             }
-
-            $groupedStats[] = $stats;
         }
+
+        $groupedStats = $this->buildGroupedStatsFromAggregateRows($results, $field, $medianValuesByGroup);
 
         // Get the group field label
         $groupFieldLabel = $groupByHandle;
@@ -454,6 +431,128 @@ class StatisticsService extends Component
             'groupByLabel' => $groupFieldLabel,
             'groups' => $groupedStats,
             'totalGroups' => count($groupedStats),
+        ];
+    }
+
+    /**
+     * Apply the shared filters for grouped statistics queries.
+     *
+     * @param Query $query
+     * @param int $formId
+     * @param string $ratingExpr
+     * @param string $submissionsTable
+     * @param array $dateBounds
+     * @param int|string $siteId
+     * @return Query
+     */
+    private function applyGroupedStatisticsFilters(Query $query, int $formId, string $ratingExpr, string $submissionsTable, array $dateBounds, int|string $siteId): Query
+    {
+        $query
+            ->where([
+                '{{%formie_submissions}}.formId' => $formId,
+                '{{%formie_submissions}}.isIncomplete' => false,
+                '{{%formie_submissions}}.isSpam' => false,
+            ])
+            ->andWhere(['not', [$ratingExpr => null]])
+            ->andWhere(['!=', $ratingExpr, '']);
+
+        // Filter by site when a specific site is requested.
+        // formie_submissions has no siteId column; site association lives in elements_sites.
+        if ($siteId !== 'all') {
+            // Use the resolved table name inside [[...]] — Yii's {{%table}} expansion
+            // doesn't nest cleanly inside [[col]] brackets (corrupts the column parser).
+            $query->innerJoin(
+                '{{%elements_sites}} es_site_filter',
+                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
+                [':filterSiteId' => (int)$siteId]
+            );
+        }
+
+        // Qualify the column — when the site filter joins elements_sites
+        // (which also has dateCreated), an unqualified column is ambiguous
+        // and errors on PostgreSQL.
+        if ($dateBounds['start']) {
+            $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($dateBounds['start'])]);
+        }
+        if ($dateBounds['end']) {
+            $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($dateBounds['end'])]);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Build grouped response payloads from SQL aggregate rows.
+     *
+     * @param array $rows
+     * @param Rating $field
+     * @param array<string, float[]> $medianValuesByGroup
+     * @return array
+     */
+    private function buildGroupedStatsFromAggregateRows(array $rows, Rating $field, array $medianValuesByGroup = []): array
+    {
+        $groupedStats = [];
+
+        foreach ($rows as $row) {
+            $groupLabel = $row['groupValue'] ?? '(Not Set)';
+            $count = (int)$row['count'];
+
+            $stats = [
+                'label' => $groupLabel,
+                'count' => $count,
+            ];
+
+            switch ($field->ratingType) {
+                case Rating::RATING_TYPE_NPS:
+                    $stats = array_merge($stats, $this->calculateGroupedNpsStats($row));
+                    break;
+
+                case Rating::RATING_TYPE_STAR:
+                case Rating::RATING_TYPE_EMOJI:
+                    $stats['average'] = $count > 0 ? round((float)$row['average'], 2) : 0;
+                    $stats['median'] = $this->calculateMedian($medianValuesByGroup[$groupLabel] ?? []);
+                    break;
+            }
+
+            $groupedStats[] = $stats;
+        }
+
+        return $groupedStats;
+    }
+
+    /**
+     * Build grouped NPS stats from SQL aggregate counts.
+     *
+     * @param array $row
+     * @return array
+     */
+    private function calculateGroupedNpsStats(array $row): array
+    {
+        $total = (int)$row['count'];
+        $promoters = (int)($row['promoters'] ?? 0);
+        $passives = (int)($row['passives'] ?? 0);
+        $detractors = (int)($row['detractors'] ?? 0);
+
+        $distribution = [];
+        for ($i = 0; $i <= 10; $i++) {
+            $count = (int)($row["score{$i}"] ?? 0);
+            $distribution[] = [
+                'value' => $i,
+                'count' => $count,
+                'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
+            ];
+        }
+
+        return [
+            'npsScore' => $total > 0 ? round((($promoters - $detractors) / $total) * 100, 1) : 0,
+            'promoters' => $promoters,
+            'promotersPercentage' => $total > 0 ? round(($promoters / $total) * 100, 1) : 0,
+            'passives' => $passives,
+            'passivesPercentage' => $total > 0 ? round(($passives / $total) * 100, 1) : 0,
+            'detractors' => $detractors,
+            'detractorsPercentage' => $total > 0 ? round(($detractors / $total) * 100, 1) : 0,
+            'average' => $total > 0 ? round((float)$row['average'], 2) : 0,
+            'distribution' => $distribution,
         ];
     }
 
