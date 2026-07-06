@@ -63,6 +63,19 @@ The grouped view adds summary cards (total groups, overall average or NPS, top p
 
 ![The grouped statistics view with per-group rows](images/statistics-grouped.webp)
 
+## On the Craft dashboard
+
+Prefer to keep an eye on ratings without opening the plugin section? Add the **Formie Rating - Statistics** widget to your Craft **Dashboard** (**Dashboard → New Widget**). It lists the forms that have Rating fields, ranked by total submissions, so the busiest forms rise to the top — and each row links straight into that form's statistics.
+
+![The Rating Statistics dashboard widget listing forms by submission volume](images/statistics-widget.webp)
+
+Two settings control it:
+
+- **Number of forms** — show the top 3, 5, 10, 15, or 20 forms (default 5)
+- **Site** — all editable sites, or a single site (multi-site installs)
+
+The footer's **View all statistics** link opens the full dashboard. The widget needs the `View statistics` permission: it's hidden in the widget picker for users without it, and shows an empty state if the permission is ever removed.
+
 ## Keeping numbers current
 
 The dashboard reads from a cache so it stays fast. New, edited, or deleted submissions invalidate that form's cached statistics automatically, so the numbers refresh on the next load. If you ever need to force it, the **Refresh** button on a form's page clears its cache on demand (requires the *Refresh statistics* permission). See [Caching](caching.md) for the full picture.
