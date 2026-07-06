@@ -238,6 +238,7 @@ return [
     // Utilities
     'Overview' => '概要',
     'Manage statistics cache and monitor performance.' => '統計キャッシュを管理し、パフォーマンスを監視します。',
+    'Manage Settings' => '設定を管理する',
     'Active' => 'アクティブ',
     'Cache Status (File)' => 'キャッシュステータス（ファイル）',
     'Cache Status (Redis)' => 'キャッシュステータス（ Redis ）',

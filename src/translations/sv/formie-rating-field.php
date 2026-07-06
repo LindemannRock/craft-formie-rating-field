@@ -238,6 +238,7 @@ return [
     // Utilities
     'Overview' => 'Översikt',
     'Manage statistics cache and monitor performance.' => 'Hantera statistik-cache och övervaka prestanda.',
+    'Manage Settings' => 'Hantera inställningar',
     'Active' => 'Aktiv',
     'Cache Status (File)' => 'Cachestatus (fil)',
     'Cache Status (Redis)' => 'Cachestatus (Redis)',

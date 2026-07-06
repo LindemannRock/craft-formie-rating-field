@@ -238,6 +238,7 @@ return [
     // Utilities
     'Overview' => 'Overzicht',
     'Manage statistics cache and monitor performance.' => 'Statistiekencache beheren en prestaties monitoren.',
+    'Manage Settings' => 'Instellingen beheren',
     'Active' => 'Actief',
     'Cache Status (File)' => 'Cachestatus (bestand)',
     'Cache Status (Redis)' => 'Cachestatus (Redis)',
