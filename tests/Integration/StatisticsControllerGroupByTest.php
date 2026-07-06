@@ -35,6 +35,12 @@ final class StatisticsControllerGroupByTest extends TestCase
         self::assertNull($this->normalizeGroupByHandle(['branch']));
     }
 
+    public function testNormalizeGroupByHandleSupportsSharedControllerEntrypoints(): void
+    {
+        self::assertSame('region', $this->normalizeGroupByHandle('region'));
+        self::assertNull($this->normalizeGroupByHandle('staleRegion'));
+    }
+
     private function normalizeGroupByHandle(mixed $groupBy): ?string
     {
         $controller = new StatisticsController('statistics', Craft::$app);

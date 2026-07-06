@@ -272,8 +272,10 @@ class StatisticsController extends Controller
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy');
         $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
+        $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
+        $groupBy = $this->_normalizeGroupByHandle($groupBy, $groupableFields);
 
-        if (!$groupBy) {
+        if ($groupBy === null) {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Group by parameter is required'));
             return $this->redirect('formie-rating-field/statistics/form/' . $formId);
         }
@@ -459,8 +461,12 @@ class StatisticsController extends Controller
         $format = $request->getBodyParam('format', 'csv');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
-        if ($formId <= 0 || !$groupBy || !$groupValue) {
+        if ($formId <= 0 || !$groupValue) {
             throw new BadRequestHttpException(Craft::t('formie-rating-field', 'Missing required parameters'));
+        }
+
+        if (!$groupBy) {
+            throw new BadRequestHttpException(Craft::t('formie-rating-field', 'Group by parameter is required'));
         }
 
         // Gate by enabled export formats from config/formie-rating-field.php (or base default)
@@ -476,6 +482,11 @@ class StatisticsController extends Controller
 
         $statisticsService = FormieRatingField::$plugin->statistics;
         $settings = FormieRatingField::$plugin->getSettings();
+        $groupBy = $this->_normalizeGroupByHandle($groupBy, $statisticsService->getGroupableFieldsForForm($form));
+
+        if ($groupBy === null) {
+            throw new BadRequestHttpException(Craft::t('formie-rating-field', 'Group by parameter is required'));
+        }
 
         // Apply the maxExportRows cap (default 50k, 0 = unlimited) so this export
         // path matches the OOM safeguard already in buildRawResponsesExportRows.

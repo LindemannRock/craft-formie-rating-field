@@ -259,6 +259,18 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
             return;
         }
 
+        if ($this->groupBy !== null) {
+            $groupableHandles = array_column($statisticsService->getGroupableFieldsForForm($form), 'handle');
+            if (!in_array($this->groupBy, $groupableHandles, true)) {
+                Craft::warning(
+                    "Skipping grouped cache batch for form '{$form->handle}' (id {$form->id}) because groupBy '{$this->groupBy}' is no longer groupable.",
+                    __METHOD__
+                );
+
+                return;
+            }
+        }
+
         // Update progress
         $this->setProgress($queue, $this->currentBatch / $this->totalBatches,
             Craft::t('formie-rating-field', 'Batch {current} of {total}: {form} - {field}', [

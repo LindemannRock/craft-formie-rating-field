@@ -13,6 +13,7 @@ namespace lindemannrock\formieratingfield\tests\Integration;
 use Craft;
 use craft\db\Query;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\tests\TestCase;
 use ReflectionMethod;
@@ -226,6 +227,53 @@ final class SchedulerPatternTest extends TestCase
         $job->execute(Craft::$app->getQueue());
 
         self::assertSame(0, $this->countCacheGenerationJobs());
+    }
+
+    public function testGroupedBatchSkipsStaleGroupByHandle(): void
+    {
+        $form = $this->findFirstFormWithRatingFields();
+
+        if (!$form instanceof Form) {
+            self::markTestSkipped('No Formie form with rating fields is available in the test database.');
+        }
+
+        if ($this->statistics->getGroupableFieldsForForm($form) === []) {
+            self::markTestSkipped('No Formie form with groupable fields is available in the test database.');
+        }
+
+        $ratingFields = array_values($this->statistics->getRatingFieldsForForm($form));
+        $field = $ratingFields[0] ?? null;
+
+        if (!$field instanceof Rating) {
+            self::markTestSkipped('No rating field is available for the selected Formie form.');
+        }
+
+        $staleGroupBy = 'removedGroupedFieldForTest';
+        $cacheFile = $this->statisticsCachePath() . $this->statistics->getCacheFilename(
+            (int)$form->id,
+            $field->handle,
+            'last7days',
+            $staleGroupBy,
+            'all'
+        );
+        @unlink($cacheFile);
+
+        $job = new GenerateCacheJob([
+            'formId' => (int)$form->id,
+            'fieldHandle' => $field->handle,
+            'dateRange' => 'last7days',
+            'groupBy' => $staleGroupBy,
+            'currentBatch' => 1,
+            'totalBatches' => 1,
+            'reschedule' => false,
+            'scheduledMaster' => false,
+        ]);
+
+        $processBatch = new ReflectionMethod($job, 'processBatch');
+        $processBatch->setAccessible(true);
+        $processBatch->invoke($job, $this->statistics, Craft::$app->getQueue());
+
+        self::assertFileDoesNotExist($cacheFile);
     }
 
     private function countScheduledMasterJobs(): int

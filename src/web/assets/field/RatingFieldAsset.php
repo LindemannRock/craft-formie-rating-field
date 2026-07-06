@@ -9,7 +9,6 @@
 namespace lindemannrock\formieratingfield\web\assets\field;
 
 use craft\web\AssetBundle;
-use lindemannrock\formieratingfield\FormieRatingField;
 
 /**
  * Rating Field Asset Bundle
@@ -40,34 +39,5 @@ class RatingFieldAsset extends AssetBundle
         ];
 
         parent::init();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function registerAssetFiles($view): void
-    {
-        parent::registerAssetFiles($view);
-
-        // Load Noto Color Emoji web font if configured
-        $plugin = FormieRatingField::$plugin;
-        if ($plugin !== null) {
-            $settings = $plugin->getSettings();
-            if ($settings->defaultEmojiRenderMode === 'webfont') {
-                // Register Google Fonts Noto Color Emoji
-                $view->registerCssFile(
-                    'https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap',
-                    [
-                        'position' => \yii\web\View::POS_HEAD,
-                    ]
-                );
-
-                // Add a class to body to indicate webfont mode
-                $view->registerJs(
-                    "document.documentElement.classList.add('fui-rating-emoji-webfont');",
-                    \yii\web\View::POS_READY
-                );
-            }
-        }
     }
 }
