@@ -44,19 +44,21 @@ Defaults applied to each new Rating field.
 
 See [Caching](../feature-tour/caching.md) for how the cache is built, invalidated, and pre-warmed.
 
-## Shared base settings
+## Base display and export overrides
 
-These cascade from the shared base plugin. Set them in **Settings → Interface**, or override per-plugin in config. When the UI value is *"Use global default"*, the value comes from `config/lindemannrock-base.php`.
+The **Settings → Interface** screen also includes base-owned display and export controls after **Max Export Rows**. Leave these unset to inherit from `config/lindemannrock-base.php`; set them in `config/formie-rating-field.php` only when Formie Rating should override the global base value.
+
+When the Control Panel value is **Use global default**, the setting cascades from `config/lindemannrock-base.php`. A value in `config/formie-rating-field.php` locks the plugin-specific value and disables the matching CP field.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `defaultDateRange` | `string` | `'last30days'` | Default range on the Statistics page. Cascades: plugin config → plugin UI value → base config → `last30days`. |
-| `exports` | `array` | all enabled | Toggle export formats: `['csv' => true, 'json' => true, 'excel' => true]`. |
-| `timeFormat` | `string` | base | `'12'` (AM/PM) or `'24'`. |
-| `monthFormat` | `string` | base | `'numeric'`, `'short'`, or `'long'`. |
-| `dateOrder` | `string` | base | `'dmy'`, `'mdy'`, or `'ymd'`. |
-| `dateSeparator` | `string` | base | `'/'`, `'-'`, or `'.'`. |
-| `showSeconds` | `bool` | base | Show seconds in time display. |
+| `timeFormat` | `string\|null` | `null` | Time display override: `'12'` (AM/PM) or `'24'` |
+| `monthFormat` | `string\|null` | `null` | Month display override: `'numeric'`, `'short'`, or `'long'` |
+| `dateOrder` | `string\|null` | `null` | Date order override: `'dmy'`, `'mdy'`, or `'ymd'` |
+| `dateSeparator` | `string\|null` | `null` | Date separator override: `'/'`, `'-'`, or `'.'` |
+| `showSeconds` | `bool\|null` | `null` | Whether timestamps include seconds |
+| `defaultDateRange` | `string\|null` | `null` | Default range on the Statistics page. Common values: `today`, `yesterday`, `last7days`, `last30days`, `last90days`, `thisMonth`, `lastMonth`, `thisYear`, `lastYear`, `all` |
+| `exports` | `array\|null` | `null` | Export format overrides, e.g. `['csv' => true, 'json' => true, 'excel' => true]` |
 
 ## Example: full config file
 
@@ -88,6 +90,20 @@ return [
         // Cache
         'cacheStorageMethod' => 'file',
         'cacheGenerationSchedule' => 'disabled',
+
+        // Optional base-setting overrides for this plugin only
+        // Leave unset to inherit from config/lindemannrock-base.php.
+        // 'timeFormat' => '24',
+        // 'monthFormat' => 'short',
+        // 'dateOrder' => 'dmy',
+        // 'dateSeparator' => '/',
+        // 'showSeconds' => false,
+        // 'defaultDateRange' => 'last7days',
+        // 'exports' => [
+        //     'csv' => true,
+        //     'json' => true,
+        //     'excel' => true,
+        // ],
     ],
 
     // Production: pre-generate stats overnight and use Redis on a load-balanced host

@@ -2,11 +2,14 @@
 
 Get Formie Rating Field running in a few minutes. By the end you'll have a working rating question on a live form and see its first result in the Statistics dashboard.
 
-## 1. Install the plugin
+## Before you start
 
-> See [Installation](installation.md) for full details including DDEV and config options. Make sure [Formie](https://verbb.io/craft-plugins/formie) is installed and enabled first.
+Complete [Installation & Setup](installation.md#post-install-setup) first. You should have:
 
-## 2. Add a Rating field to a form
+- Formie Rating Field installed and enabled (a **Formie Rating** section shows in the Control Panel nav)
+- [Formie](https://verbb.io/craft-plugins/formie) installed and enabled, with a form you can edit
+
+## 1. Add a Rating field to a form
 
 In the Control Panel, open **Formie → Forms** and edit (or create) a form. From the field list on the right, drag **Rating** onto the form.
 
@@ -18,11 +21,11 @@ In the field's settings:
 
 Save the form.
 
-## 3. Submit a rating
+## 2. Submit a rating
 
 Open the form on your site front-end (or use Formie's preview). Pick a rating and submit. The widget renders as interactive stars, emoji, or NPS number boxes depending on the type you chose.
 
-## 4. Verify it works
+## 3. Verify it works
 
 In the Control Panel, open **Formie Rating → Statistics**. Your form appears in the list with a rating-field count and submission count. Click the form title to see its average (or NPS score), the value distribution, and a trend chart.
 

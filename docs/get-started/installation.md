@@ -26,15 +26,15 @@ composer require lindemannrock/craft-formie-rating-field && php craft plugin/ins
 ddev composer require lindemannrock/craft-formie-rating-field && ddev craft plugin/install formie-rating-field
 ```
 
-## Copy Config File (Optional)
+After installing, a **Formie Rating** section appears in the Control Panel, and the **Rating** field type becomes available in Formie's form builder.
 
-To set defaults for new rating fields (or rename the plugin in the Control Panel) from a config file, copy the sample config to your project:
+## Post-Install Setup
 
-```bash
-cp vendor/lindemannrock/craft-formie-rating-field/src/config.php config/formie-rating-field.php
-```
+Formie Rating Field works as soon as it's installed — there's no salt to generate or templates to copy.
 
-See [Configuration](configuration.md) for the available options.
+### Review configuration
+
+The plugin's settings (field defaults, statistics interface, and caching) are optional; sensible defaults apply out of the box. See [Configuration](configuration.md) for the settings reference, config-file overrides, and environment-specific options.
 
 ## Quick Start
 
