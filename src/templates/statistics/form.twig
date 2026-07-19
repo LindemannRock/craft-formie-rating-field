@@ -1,4 +1,5 @@
 {% extends "_layouts/cp" %}
+{% do view.registerAssetBundle('lindemannrock\\base\\web\\assets\\analytics\\AnalyticsAsset') %}
 {% set title = form.title ~ " - " ~ "Rating Statistics"|t('formie-rating-field') %}
 {% set selectedSubnavItem = 'statistics' %}
 
@@ -598,15 +599,7 @@
     let currentFieldFilter = '{{ (fieldFilter ?? '')|e('js') }}';
     let currentSiteId = '{{ siteId|e('js') }}';
 
-    // Load Chart.js if not already loaded
-    if (typeof Chart === 'undefined') {
-        var script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
-        script.onload = initCharts;
-        document.head.appendChild(script);
-    } else {
-        initCharts();
-    }
+    initCharts();
 
     // Date range change handler
     $(document).ready(function() {
