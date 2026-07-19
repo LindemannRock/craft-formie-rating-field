@@ -13,6 +13,7 @@ use craft\web\Controller;
 use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\ExportHelper;
+use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\traits\FormieSubmissionPermissionTrait;
 use verbb\formie\elements\Form;
@@ -75,6 +76,30 @@ class StatisticsController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * @param mixed $rawFieldHandle
+     * @param array $ratingFields
+     */
+    private function _normalizeRatingFieldHandle(mixed $rawFieldHandle, array $ratingFields): ?string
+    {
+        if (!is_string($rawFieldHandle) || $rawFieldHandle === '') {
+            return null;
+        }
+
+        foreach ($ratingFields as $field) {
+            if ($field instanceof Rating && $field->handle === $rawFieldHandle) {
+                return $rawFieldHandle;
+            }
+        }
+
+        return null;
+    }
+
+    private function _normalizeGroupValue(mixed $rawGroupValue): string
+    {
+        return is_string($rawGroupValue) ? $rawGroupValue : '';
     }
 
     /**
@@ -279,6 +304,7 @@ class StatisticsController extends Controller
         $statisticsService = FormieRatingField::$plugin->statistics;
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy');
+        $fieldHandle = Craft::$app->getRequest()->getQueryParam('fieldHandle');
         $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
         $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
         $groupBy = $this->_normalizeGroupByHandle($groupBy, $groupableFields);
@@ -288,12 +314,10 @@ class StatisticsController extends Controller
             return $this->redirect('formie-rating-field/statistics/form/' . $formId);
         }
 
-        // Decode the group value (might be URL encoded)
-        $groupValue = urldecode($groupValue);
-
         // Get submissions for this specific group
         $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId);
         $ratingFields = $statisticsService->getRatingFieldsForForm($form);
+        $fieldHandle = $this->_normalizeRatingFieldHandle($fieldHandle, $ratingFields);
 
         // Get the groupBy field label
         $groupByLabel = $groupBy;
@@ -311,6 +335,7 @@ class StatisticsController extends Controller
             'groupValue' => $groupValue,
             'submissions' => $submissions,
             'ratingFields' => $ratingFields,
+            'fieldHandle' => $fieldHandle,
             'dateRange' => $dateRange,
             'totalSubmissions' => count($submissions),
         ]);
@@ -469,7 +494,8 @@ class StatisticsController extends Controller
         $request = Craft::$app->getRequest();
         $formId = (int) $request->getBodyParam('formId');
         $groupBy = $request->getBodyParam('groupBy');
-        $groupValue = urldecode($request->getBodyParam('groupValue', ''));
+        $rawGroupValue = $request->getBodyParam('groupValue', '');
+        $groupValue = $this->_normalizeGroupValue($rawGroupValue);
         $dateRange = $request->getBodyParam('dateRange', 'all');
         $format = $request->getBodyParam('format', 'csv');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
@@ -655,6 +681,8 @@ class StatisticsController extends Controller
             : null;
 
         try {
+            $groupBy = $this->_normalizeGroupByHandle($groupBy, $statisticsService->getGroupableFieldsForForm($form));
+
             // Build all sections
             $summary = $statisticsService->buildSummaryExportRows($form, $dateRange, $siteId);
             $raw = $statisticsService->buildRawResponsesExportRows($form, $dateRange, $siteId);

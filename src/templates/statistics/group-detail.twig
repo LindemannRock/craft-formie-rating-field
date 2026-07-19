@@ -2,7 +2,13 @@
 {% set title = groupValue ~ " - Individual Submissions"|t('formie-rating-field') %}
 {% set selectedSubnavItem = 'statistics' %}
 
-{% set fieldHandle = craft.app.request.getParam('fieldHandle', '') %}
+{% set detailParams = {
+    dateRange: dateRange,
+    groupBy: groupBy,
+} %}
+{% if fieldHandle %}
+    {% set detailParams = detailParams|merge({fieldHandle: fieldHandle}) %}
+{% endif %}
 
 {% set crumbs = [
     {
@@ -15,11 +21,14 @@
     },
     {
         label: form.title,
-        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy) ~ (fieldHandle ? '#' ~ fieldHandle : ''),
+        url: url('formie-rating-field/statistics/form/' ~ form.id, {
+            dateRange: dateRange,
+            groupBy: groupBy,
+        }) ~ (fieldHandle ? '#' ~ fieldHandle : ''),
     },
     {
         label: groupValue,
-        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ groupValue|url_encode ~ '?dateRange=' ~ dateRange ~ '&groupBy=' ~ groupBy ~ '&fieldHandle=' ~ fieldHandle),
+        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ (groupValue|url_encode), detailParams),
     },
 ] %}
 
