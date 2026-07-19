@@ -25,7 +25,7 @@ Set the store in **Settings → Formie Rating → Cache** under **Cache Storage 
 > [!NOTE]
 > Redis mode uses **Craft's existing Redis cache component**. If you select Redis but Craft isn't configured to use it, the Cache settings page shows a warning and the plugin falls back to recomputing on demand rather than caching incorrectly. The cache page links to setup instructions.
 
-![The Cache settings tab](images/caching-settings.webp)
+![The Cache settings tab](../images/caching-settings.webp)
 
 ## Pre-generating on a schedule
 

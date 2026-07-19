@@ -45,7 +45,7 @@ Nothing about your submission data changes. The plugin reads Formie's submission
 | Charts, averages, NPS, exports | Formie Rating → **Statistics** |
 | Cache status and manual actions | Utilities → Formie Rating |
 
-![The Statistics dashboard listing forms with rating fields](images/overview-statistics.webp)
+![The Statistics dashboard listing forms with rating fields](../images/overview-statistics.webp)
 
 The plugin also provides an optional [Craft dashboard widget](statistics.md#on-the-craft-dashboard) that lists forms with rating fields by submission volume, so you can jump into busy rating forms without opening the plugin section first.
 

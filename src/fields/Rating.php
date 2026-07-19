@@ -209,9 +209,6 @@ class Rating extends Field implements FieldInterface
         if ($this->enableGoogleReview === null) {
             $this->enableGoogleReview = false;
         }
-        if ($this->googleReviewThreshold === null) {
-            $this->googleReviewThreshold = 9;
-        }
         if ($this->googlePlaceIdField === null) {
             $this->googlePlaceIdField = '';
         }
@@ -798,9 +795,8 @@ class Rating extends Field implements FieldInterface
             ]),
             SchemaHelper::numberField([
                 'label' => Craft::t('formie-rating-field', 'Rating Threshold'),
-                'help' => Craft::t('formie-rating-field', 'Minimum rating value to show the Google Review prompt (e.g., 9 for NPS).'),
+                'help' => Craft::t('formie-rating-field', 'Leave blank to calculate the threshold automatically from the rating scale (90% of the maximum, rounded).'),
                 'name' => 'googleReviewThreshold',
-                'value' => 9,
                 'if' => '$get(enableGoogleReview).value',
             ]),
             SchemaHelper::textField([
@@ -1016,7 +1012,7 @@ class Rating extends Field implements FieldInterface
             return '';
         }
 
-        $threshold = (int)($this->googleReviewThreshold ?? 9);
+        $threshold = $this->getEffectiveGoogleReviewThreshold();
 
         // Defaults are translatable via Formie's category — translation-manager scans
         // these literals and registers them as translation keys. User-entered values
@@ -1139,5 +1135,26 @@ class Rating extends Field implements FieldInterface
     });
 })();
 JS;
+    }
+
+    /**
+     * Resolve the configured or automatic Google Review threshold.
+     */
+    private function getEffectiveGoogleReviewThreshold(): int
+    {
+        $minValue = $this->ratingType === self::RATING_TYPE_NPS ? 0 : ($this->minValue ?? 1);
+        $maxValue = $this->ratingType === self::RATING_TYPE_NPS ? 10 : ($this->maxValue ?? 5);
+        $automaticThreshold = (int) round($maxValue * 0.9);
+        $automaticThreshold = max($minValue, min($maxValue, $automaticThreshold));
+
+        if (
+            $this->googleReviewThreshold !== null &&
+            $this->googleReviewThreshold >= $minValue &&
+            $this->googleReviewThreshold <= $maxValue
+        ) {
+            return $this->googleReviewThreshold;
+        }
+
+        return $automaticThreshold;
     }
 }

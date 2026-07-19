@@ -29,7 +29,7 @@ Open the Rating field's **Settings** tab in the form builder and enable **Enable
 
 | Setting | Default | What it's for |
 |---------|---------|---------------|
-| **Rating Threshold** | `9` | Minimum rating that counts as "high" (e.g. 9 on an NPS scale). |
+| **Rating Threshold** | Automatic | Minimum rating that counts as "high". Leave blank to calculate it from the field's scale, or enter a value to override the automatic threshold. |
 | **Google Place ID Field Handle** | — (required) | Handle of another form field that holds the Google Place ID. Lets each submission target the right listing. |
 | **High Rating Message** | — | Shown at or above the threshold. |
 | **Medium Rating Message** | — | Shown for ratings near the threshold. |
@@ -38,7 +38,9 @@ Open the Rating field's **Settings** tab in the form builder and enable **Enable
 | **Review Button Label** | — | Text on the button (e.g. *Review on Google*). |
 | **Button Alignment** | `start` | `start`, `center`, or `end`. |
 
-![The Google Review prompt settings on a Rating field](images/google-review-settings.webp)
+The automatic threshold is 90% of the scale maximum, rounded and kept within the field's range. A 1–5 star or emoji field therefore uses `5`, while an NPS field uses `9` on its fixed 0–10 scale. An explicit threshold inside the current field range takes precedence; if a later scale or rating-type change puts it outside the range, the prompt falls back to the automatic value.
+
+![The Google Review prompt settings on a Rating field](../images/google-review-settings.webp)
 
 ## The Place ID field
 

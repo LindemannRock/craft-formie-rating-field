@@ -19,7 +19,7 @@ Add a rating question to any Formie form — stars, emoji, or a 0–10 NPS scale
 
 New fields start from the defaults you set in [Settings → General](../get-started/configuration.md#field-defaults-general-tab) — so if most of your forms use 5-star ratings, set that once and every new field inherits it.
 
-![The Rating field settings inside the Formie form builder](images/rating-field-settings.webp)
+![The Rating field settings inside the Formie form builder](../images/rating-field-settings.webp)
 
 ## The three rating types
 
@@ -31,7 +31,7 @@ Choose the type in the field's **General** tab under **Rating Type**.
 | **Emoji** | 😢 😕 😐 😊 😍 | Friendly, expressive reactions |
 | **NPS** | numbered 0–10 boxes | Net Promoter Score surveys |
 
-![Star, emoji, and NPS rating types on a live form](images/rating-field-types.webp)
+![Star, emoji, and NPS rating types on a live form](../images/rating-field-types.webp)
 
 **NPS is always 0–10.** When you pick NPS, the minimum and maximum are fixed at 0 and 10 — the Minimum/Maximum options hide, because the score only means anything on the standard scale.
 

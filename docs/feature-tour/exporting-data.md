@@ -19,7 +19,7 @@ On a form's [statistics page](statistics.md), open the **Export** menu. You need
 | **Raw Responses** | submission | Submission date, submission ID, site, then a column for each rating field. |
 | **By Group** | group value | Submission count and the per-field metrics for that group. Only included when a **Group By** field is selected. |
 
-![The Export menu on a form's statistics page](images/exporting-export-menu.webp)
+![The Export menu on a form's statistics page](../images/exporting-export-menu.webp)
 
 ## Formats
 
@@ -29,7 +29,7 @@ On a form's [statistics page](statistics.md), open the **Export** menu. You need
 | **CSV** | A ZIP containing one CSV per section. |
 | **JSON** | A single nested file with all sections. |
 
-Which formats appear in the menu is controlled by the `exports` config key — see [Configuration](../get-started/configuration.md#shared-base-settings).
+Which formats appear in the menu is controlled by the `exports` config key — see [Configuration](../get-started/configuration.md#base-display-and-export-overrides).
 
 ## Export a single group
 

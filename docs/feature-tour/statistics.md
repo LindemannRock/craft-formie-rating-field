@@ -32,7 +32,7 @@ The list follows Formie's submission access controls. **View statistics** is req
 
 Click a form to open its dashboard. If the form has more than one Rating field, each gets its own tab.
 
-![A form's statistics page with the metric cards and charts](images/statistics-form.webp)
+![A form's statistics page with the metric cards and charts](../images/statistics-form.webp)
 
 **Star and emoji fields** show:
 
@@ -63,13 +63,13 @@ Pick a **Group By** field to split the ratings by something meaningful — a pro
 
 The grouped view adds summary cards (total groups, overall average or NPS, top performer, needs attention) and a sortable, searchable table — one row per group value, each with its own count, score, distribution, and a **reliability** marker (groups with fewer than five responses are flagged as low-data). Click a row to drill into the individual submissions behind that group.
 
-![The grouped statistics view with per-group rows](images/statistics-grouped.webp)
+![The grouped statistics view with per-group rows](../images/statistics-grouped.webp)
 
 ## On the Craft dashboard
 
 Prefer to keep an eye on ratings without opening the plugin section? Add the **Formie Rating - Statistics** widget to your Craft **Dashboard** (**Dashboard → New Widget**). It lists the forms that have Rating fields, ranked by total submissions, so the busiest forms rise to the top — and each row links straight into that form's statistics.
 
-![The Rating Statistics dashboard widget listing forms by submission volume](images/statistics-widget.webp)
+![The Rating Statistics dashboard widget listing forms by submission volume](../images/statistics-widget.webp)
 
 Two settings control it:
 

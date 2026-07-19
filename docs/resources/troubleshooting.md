@@ -86,11 +86,11 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 
 **Quick checks:**
 
-1. Is the submitted rating **at or above the threshold**? Only high ratings show the button.
+1. Is the submitted rating **at or above the threshold**? Only high ratings show the button. A blank threshold is automatic: `5` for a 1–5 star/emoji scale and `9` for NPS.
 2. Is **Google Place ID Field Handle** set to a real field handle on the form, and does that field have a value?
 3. Is the prompt enabled on **only one** Rating field on the form?
 
-**Fix:** Confirm the rating meets the threshold and the Place ID field handle is correct and populated. Enable the prompt on a single field per form.
+**Fix:** Leave **Rating Threshold** blank for the scale-aware automatic value, or enter an explicit value within the field's current range. Confirm the rating meets that threshold and the Place ID field handle is correct and populated. Enable the prompt on a single field per form.
 
 **Why:** The button shows only for the high tier and only when a Place ID is present to build the review URL. Multiple enabled fields compete to override the success message. See [Google Review prompt](../feature-tour/google-review-prompt.md).
 

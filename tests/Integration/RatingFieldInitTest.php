@@ -11,7 +11,9 @@ declare(strict_types=1);
 namespace lindemannrock\formieratingfield\tests\Integration;
 
 use lindemannrock\formieratingfield\fields\Rating;
+use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Pins the `Rating::init()` defaulting chain.
@@ -63,5 +65,59 @@ final class RatingFieldInitTest extends TestCase
         self::assertSame(Rating::RATING_TYPE_STAR, $field->ratingType);
         self::assertSame(2, $field->minValue);
         self::assertSame(7, $field->maxValue);
+    }
+
+    #[DataProvider('booleanValues')]
+    public function testNewRatingFieldInheritsSingleEmojiSelectionDefault(bool $configuredDefault): void
+    {
+        $settings = FormieRatingField::$plugin->getSettings();
+        $originalDefault = $settings->defaultSingleEmojiSelection;
+
+        try {
+            FormieRatingField::$plugin->setSettings([
+                'defaultSingleEmojiSelection' => $configuredDefault,
+            ]);
+
+            $field = new Rating();
+
+            self::assertSame($configuredDefault, $field->singleEmojiSelection);
+            self::assertSame($configuredDefault, $field->getFieldDefaults()['singleEmojiSelection']);
+        } finally {
+            FormieRatingField::$plugin->setSettings([
+                'defaultSingleEmojiSelection' => $originalDefault,
+            ]);
+        }
+    }
+
+    #[DataProvider('booleanValues')]
+    public function testExplicitSingleEmojiSelectionIsNotOverwritten(bool $savedValue): void
+    {
+        $settings = FormieRatingField::$plugin->getSettings();
+        $originalDefault = $settings->defaultSingleEmojiSelection;
+
+        try {
+            FormieRatingField::$plugin->setSettings([
+                'defaultSingleEmojiSelection' => !$savedValue,
+            ]);
+
+            $field = new Rating([
+                'singleEmojiSelection' => $savedValue,
+            ]);
+
+            self::assertSame($savedValue, $field->singleEmojiSelection);
+        } finally {
+            FormieRatingField::$plugin->setSettings([
+                'defaultSingleEmojiSelection' => $originalDefault,
+            ]);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function booleanValues(): iterable
+    {
+        yield 'enabled' => [true];
+        yield 'disabled' => [false];
     }
 }

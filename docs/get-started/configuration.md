@@ -10,6 +10,8 @@ The field defaults below answer one question: *what should a brand-new Rating fi
 
 Defaults applied to each new Rating field.
 
+The General tab includes **Single Emoji Selection by Default**. It sets the initial single-selection mode for newly created emoji Rating fields; fields that already exist keep their saved per-field value. As with the other defaults, setting `defaultSingleEmojiSelection` in `config/formie-rating-field.php` overrides the Control Panel value and locks the lightswitch.
+
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `defaultRatingType` | `string` | `'star'` | Rating type for new fields: `star`, `emoji`, or `nps`. |
@@ -17,7 +19,7 @@ Defaults applied to each new Rating field.
 | `defaultMinRating` | `int` | `1` | Minimum value: `0` or `1`. (NPS is always 0–10.) |
 | `defaultMaxRating` | `int` | `5` | Maximum value: `3`–`10`. (NPS is always 0–10.) |
 | `defaultAllowHalfRatings` | `bool` | `false` | Allow half-star selections — star type only. |
-| `defaultSingleEmojiSelection` | `bool` | `false` | Highlight only the chosen emoji instead of cumulative — emoji type only. |
+| `defaultSingleEmojiSelection` | `bool` | `false` | Highlight only the chosen emoji instead of cumulative for newly created emoji fields. |
 | `defaultEmojiRenderMode` | `string` | `'system'` | How emoji render: `system`, `noto-color`, `noto-simple`. See the note below. |
 | `defaultShowSelectedLabel` | `bool` | `false` | Show the selected value as a text label. |
 | `defaultShowEndpointLabels` | `bool` | `false` | Show descriptive labels at the ends of the scale. |

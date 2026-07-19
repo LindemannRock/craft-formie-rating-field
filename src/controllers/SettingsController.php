@@ -171,6 +171,7 @@ class SettingsController extends Controller
                 'defaultMinRating',
                 'defaultMaxRating',
                 'defaultAllowHalfRatings',
+                'defaultSingleEmojiSelection',
                 'defaultShowSelectedLabel',
                 'defaultShowEndpointLabels',
                 'defaultStartLabel',

@@ -67,6 +67,24 @@
     }) }}
 
 	{{ forms.selectField({
+        label: 'Default Rating Size'|t('formie-rating-field'),
+        instructions: 'The default size for rating icons'|t('formie-rating-field'),
+        id: 'defaultRatingSize',
+        name: 'settings[defaultRatingSize]',
+        value: settings.defaultRatingSize ?? 'medium',
+        options: [
+            { value: 'small', label: 'Small'|t('formie-rating-field') },
+            { value: 'medium', label: 'Medium'|t('formie-rating-field') },
+            { value: 'large', label: 'Large'|t('formie-rating-field') },
+            { value: 'xlarge', label: 'Extra Large'|t('formie-rating-field') }
+        ],
+        warning: settings.isOverriddenByConfig('defaultRatingSize') ?
+            "This is being overridden by the <code>defaultRatingSize</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultRatingSize'),
+        errors: settings.getErrors('defaultRatingSize')
+    }) }}
+
+	{{ forms.selectField({
         label: 'Default Emoji Render Mode'|t('formie-rating-field'),
         instructions: 'The default emoji render mode for new emoji rating fields. "System Emojis" uses the visitor\'s native platform emoji and stays fully local. The two "Noto" modes load fonts from Google Fonts CDN on every form render, which contacts Google\'s servers — may require user consent under GDPR in EU jurisdictions.'|t('formie-rating-field'),
         id: 'defaultEmojiRenderMode',
@@ -83,22 +101,16 @@
         errors: settings.getErrors('defaultEmojiRenderMode')
     }) }}
 
-	{{ forms.selectField({
-        label: 'Default Rating Size'|t('formie-rating-field'),
-        instructions: 'The default size for rating icons'|t('formie-rating-field'),
-        id: 'defaultRatingSize',
-        name: 'settings[defaultRatingSize]',
-        value: settings.defaultRatingSize ?? 'medium',
-        options: [
-            { value: 'small', label: 'Small'|t('formie-rating-field') },
-            { value: 'medium', label: 'Medium'|t('formie-rating-field') },
-            { value: 'large', label: 'Large'|t('formie-rating-field') },
-            { value: 'xlarge', label: 'Extra Large'|t('formie-rating-field') }
-        ],
-        warning: settings.isOverriddenByConfig('defaultRatingSize') ?
-            "This is being overridden by the <code>defaultRatingSize</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-        disabled: settings.isOverriddenByConfig('defaultRatingSize'),
-        errors: settings.getErrors('defaultRatingSize')
+	{{ forms.lightswitchField({
+        label: 'Single Emoji Selection by Default'|t('formie-rating-field'),
+        instructions: 'Enable single emoji selection for newly created emoji Rating fields only.'|t('formie-rating-field'),
+        id: 'defaultSingleEmojiSelection',
+        name: 'settings[defaultSingleEmojiSelection]',
+        on: settings.defaultSingleEmojiSelection ?? false,
+        warning: settings.isOverriddenByConfig('defaultSingleEmojiSelection') ?
+            "This is being overridden by the <code>defaultSingleEmojiSelection</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
+        disabled: settings.isOverriddenByConfig('defaultSingleEmojiSelection'),
+        errors: settings.getErrors('defaultSingleEmojiSelection')
     }) }}
 
 	<div class="field">
