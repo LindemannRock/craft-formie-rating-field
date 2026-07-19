@@ -18,6 +18,7 @@ use craft\fields\PlainText;
 use craft\fields\RadioButtons;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use craft\helpers\Json;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\DbHelper;
@@ -211,8 +212,10 @@ class StatisticsService extends Component
      */
     public function getFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', ?string $groupByHandle = null, int|string $siteId = 'all'): array
     {
+        $dateRange = $this->normaliseDateRange($dateRange);
+
         // Try to get from cache
-        $cachedData = $this->getFromCache($form->id, $field->handle, $dateRange, $groupByHandle, $siteId);
+        $cachedData = $this->getFromCache($form->id, $field, $dateRange, $groupByHandle, $siteId);
 
         if ($cachedData !== null) {
             return $cachedData;
@@ -226,7 +229,7 @@ class StatisticsService extends Component
         }
 
         // Save to cache
-        $this->saveToCache($form->id, $field->handle, $dateRange, $groupByHandle, $stats, $siteId);
+        $this->saveToCache($form->id, $field, $dateRange, $groupByHandle, $stats, $siteId);
 
         return $stats;
     }
@@ -637,25 +640,75 @@ class StatisticsService extends Component
     }
 
     /**
+     * Normalise a date range to the canonical service option set.
+     */
+    private function normaliseDateRange(string $dateRange): string
+    {
+        if ($dateRange === 'alltime') {
+            return 'all';
+        }
+
+        $validDateRanges = DateRangeHelper::getOptions('assoc', false);
+
+        return array_key_exists($dateRange, $validDateRanges) ? $dateRange : 'all';
+    }
+
+    /**
+     * Build the storage-independent cache identity.
+     *
+     * Passing a handle string preserves the public getCacheFilename() calling
+     * contract. Internal cache paths pass the Rating instance so result-shaping
+     * configuration participates in the identity.
+     */
+    private function buildCacheIdentity(
+        int $formId,
+        Rating|string $fieldHandle,
+        string $dateRange,
+        ?string $groupByHandle = null,
+        int|string $siteId = 'all',
+    ): string {
+        $siteSegment = $this->normaliseSiteIdForKey($siteId);
+        $dateRange = $this->normaliseDateRange($dateRange);
+        $fieldSegment = $fieldHandle instanceof Rating
+            ? $fieldHandle->handle . '-' . $this->getFieldConfigurationFingerprint($fieldHandle)
+            : $fieldHandle;
+        $identity = "{$formId}-{$fieldSegment}-{$dateRange}-{$siteSegment}";
+
+        if ($groupByHandle) {
+            $identity .= "-{$groupByHandle}";
+        }
+
+        return $identity;
+    }
+
+    /**
+     * Fingerprint Rating configuration represented in cached statistics.
+     */
+    private function getFieldConfigurationFingerprint(Rating $field): string
+    {
+        return hash('sha256', Json::encode([
+            'uid' => (string)$field->uid,
+            'handle' => (string)$field->handle,
+            'label' => (string)$field->label,
+            'ratingType' => (string)$field->ratingType,
+            'minValue' => (int)$field->minValue,
+            'maxValue' => (int)$field->maxValue,
+        ]));
+    }
+
+    /**
      * Generate cache key for Redis/database storage
      *
      * @param int $formId
-     * @param string $fieldHandle
+     * @param Rating|string $fieldHandle
      * @param string $dateRange
      * @param string|null $groupByHandle
      * @param int|string $siteId
      * @return string
      */
-    private function getCacheKey(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
+    private function getCacheKey(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
     {
-        $siteSegment = $this->normaliseSiteIdForKey($siteId);
-        $key = "formie-rating-stats-{$formId}-{$fieldHandle}-{$dateRange}-{$siteSegment}";
-
-        if ($groupByHandle) {
-            $key .= "-{$groupByHandle}";
-        }
-
-        return $key;
+        return 'formie-rating-stats-' . $this->buildCacheIdentity($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
     }
 
     /**
@@ -672,35 +725,30 @@ class StatisticsService extends Component
      * Generate cache filename
      *
      * @param int $formId
-     * @param string $fieldHandle
+     * @param Rating|string $fieldHandle Rating instance for fingerprinted identities; string handle for legacy callers
      * @param string $dateRange
      * @param string|null $groupByHandle
      * @param int|string $siteId
      * @return string
      */
-    public function getCacheFilename(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
+    public function getCacheFilename(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
     {
-        $siteSegment = $this->normaliseSiteIdForKey($siteId);
-        $key = "{$formId}-{$fieldHandle}-{$dateRange}-{$siteSegment}";
+        $identity = $this->buildCacheIdentity($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
 
-        if ($groupByHandle) {
-            $key .= "-{$groupByHandle}";
-        }
-
-        return $formId . '-' . md5($key) . '.cache';
+        return $formId . '-' . md5($identity) . '.cache';
     }
 
     /**
      * Get statistics from cache
      *
      * @param int $formId
-     * @param string $fieldHandle
+     * @param Rating|string $fieldHandle
      * @param string $dateRange
      * @param string|null $groupByHandle
      * @param int|string $siteId
      * @return array|null
      */
-    private function getFromCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): ?array
+    private function getFromCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): ?array
     {
         $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
 
@@ -742,14 +790,14 @@ class StatisticsService extends Component
      * Save statistics to cache
      *
      * @param int $formId
-     * @param string $fieldHandle
+     * @param Rating|string $fieldHandle
      * @param string $dateRange
      * @param string|null $groupByHandle
      * @param array $stats
      * @param int|string $siteId
      * @return bool
      */
-    private function saveToCache(int $formId, string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats, int|string $siteId = 'all'): bool
+    private function saveToCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats, int|string $siteId = 'all'): bool
     {
         $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
 
@@ -1066,9 +1114,11 @@ class StatisticsService extends Component
      */
     public function getTrendData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
     {
+        $dateRange = $this->normaliseDateRange($dateRange);
+
         // Try cache. The sentinel groupByHandle '__trend__' segregates trend data from
         // field-stats and from any real groupBy (Formie field handles must start with a letter).
-        $cached = $this->getFromCache($form->id, $field->handle, $dateRange, self::TREND_CACHE_VARIANT, $siteId);
+        $cached = $this->getFromCache($form->id, $field, $dateRange, self::TREND_CACHE_VARIANT, $siteId);
         if ($cached !== null) {
             return $cached;
         }
@@ -1157,7 +1207,7 @@ class StatisticsService extends Component
             'scaleMax' => $isNps ? 100 : (int)$field->maxValue,
         ];
 
-        $this->saveToCache($form->id, $field->handle, $dateRange, self::TREND_CACHE_VARIANT, $result, $siteId);
+        $this->saveToCache($form->id, $field, $dateRange, self::TREND_CACHE_VARIANT, $result, $siteId);
 
         return $result;
     }

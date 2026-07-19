@@ -102,6 +102,26 @@ class StatisticsController extends Controller
         return is_string($rawGroupValue) ? $rawGroupValue : '';
     }
 
+    private function _normalizeDateRange(mixed $rawDateRange, mixed $fallback = 'all'): string
+    {
+        $validDateRanges = array_keys(DateRangeHelper::getOptions('assoc', false));
+        $normalizedFallback = $fallback === 'alltime' ? 'all' : $fallback;
+
+        if (!is_string($normalizedFallback) || !in_array($normalizedFallback, $validDateRanges, true)) {
+            $normalizedFallback = 'all';
+        }
+
+        if (!is_string($rawDateRange) || $rawDateRange === '') {
+            return $normalizedFallback;
+        }
+
+        if ($rawDateRange === 'alltime') {
+            return 'all';
+        }
+
+        return in_array($rawDateRange, $validDateRanges, true) ? $rawDateRange : $normalizedFallback;
+    }
+
     /**
      * Display statistics index - list of all forms with rating fields
      */
@@ -238,7 +258,8 @@ class StatisticsController extends Controller
 
         // Get date range from query params, fall back to base helper which respects
         // config/formie-rating-field.php → config/lindemannrock-base.php → 'last30days'.
-        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', DateRangeHelper::getDefaultDateRange('formie-rating-field'));
+        $configuredDateRange = DateRangeHelper::getDefaultDateRange('formie-rating-field');
+        $dateRange = $this->_normalizeDateRange(Craft::$app->getRequest()->getQueryParam('dateRange'), $configuredDateRange);
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
         $fieldFilter = Craft::$app->getRequest()->getQueryParam('field', null);
         $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
@@ -302,7 +323,7 @@ class StatisticsController extends Controller
         $this->requireFormieSubmissionAccess($form);
 
         $statisticsService = FormieRatingField::$plugin->statistics;
-        $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
+        $dateRange = $this->_normalizeDateRange(Craft::$app->getRequest()->getQueryParam('dateRange'));
         $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy');
         $fieldHandle = Craft::$app->getRequest()->getQueryParam('fieldHandle');
         $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
@@ -353,7 +374,7 @@ class StatisticsController extends Controller
         $request = Craft::$app->getRequest();
         $formId = (int) $request->getBodyParam('formId');
         $fieldHandle = $request->getBodyParam('fieldHandle');
-        $dateRange = $request->getBodyParam('dateRange', 'all');
+        $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
         $type = $request->getBodyParam('type', 'summary');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
@@ -496,7 +517,7 @@ class StatisticsController extends Controller
         $groupBy = $request->getBodyParam('groupBy');
         $rawGroupValue = $request->getBodyParam('groupValue', '');
         $groupValue = $this->_normalizeGroupValue($rawGroupValue);
-        $dateRange = $request->getBodyParam('dateRange', 'all');
+        $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
         $format = $request->getBodyParam('format', 'csv');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
@@ -662,7 +683,7 @@ class StatisticsController extends Controller
 
         $this->requireFormieSubmissionAccess($form);
 
-        $dateRange = $request->getBodyParam('dateRange', 'all');
+        $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
         $groupBy = $request->getBodyParam('groupBy', null);
         $format = $request->getBodyParam('format', 'csv');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
