@@ -11,6 +11,7 @@ namespace lindemannrock\formieratingfield\widgets;
 use Craft;
 use craft\base\Widget;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\traits\FormieSubmissionPermissionTrait;
 
 /**
  * Formie Rating Field statistics dashboard widget.
@@ -19,6 +20,7 @@ use lindemannrock\formieratingfield\FormieRatingField;
  */
 class RatingStatisticsWidget extends Widget
 {
+    use FormieSubmissionPermissionTrait;
     use SiteFilterTrait;
 
     /**
@@ -114,6 +116,7 @@ class RatingStatisticsWidget extends Widget
         }
 
         $forms = FormieRatingField::$plugin->statistics->getFormsWithRatingFields($this->effectiveSiteId());
+        $forms = $this->filterFormsByFormieSubmissionAccess($forms);
 
         usort($forms, static fn(array $a, array $b): int =>
             ($b['totalSubmissions'] ?? 0) <=> ($a['totalSubmissions'] ?? 0)

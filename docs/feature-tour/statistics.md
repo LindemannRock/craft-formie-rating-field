@@ -26,6 +26,8 @@ Open **Formie Rating → Statistics**. The list shows every form that contains a
 
 Search by title or handle, sort any column, and — on a multi-site install — filter by site.
 
+The list follows Formie's submission access controls. **View statistics** is required to open the section, and each form appears only when the user also has Formie's global **View all submissions** permission or **View submissions** permission for that form. Forms the user cannot access are removed before search, sorting, and pagination, so their names, handles, counts, and links are not exposed.
+
 ## A form's statistics
 
 Click a form to open its dashboard. If the form has more than one Rating field, each gets its own tab.
@@ -74,21 +76,21 @@ Two settings control it:
 - **Number of forms** — show the top 3, 5, 10, 15, or 20 forms (default 5)
 - **Site** — all editable sites, or a single site (multi-site installs)
 
-The footer's **View all statistics** link opens the full dashboard. The widget needs the `View statistics` permission: it's hidden in the widget picker for users without it, and shows an empty state if the permission is ever removed.
+The footer's **View all statistics** link opens the full dashboard. The widget needs the **View statistics** permission: it's hidden in the widget picker for users without it, and shows an empty state if the permission is ever removed. It also applies Formie's global/per-form submission access to every row, so a user with access to only some forms sees only those forms in the widget.
 
 ## Keeping numbers current
 
-The dashboard reads from a cache so it stays fast. New, edited, or deleted submissions invalidate that form's cached statistics automatically, so the numbers refresh on the next load. If you ever need to force it, the **Refresh** button on a form's page clears its cache on demand (requires the *Refresh statistics* permission). See [Caching](caching.md) for the full picture.
+The dashboard reads from a cache so it stays fast. New, edited, or deleted submissions invalidate that form's cached statistics automatically, so the numbers refresh on the next load. If you ever need to force it, the **Refresh** button on a form's page clears its cache on demand (requires the *Refresh statistics* permission and Formie submission access to that form). See [Caching](caching.md) for the full picture.
 
 ## Permissions
 
 | To… | You need |
 |-----|----------|
-| Open the dashboard | `View statistics` |
-| Use **Refresh** | `Refresh statistics` |
-| Use **Export** | `Export statistics` |
+| Open the dashboard | `View statistics` plus Formie's global or matching per-form submission permission |
+| Use **Refresh** | `Refresh statistics` plus Formie submission access to that form |
+| Use **Export** | `Export statistics` plus Formie submission access to that form |
 
-See [Permissions](../developers/permissions.md).
+The index and dashboard widget hide forms the user cannot access. A direct form-specific URL returns HTTP 403 when the Formie permission layer fails. See [Permissions](../developers/permissions.md).
 
 ## Next steps
 

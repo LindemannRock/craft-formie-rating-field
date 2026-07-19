@@ -11,7 +11,7 @@ Take the ratings out of the Control Panel and into a report or spreadsheet. From
 
 ## Export from a form
 
-On a form's [statistics page](statistics.md), open the **Export** menu (you'll need the *Export statistics* permission). The export honors your current **date range**, **site**, and **group by** selections, and includes these sections:
+On a form's [statistics page](statistics.md), open the **Export** menu. You need the Formie Rating **Export statistics** permission and either Formie's global submission-view permission or submission access to that particular form. The export honors your current **date range**, **site**, and **group by** selections, and includes these sections:
 
 | Section | One row per… | Contains |
 |---------|--------------|----------|
@@ -33,7 +33,7 @@ Which formats appear in the menu is controlled by the `exports` config key — s
 
 ## Export a single group
 
-When you drill into one group's submissions (from the grouped view), that page has its own **Export** that downloads just those submissions.
+When you drill into one group's submissions (from the grouped view), that page has its own **Export** that downloads just those submissions. The same two permission layers apply; a direct export request for an unauthorized form returns HTTP 403.
 
 ## The Raw Responses row cap
 

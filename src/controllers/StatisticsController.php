@@ -14,6 +14,7 @@ use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\ExportHelper;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\traits\FormieSubmissionPermissionTrait;
 use verbb\formie\elements\Form;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -29,6 +30,8 @@ use yii\web\Response;
  */
 class StatisticsController extends Controller
 {
+    use FormieSubmissionPermissionTrait;
+
     /**
      * Resolve a raw siteId query/body param to a validated int or 'all'.
      *
@@ -133,6 +136,7 @@ class StatisticsController extends Controller
         // ---- Load + filter ------------------------------------------------
         // Get all forms that have rating fields (totalSubmissions count respects site filter).
         $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteId);
+        $formsWithRatings = $this->filterFormsByFormieSubmissionAccess($formsWithRatings);
 
         if ($search !== '') {
             $needle = mb_strtolower($search);
@@ -202,6 +206,8 @@ class StatisticsController extends Controller
             throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
 
+        $this->requireFormieSubmissionAccess($form);
+
         $statisticsService = FormieRatingField::$plugin->statistics;
         $settings = FormieRatingField::$plugin->getSettings();
 
@@ -267,6 +273,8 @@ class StatisticsController extends Controller
         if (!$form instanceof Form) {
             throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
+
+        $this->requireFormieSubmissionAccess($form);
 
         $statisticsService = FormieRatingField::$plugin->statistics;
         $dateRange = Craft::$app->getRequest()->getQueryParam('dateRange', 'all');
@@ -339,6 +347,8 @@ class StatisticsController extends Controller
                 'error' => Craft::t('formie-rating-field', 'Form not found'),
             ]);
         }
+
+        $this->requireFormieSubmissionAccess($form);
 
         $statisticsService = FormieRatingField::$plugin->statistics;
 
@@ -416,13 +426,16 @@ class StatisticsController extends Controller
         $this->requirePermission('formieRatingField:refreshStatistics');
 
         $formId = (int) Craft::$app->getRequest()->getBodyParam('formId');
+        $form = $formId > 0 ? Form::find()->id($formId)->one() : null;
 
-        if ($formId <= 0) {
+        if (!$form instanceof Form) {
             return $this->asJson([
                 'success' => false,
                 'error' => Craft::t('formie-rating-field', 'Form ID is required'),
             ]);
         }
+
+        $this->requireFormieSubmissionAccess($form);
 
         try {
             $statisticsService = FormieRatingField::$plugin->statistics;
@@ -479,6 +492,8 @@ class StatisticsController extends Controller
         if (!$form instanceof Form) {
             throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
+
+        $this->requireFormieSubmissionAccess($form);
 
         $statisticsService = FormieRatingField::$plugin->statistics;
         $settings = FormieRatingField::$plugin->getSettings();
@@ -618,6 +633,8 @@ class StatisticsController extends Controller
         if (!$form instanceof Form) {
             throw new \yii\web\NotFoundHttpException(Craft::t('formie-rating-field', 'Form not found'));
         }
+
+        $this->requireFormieSubmissionAccess($form);
 
         $dateRange = $request->getBodyParam('dateRange', 'all');
         $groupBy = $request->getBodyParam('groupBy', null);

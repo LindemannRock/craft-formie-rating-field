@@ -40,6 +40,18 @@ Common issues and how to resolve them. If something here doesn't cover your case
 
 **Why:** Stats are cached for speed and invalidated when submissions change. A manual refresh forces a recompute if a cache entry is stale for any other reason.
 
+## A form is missing from statistics or a direct URL returns 403
+
+**Quick checks:**
+
+1. Confirm the user has Formie Rating Field's **View statistics** permission.
+2. In the same user group, confirm Formie grants either **View all submissions** or **View submissions** for that specific form.
+3. For exports or manual refreshes, also confirm **Export statistics** or **Refresh statistics** respectively.
+
+**Fix:** Grant both the relevant Formie Rating Field permission and Formie's global or matching per-form submission permission.
+
+**Why:** Formie Rating permissions add capabilities but do not bypass Formie's submission ACL. The index and dashboard widget hide forms the user cannot access; form-specific statistics, chart-data, export, group-detail, and refresh requests return HTTP 403.
+
 ## Scheduled cache generation appears more than once
 
 Formie Rating Field keeps one recurring scheduled cache-generation master job in Craft's queue. Manual cache-generation jobs and per-batch jobs can appear separately while a cache rebuild is running.
