@@ -1146,17 +1146,8 @@ class StatisticsService extends Component
             ];
         }
 
-        // Limit to max 50 data points for performance (preserves prior behaviour)
-        if (count($chartData) > 50) {
-            $step = (int)ceil(count($chartData) / 50);
-            $sampledData = [];
-            foreach ($chartData as $index => $data) {
-                if ($index % $step === 0) {
-                    $sampledData[] = $data;
-                }
-            }
-            $chartData = $sampledData;
-        }
+        // Limit to max 50 data points for performance while retaining both endpoints.
+        $chartData = $this->sampleTrendData($chartData);
 
         $result = [
             'labels' => array_column($chartData, 'date'),
@@ -1169,6 +1160,32 @@ class StatisticsService extends Component
         $this->saveToCache($form->id, $field->handle, $dateRange, self::TREND_CACHE_VARIANT, $result, $siteId);
 
         return $result;
+    }
+
+    /**
+     * Evenly sample trend buckets across the full chronological range.
+     *
+     * @param array<int, array{date: string, value: float, count: int}> $chartData
+     * @return array<int, array{date: string, value: float, count: int}>
+     */
+    private function sampleTrendData(array $chartData): array
+    {
+        $pointCount = count($chartData);
+        $maxPoints = 50;
+
+        if ($pointCount <= $maxPoints) {
+            return $chartData;
+        }
+
+        $lastIndex = $pointCount - 1;
+        $sampledData = [];
+
+        for ($sampleIndex = 0; $sampleIndex < $maxPoints; $sampleIndex++) {
+            $sourceIndex = (int)round($sampleIndex * $lastIndex / ($maxPoints - 1));
+            $sampledData[] = $chartData[$sourceIndex];
+        }
+
+        return $sampledData;
     }
 
     /**

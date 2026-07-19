@@ -471,10 +471,10 @@ class Rating extends Field implements FieldInterface
                 </div>
             </div>
             <div v-else-if="field.settings.ratingType === \'nps\'" style="display: flex; gap: 4px;">
-                <template v-for="n in (parseInt(field.settings.maxValue) || 10) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 1) + 1">
+                <template v-for="n in (parseInt(field.settings.maxValue) || 10) - (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + 1">
                     <span :key="n"
                           style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 4px; font-size: 12px;">
-                        ${ (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 1) + n - 1 }
+                        ${ (field.settings.minValue !== undefined && field.settings.minValue !== \'\' ? parseInt(field.settings.minValue) : 0) + n - 1 }
                     </span>
                 </template>
             </div>

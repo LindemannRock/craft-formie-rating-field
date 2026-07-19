@@ -34,7 +34,11 @@
 				</span>
 
 			{% case 'emoji' %}
-				{% set emojis = ['😢', '😕', '😐', '😊', '😍'] %}
+				{% set optionCount = field.maxValue - field.minValue + 1 %}
+				{% set emojis5 = ['😢', '😕', '😐', '😊', '😍'] %}
+				{% set emojis8 = ['😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎'] %}
+				{% set emojis11 = ['😭', '😢', '😕', '😐', '😊', '😍', '🤩', '🥰', '😎', '🤗', '🥳'] %}
+				{% set emojis = optionCount <= 5 ? emojis5 : (optionCount <= 8 ? emojis8 : emojis11) %}
 				{% set range = field.maxValue - field.minValue %}
 				{% set normalizedValue = (value - field.minValue) / range %}
 				{% set index = (normalizedValue * (emojis|length - 1))|round %}
