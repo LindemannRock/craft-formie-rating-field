@@ -171,13 +171,14 @@ return [
     'Next Page' => 'Page suivante',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - Statistiques d\'évaluation',
     'Refresh' => 'Actualiser',
     'Refresh statistics (clears cache)' => 'Actualiser les statistiques (vide le cache)',
     'All Fields' => 'Tous les champs',
     'All Products' => 'Tous les produits',
     'Search products...' => 'Rechercher des produits...',
     'Group By' => 'Regrouper par',
-    'Group by: ' => 'Regrouper par : ',
+    'Group by: {field}' => 'Regrouper par : {field}',
     'No Grouping' => 'Aucun regroupement',
     'NPS' => 'NPS',
     'Star Rating' => 'Évaluation par étoiles',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'Afficher le top 10',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'Soumissions individuelles pour',
-    ' - Individual Submissions' => ' - Soumissions individuelles',
+    '{value} - Individual Submissions' => '{value} - Soumissions individuelles',
+    'Individual Submissions for {value}' => 'Soumissions individuelles pour {value}',
     'Submission Date' => 'Date de soumission',
     'Submission ID' => 'ID de soumission',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Vous n\'avez pas la permission d\'afficher les statistiques.',
+    '{count} Rating Fields' => '{count} champs d\'évaluation',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Permet aux utilisateurs de sélectionner des demi-étoiles (type étoile uniquement).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'Centre',
     'End' => 'Fin',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} étoiles',
+    'Not rated' => 'Non évalué',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Ceci est remplacé par le paramètre <code>cacheGenerationSchedule</code> dans <code>config/formie-rating-field.php</code>.',

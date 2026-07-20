@@ -11,10 +11,7 @@
 	{# <strong>{{ field.label }}:</strong> #}
 	{% if value is not null %}
 		{% if field.ratingType == 'star' %}
-			{{ value }}
-			/
-			{{ field.maxValue }}
-			{{ 'stars'|t('formie') }}
+			{{ '{value} stars'|t('formie-rating-field', {value: value ~ ' / ' ~ field.maxValue}) }}
 		{% elseif field.ratingType == 'emoji' %}
 			{% if selectedLabel and selectedLabel != value|string %}
 				{{ selectedLabel }} ({{ value }})
@@ -27,6 +24,6 @@
 			{{ field.maxValue }}
 		{% endif %}
 	{% else %}
-		<em>{{ 'Not rated'|t('formie') }}</em>
+		<em>{{ 'Not rated'|t('formie-rating-field') }}</em>
 	{% endif %}
 {% endif %}

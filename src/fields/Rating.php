@@ -481,16 +481,6 @@ class Rating extends Field implements FieldInterface
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
-    {
-        return Craft::$app->getView()->renderTemplate('formie-rating-field/fields/rating/settings', [
-            'field' => $this,
-        ]);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getFieldDefaults(): array
     {
         // Get defaults from plugin settings

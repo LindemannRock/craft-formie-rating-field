@@ -171,13 +171,14 @@ return [
     'Next Page' => 'Nächste Seite',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - Bewertungsstatistiken',
     'Refresh' => 'Aktualisieren',
     'Refresh statistics (clears cache)' => 'Statistiken aktualisieren (leert den Cache)',
     'All Fields' => 'Alle Felder',
     'All Products' => 'Alle Produkte',
     'Search products...' => 'Produkte durchsuchen...',
     'Group By' => 'Gruppieren nach',
-    'Group by: ' => 'Gruppieren nach: ',
+    'Group by: {field}' => 'Gruppieren nach: {field}',
     'No Grouping' => 'Keine Gruppierung',
     'NPS' => 'NPS',
     'Star Rating' => 'Sternbewertung',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'Top 10 anzeigen',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'Einzelne Einsendungen für',
-    ' - Individual Submissions' => ' - Einzelne Einsendungen',
+    '{value} - Individual Submissions' => '{value} - Einzelne Einsendungen',
+    'Individual Submissions for {value}' => 'Einzelne Einsendungen für {value}',
     'Submission Date' => 'Einsendungsdatum',
     'Submission ID' => 'Einsendungs-ID',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Sie haben keine Berechtigung, Statistiken anzuzeigen.',
+    '{count} Rating Fields' => '{count} Bewertungsfelder',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Ermöglicht Nutzern, halbe Sternbewertungen zu wählen (nur Sterntyp).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'Mitte',
     'End' => 'Ende',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} Sterne',
+    'Not rated' => 'Nicht bewertet',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dies wird durch die Einstellung <code>cacheGenerationSchedule</code> in <code>config/formie-rating-field.php</code> überschrieben.',

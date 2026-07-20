@@ -171,13 +171,14 @@ return [
     'Next Page' => 'Neste side',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - Vurderingsstatistikk',
     'Refresh' => 'Oppdater',
     'Refresh statistics (clears cache)' => 'Oppdater statistikk (tømmer cache)',
     'All Fields' => 'Alle felter',
     'All Products' => 'Alle produkter',
     'Search products...' => 'Søk i produkter ...',
     'Group By' => 'Grupper etter',
-    'Group by: ' => 'Grupper etter: ',
+    'Group by: {field}' => 'Grupper etter: {field}',
     'No Grouping' => 'Ingen gruppering',
     'NPS' => 'NPS',
     'Star Rating' => 'Stjernevurdering',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'Vis topp 10',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'Individuelle innsendinger for',
-    ' - Individual Submissions' => ' – Individuelle innsendinger',
+    '{value} - Individual Submissions' => '{value} – Individuelle innsendinger',
+    'Individual Submissions for {value}' => 'Individuelle innsendinger for {value}',
     'Submission Date' => 'Innsendingsdato',
     'Submission ID' => 'Innsendings-ID',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Du har ikke tillatelse til å vise statistikk.',
+    '{count} Rating Fields' => '{count} vurderingsfelter',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Lar brukere velge halvstjerne-vurderinger (kun stjernetype).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'Midtstilt',
     'End' => 'Slutt',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} stjerner',
+    'Not rated' => 'Ikke vurdert',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dette overstyres av innstillingen <code>cacheGenerationSchedule</code> i <code>config/formie-rating-field.php</code>.',

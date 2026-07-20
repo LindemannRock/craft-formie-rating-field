@@ -1,5 +1,5 @@
 {% extends "_layouts/cp" %}
-{% set title = groupValue ~ " - Individual Submissions"|t('formie-rating-field') %}
+{% set title = '{value} - Individual Submissions'|t('formie-rating-field', {value: groupValue})|e %}
 {% set selectedSubnavItem = 'statistics' %}
 
 {% set detailParams = {
@@ -52,7 +52,7 @@
 {% block content %}
     <div style="padding: 24px;">
         <div style="margin-bottom: 32px;">
-            <h2>{{ "Individual Submissions for"|t('formie-rating-field') }}: {{ groupValue }}</h2>
+            <h2>{{ 'Individual Submissions for {value}'|t('formie-rating-field', {value: groupValue})|e }}</h2>
             <p class="light">{{ "Showing {count} submission(s) for this {groupBy}"|t('formie-rating-field', {count: totalSubmissions, groupBy: groupByLabel}) }}</p>
         </div>
 

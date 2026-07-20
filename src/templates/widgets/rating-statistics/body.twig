@@ -4,7 +4,7 @@
     {% set rows = rows|merge([{
         primary: item.form.title,
         primaryUrl: cpUrl('formie-rating-field/statistics/form/' ~ item.form.id, siteId != 'all' ? {siteId: siteId} : {}),
-        meta: item.ratingFieldCount|number ~ ' ' ~ "Rating Fields"|t('formie-rating-field'),
+        meta: '{count} Rating Fields'|t('formie-rating-field', {count: item.ratingFieldCount|number})|e,
         value: item.totalSubmissions|number,
     }]) %}
 {% endfor %}

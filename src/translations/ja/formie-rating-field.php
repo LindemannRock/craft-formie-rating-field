@@ -171,13 +171,14 @@ return [
     'Next Page' => '次のページ',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - 評価統計',
     'Refresh' => '更新',
     'Refresh statistics (clears cache)' => '統計を更新（キャッシュを削除）',
     'All Fields' => 'すべてのフィールド',
     'All Products' => 'すべての製品',
     'Search products...' => '製品を検索...',
     'Group By' => 'グループ化',
-    'Group by: ' => 'グループ化 : ',
+    'Group by: {field}' => '{field} でグループ化',
     'No Grouping' => 'グループ化なし',
     'NPS' => 'NPS',
     'Star Rating' => 'スター評価',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'トップ 10 を表示',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => '個別の送信 :',
-    ' - Individual Submissions' => ' - 個別の送信',
+    '{value} - Individual Submissions' => '{value} - 個別の送信',
+    'Individual Submissions for {value}' => '{value} の個別送信',
     'Submission Date' => '送信日',
     'Submission ID' => '送信 ID',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => '統計を表示する権限がありません。',
+    '{count} Rating Fields' => '{count} 件の評価フィールド',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'ユーザーが半星評価を選択できるようにします（スタータイプのみ）。',
@@ -308,8 +310,9 @@ return [
     'Center' => '中央',
     'End' => '終了',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} 個の星',
+    'Not rated' => '未評価',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'これは <code>config/formie-rating-field.php</code> の <code>cacheGenerationSchedule</code> 設定によって上書きされています。',

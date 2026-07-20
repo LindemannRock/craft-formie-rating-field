@@ -1,6 +1,6 @@
 {% extends "_layouts/cp" %}
 {% do view.registerAssetBundle('lindemannrock\\base\\web\\assets\\analytics\\AnalyticsAsset') %}
-{% set title = form.title ~ " - " ~ "Rating Statistics"|t('formie-rating-field') %}
+{% set title = '{title} - Rating Statistics'|t('formie-rating-field', {title: form.title})|e %}
 {% set selectedSubnavItem = 'statistics' %}
 
 {% set crumbs = [
@@ -134,7 +134,7 @@
                         <span id="groupByLabel">
                             {% if groupBy %}
                                 {% set selectedField = groupableFields|filter(f => f.handle == groupBy)|first %}
-                                {{ "Group by: "|t('formie-rating-field') }} {{ selectedField ? selectedField.label : groupBy }}
+                                {{ 'Group by: {field}'|t('formie-rating-field', {field: selectedField ? selectedField.label : groupBy})|e }}
                             {% else %}
                                 {{ "Group By"|t('formie-rating-field') }}
                             {% endif %}
@@ -221,7 +221,7 @@
                             <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ "Total Groups"|t('formie-rating-field') }}</h4>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column;">
-                            <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 8px;">{{ totalGroups|number_format }}</div>
+                            <div style="font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1; margin-bottom: 8px;">{{ totalGroups|number }}</div>
                             <div style="font-size: 14px; color: #4b5563;">{{ "Unique {field}"|t('formie-rating-field', {field: groupByFieldName|lower}) }}</div>
                         </div>
                     </div>
@@ -415,7 +415,7 @@
                     {% set passivesPercentage = stats.passivesPercentage ?? 0 %}
                     {% set detractors = stats.detractors ?? 0 %}
                     {% set detractorsPercentage = stats.detractorsPercentage ?? 0 %}
-                    {% set npsDisplay = (npsScore == npsScore|round(0)) ? npsScore|number_format(0) : npsScore|number_format(1) %}
+                    {% set npsDisplay = (npsScore == npsScore|round(0)) ? npsScore|number(decimals=0) : npsScore|number(decimals=1) %}
                     {% set npsColor = npsScore >= 50 ? '#10b981' : (npsScore >= 0 ? '#f59e0b' : '#ef4444') %}
 
                     {% include 'lindemannrock-base/_components/unified-card' with {

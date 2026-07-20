@@ -171,13 +171,14 @@ return [
     'Next Page' => 'Nästa sida',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - Betygsstatistik',
     'Refresh' => 'Uppdatera',
     'Refresh statistics (clears cache)' => 'Uppdatera statistik (rensar cache)',
     'All Fields' => 'Alla fält',
     'All Products' => 'Alla produkter',
     'Search products...' => 'Sök produkter...',
     'Group By' => 'Gruppera efter',
-    'Group by: ' => 'Gruppera efter: ',
+    'Group by: {field}' => 'Gruppera efter: {field}',
     'No Grouping' => 'Ingen gruppering',
     'NPS' => 'NPS',
     'Star Rating' => 'Stjärnbetyg',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'Visa topp 10',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'Enskilda inskickningar för',
-    ' - Individual Submissions' => ' - Enskilda inskickningar',
+    '{value} - Individual Submissions' => '{value} - Enskilda inskickningar',
+    'Individual Submissions for {value}' => 'Enskilda inskickningar för {value}',
     'Submission Date' => 'Inskickningsdatum',
     'Submission ID' => 'Inskicknings-ID',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Du har inte behörighet att visa statistik.',
+    '{count} Rating Fields' => '{count} betygsfält',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Gör det möjligt för användare att välja halva stjärnbetyg (endast stjärntyp).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'Centrerad',
     'End' => 'Slut',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} stjärnor',
+    'Not rated' => 'Ej betygsatt',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Detta åsidosätts av inställningen <code>cacheGenerationSchedule</code> i <code>config/formie-rating-field.php</code>.',

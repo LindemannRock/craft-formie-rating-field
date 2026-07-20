@@ -171,13 +171,14 @@ return [
     'Next Page' => 'الصفحة التالية',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - إحصائيات التقييم',
     'Refresh' => 'تحديث',
     'Refresh statistics (clears cache)' => 'تحديث الإحصائيات (يمسح الـ Cache)',
     'All Fields' => 'جميع الحقول',
     'All Products' => 'جميع المنتجات',
     'Search products...' => 'البحث في المنتجات...',
     'Group By' => 'تجميع حسب',
-    'Group by: ' => 'تجميع حسب: ',
+    'Group by: {field}' => 'تجميع حسب: {field}',
     'No Grouping' => 'بدون تجميع',
     'NPS' => 'NPS',
     'Star Rating' => 'تقييم بالنجوم',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'عرض الأفضل 10',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'الاستمارات الفردية لـ',
-    ' - Individual Submissions' => ' - الاستمارات الفردية',
+    '{value} - Individual Submissions' => '{value} - الاستمارات الفردية',
+    'Individual Submissions for {value}' => 'الاستمارات الفردية لـ {value}',
     'Submission Date' => 'تاريخ الإرسال',
     'Submission ID' => 'مُعرِّف الاستمارة',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'ليس لديك صلاحية لعرض الإحصائيات.',
+    '{count} Rating Fields' => '{count} حقول تقييم',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'يتيح للمستخدمين اختيار تقييمات نصف نجمة (لنوع النجوم فقط).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'الوسط',
     'End' => 'النهاية',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} نجوم',
+    'Not rated' => 'غير مقيّم',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'يتم تجاوز هذا بواسطة إعداد <code>cacheGenerationSchedule</code> في <code>config/formie-rating-field.php</code>.',

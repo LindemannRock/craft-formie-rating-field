@@ -171,13 +171,14 @@ return [
     'Next Page' => 'Næste side',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - Vurderingsstatistik',
     'Refresh' => 'Opdater',
     'Refresh statistics (clears cache)' => 'Opdater statistik (rydder cache)',
     'All Fields' => 'Alle felter',
     'All Products' => 'Alle produkter',
     'Search products...' => 'Søg produkter ...',
     'Group By' => 'Grupper efter',
-    'Group by: ' => 'Grupper efter: ',
+    'Group by: {field}' => 'Grupper efter: {field}',
     'No Grouping' => 'Ingen gruppering',
     'NPS' => 'NPS',
     'Star Rating' => 'Stjernevurdering',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'Vis top 10',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'Individuelle indsendelser for',
-    ' - Individual Submissions' => ' - Individuelle indsendelser',
+    '{value} - Individual Submissions' => '{value} - Individuelle indsendelser',
+    'Individual Submissions for {value}' => 'Individuelle indsendelser for {value}',
     'Submission Date' => 'Indsendelsesdato',
     'Submission ID' => 'Indsendelses-ID',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Du har ikke tilladelse til at se statistik.',
+    '{count} Rating Fields' => '{count} vurderingsfelter',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Giver brugere mulighed for at vælge halvstjerne-vurderinger (kun stjernetype).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'Centreret',
     'End' => 'Slut',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} stjerner',
+    'Not rated' => 'Ikke vurderet',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Dette tilsidesættes af indstillingen <code>cacheGenerationSchedule</code> i <code>config/formie-rating-field.php</code>.',

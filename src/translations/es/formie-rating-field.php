@@ -171,13 +171,14 @@ return [
     'Next Page' => 'Página siguiente',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - Estadísticas de calificación',
     'Refresh' => 'Actualizar',
     'Refresh statistics (clears cache)' => 'Actualizar estadísticas (borra la caché)',
     'All Fields' => 'Todos los campos',
     'All Products' => 'Todos los productos',
     'Search products...' => 'Buscar productos...',
     'Group By' => 'Agrupar por',
-    'Group by: ' => 'Agrupar por: ',
+    'Group by: {field}' => 'Agrupar por: {field}',
     'No Grouping' => 'Sin agrupación',
     'NPS' => 'NPS',
     'Star Rating' => 'Calificación con estrellas',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'Mostrar los 10 mejores',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'Envíos individuales para',
-    ' - Individual Submissions' => ' - Envíos individuales',
+    '{value} - Individual Submissions' => '{value} - Envíos individuales',
+    'Individual Submissions for {value}' => 'Envíos individuales para {value}',
     'Submission Date' => 'Fecha de envío',
     'Submission ID' => 'ID del envío',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'No tiene permiso para ver las estadísticas.',
+    '{count} Rating Fields' => '{count} campos de calificación',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Permite a los usuarios seleccionar calificaciones de media estrella (solo tipo estrella).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'Centro',
     'End' => 'Final',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} estrellas',
+    'Not rated' => 'Sin calificar',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'Esto está siendo anulado por el ajuste <code>cacheGenerationSchedule</code> en <code>config/formie-rating-field.php</code>.',

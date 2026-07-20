@@ -171,13 +171,14 @@ return [
     'Next Page' => 'Next Page',
 
     // Statistics: Form
+    '{title} - Rating Statistics' => '{title} - Rating Statistics',
     'Refresh' => 'Refresh',
     'Refresh statistics (clears cache)' => 'Refresh statistics (clears cache)',
     'All Fields' => 'All Fields',
     'All Products' => 'All Products',
     'Search products...' => 'Search products...',
     'Group By' => 'Group By',
-    'Group by: ' => 'Group by: ',
+    'Group by: {field}' => 'Group by: {field}',
     'No Grouping' => 'No Grouping',
     'NPS' => 'NPS',
     'Star Rating' => 'Star Rating',
@@ -226,8 +227,8 @@ return [
     'Show Top 10' => 'Show Top 10',
 
     // Statistics: Group Detail
-    'Individual Submissions for' => 'Individual Submissions for',
-    ' - Individual Submissions' => ' - Individual Submissions',
+    '{value} - Individual Submissions' => '{value} - Individual Submissions',
+    'Individual Submissions for {value}' => 'Individual Submissions for {value}',
     'Submission Date' => 'Submission Date',
     'Submission ID' => 'Submission ID',
 
@@ -256,6 +257,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'You do not have permission to view statistics.',
+    '{count} Rating Fields' => '{count} Rating Fields',
 
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Allow users to select half-star ratings (star type only).',
@@ -308,8 +310,9 @@ return [
     'Center' => 'Center',
     'End' => 'End',
 
-    // Frontend (JS aria-labels via Craft.t())
+    // Frontend
     '{value} stars' => '{value} stars',
+    'Not rated' => 'Not rated',
 
     // Config overrides
     'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.' => 'This is being overridden by the <code>cacheGenerationSchedule</code> setting in <code>config/formie-rating-field.php</code>.',
