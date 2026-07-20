@@ -254,6 +254,9 @@ return [
     'Clear all statistics cache?' => 'Ryd al statistik-cache?',
     'Utilities' => 'Værktøjer',
 
+    // Dashboard
+    'You do not have permission to view statistics.' => 'Du har ikke tilladelse til at se statistik.',
+
     // Field schema (rating settings)
     'Allow users to select half-star ratings (star type only).' => 'Giver brugere mulighed for at vælge halvstjerne-vurderinger (kun stjernetype).',
     'Choose how emoji ratings are rendered. "System Emojis" uses the visitor\'s native platform emoji and stays fully local. The two "Noto" modes load fonts from Google Fonts CDN on every form render, which contacts Google\'s servers — may require user consent under GDPR in EU jurisdictions.' => 'Vælg, hvordan emoji-vurderinger gengives. "Systememojis" bruger besøgendes platformsspecifikke emojis og forbliver fuldt lokal. De to "Noto"-tilstande indlæser skrifttyper fra Google Fonts CDN ved hver formularvisning, hvilket kontakter Googles servere — kan kræve brugersamtykke under GDPR i EU-jurisdiktioner.',

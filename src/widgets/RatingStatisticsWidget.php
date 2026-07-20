@@ -111,20 +111,30 @@ class RatingStatisticsWidget extends Widget
     {
         if (!Craft::$app->getUser()->checkPermission('formieRatingField:viewStatistics')) {
             return Craft::$app->getView()->renderTemplate('lindemannrock-base/_components/dashboard-widget-empty', [
-                'title' => Craft::t('formie-rating-field', 'No forms with rating fields found.'),
+                'title' => Craft::t('formie-rating-field', 'You do not have permission to view statistics.'),
             ]);
         }
 
-        $forms = FormieRatingField::$plugin->statistics->getFormsWithRatingFields($this->effectiveSiteId());
-        $forms = $this->filterFormsByFormieSubmissionAccess($forms);
+        try {
+            $forms = FormieRatingField::$plugin->statistics->getFormsWithRatingFields($this->effectiveSiteId());
+            $forms = $this->filterFormsByFormieSubmissionAccess($forms);
 
-        usort($forms, static fn(array $a, array $b): int =>
-            ($b['totalSubmissions'] ?? 0) <=> ($a['totalSubmissions'] ?? 0)
-        );
+            usort($forms, static fn(array $a, array $b): int =>
+                ($b['totalSubmissions'] ?? 0) <=> ($a['totalSubmissions'] ?? 0)
+            );
 
-        return Craft::$app->getView()->renderTemplate('formie-rating-field/widgets/rating-statistics/body', [
-            'forms' => array_slice($forms, 0, $this->limit),
-            'siteId' => $this->siteId,
-        ]);
+            return Craft::$app->getView()->renderTemplate('formie-rating-field/widgets/rating-statistics/body', [
+                'forms' => array_slice($forms, 0, $this->limit),
+                'siteId' => $this->siteId,
+            ]);
+        } catch (\Throwable $exception) {
+            Craft::error('Failed to render rating statistics widget: ' . (string) $exception, __METHOD__);
+
+            return Craft::$app->getView()->renderTemplate('lindemannrock-base/_components/dashboard-widget-empty', [
+                'title' => Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $exception->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
+            ]);
+        }
     }
 }

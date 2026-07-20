@@ -9,6 +9,7 @@
 namespace lindemannrock\formieratingfield\controllers;
 
 use Craft;
+use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use lindemannrock\base\helpers\CpNavHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
@@ -120,6 +121,11 @@ class StatisticsController extends Controller
         }
 
         return in_array($rawDateRange, $validDateRanges, true) ? $rawDateRange : $normalizedFallback;
+    }
+
+    protected function setStatisticsError(string $message): void
+    {
+        Craft::$app->getSession()->setError($message);
     }
 
     /**
@@ -253,53 +259,64 @@ class StatisticsController extends Controller
 
         $this->requireFormieSubmissionAccess($form);
 
-        $statisticsService = FormieRatingField::$plugin->statistics;
-        $settings = FormieRatingField::$plugin->getSettings();
-
-        // Get date range from query params, fall back to base helper which respects
-        // config/formie-rating-field.php → config/lindemannrock-base.php → 'last30days'.
-        $configuredDateRange = DateRangeHelper::getDefaultDateRange('formie-rating-field');
-        $dateRange = $this->_normalizeDateRange(Craft::$app->getRequest()->getQueryParam('dateRange'), $configuredDateRange);
-        $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
-        $fieldFilter = Craft::$app->getRequest()->getQueryParam('field', null);
         $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
 
-        // Get rating fields for this form
-        $ratingFields = $statisticsService->getRatingFieldsForForm($form);
+        try {
+            $statisticsService = FormieRatingField::$plugin->statistics;
 
-        if (empty($ratingFields)) {
-            Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'This form does not contain any rating fields.'));
+            // Get date range from query params, fall back to base helper which respects
+            // config/formie-rating-field.php → config/lindemannrock-base.php → 'last30days'.
+            $configuredDateRange = DateRangeHelper::getDefaultDateRange('formie-rating-field');
+            $dateRange = $this->_normalizeDateRange(Craft::$app->getRequest()->getQueryParam('dateRange'), $configuredDateRange);
+            $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy', null);
+            $fieldFilter = Craft::$app->getRequest()->getQueryParam('field', null);
+
+            // Get rating fields for this form
+            $ratingFields = $statisticsService->getRatingFieldsForForm($form);
+
+            if (empty($ratingFields)) {
+                Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'This form does not contain any rating fields.'));
+                return $this->redirect('formie-rating-field/statistics');
+            }
+
+            // Get groupable fields for this form
+            $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
+            $groupBy = $this->_normalizeGroupByHandle($groupBy, $groupableFields);
+
+            // Filter rating fields if specified
+            $fieldsToDisplay = $ratingFields;
+            if ($fieldFilter) {
+                $fieldsToDisplay = array_filter($ratingFields, fn($field) => $field->handle === $fieldFilter);
+            }
+
+            // Get statistics for each rating field to display
+            $fieldStats = [];
+            foreach ($fieldsToDisplay as $field) {
+                $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, $groupBy, $siteId);
+            }
+
+            return $this->renderTemplate('formie-rating-field/statistics/form', [
+                'form' => $form,
+                'allRatingFields' => $ratingFields,
+                'ratingFields' => $fieldsToDisplay,
+                'groupableFields' => $groupableFields,
+                'fieldStats' => $fieldStats,
+                'dateRange' => $dateRange,
+                'groupBy' => $groupBy,
+                'fieldFilter' => $fieldFilter,
+                'siteId' => $siteId,
+                'editableSites' => Craft::$app->getSites()->getEditableSites(),
+            ]);
+        } catch (\Exception $exception) {
+            Craft::error('Failed to render form statistics: ' . (string) $exception, __METHOD__);
+            $this->setStatisticsError(
+                Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $exception->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
+            );
+
             return $this->redirect('formie-rating-field/statistics');
         }
-
-        // Get groupable fields for this form
-        $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
-        $groupBy = $this->_normalizeGroupByHandle($groupBy, $groupableFields);
-
-        // Filter rating fields if specified
-        $fieldsToDisplay = $ratingFields;
-        if ($fieldFilter) {
-            $fieldsToDisplay = array_filter($ratingFields, fn($field) => $field->handle === $fieldFilter);
-        }
-
-        // Get statistics for each rating field to display
-        $fieldStats = [];
-        foreach ($fieldsToDisplay as $field) {
-            $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, $groupBy, $siteId);
-        }
-
-        return $this->renderTemplate('formie-rating-field/statistics/form', [
-            'form' => $form,
-            'allRatingFields' => $ratingFields,
-            'ratingFields' => $fieldsToDisplay,
-            'groupableFields' => $groupableFields,
-            'fieldStats' => $fieldStats,
-            'dateRange' => $dateRange,
-            'groupBy' => $groupBy,
-            'fieldFilter' => $fieldFilter,
-            'siteId' => $siteId,
-            'editableSites' => Craft::$app->getSites()->getEditableSites(),
-        ]);
     }
 
     /**
@@ -322,44 +339,76 @@ class StatisticsController extends Controller
 
         $this->requireFormieSubmissionAccess($form);
 
-        $statisticsService = FormieRatingField::$plugin->statistics;
-        $dateRange = $this->_normalizeDateRange(Craft::$app->getRequest()->getQueryParam('dateRange'));
-        $groupBy = Craft::$app->getRequest()->getQueryParam('groupBy');
-        $fieldHandle = Craft::$app->getRequest()->getQueryParam('fieldHandle');
-        $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
-        $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
-        $groupBy = $this->_normalizeGroupByHandle($groupBy, $groupableFields);
+        $request = Craft::$app->getRequest();
+        $dateRange = $this->_normalizeDateRange($request->getQueryParam('dateRange'));
+        $groupBy = $request->getQueryParam('groupBy');
+        $fieldHandle = $request->getQueryParam('fieldHandle');
+        $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
 
-        if ($groupBy === null) {
+        if (!is_string($groupBy) || $groupBy === '') {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Group by parameter is required'));
             return $this->redirect('formie-rating-field/statistics/form/' . $formId);
         }
 
-        // Get submissions for this specific group
-        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId);
-        $ratingFields = $statisticsService->getRatingFieldsForForm($form);
-        $fieldHandle = $this->_normalizeRatingFieldHandle($fieldHandle, $ratingFields);
+        try {
+            $statisticsService = FormieRatingField::$plugin->statistics;
+            $groupableFields = $statisticsService->getGroupableFieldsForForm($form);
+            $groupBy = $this->_normalizeGroupByHandle($groupBy, $groupableFields);
 
-        // Get the groupBy field label
-        $groupByLabel = $groupBy;
-        foreach ($form->getFields() as $field) {
-            if ($field->handle === $groupBy) {
-                $groupByLabel = $field->label;
-                break;
+            if ($groupBy === null) {
+                Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Group by parameter is required'));
+                return $this->redirect('formie-rating-field/statistics/form/' . $formId);
             }
-        }
 
-        return $this->renderTemplate('formie-rating-field/statistics/group-detail', [
-            'form' => $form,
-            'groupBy' => $groupBy,
-            'groupByLabel' => $groupByLabel,
-            'groupValue' => $groupValue,
-            'submissions' => $submissions,
-            'ratingFields' => $ratingFields,
-            'fieldHandle' => $fieldHandle,
-            'dateRange' => $dateRange,
-            'totalSubmissions' => count($submissions),
-        ]);
+            // Get submissions for this specific group
+            $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId);
+            $ratingFields = $statisticsService->getRatingFieldsForForm($form);
+            $fieldHandle = $this->_normalizeRatingFieldHandle($fieldHandle, $ratingFields);
+
+            // Get the groupBy field label
+            $groupByLabel = $groupBy;
+            foreach ($form->getFields() as $field) {
+                if ($field->handle === $groupBy) {
+                    $groupByLabel = $field->label;
+                    break;
+                }
+            }
+
+            return $this->renderTemplate('formie-rating-field/statistics/group-detail', [
+                'form' => $form,
+                'groupBy' => $groupBy,
+                'groupByLabel' => $groupByLabel,
+                'groupValue' => $groupValue,
+                'submissions' => $submissions,
+                'ratingFields' => $ratingFields,
+                'fieldHandle' => $fieldHandle,
+                'dateRange' => $dateRange,
+                'totalSubmissions' => count($submissions),
+            ]);
+        } catch (\Exception $exception) {
+            Craft::error('Failed to render grouped statistics detail: ' . (string) $exception, __METHOD__);
+            $this->setStatisticsError(
+                Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $exception->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
+            );
+
+            $redirectParams = [
+                'dateRange' => $dateRange,
+                'siteId' => $siteId,
+            ];
+            if (is_string($groupBy) && $groupBy !== '') {
+                $redirectParams['groupBy'] = $groupBy;
+            }
+            if (is_string($fieldHandle) && $fieldHandle !== '') {
+                $redirectParams['field'] = $fieldHandle;
+            }
+
+            return $this->redirect(UrlHelper::cpUrl(
+                'formie-rating-field/statistics/form/' . $formId,
+                $redirectParams,
+            ));
+        }
     }
 
     /**
