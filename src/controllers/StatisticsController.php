@@ -344,6 +344,7 @@ class StatisticsController extends Controller
         $groupBy = $request->getQueryParam('groupBy');
         $fieldHandle = $request->getQueryParam('fieldHandle');
         $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
+        $page = max(1, (int)$request->getQueryParam('page', 1));
 
         if (!is_string($groupBy) || $groupBy === '') {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Group by parameter is required'));
@@ -360,8 +361,18 @@ class StatisticsController extends Controller
                 return $this->redirect('formie-rating-field/statistics/form/' . $formId);
             }
 
-            // Get submissions for this specific group
-            $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId);
+            $limit = max(1, (int)FormieRatingField::$plugin->getSettings()->itemsPerPage);
+            $offset = ($page - 1) * $limit;
+            $pageResult = $statisticsService->getPaginatedGroupSubmissions(
+                $form,
+                $groupBy,
+                $groupValue,
+                $dateRange,
+                $siteId,
+                $limit,
+                $offset,
+            );
+            $submissions = $pageResult['submissions'];
             $ratingFields = $statisticsService->getRatingFieldsForForm($form);
             $fieldHandle = $this->_normalizeRatingFieldHandle($fieldHandle, $ratingFields);
 
@@ -383,7 +394,10 @@ class StatisticsController extends Controller
                 'ratingFields' => $ratingFields,
                 'fieldHandle' => $fieldHandle,
                 'dateRange' => $dateRange,
-                'totalSubmissions' => count($submissions),
+                'siteId' => $siteId,
+                'page' => $page,
+                'limit' => $limit,
+                'totalSubmissions' => $pageResult['totalCount'],
             ]);
         } catch (\Exception $exception) {
             Craft::error('Failed to render grouped statistics detail: ' . (string) $exception, __METHOD__);
@@ -599,110 +613,113 @@ class StatisticsController extends Controller
             throw new BadRequestHttpException(Craft::t('formie-rating-field', 'Group by parameter is required'));
         }
 
-        // Apply the maxExportRows cap (default 50k, 0 = unlimited) so this export
-        // path matches the OOM safeguard already in buildRawResponsesExportRows.
-        // Note: the cap is on the underlying fetch, before per-group filtering, so
-        // a heavily-populated group on a >maxExportRows form may have group-matching
-        // submissions in the truncated tail. Acceptable trade-off for OOM safety.
-        $maxRows = (int)$settings->maxExportRows;
-        $limit = $maxRows > 0 ? $maxRows : null;
-        $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId, $limit);
+        try {
+            // Apply the maxExportRows cap (default 50k, 0 = unlimited) after
+            // the group predicate so unrelated submissions cannot consume it.
+            $maxRows = (int)$settings->maxExportRows;
+            $limit = $maxRows > 0 ? $maxRows : null;
+            $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId, $limit);
 
-        // Log if the underlying fetch was truncated — group-matching rows may be in the dropped tail.
-        if ($limit !== null) {
-            $unfilteredCount = $statisticsService->getTotalSubmissions($form, $dateRange, $siteId);
-            if ($unfilteredCount >= $limit) {
+            if ($limit !== null && count($submissions) >= $limit) {
                 Craft::warning(
                     "Group export for form '{$form->handle}' (id {$form->id}, group '{$groupValue}') " .
-                    "operated on a fetch capped at {$limit} rows by the maxExportRows setting; the form has " .
-                    "{$unfilteredCount} matching submissions in this date range. Group-matching rows may be " .
-                    'in the truncated tail. Increase maxExportRows or set to 0 for unlimited.',
+                    "matched at least {$limit} submissions and was capped by the maxExportRows setting. " .
+                    'Increase maxExportRows or set it to 0 for an unlimited export.',
                     __METHOD__
                 );
             }
-        }
-        $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
-        $extension = ExportHelper::extensionForFormat($format);
 
-        $siteSlug = is_int($siteId)
-            ? Craft::$app->getSites()->getSiteById($siteId)?->handle
-            : null;
+            $dateRangeLabel = $dateRange === 'all' ? 'alltime' : $dateRange;
+            $extension = ExportHelper::extensionForFormat($format);
+            $siteSlug = is_int($siteId)
+                ? Craft::$app->getSites()->getSiteById($siteId)?->handle
+                : null;
 
-        $filename = ExportHelper::filename($settings, array_values(array_filter([
-            'statistics',
-            $form->handle,
-            $siteSlug,
-            $groupValue,
-            $dateRangeLabel,
-        ])), $extension);
+            $filename = ExportHelper::filename($settings, array_values(array_filter([
+                'statistics',
+                $form->handle,
+                $siteSlug,
+                $groupValue,
+                $dateRangeLabel,
+            ])), $extension);
 
-        // Build headers and rows for CSV / Excel
-        $headers = [
-            Craft::t('formie-rating-field', 'Date'),
-            Craft::t('formie-rating-field', 'Submission ID'),
-        ];
-        foreach ($form->getFields() as $field) {
-            $headers[] = $field->label;
-        }
-
-        $rows = [];
-        foreach ($submissions as $submission) {
-            $row = [
-                $submission->dateCreated->format('Y-m-d H:i:s'),
-                $submission->id,
+            // Formie's export representation keeps tabular formats scalar-safe.
+            $headers = [
+                Craft::t('formie-rating-field', 'Date'),
+                Craft::t('formie-rating-field', 'Submission ID'),
             ];
-
             foreach ($form->getFields() as $field) {
-                $value = $submission->getFieldValue($field->handle);
-                $row[] = $value ?? '';
+                $headers[] = $field->label;
             }
 
-            $rows[] = $row;
-        }
-
-        // Build JSON data structure
-        $jsonData = [
-            'form' => [
-                'id' => $form->id,
-                'title' => $form->title,
-                'handle' => $form->handle,
-            ],
-            'groupBy' => $groupBy,
-            'groupValue' => $groupValue,
-            'dateRange' => $dateRange,
-            'exportedAt' => date('Y-m-d H:i:s'),
-            'totalSubmissions' => count($submissions),
-            'submissions' => [],
-        ];
-
-        foreach ($submissions as $submission) {
-            $submissionData = [
-                'id' => $submission->id,
-                'dateCreated' => $submission->dateCreated->format('Y-m-d H:i:s'),
-                'fields' => [],
-            ];
-
-            foreach ($form->getFields() as $field) {
-                $value = $submission->getFieldValue($field->handle);
-                $submissionData['fields'][$field->handle] = [
-                    'label' => $field->label,
-                    'value' => $value,
+            $rows = [];
+            foreach ($submissions as $submission) {
+                $row = [
+                    $submission->dateCreated->format('Y-m-d H:i:s'),
+                    $submission->id,
                 ];
+
+                foreach ($form->getFields() as $field) {
+                    $value = $submission->getValueForExport($field->handle);
+                    $row[] = $value ?? '';
+                }
+
+                $rows[] = $row;
             }
 
-            $jsonData['submissions'][] = $submissionData;
-        }
+            // Formie's JSON representation preserves structured field values.
+            $jsonData = [
+                'form' => [
+                    'id' => $form->id,
+                    'title' => $form->title,
+                    'handle' => $form->handle,
+                ],
+                'groupBy' => $groupBy,
+                'groupValue' => $groupValue,
+                'dateRange' => $dateRange,
+                'exportedAt' => date('Y-m-d H:i:s'),
+                'totalSubmissions' => count($submissions),
+                'submissions' => [],
+            ];
 
-        return ExportHelper::dispatchTable(
-            rows: $rows,
-            headers: $headers,
-            format: $format,
-            filename: $filename,
-            excelOptions: [
-                'sheetTitle' => Craft::t('formie-rating-field', 'Statistics'),
-            ],
-            jsonData: $jsonData,
-        );
+            foreach ($submissions as $submission) {
+                $submissionData = [
+                    'id' => $submission->id,
+                    'dateCreated' => $submission->dateCreated->format('Y-m-d H:i:s'),
+                    'fields' => [],
+                ];
+
+                foreach ($form->getFields() as $field) {
+                    $submissionData['fields'][$field->handle] = [
+                        'label' => $field->label,
+                        'value' => $submission->getValueAsJson($field->handle),
+                    ];
+                }
+
+                $jsonData['submissions'][] = $submissionData;
+            }
+
+            return ExportHelper::dispatchTable(
+                rows: $rows,
+                headers: $headers,
+                format: $format,
+                filename: $filename,
+                excelOptions: [
+                    'sheetTitle' => Craft::t('formie-rating-field', 'Statistics'),
+                ],
+                jsonData: $jsonData,
+            );
+        } catch (\Throwable $e) {
+            Craft::error('Group statistics export failed: ' . (string)$e, __METHOD__);
+
+            Craft::$app->getSession()->setError(
+                Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $e->getMessage()
+                    : Craft::t('formie-rating-field', 'Export failed. Please check the logs for details.')
+            );
+
+            return $this->redirect($request->getReferrer() ?? 'formie-rating-field/statistics');
+        }
     }
 
     /**

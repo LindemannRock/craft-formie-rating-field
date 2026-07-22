@@ -109,7 +109,7 @@ final class StatisticsControllerGroupByTest extends TestCase
         self::assertSame('', $this->normalizeGroupValue(['50%20OFF']));
         self::assertStringNotContainsString('urldecode', $detailBody);
         self::assertStringNotContainsString('urldecode', $exportBody);
-        self::assertStringContainsString('getGroupSubmissions($form, $groupBy, $groupValue,', $detailBody);
+        self::assertStringContainsString('getPaginatedGroupSubmissions(', $detailBody);
         self::assertStringContainsString('$groupValue = $this->_normalizeGroupValue($rawGroupValue);', $exportBody);
         self::assertStringContainsString('getGroupSubmissions($form, $groupBy, $groupValue,', $exportBody);
     }
@@ -126,8 +126,111 @@ final class StatisticsControllerGroupByTest extends TestCase
         self::assertStringContainsString('dateRange: dateRange', $formTemplate);
         self::assertStringContainsString('groupBy: groupBy', $formTemplate);
         self::assertStringContainsString('fieldHandle: field.handle', $formTemplate);
+        $groupLinkStart = strpos($formTemplate, "(group.label|url_encode), {");
+        $groupLinkEnd = strpos($formTemplate, '}) }}" class="go">', $groupLinkStart ?: 0);
+        self::assertIsInt($groupLinkStart);
+        self::assertIsInt($groupLinkEnd);
+        $groupLinkSource = substr($formTemplate, $groupLinkStart, $groupLinkEnd - $groupLinkStart);
+        self::assertStringContainsString('siteId: siteId', $groupLinkSource);
         self::assertStringContainsString("(groupValue|url_encode), detailParams", $detailTemplate);
         self::assertStringContainsString('detailParams|merge({fieldHandle: fieldHandle})', $detailTemplate);
+        self::assertStringContainsString("{% extends 'lindemannrock-base/_layouts/cp-table' %}", $detailTemplate);
+        self::assertStringContainsString('preserveParams: detailParams', $detailTemplate);
+        self::assertStringContainsString('siteId: siteId', $detailTemplate);
+        self::assertStringContainsString('page: page', $detailTemplate);
+        self::assertStringContainsString('limit: limit', $detailTemplate);
+        self::assertStringContainsString('totalCount: totalSubmissions', $detailTemplate);
+        self::assertStringContainsString("{% block actionButton %}", $detailTemplate);
+        self::assertStringContainsString("action: 'formie-rating-field/statistics/export-group'", $detailTemplate);
+
+        $pageTitleStart = strpos($detailTemplate, '{% block pageTitle %}');
+        $pageTitleEnd = strpos($detailTemplate, '{% endblock %}', $pageTitleStart ?: 0);
+        self::assertIsInt($pageTitleStart);
+        self::assertIsInt($pageTitleEnd);
+        $pageTitleSource = substr($detailTemplate, $pageTitleStart, $pageTitleEnd - $pageTitleStart);
+        self::assertStringContainsString('id="page-heading"', $pageTitleSource);
+        self::assertStringContainsString('{{ detailHeading }}', $pageTitleSource);
+        self::assertStringContainsString('{{ detailSummary }}', $pageTitleSource);
+        self::assertStringContainsString('class="light', $pageTitleSource);
+        self::assertStringContainsString("detailHeading = 'Individual Submissions for {value}'|t", $detailTemplate);
+        self::assertStringContainsString("detailSummary = 'Showing {count} submission(s) for this {groupBy}'|t", $detailTemplate);
+
+        self::assertStringNotContainsString('{% block beforeTable %}', $detailTemplate);
+        self::assertStringNotContainsString('{% block extraFooter %}', $detailTemplate);
+        self::assertStringNotContainsString('plugin-credit', $detailTemplate);
+        self::assertStringContainsString("{key: 'dateCreated', label: 'Date'|t('formie-rating-field'), nowrap: true}", $detailTemplate);
+        self::assertStringContainsString('<td class="nowrap">{{ item.dateCreated|lrDatetime }}</td>', $detailTemplate);
+        self::assertStringNotContainsString('white-space: nowrap', $detailTemplate);
+    }
+
+    public function testOriginatingGroupUrlRendersAllStructuredParameters(): void
+    {
+        $rendered = Craft::$app->getView()->renderString(
+            "{{ url('formie-rating-field/statistics/form/' ~ formId ~ '/group/' ~ (groupValue|url_encode), {dateRange: dateRange, groupBy: groupBy, fieldHandle: fieldHandle, siteId: siteId}) }}",
+            [
+                'formId' => 42,
+                'groupValue' => '50% OFF',
+                'dateRange' => 'last7days',
+                'groupBy' => 'branch',
+                'fieldHandle' => 'satisfaction',
+                'siteId' => 7,
+            ],
+        );
+        $url = html_entity_decode($rendered, ENT_QUOTES | ENT_HTML5);
+        parse_str((string)parse_url($url, PHP_URL_QUERY), $query);
+
+        self::assertStringContainsString('/group/50%25%20OFF', $url);
+        self::assertSame('last7days', $query['dateRange'] ?? null);
+        self::assertSame('branch', $query['groupBy'] ?? null);
+        self::assertSame('satisfaction', $query['fieldHandle'] ?? null);
+        self::assertSame('7', $query['siteId'] ?? null);
+    }
+
+    public function testGroupDetailNormalizesPageAndUsesConfiguredPageSize(): void
+    {
+        $body = $this->methodSource('actionGroupDetail');
+
+        self::assertStringContainsString("max(1, (int)\$request->getQueryParam('page', 1))", $body);
+        self::assertStringContainsString('FormieRatingField::$plugin->getSettings()->itemsPerPage', $body);
+        self::assertStringContainsString('$offset = ($page - 1) * $limit;', $body);
+        self::assertStringContainsString('getPaginatedGroupSubmissions(', $body);
+        self::assertStringContainsString("'totalSubmissions' => \$pageResult['totalCount']", $body);
+        self::assertStringNotContainsString("'totalSubmissions' => count(\$submissions)", $body);
+    }
+
+    public function testGroupExportKeepsCompatibilityServiceAndConfiguredCap(): void
+    {
+        $body = $this->methodSource('actionExportGroup');
+
+        self::assertStringContainsString('$settings = FormieRatingField::$plugin->getSettings();', $body);
+        self::assertStringContainsString('$maxRows = (int)$settings->maxExportRows;', $body);
+        self::assertStringContainsString('$limit = $maxRows > 0 ? $maxRows : null;', $body);
+        self::assertStringContainsString('getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId, $limit)', $body);
+        self::assertStringNotContainsString('getPaginatedGroupSubmissions(', $body);
+    }
+
+    public function testGroupExportUsesFormieRepresentationsAndThrowableBoundary(): void
+    {
+        $body = $this->methodSource('actionExportGroup');
+        $permission = strpos($body, "requirePermission('formieRatingField:exportStatistics')");
+        $access = strpos($body, '$this->requireFormieSubmissionAccess($form);');
+        $try = strpos($body, 'try {');
+        $catch = strpos($body, '} catch (\\Throwable $e) {');
+        $dispatch = strpos($body, 'ExportHelper::dispatchTable(');
+
+        self::assertIsInt($permission);
+        self::assertIsInt($access);
+        self::assertIsInt($try);
+        self::assertIsInt($catch);
+        self::assertIsInt($dispatch);
+        self::assertLessThan($try, $permission);
+        self::assertLessThan($try, $access);
+        self::assertLessThan($dispatch, $try);
+        self::assertLessThan($catch, $dispatch);
+        self::assertStringContainsString('$submission->getValueForExport($field->handle)', $body);
+        self::assertStringContainsString('$submission->getValueAsJson($field->handle)', $body);
+        self::assertStringNotContainsString('$submission->getFieldValue($field->handle)', $body);
+        self::assertStringContainsString("return \$this->redirect(\$request->getReferrer() ?? 'formie-rating-field/statistics');", $body);
     }
 
     private function normalizeGroupByHandle(mixed $groupBy): ?string

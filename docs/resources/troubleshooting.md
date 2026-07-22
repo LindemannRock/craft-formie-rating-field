@@ -82,6 +82,18 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 
 **Why:** Raw Responses hydrate a full submission per row, which is memory-heavy. The cap protects against out-of-memory errors on high-volume forms; when hit, the export is truncated and a warning is logged.
 
+## A single-group export is missing rows
+
+**Quick checks:**
+
+1. Check **Settings → Interface → Max Export Rows** (default `50,000`).
+2. Look in the logs for a group-export cap warning.
+3. Confirm the export page still shows the expected group, date range, and site.
+
+**Fix:** Raise **Max Export Rows**, narrow the date range, or set the limit to `0` when the server has enough memory.
+
+**Why:** The cap is applied after the group, date-range, and site filters, so submissions from other groups do not consume it. A group with more matching submissions than the configured limit is still truncated to protect the server from an out-of-memory failure.
+
 ## The Google Review button doesn't appear
 
 **Quick checks:**

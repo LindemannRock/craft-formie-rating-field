@@ -11,11 +11,6 @@ namespace lindemannrock\formieratingfield\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
-use craft\fields\Categories;
-use craft\fields\Dropdown;
-use craft\fields\Entries;
-use craft\fields\PlainText;
-use craft\fields\RadioButtons;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
@@ -27,7 +22,12 @@ use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\FormieRatingField;
 use verbb\formie\elements\Form;
 use verbb\formie\elements\Submission;
+use verbb\formie\fields\Categories;
+use verbb\formie\fields\Dropdown;
+use verbb\formie\fields\Entries;
 use verbb\formie\fields\Hidden;
+use verbb\formie\fields\Radio;
+use verbb\formie\fields\SingleLineText;
 use yii\db\Expression;
 
 /**
@@ -164,10 +164,10 @@ class StatisticsService extends Component
 
             // Include fields that are suitable for grouping
             if (
-                $field instanceof PlainText ||
+                $field instanceof SingleLineText ||
                 $field instanceof Hidden ||
                 $field instanceof Dropdown ||
-                $field instanceof RadioButtons ||
+                $field instanceof Radio ||
                 $field instanceof Entries ||
                 $field instanceof Categories
             ) {
@@ -567,61 +567,180 @@ class StatisticsService extends Component
      * @param string $groupValue
      * @param string $dateRange
      * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
-     * @param int|null $limit Optional row cap on the underlying fetch (NOT the post-filter
-     *                       group match). Used by the export path to prevent OOM. May
-     *                       silently drop group-matching rows if truncated.
-     * @return array
+     * @param int|null $limit Optional row cap applied after the group predicate. Used by
+     *                       the export path to prevent OOM without dropping matching rows
+     *                       behind unrelated submissions.
+     * @return list<Submission>
      */
     public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all', int|string $siteId = 'all', ?int $limit = null): array
     {
-        $submissions = $this->getSubmissions($form, $dateRange, $siteId, $limit);
-        $groupedSubmissions = [];
+        $query = $this->buildGroupSubmissionIdQuery($form, $groupByHandle, $groupValue, $dateRange, $siteId)
+            ->orderBy($this->groupSubmissionOrder());
 
-        foreach ($submissions as $submission) {
-            $submissionGroupValue = $submission->getFieldValue($groupByHandle);
-
-            // Get string representation
-            $groupKey = $this->getGroupKeyFromValue($submissionGroupValue);
-
-            if ($groupKey === null || $groupKey === '') {
-                $groupKey = '(Not Set)';
-            }
-
-            // Match the group value
-            if ($groupKey === $groupValue) {
-                $groupedSubmissions[] = $submission;
-            }
+        if ($limit !== null && $limit > 0) {
+            $query->limit($limit);
         }
 
-        return $groupedSubmissions;
+        $submissionIds = array_map('intval', $query->column());
+
+        return $this->hydrateGroupSubmissions($submissionIds, $siteId);
     }
 
     /**
-     * Get group key from field value
+     * Get one bounded page of submissions for a raw grouped-statistics value.
      *
-     * @param mixed $value
-     * @return string|null
+     * The group predicate mirrors getGroupedStatistics(): scalar and relational
+     * values are compared against their stored JSON representation, while null
+     * and empty values share the `(Not Set)` group. Only the selected page IDs
+     * are hydrated as Submission elements.
+     *
+     * @param Form $form
+     * @param string $groupByHandle
+     * @param string $groupValue
+     * @param string $dateRange
+     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int $limit
+     * @param int $offset
+     * @return array{submissions: list<Submission>, totalCount: int}
+     * @since 3.23.0
      */
-    private function getGroupKeyFromValue($value): ?string
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
+    public function getPaginatedGroupSubmissions(
+        Form $form,
+        string $groupByHandle,
+        string $groupValue,
+        string $dateRange = 'all',
+        int|string $siteId = 'all',
+        int $limit = 100,
+        int $offset = 0,
+    ): array {
+        $limit = max(1, $limit);
+        $offset = max(0, $offset);
+        $query = $this->buildGroupSubmissionIdQuery($form, $groupByHandle, $groupValue, $dateRange, $siteId);
 
-        // Handle entry/category fields (returns element)
-        if (is_object($value)) {
-            if (property_exists($value, 'title') && isset($value->title)) {
-                return (string)$value->title;
+        $totalCount = (int)(clone $query)->count();
+        $submissionIds = array_map(
+            'intval',
+            $query
+                ->orderBy($this->groupSubmissionOrder())
+                ->limit($limit)
+                ->offset($offset)
+                ->column(),
+        );
+
+        return [
+            'submissions' => $this->hydrateGroupSubmissions($submissionIds, $siteId),
+            'totalCount' => $totalCount,
+        ];
+    }
+
+    /**
+     * Build the shared SQL query for one raw grouped-statistics value.
+     *
+     * Filtering before limiting keeps grouped exports complete up to their own cap,
+     * and comparing the stored JSON representation keeps relational group links and
+     * exports aligned with getGroupedStatistics().
+     */
+    private function buildGroupSubmissionIdQuery(
+        Form $form,
+        string $groupByHandle,
+        string $groupValue,
+        string $dateRange,
+        int|string $siteId,
+    ): Query {
+        $groupField = null;
+        foreach ($form->getFields() as $field) {
+            if ($field->handle === $groupByHandle) {
+                $groupField = $field;
+                break;
             }
-            return (string)$value;
         }
 
-        // Handle arrays (multi-select fields)
-        if (is_array($value)) {
-            return implode(', ', array_map('strval', $value));
+        if ($groupField === null || $groupField->uid === null) {
+            throw new \InvalidArgumentException("Group field '{$groupByHandle}' was not found on form {$form->id}.");
         }
 
-        return (string)$value;
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+        $groupByExpression = DbHelper::jsonExtract('{{%formie_submissions}}.content', $groupField->uid);
+        $normalizedGroupExpression = new Expression("COALESCE(NULLIF($groupByExpression, ''), '(Not Set)')");
+        $query = (new Query())
+            ->select(['id' => '{{%formie_submissions}}.id'])
+            ->from('{{%formie_submissions}}')
+            ->where([
+                '{{%formie_submissions}}.formId' => $form->id,
+                '{{%formie_submissions}}.isIncomplete' => false,
+                '{{%formie_submissions}}.isSpam' => false,
+            ])
+            ->andWhere(['=', $normalizedGroupExpression, $groupValue]);
+
+        if ($siteId !== 'all') {
+            $query->innerJoin(
+                '{{%elements_sites}} es_group_submission_site',
+                "[[es_group_submission_site.elementId]] = [[{$submissionsTable}.id]] AND [[es_group_submission_site.siteId]] = :groupSubmissionSiteId",
+                [':groupSubmissionSiteId' => (int)$siteId],
+            );
+        }
+
+        $bounds = DateRangeHelper::getBounds($dateRange);
+        if ($bounds['start']) {
+            $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['start'])]);
+        }
+        if ($bounds['end']) {
+            $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['end'])]);
+        }
+
+        return $query;
+    }
+
+    /** @return array<string, int> */
+    private function groupSubmissionOrder(): array
+    {
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+
+        return [
+            "{$submissionsTable}.dateCreated" => SORT_DESC,
+            "{$submissionsTable}.id" => SORT_DESC,
+        ];
+    }
+
+    /**
+     * @param list<int> $submissionIds
+     * @return list<Submission>
+     */
+    private function hydrateGroupSubmissions(array $submissionIds, int|string $siteId): array
+    {
+        if ($submissionIds === []) {
+            return [];
+        }
+
+        $submissionQuery = Submission::find()
+            ->id($submissionIds)
+            ->orderBy([
+                'elements.dateCreated' => SORT_DESC,
+                'elements.id' => SORT_DESC,
+            ]);
+
+        if ($siteId === 'all') {
+            $submissionQuery->siteId('*')->unique();
+        } else {
+            $submissionQuery->siteId((int)$siteId);
+        }
+
+        $submissionsById = [];
+        foreach ($submissionQuery->all() as $submission) {
+            if (!$submission instanceof Submission) {
+                continue;
+            }
+            $submissionsById[(int)$submission->id] ??= $submission;
+        }
+
+        $submissions = [];
+        foreach ($submissionIds as $submissionId) {
+            if (isset($submissionsById[$submissionId])) {
+                $submissions[] = $submissionsById[$submissionId];
+            }
+        }
+
+        return $submissions;
     }
 
     /**

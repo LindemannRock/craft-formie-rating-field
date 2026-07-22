@@ -33,11 +33,15 @@ Which formats appear in the menu is controlled by the `exports` config key — s
 
 ## Export a single group
 
-When you drill into one group's submissions (from the grouped view), that page has its own **Export** that downloads just those submissions. The same two permission layers apply; a direct export request for an unauthorized form returns HTTP 403.
+When you drill into one group's submissions (from the grouped view), that page has its own **Export** that downloads just those submissions. The group, date-range, and site filters are applied before the row cap, including for Entries and Categories groups. CSV and Excel use Formie's field-aware export text, while JSON keeps Formie's structured representation for fields that provide one.
 
-## The Raw Responses row cap
+The same two permission layers apply; a direct export request for an unauthorized form returns HTTP 403. If file generation fails, the download is stopped, the failure is logged, and the Control Panel shows an error instead of an incomplete file.
 
-Raw Responses hydrate a full submission for every row, which is memory-intensive on high-volume forms. The **Max Export Rows** setting (default `50,000`) caps how many rows a Raw Responses export includes; when the cap is hit, the export is truncated and a warning is logged. Set it to `0` for unlimited — only if your PHP `memory_limit` is generous. See [Configuration](../get-started/configuration.md#interface-interface-tab).
+## Export row caps
+
+Raw Responses and single-group exports hydrate a full submission for every row, which is memory-intensive on high-volume forms. The **Max Export Rows** setting (default `50,000`) caps each export; when the cap is hit, the export is truncated and a warning is logged. For a single-group export, unrelated form submissions do not consume the cap.
+
+Set the limit to `0` for unlimited exports — only if your PHP `memory_limit` is generous. See [Configuration](../get-started/configuration.md#interface-interface-tab).
 
 ## Next steps
 

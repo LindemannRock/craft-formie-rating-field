@@ -64,7 +64,22 @@ $grouped = $statistics->getGroupedStatistics($form, $field, $dateRange, $groupBy
 
 // The submissions behind one group value.
 $submissions = $statistics->getGroupSubmissions($form, $groupByHandle, $groupValue, $dateRange = 'all', $siteId = 'all', $limit = null);
+
+// @since 3.23.0 — one database-filtered page plus the complete matching count.
+$page = $statistics->getPaginatedGroupSubmissions(
+    $form,
+    $groupByHandle,
+    $groupValue,
+    $dateRange = 'all',
+    $siteId = 'all',
+    $limit = 100,
+    $offset = 0,
+);
+// $page['submissions'] contains only the hydrated page; $page['totalCount']
+// is the count before limit/offset.
 ```
+
+`getGroupSubmissions()` remains the compatibility/export-oriented API. Its optional limit is applied after the form, spam/incomplete, date, site, and raw group-value predicates. Use `getPaginatedGroupSubmissions()` for an interactive listing that also needs a complete matching count and offset. Both methods compare relational groups with the same stored JSON value emitted by the grouped-statistics links.
 
 ## Export rows
 
