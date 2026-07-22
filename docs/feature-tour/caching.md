@@ -11,7 +11,7 @@ Computing averages, NPS scores, and distributions across thousands of submission
 
 ## How it stays current
 
-You rarely have to think about this. When a submission is **saved or deleted**, the plugin clears the cached statistics **for that form only** — so the next dashboard load recomputes fresh numbers, and other forms' caches are untouched. Between recomputes, the dashboard serves the cached result. When scheduled generation is enabled, **Last updated** comes from the cached payload's actual generation time; legacy payloads without that metadata omit the label rather than showing the page-load time.
+You rarely have to think about this. When a submission is **saved or deleted**, the plugin clears the cached statistics **for that form only** — so the next dashboard load recomputes fresh numbers, and other forms' caches are untouched. Between recomputes, the dashboard serves the cached result. Field-statistics and trend payloads receive a UTC ISO 8601 generation timestamp before they are saved, and cache hits preserve that original time. When scheduled generation is enabled, **Last updated** comes from the cached field-statistics payload's actual generation time; legacy payloads without that metadata omit the label rather than showing the page-load time.
 
 ## Where the cache lives
 

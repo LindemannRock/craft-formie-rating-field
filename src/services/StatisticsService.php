@@ -243,7 +243,7 @@ class StatisticsService extends Component
             $stats = $this->calculateFieldStatistics($form, $field, $dateRange, $siteId);
         }
 
-        $stats['generatedAt'] = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(DATE_ATOM);
+        $stats['generatedAt'] = DateFormatHelper::toApiString(new \DateTime('now', new \DateTimeZone('UTC')));
 
         // Save to cache
         $this->saveToCache($form->id, $field, $dateRange, $groupByHandle, $stats, $siteId);
@@ -417,7 +417,14 @@ class StatisticsService extends Component
             ->groupBy('groupValue')
             ->orderBy(['count' => SORT_DESC, 'groupValue' => SORT_ASC]);
 
-        $totalGroups = (int)(clone $query)->orderBy([])->count();
+        $totalGroups = (int)$this->buildGroupedStatisticsTotalQuery(
+            $form->id,
+            $normalizedGroupExpr,
+            $ratingExpr,
+            $submissionsTable,
+            $dateBounds,
+            $siteId,
+        )->scalar();
         if ($limit !== null) {
             $query->limit(max(1, $limit));
         }
@@ -477,6 +484,37 @@ class StatisticsService extends Component
             'totalGroups' => $totalGroups,
             'isLimited' => count($groupedStats) < $totalGroups,
         ];
+    }
+
+    /**
+     * Build the minimal exact-count query for a grouped statistics result.
+     *
+     * Counting the normalized expression keeps null and empty group values in
+     * the shared `(Not Set)` bucket without repeating the aggregate result
+     * query's averages, NPS breakdown, grouping, or ordering.
+     */
+    private function buildGroupedStatisticsTotalQuery(
+        int $formId,
+        string $normalizedGroupExpr,
+        string $ratingExpr,
+        string $submissionsTable,
+        array $dateBounds,
+        int|string $siteId,
+    ): Query {
+        $query = (new Query())
+            ->select([
+                'totalGroups' => new Expression("COUNT(DISTINCT {$normalizedGroupExpr})"),
+            ])
+            ->from('{{%formie_submissions}}');
+
+        return $this->applyGroupedStatisticsFilters(
+            $query,
+            $formId,
+            $ratingExpr,
+            $submissionsTable,
+            $dateBounds,
+            $siteId,
+        );
     }
 
     /**
@@ -1367,6 +1405,7 @@ class StatisticsService extends Component
             'counts' => array_column($chartData, 'count'),
             'scaleMin' => $isNps ? -100 : 0,
             'scaleMax' => $isNps ? 100 : (int)$field->maxValue,
+            'generatedAt' => DateFormatHelper::toApiString(new \DateTime('now', new \DateTimeZone('UTC'))),
         ];
 
         $this->saveToCache($form->id, $field, $dateRange, self::TREND_CACHE_VARIANT, $result, $siteId);

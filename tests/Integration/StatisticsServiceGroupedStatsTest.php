@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace lindemannrock\formieratingfield\tests\Integration;
 
+use Craft;
+use lindemannrock\base\helpers\DateRangeHelper;
+use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\services\StatisticsService;
 use lindemannrock\formieratingfield\tests\TestCase;
@@ -18,6 +21,7 @@ use verbb\formie\elements\Form;
 use verbb\formie\elements\Submission;
 use verbb\formie\fields\SingleLineText;
 use verbb\formie\models\FieldLayout;
+use yii\db\Query;
 
 /**
  * Pins grouped-statistics payload building after the GROUP_CONCAT removal.
@@ -104,36 +108,86 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
         $form = $this->seedGroupedRatingForm();
 
         try {
-            for ($index = 0; $index < 101; $index++) {
-                $submission = new Submission();
-                $submission->setForm($form);
-                $submission->title = $this->nextTestMarker('ratingGroupedStatsTest', 'submission');
-                $submission->setFieldValue('satisfaction', ($index % 5) + 1);
-                $submission->setFieldValue('branch', sprintf('Branch %03d', $index));
-                $this->saveTestElement($submission, false, false, false);
+            for ($index = 0; $index < 100; $index++) {
+                $this->seedGroupedSubmission($form, sprintf('Branch %03d', $index), ($index % 5) + 1);
             }
+
+            $this->seedGroupedSubmission($form, null, 4);
+            $this->seedGroupedSubmission($form, '', 5);
+
+            $incomplete = $this->seedGroupedSubmission($form, 'Incomplete Branch', 1);
+            $spam = $this->seedGroupedSubmission($form, 'Spam Branch', 1);
+            $old = $this->seedGroupedSubmission($form, 'Old Branch', 1);
+            $this->seedGroupedSubmission($form, 'Unrated Branch', null);
+            $this->updateSubmissionFlags($incomplete, true, false);
+            $this->updateSubmissionFlags($spam, false, true);
+            $this->updateSubmissionDate($old, '2000-01-01 00:00:00');
 
             $ratingField = $this->statistics->getRatingFieldByHandle($form, 'satisfaction');
             self::assertInstanceOf(Rating::class, $ratingField);
+            $siteId = (int)Craft::$app->getSites()->getPrimarySite()->id;
 
-            $first = $this->statistics->getFieldStatistics($form, $ratingField, 'all', 'branch');
-            $cached = $this->statistics->getFieldStatistics($form, $ratingField, 'all', 'branch');
-            $explicitPage = $this->statistics->getGroupedStatistics($form, $ratingField, 'all', 'branch', 'all', 3);
-            $groupedExport = $this->statistics->buildGroupedExportRows($form, 'all', 'branch');
+            $first = $this->statistics->getFieldStatistics($form, $ratingField, 'last7days', 'branch', $siteId);
+            $cached = $this->statistics->getFieldStatistics($form, $ratingField, 'last7days', 'branch', $siteId);
+            $explicitPage = $this->statistics->getGroupedStatistics($form, $ratingField, 'last7days', 'branch', $siteId, 3);
+            $unbounded = $this->statistics->getGroupedStatistics($form, $ratingField, 'last7days', 'branch', $siteId);
+            $missingSite = $this->statistics->getGroupedStatistics($form, $ratingField, 'last7days', 'branch', 999999999, 3);
+            $groupedExport = $this->statistics->buildGroupedExportRows($form, 'last7days', 'branch', $siteId);
 
             self::assertCount(100, $first['groups']);
             self::assertSame(101, $first['totalGroups']);
             self::assertTrue($first['isLimited']);
+            self::assertSame('(Not Set)', $first['groups'][0]['label']);
+            self::assertSame(2, $first['groups'][0]['count']);
             self::assertArrayHasKey('generatedAt', $first);
             self::assertSame($first['generatedAt'], $cached['generatedAt']);
             self::assertNotFalse(\DateTimeImmutable::createFromFormat(DATE_ATOM, $first['generatedAt']));
 
             self::assertCount(3, $explicitPage['groups']);
             self::assertSame(101, $explicitPage['totalGroups']);
+            self::assertTrue($explicitPage['isLimited']);
+            self::assertSame(['(Not Set)', 'Branch 000', 'Branch 001'], array_column($explicitPage['groups'], 'label'));
+            self::assertCount(101, $unbounded['groups']);
+            self::assertSame(101, $unbounded['totalGroups']);
+            self::assertFalse($unbounded['isLimited']);
+            self::assertSame([], $missingSite['groups']);
+            self::assertSame(0, $missingSite['totalGroups']);
+            self::assertFalse($missingSite['isLimited']);
             self::assertCount(101, $groupedExport['rows']);
         } finally {
             $this->statistics->clearCacheForForm((int)$form->id);
         }
+    }
+
+    public function testGroupedTotalUsesMinimalDistinctCountQuery(): void
+    {
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+        $groupExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', 'group-field-uid');
+        $ratingExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', 'rating-field-uid');
+        $normalizedGroupExpr = "COALESCE(NULLIF($groupExpr, ''), '(Not Set)')";
+        $method = new ReflectionMethod(StatisticsService::class, 'buildGroupedStatisticsTotalQuery');
+        $query = $method->invoke(
+            $this->statistics,
+            self::TEST_FORM_ID,
+            $normalizedGroupExpr,
+            $ratingExpr,
+            $submissionsTable,
+            DateRangeHelper::getBounds('all'),
+            'all',
+        );
+
+        self::assertInstanceOf(Query::class, $query);
+        self::assertIsArray($query->select);
+        self::assertSame(['totalGroups'], array_keys($query->select));
+        self::assertNull($query->groupBy);
+        self::assertNull($query->orderBy);
+
+        $sql = strtoupper($query->createCommand()->getRawSql());
+        self::assertStringContainsString('COUNT(DISTINCT COALESCE(NULLIF(', $sql);
+        self::assertStringContainsString('(NOT SET)', $sql);
+        self::assertStringNotContainsString('GROUP BY', $sql);
+        self::assertStringNotContainsString('AVG(', $sql);
+        self::assertStringNotContainsString('SUM(CASE', $sql);
     }
 
     /**
@@ -198,5 +252,35 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
         $this->saveTestElement($form);
 
         return $form;
+    }
+
+    private function seedGroupedSubmission(Form $form, ?string $branch, ?int $rating): Submission
+    {
+        $submission = new Submission();
+        $submission->setForm($form);
+        $submission->title = $this->nextTestMarker('ratingGroupedStatsTest', 'submission');
+        $submission->setFieldValue('satisfaction', $rating);
+        $submission->setFieldValue('branch', $branch);
+        $this->saveTestElement($submission, false, false, false);
+
+        return $submission;
+    }
+
+    private function updateSubmissionFlags(Submission $submission, bool $isIncomplete, bool $isSpam): void
+    {
+        Craft::$app->getDb()->createCommand()->update(
+            '{{%formie_submissions}}',
+            ['isIncomplete' => $isIncomplete, 'isSpam' => $isSpam],
+            ['id' => $submission->id],
+        )->execute();
+    }
+
+    private function updateSubmissionDate(Submission $submission, string $dateCreated): void
+    {
+        Craft::$app->getDb()->createCommand()->update(
+            '{{%formie_submissions}}',
+            ['dateCreated' => $dateCreated],
+            ['id' => $submission->id],
+        )->execute();
     }
 }

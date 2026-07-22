@@ -29,7 +29,7 @@ $groupable = $statistics->getGroupableFieldsForForm($form);
 
 ## Computing statistics
 
-`getFieldStatistics()` is the cached entry point used by the dashboard. It returns a type-aware structure (average/median/most-common for star/emoji, or NPS score with promoter/passive/detractor breakdown for NPS) plus an ISO 8601 `generatedAt` value for freshly generated/cacheable payloads. Grouped dashboard payloads contain at most 100 rows, with `totalGroups` and `isLimited` describing the complete result.
+`getFieldStatistics()` is the cached entry point used by the dashboard. It returns a type-aware structure (average/median/most-common for star/emoji, or NPS score with promoter/passive/detractor breakdown for NPS) plus a UTC ISO 8601 `generatedAt` value. Grouped dashboard payloads contain at most 100 rows, with `totalGroups` and `isLimited` describing the complete result.
 
 ```php
 $stats = $statistics->getFieldStatistics(
@@ -55,6 +55,8 @@ $trend        = $statistics->getTrendData($form, $field, $dateRange = 'all', $si
 $distribution = $statistics->getDistributionData($form, $field, $dateRange = 'all', $siteId = 'all');
 $total        = $statistics->getTotalSubmissions($form, $dateRange = 'all', $siteId = 'all');
 ```
+
+`getTrendData()` returns `labels`, `values`, `counts`, `scaleMin`, `scaleMax`, and the UTC ISO 8601 `generatedAt` timestamp. Both field-statistics and trend payloads are stamped before they are cached. Cache hits preserve the original timestamp instead of replacing it with the current request time.
 
 ## Grouped statistics
 
