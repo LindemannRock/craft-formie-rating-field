@@ -168,7 +168,7 @@
             <div style="margin-bottom: 32px;">
                 <h2 style="margin: 0 0 6px;">{{ field.label }}</h2>
                 <p class="lr-text-muted" style="margin: 0 0 16px; font-size: 13px;">
-                    ({{ (isNps ? 'NPS' : (stats.fieldType == 'star' ? 'Star Rating' : 'Emoji Rating'))|t('formie-rating-field') }})
+                    ({% if isNps %}{{ 'NPS'|t('formie-rating-field') }}{% elseif stats.fieldType == 'star' %}{{ 'Star Rating'|t('formie-rating-field') }}{% else %}{{ 'Emoji Rating'|t('formie-rating-field') }}{% endif %})
                     {% set settings = craft.app.plugins.getPlugin('formie-rating-field').settings %}
                     {% if settings.getEffectiveCacheGenerationSchedule() != 'disabled' and stats.generatedAt is defined %}
                         • {{ "Last updated: {time}"|t('formie-rating-field', {time: stats.generatedAt|lrDatetime}) }}
@@ -182,11 +182,16 @@
                 {% set totalGroups = stats.totalGroups ?? stats.groups|length %}
                 {% set groupByFieldName = stats.groupByLabel ?? stats.groupByHandle %}
 
-                {# Find top performer (skip "Not Set") #}
+                {# Find top performer (highest reliable score among shown groups) #}
                 {% set topGroup = null %}
+                {% set highestScore = null %}
                 {% for group in stats.groups %}
-                    {% if topGroup is null and group.label != '(Not Set)' %}
-                        {% set topGroup = group %}
+                    {% if group.label != '(Not Set)' and group.count >= 5 %}
+                        {% set score = isNps ? group.npsScore : group.average %}
+                        {% if highestScore is null or score > highestScore %}
+                            {% set highestScore = score %}
+                            {% set topGroup = group %}
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
 
@@ -230,7 +235,7 @@
                     <div class="pane" style="padding: 24px; margin-block: 0; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); display: flex; flex-direction: column; height: 100%;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                             <div style="width: 12px; height: 12px; border-radius: 50%; background: #10b981;"></div>
-                            <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ (isNps ? "Overall NPS" : "Overall Average")|t('formie-rating-field') }}</h4>
+                            <h4 style="margin: 0; color: #374151; font-size: 15px; font-weight: 600;">{{ isNps ? "Overall NPS"|t('formie-rating-field') : "Overall Average"|t('formie-rating-field') }}</h4>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column;">
                             <div style="font-size: 28px; font-weight: 700; color: #10b981; line-height: 1; margin-bottom: 8px;">{{ overallAverage }}</div>
@@ -815,68 +820,6 @@
             // Initialize charts for {{ field.handle }}
             (function() {
                 const fieldHandle = '{{ field.handle|e('js') }}';
-
-                {% if isGrouped and stats.groups|length > 0 %}
-                    // Comparison Chart for the ten highest-volume groups in the bounded overview.
-                    // JSON_HEX_* flags escape angle brackets, ampersands, and quotes — group
-                    // labels include user-submitted form data (Hidden / PlainText), so a
-                    // payload containing a script-close token would otherwise break out.
-                    const comparisonData = {{ stats.groups|slice(0, 10)|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
-                    const comparisonLabels = comparisonData.map(g => g.label.length > 20 ? g.label.substring(0, 20) + '...' : g.label);
-                    {% if isNps %}
-                        const comparisonValues = comparisonData.map(g => g.npsScore);
-                    {% else %}
-                        const comparisonValues = comparisonData.map(g => g.average);
-                    {% endif %}
-
-                    window.statisticsCharts['comparison-{{ field.handle }}'] = new Chart(
-                        document.getElementById('comparison-chart-{{ field.handle }}'),
-                        {
-                            type: 'bar',
-                            data: {
-                                labels: comparisonLabels,
-                                datasets: [{
-                                    label: '{{ (isNps ? "NPS Score" : "Average Rating")|e('js') }}',
-                                    data: comparisonValues,
-                                    backgroundColor: comparisonValues.map((v, i) => {
-                                        {% if isNps %}
-                                        if (v >= 50) return '#10b981';
-                                        if (v >= 0) return '#f59e0b';
-                                        return '#ef4444';
-                                        {% else %}
-                                        const max = {{ field.maxValue ?? 5 }};
-                                        if (v >= max * 0.9) return '#10b981';
-                                        if (v >= max * 0.7) return '#f59e0b';
-                                        return '#ef4444';
-                                        {% endif %}
-                                    }),
-                                    borderWidth: 0
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: true,
-                                indexAxis: 'y',
-                                scales: {
-                                    x: {
-                                        beginAtZero: true,
-                                        {% if isNps %}
-                                        min: -100,
-                                        max: 100
-                                        {% else %}
-                                        max: {{ field.maxValue ?? 5 }}
-                                        {% endif %}
-                                    }
-                                },
-                                plugins: {
-                                    legend: {
-                                        display: false
-                                    }
-                                }
-                            }
-                        }
-                    );
-                {% endif %}
 
                 {% if not isGrouped and isNps %}
                     // NPS Breakdown Chart

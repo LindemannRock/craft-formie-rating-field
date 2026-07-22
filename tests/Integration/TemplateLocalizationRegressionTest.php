@@ -76,6 +76,52 @@ final class TemplateLocalizationRegressionTest extends TestCase
         self::assertSame('Einsendung|Einsendungen', $rendered);
     }
 
+    public function testGroupedSummarySelectsHighestReliableShownGroupByRatingScore(): void
+    {
+        $rendered = $this->renderGroupedSummary([
+            ['label' => 'Volume Leader', 'count' => 200, 'average' => 3.1],
+            ['label' => 'Score Leader', 'count' => 50, 'average' => 4.9],
+            ['label' => 'Small Perfect', 'count' => 4, 'average' => 5.0],
+            ['label' => '(Not Set)', 'count' => 100, 'average' => 5.0],
+        ]);
+        $text = $this->normalizedText($rendered);
+
+        self::assertMatchesRegularExpression('/Top Performer.*Score Leader.*Avg: 4\.9.*50 reviews/s', $text);
+        self::assertStringNotContainsString('Small Perfect', $text);
+        self::assertStringNotContainsString('(Not Set)', $text);
+    }
+
+    public function testGroupedSummaryUsesNpsScoreAndOmitsCardsWithoutReliableGroups(): void
+    {
+        $rendered = $this->renderGroupedSummary([
+            ['label' => 'Volume Leader', 'count' => 200, 'npsScore' => 10],
+            ['label' => 'Score Leader', 'count' => 8, 'npsScore' => 70],
+            ['label' => 'Small Leader', 'count' => 4, 'npsScore' => 90],
+        ], true);
+        $text = $this->normalizedText($rendered);
+
+        self::assertMatchesRegularExpression('/Top Performer.*Score Leader.*NPS: 70.*8 reviews/s', $text);
+        self::assertStringNotContainsString('Small Leader', $text);
+
+        $unreliable = $this->renderGroupedSummary([
+            ['label' => 'Small Group', 'count' => 4, 'npsScore' => 90],
+            ['label' => '(Not Set)', 'count' => 100, 'npsScore' => 100],
+        ], true);
+
+        self::assertStringNotContainsString('Top Performer', $this->normalizedText($unreliable));
+        self::assertStringNotContainsString('Needs Attention', $this->normalizedText($unreliable));
+    }
+
+    public function testWidgetUsesSingularAndPluralRatingFieldKeys(): void
+    {
+        $rendered = $this->renderWidgetRowsInLanguage('de', [
+            ['form' => ['id' => 1, 'title' => 'One'], 'ratingFieldCount' => 1, 'totalSubmissions' => 10],
+            ['form' => ['id' => 2, 'title' => 'Two'], 'ratingFieldCount' => 2, 'totalSubmissions' => 20],
+        ]);
+
+        self::assertSame('1 Bewertungsfeld|2 Bewertungsfelder|', ltrim($rendered));
+    }
+
     public function testPlaceholderTranslationsCanReorderAndEscapeDynamicValues(): void
     {
         $rendered = $this->renderStringInLanguage(
@@ -162,6 +208,7 @@ final class TemplateLocalizationRegressionTest extends TestCase
         self::assertStringContainsString("'Group by: {field}'|t", $statistics);
         self::assertStringContainsString("'{value} - Individual Submissions'|t", $detail);
         self::assertStringContainsString("'Individual Submissions for {value}'|t", $detail);
+        self::assertStringContainsString("'{count} Rating Field'|t", $widget);
         self::assertStringContainsString("'{count} Rating Fields'|t", $widget);
         self::assertStringNotContainsString("t('formie')", $email);
         self::assertStringContainsString("'{value} stars'|t('formie-rating-field'", $email);
@@ -174,6 +221,7 @@ final class TemplateLocalizationRegressionTest extends TestCase
             '{title} - Rating Statistics' => ['title'],
             '{value} - Individual Submissions' => ['value'],
             'Group by: {field}' => ['field'],
+            '{count} Rating Field' => ['count'],
             '{count} Rating Fields' => ['count'],
             'Individual Submissions for {value}' => ['value'],
             '{value} stars' => ['value'],
@@ -206,6 +254,17 @@ final class TemplateLocalizationRegressionTest extends TestCase
             self::assertArrayHasKey('Not rated', $translations, "Missing Not rated in {$language}.");
             self::assertArrayHasKey('Submissions', $translations, "Missing Submissions in {$language}.");
         }
+    }
+
+    public function testStatisticsTemplateDropsComparisonChartAndKeepsSupportedCharts(): void
+    {
+        $statistics = $this->templateSource('statistics/form.twig');
+
+        self::assertStringNotContainsString('comparison' . 'Data', $statistics);
+        self::assertStringNotContainsString('comparison' . '-chart', $statistics);
+        self::assertStringContainsString('nps-chart-', $statistics);
+        self::assertStringContainsString('distribution-chart-', $statistics);
+        self::assertStringContainsString('trend-chart-', $statistics);
     }
 
     public function testControllerRoutesMakeDeletedRootTemplatesUnnecessary(): void
@@ -241,6 +300,51 @@ final class TemplateLocalizationRegressionTest extends TestCase
                 'field' => $field,
                 'value' => $value,
             ],
+        );
+    }
+
+    /** @param list<array<string, int|float|string>> $groups */
+    private function renderGroupedSummary(array $groups, bool $isNps = false): string
+    {
+        $source = $this->templateSource('statistics/form.twig');
+        self::assertSame(
+            1,
+            preg_match(
+                '/\{# Calculate summary metrics #\}(.*?)\{# Detailed Table with Performance Indicators #\}/s',
+                $source,
+                $matches,
+            ),
+        );
+
+        return $this->renderStringInLanguage(
+            $matches[1],
+            'en',
+            [
+                'isNps' => $isNps,
+                'stats' => [
+                    'groupByLabel' => 'Branch',
+                    'groups' => $groups,
+                    'totalGroups' => count($groups),
+                ],
+            ],
+        );
+    }
+
+    /**
+     * @param list<array<string, mixed>> $forms
+     */
+    private function renderWidgetRowsInLanguage(string $language, array $forms): string
+    {
+        $source = $this->templateSource('widgets/rating-statistics/body.twig');
+        self::assertSame(
+            1,
+            preg_match('/(\{% set rows = \[\] %\}.*?)(?=\{% include)/s', $source, $matches),
+        );
+
+        return $this->renderStringInLanguage(
+            $matches[1] . '{% for row in rows %}{{ row.meta }}|{% endfor %}',
+            $language,
+            ['forms' => $forms, 'siteId' => 'all'],
         );
     }
 

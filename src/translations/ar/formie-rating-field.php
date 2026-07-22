@@ -248,6 +248,7 @@ return [
     // Dashboard
     'You do not have permission to view statistics.' => 'ليس لديك صلاحية لعرض الإحصائيات.',
     'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'لا تتوفر الإحصائيات لاختيار الموقع المحفوظ. حدّث إعدادات الأداة أو اطلب من المسؤول مراجعة صلاحية الوصول إلى الموقع.',
+    '{count} Rating Field' => '{count} حقل تقييم',
     '{count} Rating Fields' => '{count} حقول تقييم',
 
     // Field schema (rating settings)

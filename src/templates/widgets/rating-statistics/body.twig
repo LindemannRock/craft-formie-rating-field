@@ -1,10 +1,13 @@
 {% set rows = [] %}
 
 {% for item in forms %}
+    {% set ratingFieldCount = item.ratingFieldCount %}
     {% set rows = rows|merge([{
         primary: item.form.title,
         primaryUrl: cpUrl('formie-rating-field/statistics/form/' ~ item.form.id, siteId != 'all' ? {siteId: siteId} : {}),
-        meta: '{count} Rating Fields'|t('formie-rating-field', {count: item.ratingFieldCount|number})|e,
+        meta: ratingFieldCount == 1
+            ? '{count} Rating Field'|t('formie-rating-field', {count: ratingFieldCount|number})|e
+            : '{count} Rating Fields'|t('formie-rating-field', {count: ratingFieldCount|number})|e,
         value: item.totalSubmissions|number,
     }]) %}
 {% endfor %}

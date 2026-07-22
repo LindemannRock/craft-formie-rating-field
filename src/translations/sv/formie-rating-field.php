@@ -248,6 +248,7 @@ return [
     // Dashboard
     'You do not have permission to view statistics.' => 'Du har inte behörighet att visa statistik.',
     'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistik är inte tillgänglig för det sparade webbplatsvalet. Uppdatera widgetinställningarna eller be en administratör att granska webbplatsåtkomsten.',
+    '{count} Rating Field' => '{count} betygsfält',
     '{count} Rating Fields' => '{count} betygsfält',
 
     // Field schema (rating settings)

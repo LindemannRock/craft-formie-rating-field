@@ -248,6 +248,7 @@ return [
     // Dashboard
     'You do not have permission to view statistics.' => 'Sie haben keine Berechtigung, Statistiken anzuzeigen.',
     'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistiken sind für die gespeicherte Website-Auswahl nicht verfügbar. Aktualisieren Sie die Widget-Einstellungen oder bitten Sie einen Administrator, den Website-Zugriff zu prüfen.',
+    '{count} Rating Field' => '{count} Bewertungsfeld',
     '{count} Rating Fields' => '{count} Bewertungsfelder',
 
     // Field schema (rating settings)

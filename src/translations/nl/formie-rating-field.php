@@ -248,6 +248,7 @@ return [
     // Dashboard
     'You do not have permission to view statistics.' => 'U heeft geen toestemming om statistieken te bekijken.',
     'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistieken zijn niet beschikbaar voor de opgeslagen siteselectie. Werk de widgetinstellingen bij of vraag een beheerder om de sitetoegang te controleren.',
+    '{count} Rating Field' => '{count} beoordelingsveld',
     '{count} Rating Fields' => '{count} beoordelingsvelden',
 
     // Field schema (rating settings)

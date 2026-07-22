@@ -248,6 +248,7 @@ return [
     // Dashboard
     'You do not have permission to view statistics.' => 'Du har ikke tilladelse til at se statistik.',
     'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistik er ikke tilgængelig for det gemte webstedsvalg. Opdater widgetindstillingerne, eller bed en administrator om at gennemgå webstedsadgangen.',
+    '{count} Rating Field' => '{count} vurderingsfelt',
     '{count} Rating Fields' => '{count} vurderingsfelter',
 
     // Field schema (rating settings)

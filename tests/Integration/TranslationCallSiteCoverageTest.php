@@ -28,50 +28,46 @@ final class TranslationCallSiteCoverageTest extends TestCase
         $english = require $pluginRoot . '/src/translations/en/formie-rating-field.php';
         self::assertIsArray($english);
 
-        $callSites = [];
-        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginRoot . '/src'));
-
-        foreach ($iterator as $file) {
-            if (!$file instanceof SplFileInfo || !$file->isFile()) {
-                continue;
-            }
-
-            $extension = $file->getExtension();
-            if (!in_array($extension, ['php', 'twig', 'js'], true)) {
-                continue;
-            }
-            if (str_contains($file->getPathname(), '/translations/')) {
-                continue;
-            }
-
-            $source = file_get_contents($file->getPathname());
-            self::assertIsString($source);
-
-            $patterns = match ($extension) {
-                'php' => [
-                    "/Craft::t\\(\\s*['\"]formie-rating-field['\"]\\s*,\\s*'((?:\\\\'|[^'])*)'/s",
-                    '/Craft::t\\(\\s*[\'\"]formie-rating-field[\'\"]\\s*,\\s*"((?:\\\\"|[^"])*)"/s',
-                ],
-                'twig' => [
-                    "/'((?:\\\\'|[^'])*)'\\s*\\|\\s*t\\(\\s*['\"]formie-rating-field['\"]/s",
-                    '/"((?:\\\\"|[^"])*)"\\s*\\|\\s*t\\(\\s*[\'\"]formie-rating-field[\'\"]/s',
-                ],
-                'js' => [
-                    "/\\b_t\\(\\s*'((?:\\\\'|[^'])*)'/s",
-                    '/\\b_t\\(\\s*"((?:\\\\"|[^"])*)"/s',
-                ],
-            };
-
-            foreach ($patterns as $pattern) {
-                preg_match_all($pattern, $source, $matches);
-                foreach ($matches[1] ?? [] as $key) {
-                    $callSites[stripcslashes($key)][] = $file->getPathname();
-                }
-            }
-        }
-
-        $missing = array_diff_key($callSites, $english);
+        $missing = array_diff_key($this->literalPluginCallSites(), $english);
         self::assertSame([], $missing, 'Missing EN translation keys for call sites: ' . implode(', ', array_keys($missing)));
+    }
+
+    public function testSourceScanningExcludesGeneratedTreesAndKeepsAuthoredSources(): void
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $sourceFiles = $this->sourceFiles();
+
+        self::assertDirectoryExists($pluginRoot . '/src/web/assets/field/node_modules');
+        self::assertDirectoryExists($pluginRoot . '/src/web/assets/field/dist');
+        self::assertContains($pluginRoot . '/src/fields/Rating.php', $sourceFiles);
+        self::assertContains($pluginRoot . '/src/templates/statistics/form.twig', $sourceFiles);
+        self::assertContains($pluginRoot . '/src/web/assets/field/src/js/rating.js', $sourceFiles);
+
+        foreach ($sourceFiles as $path) {
+            $normalizedPath = str_replace('\\', '/', $path);
+            self::assertStringNotContainsString('/node_modules/', $normalizedPath);
+            self::assertStringNotContainsString('/dist/', $normalizedPath);
+            self::assertStringNotContainsString('/translations/', $normalizedPath);
+        }
+    }
+
+    public function testRegistrationArrayKeysAreDetectedAsCallSites(): void
+    {
+        $callSites = $this->literalPluginCallSites();
+
+        self::assertArrayHasKey('Rating', $callSites);
+        self::assertArrayHasKey('{value} stars', $callSites);
+        self::assertContains(dirname(__DIR__, 2) . '/src/fields/Rating.php', $callSites['Rating']);
+        self::assertContains(dirname(__DIR__, 2) . '/src/fields/Rating.php', $callSites['{value} stars']);
+    }
+
+    public function testPreviouslyTernaryWrappedTemplateKeysAreDetectedAsCallSites(): void
+    {
+        $callSites = $this->literalPluginCallSites();
+
+        foreach (['Overall NPS', 'Overall Average', 'NPS', 'Star Rating', 'Emoji Rating'] as $key) {
+            self::assertArrayHasKey($key, $callSites, "Template translation call site was not detected: {$key}");
+        }
     }
 
     public function testAllLocalesMatchEnglishOrderSectionsAndPlaceholders(): void
@@ -212,5 +208,103 @@ final class TranslationCallSiteCoverageTest extends TestCase
         sort($placeholders);
 
         return array_values($placeholders);
+    }
+
+    /** @return array<string, list<string>> */
+    private function literalPluginCallSites(): array
+    {
+        $callSites = [];
+
+        foreach ($this->sourceFiles() as $path) {
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            $source = file_get_contents($path);
+            self::assertIsString($source);
+
+            $patterns = match ($extension) {
+                'php' => [
+                    "/Craft::t\\(\\s*['\"]formie-rating-field['\"]\\s*,\\s*'((?:\\\\'|[^'])*)'/s",
+                    '/Craft::t\\(\\s*[\'\"]formie-rating-field[\'\"]\\s*,\\s*"((?:\\\\"|[^"])*)"/s',
+                ],
+                'twig' => [
+                    "/'((?:\\\\'|[^'])*)'\\s*\\|\\s*t\\(\\s*['\"]formie-rating-field['\"]/s",
+                    '/"((?:\\\\"|[^"])*)"\\s*\\|\\s*t\\(\\s*[\'\"]formie-rating-field[\'\"]/s',
+                ],
+                'js' => [
+                    "/\\b_t\\(\\s*'((?:\\\\'|[^'])*)'/s",
+                    '/\\b_t\\(\\s*"((?:\\\\"|[^"])*)"/s',
+                ],
+                default => [],
+            };
+
+            foreach ($patterns as $pattern) {
+                preg_match_all($pattern, $source, $matches);
+                foreach ($matches[1] ?? [] as $key) {
+                    $callSites[stripcslashes($key)][] = $path;
+                }
+            }
+
+            if ($extension === 'php') {
+                foreach ($this->registeredTranslationKeys($source) as $key) {
+                    $callSites[$key][] = $path;
+                }
+            }
+        }
+
+        return $callSites;
+    }
+
+    /** @return list<string> */
+    private function sourceFiles(): array
+    {
+        $pluginRoot = dirname(__DIR__, 2);
+        $sourceRoot = $pluginRoot . '/src';
+        $files = [];
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($sourceRoot));
+
+        foreach ($iterator as $file) {
+            if (!$file instanceof SplFileInfo || !$file->isFile()) {
+                continue;
+            }
+            if (!in_array($file->getExtension(), ['php', 'twig', 'js'], true)) {
+                continue;
+            }
+
+            $relativePath = str_replace('\\', '/', substr($file->getPathname(), strlen($sourceRoot) + 1));
+            $pathComponents = explode('/', $relativePath);
+            if (array_intersect(['translations', 'node_modules', 'dist'], $pathComponents) !== []) {
+                continue;
+            }
+
+            $files[] = $file->getPathname();
+        }
+
+        sort($files);
+
+        return $files;
+    }
+
+    /** @return list<string> */
+    private function registeredTranslationKeys(string $source): array
+    {
+        preg_match_all(
+            '/registerTranslations\\(\\s*[\'\"]formie-rating-field[\'\"]\\s*,\\s*\\[(.*?)\\]\\s*\\)/s',
+            $source,
+            $registrationMatches,
+        );
+
+        $keys = [];
+        foreach ($registrationMatches[1] ?? [] as $registrationBody) {
+            preg_match_all(
+                "/'((?:\\\\'|[^'])*)'|\"((?:\\\\\"|[^\"])*)\"/s",
+                $registrationBody,
+                $literalMatches,
+                PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL,
+            );
+            foreach ($literalMatches as $literalMatch) {
+                $keys[] = stripcslashes($literalMatch[1] ?? $literalMatch[2] ?? '');
+            }
+        }
+
+        return $keys;
     }
 }

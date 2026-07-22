@@ -248,6 +248,7 @@ return [
     // Dashboard
     'You do not have permission to view statistics.' => '統計を表示する権限がありません。',
     'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => '保存されたサイト選択では統計を利用できません。ウィジェット設定を更新するか、管理者にサイトへのアクセス権の確認を依頼してください。',
+    '{count} Rating Field' => '{count} 件の評価フィールド',
     '{count} Rating Fields' => '{count} 件の評価フィールド',
 
     // Field schema (rating settings)
