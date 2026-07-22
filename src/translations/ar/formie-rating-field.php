@@ -40,6 +40,7 @@ return [
     'Search' => 'بحث',
     'Site' => 'الموقع',
     'Submission' => 'الاستمارة',
+    'Submissions' => 'الاستمارات',
     'View' => 'عرض',
 
     // Jobs

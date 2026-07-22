@@ -46,10 +46,26 @@ trait SiteFilterTrait
      */
     protected function effectiveSiteId(): int|array
     {
-        if ($this->siteId !== 'all') {
-            return (int) $this->siteId;
+        $editableSiteIds = array_map('intval', $this->editableSiteIds());
+
+        if ($this->siteId === 'all') {
+            return $editableSiteIds;
         }
 
+        if ($this->siteId === '' || !ctype_digit($this->siteId)) {
+            return [];
+        }
+
+        $siteId = (int)$this->siteId;
+
+        return in_array($siteId, $editableSiteIds, true) ? $siteId : [];
+    }
+
+    /**
+     * @return array<int>
+     */
+    protected function editableSiteIds(): array
+    {
         return Craft::$app->getSites()->getEditableSiteIds();
     }
 }

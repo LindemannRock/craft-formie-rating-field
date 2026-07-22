@@ -40,17 +40,40 @@ final class TemplateLocalizationRegressionTest extends TestCase
 
     public function testLocaleAwareNumberRenderingPreservesCountAndNpsPrecision(): void
     {
+        $formatter = Craft::$app->getFormatter();
+        $originalLanguage = Craft::$app->language;
+        $originalFormatterLocale = $formatter->locale;
+
+        try {
+            $formatter->locale = 'en';
+            $rendered = $this->renderStringInLanguage(
+                "{{ count|number }}|{{ whole|number(decimals=0) }}|{{ fractional|number(decimals=1) }}",
+                'de',
+                [
+                    'count' => 12345,
+                    'whole' => 42,
+                    'fractional' => 12.5,
+                ],
+            );
+
+            self::assertSame('12.345|42|12,5', $rendered);
+            self::assertSame($originalLanguage, Craft::$app->language);
+            self::assertSame('en', $formatter->locale);
+        } finally {
+            Craft::$app->language = $originalLanguage;
+            $formatter->locale = $originalFormatterLocale;
+        }
+    }
+
+    public function testGroupPaginationLabelsRenderInANonEnglishLocale(): void
+    {
         $rendered = $this->renderStringInLanguage(
-            "{{ count|number }}|{{ whole|number(decimals=0) }}|{{ fractional|number(decimals=1) }}",
+            "{{ 'Submission'|t('formie-rating-field') }}|{{ 'Submissions'|t('formie-rating-field') }}",
             'de',
-            [
-                'count' => 12345,
-                'whole' => 42,
-                'fractional' => 12.5,
-            ],
+            [],
         );
 
-        self::assertSame('12.345|42|12,5', $rendered);
+        self::assertSame('Einsendung|Einsendungen', $rendered);
     }
 
     public function testPlaceholderTranslationsCanReorderAndEscapeDynamicValues(): void
@@ -181,6 +204,7 @@ final class TemplateLocalizationRegressionTest extends TestCase
             }
 
             self::assertArrayHasKey('Not rated', $translations, "Missing Not rated in {$language}.");
+            self::assertArrayHasKey('Submissions', $translations, "Missing Submissions in {$language}.");
         }
     }
 
@@ -242,13 +266,17 @@ final class TemplateLocalizationRegressionTest extends TestCase
 
     private function withLanguage(string $language, callable $callback): string
     {
+        $formatter = Craft::$app->getFormatter();
         $originalLanguage = Craft::$app->language;
+        $originalFormatterLocale = $formatter->locale;
 
         try {
             Craft::$app->language = $language;
+            $formatter->locale = $language;
             return $callback();
         } finally {
             Craft::$app->language = $originalLanguage;
+            $formatter->locale = $originalFormatterLocale;
         }
     }
 

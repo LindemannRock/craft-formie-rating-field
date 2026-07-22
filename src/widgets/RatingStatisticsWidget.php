@@ -116,7 +116,16 @@ class RatingStatisticsWidget extends Widget
         }
 
         try {
-            $forms = FormieRatingField::$plugin->statistics->getFormsWithRatingFields($this->effectiveSiteId());
+            $effectiveSiteId = $this->effectiveSiteId();
+
+            if ($effectiveSiteId === []) {
+                return Craft::$app->getView()->renderTemplate('formie-rating-field/widgets/rating-statistics/body', [
+                    'forms' => [],
+                    'siteId' => 'all',
+                ]);
+            }
+
+            $forms = FormieRatingField::$plugin->statistics->getFormsWithRatingFields($effectiveSiteId);
             $forms = $this->filterFormsByFormieSubmissionAccess($forms);
 
             usort($forms, static fn(array $a, array $b): int =>
@@ -125,7 +134,7 @@ class RatingStatisticsWidget extends Widget
 
             return Craft::$app->getView()->renderTemplate('formie-rating-field/widgets/rating-statistics/body', [
                 'forms' => array_slice($forms, 0, $this->limit),
-                'siteId' => $this->siteId,
+                'siteId' => $this->siteId === 'all' ? 'all' : $effectiveSiteId,
             ]);
         } catch (\Throwable $exception) {
             Craft::error('Failed to render rating statistics widget: ' . (string) $exception, __METHOD__);

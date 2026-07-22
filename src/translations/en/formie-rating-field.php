@@ -40,6 +40,7 @@ return [
     'Search' => 'Search',
     'Site' => 'Site',
     'Submission' => 'Submission',
+    'Submissions' => 'Submissions',
     'View' => 'View',
 
     // Jobs

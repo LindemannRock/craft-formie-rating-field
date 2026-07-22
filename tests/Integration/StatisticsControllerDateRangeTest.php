@@ -76,7 +76,7 @@ final class StatisticsControllerDateRangeTest extends TestCase
     {
         $sensitiveCalls = [
             'actionForm' => ['getFieldStatistics(', "'dateRange' => \$dateRange"],
-            'actionGroupDetail' => ['getGroupSubmissions(', "'dateRange' => \$dateRange"],
+            'actionGroupDetail' => ['getPaginatedGroupSubmissions(', "'dateRange' => \$dateRange"],
             'actionGetData' => ['getFieldStatistics(', 'getTrendData(', 'getDistributionData('],
             'actionExportGroup' => ['getGroupSubmissions(', '$dateRangeLabel =', "'dateRange' => \$dateRange"],
             'actionExport' => ['buildSummaryExportRows(', '$dateRangeLabel =', "'dateRange' => \$dateRange"],

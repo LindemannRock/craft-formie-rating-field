@@ -40,6 +40,7 @@ return [
     'Search' => 'Zoeken',
     'Site' => 'Site',
     'Submission' => 'Inzending',
+    'Submissions' => 'Inzendingen',
     'View' => 'Bekijken',
 
     // Jobs

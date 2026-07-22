@@ -1,36 +1,93 @@
-{% extends "_layouts/cp" %}
-{% set title = '{value} - Individual Submissions'|t('formie-rating-field', {value: groupValue})|e %}
-{% set selectedSubnavItem = 'statistics' %}
+{% extends 'lindemannrock-base/_layouts/cp-table' %}
 
 {% set detailParams = {
     dateRange: dateRange,
     groupBy: groupBy,
+    siteId: siteId,
 } %}
 {% if fieldHandle %}
     {% set detailParams = detailParams|merge({fieldHandle: fieldHandle}) %}
 {% endif %}
 
-{% set crumbs = [
-    {
-        label: ratingHelper.fullName|t('formie-rating-field'),
-        url: url('formie-rating-field'),
-    },
-    {
-        label: 'Statistics'|t('formie-rating-field'),
-        url: url('formie-rating-field/statistics'),
-    },
-    {
-        label: form.title,
-        url: url('formie-rating-field/statistics/form/' ~ form.id, {
-            dateRange: dateRange,
-            groupBy: groupBy,
-        }) ~ (fieldHandle ? '#' ~ fieldHandle : ''),
-    },
-    {
-        label: groupValue,
-        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ (groupValue|url_encode), detailParams),
-    },
+{% set formParams = {
+    dateRange: dateRange,
+    groupBy: groupBy,
+    siteId: siteId,
+} %}
+{% set detailHeading = 'Individual Submissions for {value}'|t('formie-rating-field', {value: groupValue})|e %}
+{% set detailSummary = 'Showing {count} submission(s) for this {groupBy}'|t('formie-rating-field', {count: totalSubmissions, groupBy: groupByLabel})|e %}
+
+{% set columns = [
+    {key: 'dateCreated', label: 'Date'|t('formie-rating-field'), nowrap: true},
+    {key: 'submission', label: 'Submission'|t('formie-rating-field')},
 ] %}
+{% for formField in form.getFields() %}
+    {% if formField.handle != groupBy %}
+        {% set columns = columns|merge([{
+            key: formField.handle,
+            label: formField.label,
+        }]) %}
+    {% endif %}
+{% endfor %}
+
+{% set tableConfig = {
+    plugin: {
+        handle: 'formie-rating-field',
+        name: ratingHelper.fullName,
+    },
+    page: {
+        title: '{value} - Individual Submissions'|t('formie-rating-field', {value: groupValue})|e,
+        subnav: 'statistics',
+        url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ (groupValue|url_encode)),
+        crumbs: [
+            {
+                label: ratingHelper.fullName,
+                url: url('formie-rating-field'),
+            },
+            {
+                label: 'Statistics'|t('formie-rating-field'),
+                url: url('formie-rating-field/statistics'),
+            },
+            {
+                label: form.title,
+                url: url('formie-rating-field/statistics/form/' ~ form.id, formParams) ~ (fieldHandle ? '#' ~ fieldHandle : ''),
+            },
+            {
+                label: groupValue,
+                url: url('formie-rating-field/statistics/form/' ~ form.id ~ '/group/' ~ (groupValue|url_encode), detailParams),
+            },
+        ],
+    },
+    preserveParams: detailParams,
+    table: {
+        columns: columns,
+        items: submissions,
+        emptyMessage: 'No submissions found for this {groupBy}'|t('formie-rating-field', {groupBy: groupByLabel}),
+    },
+    pagination: {
+        page: page,
+        limit: limit,
+        totalCount: totalSubmissions,
+        itemLabel: {
+            singular: 'Submission'|t('formie-rating-field'),
+            plural: 'Submissions'|t('formie-rating-field'),
+        },
+    },
+    checkboxes: false,
+    rowActions: false,
+} %}
+
+{% block toolbar %}{% endblock %}
+
+{% block pageTitle %}
+    <div>
+        <h1 id="page-heading" class="screen-title mb-0" title="{{ detailHeading }}">
+            {{ detailHeading }}
+        </h1>
+        <p class="light mt-2xs mb-0">{{ detailSummary }}</p>
+    </div>
+    <div id="revision-indicators"></div>
+{% endblock %}
 
 {% block actionButton %}
     {% if currentUser.can('formieRatingField:exportStatistics') %}
@@ -43,70 +100,31 @@
                     groupBy: groupBy,
                     groupValue: groupValue,
                     dateRange: dateRange,
+                    siteId: siteId,
                 },
             } only %}
         </div>
     {% endif %}
 {% endblock %}
 
-{% block content %}
-    <div style="padding: 24px;">
-        <div style="margin-bottom: 32px;">
-            <h2>{{ 'Individual Submissions for {value}'|t('formie-rating-field', {value: groupValue})|e }}</h2>
-            <p class="light">{{ "Showing {count} submission(s) for this {groupBy}"|t('formie-rating-field', {count: totalSubmissions, groupBy: groupByLabel}) }}</p>
-        </div>
-
-        {% if submissions|length %}
-            <div class="tableview" style="overflow-x: auto;">
-                <table class="data fullwidth">
-                    <thead>
-                        <tr>
-                            <th>{{ "Date"|t('formie-rating-field') }}</th>
-                            <th>{{ "Submission"|t('formie-rating-field') }}</th>
-                            {% for formField in form.getFields() %}
-                                {% if formField.handle != groupBy %}
-                                    <th>{{ formField.label }}</th>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for submission in submissions %}
-                            <tr>
-                                <td>{{ submission.dateCreated|lrDatetime }}</td>
-                                <td>
-                                    <a href="{{ submission.cpEditUrl }}" target="_blank" class="go">
-                                        <code>{{ submission.id }}</code>
-                                    </a>
-                                </td>
-                                {% for formField in form.getFields() %}
-                                    {% if formField.handle != groupBy %}
-                                        {% set value = submission.getFieldValue(formField.handle) %}
-                                        {% set hasValue = value is iterable and value is not string ? value|length : value is not null and value is not same as('') %}
-                                        <td>
-                                            {% if hasValue %}
-                                                {% if value is iterable and value is not string %}
-                                                    {{ value|join(', ') }}
-                                                {% else %}
-                                                    {{ value|length > 100 ? value|slice(0, 100) ~ '...' : value }}
-                                                {% endif %}
-                                            {% else %}
-                                                —
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="zilch">
-                <p>{{ "No submissions found for this {groupBy}"|t('formie-rating-field', {groupBy: groupByLabel}) }}</p>
-            </div>
+{% block tableRow %}
+    <td class="nowrap">{{ item.dateCreated|lrDatetime }}</td>
+    <td>
+        <a href="{{ item.cpEditUrl }}" target="_blank" class="go">
+            <code>{{ item.id }}</code>
+        </a>
+    </td>
+    {% for formField in form.getFields() %}
+        {% if formField.handle != groupBy %}
+            {% set value = item.getFieldValue(formField.handle) %}
+            {% set displayValue = formField.getValueAsString(value, item) %}
+            <td>
+                {% if displayValue is not null and displayValue is not same as('') %}
+                    {{ displayValue|length > 100 ? displayValue|slice(0, 100) ~ '...' : displayValue }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
         {% endif %}
-    </div>
-
-    {% include 'lindemannrock-base/_components/plugin-credit' %}
+    {% endfor %}
 {% endblock %}

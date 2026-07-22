@@ -40,6 +40,7 @@ return [
     'Search' => 'Søk',
     'Site' => 'Nettsted',
     'Submission' => 'Innsending',
+    'Submissions' => 'Innsendinger',
     'View' => 'Vis',
 
     // Jobs

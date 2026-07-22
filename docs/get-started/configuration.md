@@ -34,7 +34,7 @@ The General tab includes **Single Emoji Selection by Default**. It sets the init
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `itemsPerPage` | `int` | `100` | Rows per page on the Statistics list. Range 10–500. |
+| `itemsPerPage` | `int` | `100` | Rows per page on both the Statistics form list and grouped individual-submissions table. Range 10–500. |
 | `maxExportRows` | `int` | `50000` | Hard cap on rows in a **Raw Responses** export. Range 0–1,000,000; `0` = unlimited. Protects against PHP out-of-memory on high-volume forms — each row hydrates a full submission element. Truncation is logged. |
 
 ## Cache (Cache tab)

@@ -40,6 +40,7 @@ return [
     'Search' => '検索',
     'Site' => 'サイト',
     'Submission' => '送信',
+    'Submissions' => '送信',
     'View' => '表示',
 
     // Jobs

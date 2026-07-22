@@ -160,17 +160,24 @@ final class FormieSubmissionPermissionTest extends TestCase
 
         $widgetBody = $this->methodSource(RatingStatisticsWidget::class, 'getBodyHtml');
         $widgetPluginGate = strpos($widgetBody, "checkPermission('formieRatingField:viewStatistics')");
-        $widgetLoad = strpos($widgetBody, 'getFormsWithRatingFields($this->effectiveSiteId())');
+        $widgetScope = strpos($widgetBody, '$effectiveSiteId = $this->effectiveSiteId()');
+        $widgetEmptyScope = strpos($widgetBody, 'if ($effectiveSiteId === [])');
+        $widgetLoad = strpos($widgetBody, 'getFormsWithRatingFields($effectiveSiteId)');
         $widgetAcl = strpos($widgetBody, 'filterFormsByFormieSubmissionAccess($forms)');
         $widgetSort = strpos($widgetBody, 'usort($forms');
         $widgetSlice = strpos($widgetBody, 'array_slice($forms');
 
         self::assertIsInt($widgetPluginGate);
+        self::assertIsInt($widgetScope);
+        self::assertIsInt($widgetEmptyScope);
         self::assertIsInt($widgetLoad);
         self::assertIsInt($widgetAcl);
         self::assertIsInt($widgetSort);
         self::assertIsInt($widgetSlice);
-        self::assertLessThan($widgetLoad, $widgetPluginGate);
+        self::assertLessThan($widgetScope, $widgetPluginGate);
+        self::assertLessThan($widgetEmptyScope, $widgetScope);
+        self::assertLessThan($widgetLoad, $widgetEmptyScope);
+        self::assertLessThan($widgetLoad, $widgetScope);
         self::assertLessThan($widgetAcl, $widgetLoad);
         self::assertLessThan($widgetSort, $widgetAcl);
         self::assertLessThan($widgetSlice, $widgetSort);

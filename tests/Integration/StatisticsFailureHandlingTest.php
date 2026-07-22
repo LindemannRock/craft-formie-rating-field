@@ -37,6 +37,14 @@ final class StatisticsFailureHandlingTest extends TestCase
     private ?object $originalResponse = null;
     private ?object $originalUser = null;
     private ?bool $originalDevMode = null;
+    private ?int $originalLogFlushInterval = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->originalLogFlushInterval = Craft::getLogger()->flushInterval;
+        Craft::getLogger()->flushInterval = 0;
+    }
 
     protected function tearDown(): void
     {
@@ -51,6 +59,9 @@ final class StatisticsFailureHandlingTest extends TestCase
         }
         if ($this->originalDevMode !== null) {
             Craft::$app->getConfig()->getGeneral()->devMode = $this->originalDevMode;
+        }
+        if ($this->originalLogFlushInterval !== null) {
+            Craft::getLogger()->flushInterval = $this->originalLogFlushInterval;
         }
 
         parent::tearDown();
@@ -344,9 +355,14 @@ final class StatisticsFailureHandlingTest extends TestCase
 
     private function widget(): RatingStatisticsWidget
     {
-        return new RatingStatisticsWidget([
+        return new class([
             'siteId' => (string) Craft::$app->getSites()->getPrimarySite()->id,
-        ]);
+        ]) extends RatingStatisticsWidget {
+            protected function editableSiteIds(): array
+            {
+                return [(int)Craft::$app->getSites()->getPrimarySite()->id];
+            }
+        };
     }
 
     private function controller(): StatisticsFailureTestController
