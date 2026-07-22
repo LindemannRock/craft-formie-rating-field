@@ -28,7 +28,6 @@ return [
     'Manage settings' => 'إدارة الإعدادات',
 
     // Common
-    'Actions' => 'الإجراءات',
     'All Sites' => 'جميع المواقع',
     'Average' => 'المتوسط',
     'Avg' => 'المتوسط',
@@ -37,11 +36,9 @@ return [
     'Max' => 'الأعلى',
     'Min' => 'الأدنى',
     'Rating' => 'التقييم',
-    'Search' => 'بحث',
     'Site' => 'الموقع',
     'Submission' => 'الاستمارة',
     'Submissions' => 'الاستمارات',
-    'View' => 'عرض',
 
     // Jobs
     '{pluginName}: Generating cache (batch {current} of {total})' => '{pluginName}: جارٍ إنشاء الـ Cache (الدفعة {current} من {total})',
@@ -71,7 +68,6 @@ return [
     'Statistics cache cleared' => 'تم مسح Cache الإحصائيات',
     'Statistics refreshed' => 'تم تحديث الإحصائيات',
     'This form does not contain any rating fields.' => 'لا يحتوي هذا النموذج على أي حقول تقييم.',
-    'Unknown export format: {format}' => 'صيغة تصدير غير معروفة: {format}',
     'User does not have permission to access that site.' => 'ليس لدى المستخدم صلاحية للوصول إلى هذا الموقع.',
 
     // Validation messages
@@ -133,14 +129,6 @@ return [
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>موقع الـ Cache:</strong> يتم استخدام Cache الـ Redis المُهيَّأ في Craft من <code>config/app.php</code>',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis غير مُهيَّأ:</strong> لاستخدام Cache الـ Redis، ثبِّت <code>yiisoft/yii2-redis</code> وقُم بتهيئته في <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">معرفة المزيد</a>',
     'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'مدى تكرار إنشاء Cache الإحصائيات تلقائيًا. الإنشاء المسبق للـ Cache يُحسِّن الأداء لمجموعات البيانات الكبيرة.',
-    'Manual Only' => 'يدوي فقط',
-    'Every 3 Hours' => 'كل 3 ساعات',
-    'Every 6 Hours' => 'كل 6 ساعات',
-    'Every 12 Hours' => 'كل 12 ساعة',
-    'Daily (Midnight)' => 'يوميًا (منتصف الليل)',
-    'Daily at 2am (Low Traffic)' => 'يوميًا عند الساعة 2 صباحًا (ازدحام منخفض)',
-    'Twice Daily (Midnight & Noon)' => 'مرتين يوميًا (منتصف الليل والظهيرة)',
-    'Weekly (Sunday Midnight)' => 'أسبوعيًا (الأحد منتصف الليل)',
     '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>تحذير بشأن الأداء:</strong> مع الإنشاء اليدوي للـ Cache، سيتم احتساب الإحصائيات عند الطلب عندما يعرض المستخدمون الصفحة. للنماذج التي تتجاوز 1000 استمارة، قد يتسبب ذلك في بطء التحميل أو انتهاء المهلة. يُنصح بتفعيل الإنشاء المُجدوَل للـ Cache لأداء أفضل.',
     'How it works:' => 'كيف يعمل:',
     'Statistics are calculated and cached to improve performance' => 'يتم احتساب الإحصائيات وتخزينها مؤقتًا لتحسين الأداء',
@@ -154,7 +142,7 @@ return [
 
     // Statistics: Index
     'Rating Statistics' => 'إحصائيات التقييم',
-    'Form Name' => 'اسم النموذج',
+    'Form Title' => 'عنوان النموذج',
     'Handle' => 'المُعرِّف',
     'Rating Fields' => 'حقول التقييم',
     'Submissions Count' => 'عدد الاستمارات',
@@ -162,38 +150,34 @@ return [
     'View Statistics' => 'عرض الإحصائيات',
     'View all statistics' => 'عرض جميع الإحصائيات',
     'Search forms...' => 'البحث في النماذج...',
-    'Clear search' => 'مسح البحث',
     'No forms with rating fields found.' => 'لم يتم العثور على نماذج تحتوي على حقول تقييم.',
-    'no forms' => 'لا توجد نماذج',
-    '{count, plural, =1{form} other{forms}}' => '{count, plural, =1{نموذج} other{نماذج}}',
-    '{start} – {end} of {total} {label}' => '{start} – {end} من أصل {total} {label}',
-    'statistics pagination' => 'ترقيم صفحات الإحصائيات',
-    'Previous Page' => 'الصفحة السابقة',
-    'Next Page' => 'الصفحة التالية',
+    'form' => 'نموذج',
+    'forms' => 'نماذج',
 
     // Statistics: Form
     '{title} - Rating Statistics' => '{title} - إحصائيات التقييم',
     'Refresh' => 'تحديث',
     'Refresh statistics (clears cache)' => 'تحديث الإحصائيات (يمسح الـ Cache)',
     'All Fields' => 'جميع الحقول',
-    'All Products' => 'جميع المنتجات',
-    'Search products...' => 'البحث في المنتجات...',
+    'Search shown groups...' => 'البحث في المجموعات المعروضة...',
     'Group By' => 'تجميع حسب',
     'Group by: {field}' => 'تجميع حسب: {field}',
     'No Grouping' => 'بدون تجميع',
     'NPS' => 'NPS',
     'Star Rating' => 'تقييم بالنجوم',
     'Emoji Rating' => 'تقييم بالإيموجي',
+    'Last updated: {time}' => 'آخر تحديث: {time}',
     'Field Type' => 'نوع الحقل',
     'Field Label' => 'تسمية الحقل',
     'Total Groups' => 'إجمالي المجموعات',
+    'Unique {field}' => 'قيم {field} الفريدة',
     'Total Responses' => 'إجمالي الاستجابات',
     'Responses' => 'الاستجابات',
     'Reviews' => 'المراجعات',
     'reviews' => 'مراجعات',
     'Top Performer' => 'الأعلى أداءً',
     'Needs Attention' => 'يحتاج إلى انتباه',
-    'Across all groups' => 'عبر جميع المجموعات',
+    'Across shown groups' => 'عبر المجموعات المعروضة',
     'Overall NPS' => 'إجمالي NPS',
     'Overall Average' => 'المتوسط الإجمالي',
     'Average Rating' => 'متوسط التقييم',
@@ -210,6 +194,9 @@ return [
     'Promoters' => 'المروّجون',
     'Passives' => 'المحايدون',
     'Detractors' => 'المنتقدون',
+    'Promoters ({pct}%)' => 'المروّجون ({pct}%)',
+    'Passives ({pct}%)' => 'المحايدون ({pct}%)',
+    'Detractors ({pct}%)' => 'المنتقدون ({pct}%)',
     'Promoters %' => 'نسبة المروّجين %',
     'Passives %' => 'نسبة المحايدين %',
     'Detractors %' => 'نسبة المنتقدين %',
@@ -224,12 +211,14 @@ return [
     'Reliable' => 'موثوق',
     'Reliability' => 'الموثوقية',
     'Low data' => 'بيانات قليلة',
-    'Show All' => 'عرض الكل',
-    'Show Top 10' => 'عرض الأفضل 10',
+    'Showing {visible} of {total} groups' => 'يتم عرض {visible} من أصل {total} مجموعة',
 
     // Statistics: Group Detail
     '{value} - Individual Submissions' => '{value} - الاستمارات الفردية',
     'Individual Submissions for {value}' => 'الاستمارات الفردية لـ {value}',
+    'Showing {count} submission for this {groupBy}' => 'يتم عرض {count} استمارة لهذا {groupBy}',
+    'Showing {count} submissions for this {groupBy}' => 'يتم عرض {count} استمارات لهذا {groupBy}',
+    'No submissions found for this {groupBy}' => 'لم يتم العثور على استمارات لهذا {groupBy}',
     'Submission Date' => 'تاريخ الإرسال',
     'Submission ID' => 'مُعرِّف الاستمارة',
 
@@ -258,6 +247,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'ليس لديك صلاحية لعرض الإحصائيات.',
+    'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'لا تتوفر الإحصائيات لاختيار الموقع المحفوظ. حدّث إعدادات الأداة أو اطلب من المسؤول مراجعة صلاحية الوصول إلى الموقع.',
     '{count} Rating Fields' => '{count} حقول تقييم',
 
     // Field schema (rating settings)

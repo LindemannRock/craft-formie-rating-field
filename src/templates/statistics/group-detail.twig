@@ -15,7 +15,9 @@
     siteId: siteId,
 } %}
 {% set detailHeading = 'Individual Submissions for {value}'|t('formie-rating-field', {value: groupValue})|e %}
-{% set detailSummary = 'Showing {count} submission(s) for this {groupBy}'|t('formie-rating-field', {count: totalSubmissions, groupBy: groupByLabel})|e %}
+{% set detailSummary = (totalSubmissions == 1
+    ? 'Showing {count} submission for this {groupBy}'|t('formie-rating-field', {count: totalSubmissions, groupBy: groupByLabel})
+    : 'Showing {count} submissions for this {groupBy}'|t('formie-rating-field', {count: totalSubmissions, groupBy: groupByLabel}))|e %}
 
 {% set columns = [
     {key: 'dateCreated', label: 'Date'|t('formie-rating-field'), nowrap: true},

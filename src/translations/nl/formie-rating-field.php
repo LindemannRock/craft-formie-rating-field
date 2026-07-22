@@ -28,7 +28,6 @@ return [
     'Manage settings' => 'Instellingen beheren',
 
     // Common
-    'Actions' => 'Acties',
     'All Sites' => 'Alle sites',
     'Average' => 'Gemiddelde',
     'Avg' => 'Gem',
@@ -37,11 +36,9 @@ return [
     'Max' => 'Max',
     'Min' => 'Min',
     'Rating' => 'Beoordeling',
-    'Search' => 'Zoeken',
     'Site' => 'Site',
     'Submission' => 'Inzending',
     'Submissions' => 'Inzendingen',
-    'View' => 'Bekijken',
 
     // Jobs
     '{pluginName}: Generating cache (batch {current} of {total})' => '{pluginName}: Cache genereren (batch {current} van {total})',
@@ -71,7 +68,6 @@ return [
     'Statistics cache cleared' => 'Statistiekencache gewist',
     'Statistics refreshed' => 'Statistieken vernieuwd',
     'This form does not contain any rating fields.' => 'Dit formulier bevat geen beoordelingsvelden.',
-    'Unknown export format: {format}' => 'Onbekend exportformaat: {format}',
     'User does not have permission to access that site.' => 'De gebruiker heeft geen toestemming om die site te openen.',
 
     // Validation messages
@@ -133,14 +129,6 @@ return [
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Cache-locatie:</strong> Gebruikt de geconfigureerde Redis-cache van Craft uit <code>config/app.php</code>',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis niet geconfigureerd:</strong> Om Redis-caching te gebruiken, installeer <code>yiisoft/yii2-redis</code> en configureer deze in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Meer informatie</a>',
     'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Hoe vaak de statistiekencache automatisch moet worden gegenereerd. Vooraf genereren van cache verbetert de prestaties bij grote datasets.',
-    'Manual Only' => 'Alleen handmatig',
-    'Every 3 Hours' => 'Elke 3 uur',
-    'Every 6 Hours' => 'Elke 6 uur',
-    'Every 12 Hours' => 'Elke 12 uur',
-    'Daily (Midnight)' => 'Dagelijks (middernacht)',
-    'Daily at 2am (Low Traffic)' => 'Dagelijks om 2:00 uur (laag verkeer)',
-    'Twice Daily (Midnight & Noon)' => 'Twee keer per dag (middernacht en middag)',
-    'Weekly (Sunday Midnight)' => 'Wekelijks (zondag middernacht)',
     '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Prestatiewaarschuwing:</strong> Bij handmatige cachegeneratie worden statistieken on-demand berekend wanneer gebruikers de pagina bekijken. Bij formulieren met meer dan 1000 inzendingen kan dit leiden tot trage laadtijden of time-outs. Overweeg geplande cachegeneratie in te schakelen voor betere prestaties.',
     'How it works:' => 'Hoe het werkt:',
     'Statistics are calculated and cached to improve performance' => 'Statistieken worden berekend en gecached om de prestaties te verbeteren',
@@ -154,7 +142,7 @@ return [
 
     // Statistics: Index
     'Rating Statistics' => 'Beoordelingsstatistieken',
-    'Form Name' => 'Formuliernaam',
+    'Form Title' => 'Formuliertitel',
     'Handle' => 'Handle',
     'Rating Fields' => 'Beoordelingsvelden',
     'Submissions Count' => 'Aantal inzendingen',
@@ -162,38 +150,34 @@ return [
     'View Statistics' => 'Statistieken bekijken',
     'View all statistics' => 'Alle statistieken bekijken',
     'Search forms...' => 'Formulieren zoeken...',
-    'Clear search' => 'Zoekopdracht wissen',
     'No forms with rating fields found.' => 'Geen formulieren met beoordelingsvelden gevonden.',
-    'no forms' => 'geen formulieren',
-    '{count, plural, =1{form} other{forms}}' => '{count, plural, =1{formulier} other{formulieren}}',
-    '{start} – {end} of {total} {label}' => '{start} – {end} van {total} {label}',
-    'statistics pagination' => 'statistiekenpaginering',
-    'Previous Page' => 'Vorige pagina',
-    'Next Page' => 'Volgende pagina',
+    'form' => 'formulier',
+    'forms' => 'formulieren',
 
     // Statistics: Form
     '{title} - Rating Statistics' => '{title} - Beoordelingsstatistieken',
     'Refresh' => 'Vernieuwen',
     'Refresh statistics (clears cache)' => 'Statistieken vernieuwen (wist cache)',
     'All Fields' => 'Alle velden',
-    'All Products' => 'Alle producten',
-    'Search products...' => 'Producten zoeken...',
+    'Search shown groups...' => 'Weergegeven groepen zoeken...',
     'Group By' => 'Groeperen op',
     'Group by: {field}' => 'Groeperen op: {field}',
     'No Grouping' => 'Geen groepering',
     'NPS' => 'NPS',
     'Star Rating' => 'Sterbeoordeling',
     'Emoji Rating' => 'Emoji-beoordeling',
+    'Last updated: {time}' => 'Laatst bijgewerkt: {time}',
     'Field Type' => 'Veldtype',
     'Field Label' => 'Veldlabel',
     'Total Groups' => 'Totaal aantal groepen',
+    'Unique {field}' => 'Unieke waarden voor {field}',
     'Total Responses' => 'Totaal aantal reacties',
     'Responses' => 'Reacties',
     'Reviews' => 'Beoordelingen',
     'reviews' => 'beoordelingen',
     'Top Performer' => 'Best presterend',
     'Needs Attention' => 'Heeft aandacht nodig',
-    'Across all groups' => 'Over alle groepen',
+    'Across shown groups' => 'Voor weergegeven groepen',
     'Overall NPS' => 'Algemene NPS',
     'Overall Average' => 'Algemeen gemiddelde',
     'Average Rating' => 'Gemiddelde beoordeling',
@@ -210,6 +194,9 @@ return [
     'Promoters' => 'Promotors',
     'Passives' => 'Passieven',
     'Detractors' => 'Criticasters',
+    'Promoters ({pct}%)' => 'Promotors ({pct}%)',
+    'Passives ({pct}%)' => 'Passieven ({pct}%)',
+    'Detractors ({pct}%)' => 'Criticasters ({pct}%)',
     'Promoters %' => 'Promotors %',
     'Passives %' => 'Passieven %',
     'Detractors %' => 'Criticasters %',
@@ -224,12 +211,14 @@ return [
     'Reliable' => 'Betrouwbaar',
     'Reliability' => 'Betrouwbaarheid',
     'Low data' => 'Weinig gegevens',
-    'Show All' => 'Alles tonen',
-    'Show Top 10' => 'Top 10 tonen',
+    'Showing {visible} of {total} groups' => '{visible} van {total} groepen weergegeven',
 
     // Statistics: Group Detail
     '{value} - Individual Submissions' => '{value} - Individuele inzendingen',
     'Individual Submissions for {value}' => 'Individuele inzendingen voor {value}',
+    'Showing {count} submission for this {groupBy}' => '{count} inzending weergegeven voor {groupBy}',
+    'Showing {count} submissions for this {groupBy}' => '{count} inzendingen weergegeven voor {groupBy}',
+    'No submissions found for this {groupBy}' => 'Geen inzendingen gevonden voor {groupBy}',
     'Submission Date' => 'Inzendingsdatum',
     'Submission ID' => 'Inzendings-ID',
 
@@ -258,6 +247,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'U heeft geen toestemming om statistieken te bekijken.',
+    'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistieken zijn niet beschikbaar voor de opgeslagen siteselectie. Werk de widgetinstellingen bij of vraag een beheerder om de sitetoegang te controleren.',
     '{count} Rating Fields' => '{count} beoordelingsvelden',
 
     // Field schema (rating settings)

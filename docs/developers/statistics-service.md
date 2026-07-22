@@ -29,7 +29,7 @@ $groupable = $statistics->getGroupableFieldsForForm($form);
 
 ## Computing statistics
 
-`getFieldStatistics()` is the cached entry point used by the dashboard. It returns a type-aware structure (average/median/most-common for star/emoji, or NPS score with promoter/passive/detractor breakdown for NPS).
+`getFieldStatistics()` is the cached entry point used by the dashboard. It returns a type-aware structure (average/median/most-common for star/emoji, or NPS score with promoter/passive/detractor breakdown for NPS) plus an ISO 8601 `generatedAt` value for freshly generated/cacheable payloads. Grouped dashboard payloads contain at most 100 rows, with `totalGroups` and `isLimited` describing the complete result.
 
 ```php
 $stats = $statistics->getFieldStatistics(
@@ -59,8 +59,16 @@ $total        = $statistics->getTotalSubmissions($form, $dateRange = 'all', $sit
 ## Grouped statistics
 
 ```php
-// Stats per group value (ordered by count).
-$grouped = $statistics->getGroupedStatistics($form, $field, $dateRange, $groupByHandle, $siteId = 'all');
+// Stats per group value (ordered by count). Pass a final limit for a bounded
+// result; totalGroups remains the complete count and isLimited reports truncation.
+$grouped = $statistics->getGroupedStatistics(
+    $form,
+    $field,
+    $dateRange,
+    $groupByHandle,
+    $siteId = 'all',
+    $limit = null,
+);
 
 // The submissions behind one group value.
 $submissions = $statistics->getGroupSubmissions($form, $groupByHandle, $groupValue, $dateRange = 'all', $siteId = 'all', $limit = null);
@@ -79,7 +87,7 @@ $page = $statistics->getPaginatedGroupSubmissions(
 // is the count before limit/offset.
 ```
 
-`getGroupSubmissions()` remains the compatibility/export-oriented API. Its optional limit is applied after the form, spam/incomplete, date, site, and raw group-value predicates. Use `getPaginatedGroupSubmissions()` for an interactive listing that also needs a complete matching count and offset. Both methods compare relational groups with the same stored JSON value emitted by the grouped-statistics links.
+`getGroupedStatistics()` calculates star/emoji medians from database-aggregated value frequencies, so it does not transport every raw rating row into PHP. `getGroupSubmissions()` remains the compatibility/export-oriented API. Its optional limit is applied after the form, spam/incomplete, date, site, and raw group-value predicates. Use `getPaginatedGroupSubmissions()` for an interactive listing that also needs a complete matching count and offset. Both submission methods compare relational groups with the same stored JSON value emitted by the grouped-statistics links.
 
 ## Export rows
 

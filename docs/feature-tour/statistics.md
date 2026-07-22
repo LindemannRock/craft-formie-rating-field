@@ -61,7 +61,9 @@ Across the top of a form's page:
 
 Pick a **Group By** field to split the ratings by something meaningful — a product code, a category, a branch. Groupable fields include plain text, hidden, dropdown, radio, Entries, and Categories fields on the same form.
 
-The grouped view adds summary cards (total groups, overall average or NPS, top performer, needs attention) and a sortable, searchable table — one row per group value, each with its own count, score, distribution, and a **reliability** marker (groups with fewer than five responses are flagged as low-data). Click a row to drill into the individual submissions behind that group. The drill-down is paginated newest-first; its page size uses **Settings → Interface → Items Per Page** and keeps the active date, group, field, and site filters while you move between pages.
+The grouped view adds summary cards (total groups, average or NPS across the shown groups, top performer, needs attention) and a sortable table. To keep high-cardinality text fields responsive, the dashboard loads the 100 highest-volume groups while retaining the complete group count; the search box searches those shown rows. Each row has its own count, score, distribution, and a **reliability** marker (groups with fewer than five responses are flagged as low-data).
+
+Click a row to drill into the individual submissions behind that group. The drill-down is paginated newest-first; its page size uses **Settings → Interface → Items Per Page** and keeps the active date, group, field, and site filters while you move between pages. A **By Group** export still includes the complete grouped result rather than only the dashboard overview.
 
 ![The grouped statistics view with per-group rows](../images/statistics-grouped.webp)
 
@@ -76,7 +78,7 @@ Two settings control it:
 - **Number of forms** — show the top 3, 5, 10, 15, or 20 forms (default 5)
 - **Site** — all editable sites, or a single site (multi-site installs)
 
-The footer's **View all statistics** link opens the full dashboard. The widget needs the **View statistics** permission: it's hidden in the widget picker for users without it, and shows an empty state if the permission is ever removed. It also applies Formie's global/per-form submission access to every row, so a user with access to only some forms sees only those forms in the widget. Site access is checked again whenever the widget renders; if its saved site was deleted or is no longer editable by that user, the widget returns an empty result instead of falling back to that site or all sites.
+The footer's **View all statistics** link opens the full dashboard. The widget needs the **View statistics** permission: it's hidden in the widget picker for users without it, and shows an empty state if the permission is ever removed. It also applies Formie's global/per-form submission access to every row, so a user with access to only some forms sees only those forms in the widget. Site access is checked again whenever the widget renders; an unavailable saved selection (including a deleted site, malformed old value, or no editable sites) shows a site-selection/access message instead of masquerading as no rating data or falling back to another scope.
 
 ## Keeping numbers current
 

@@ -28,7 +28,6 @@ return [
     'Manage settings' => 'Administrer innstillinger',
 
     // Common
-    'Actions' => 'Handlinger',
     'All Sites' => 'Alle nettsteder',
     'Average' => 'Gjennomsnitt',
     'Avg' => 'Gj.snitt',
@@ -37,11 +36,9 @@ return [
     'Max' => 'Maks',
     'Min' => 'Min',
     'Rating' => 'Vurdering',
-    'Search' => 'Søk',
     'Site' => 'Nettsted',
     'Submission' => 'Innsending',
     'Submissions' => 'Innsendinger',
-    'View' => 'Vis',
 
     // Jobs
     '{pluginName}: Generating cache (batch {current} of {total})' => '{pluginName}: Genererer cache (batch {current} av {total})',
@@ -71,7 +68,6 @@ return [
     'Statistics cache cleared' => 'Statistikkcache tømt',
     'Statistics refreshed' => 'Statistikk oppdatert',
     'This form does not contain any rating fields.' => 'Dette skjemaet inneholder ingen vurderingsfelter.',
-    'Unknown export format: {format}' => 'Ukjent eksportformat: {format}',
     'User does not have permission to access that site.' => 'Brukeren har ikke tilgang til det nettstedet.',
 
     // Validation messages
@@ -133,14 +129,6 @@ return [
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Cache-plassering:</strong> Bruker Crafts konfigurerte Redis-cache fra <code>config/app.php</code>',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis ikke konfigurert:</strong> For å bruke Redis-cache, installer <code>yiisoft/yii2-redis</code> og konfigurer det i <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Les mer</a>',
     'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Hvor ofte statistikkcache skal genereres automatisk. Forhåndsgenerering av cache forbedrer ytelsen for store datasett.',
-    'Manual Only' => 'Kun manuelt',
-    'Every 3 Hours' => 'Hver 3. time',
-    'Every 6 Hours' => 'Hver 6. time',
-    'Every 12 Hours' => 'Hver 12. time',
-    'Daily (Midnight)' => 'Daglig (midnatt)',
-    'Daily at 2am (Low Traffic)' => 'Daglig kl. 02:00 (lav trafikk)',
-    'Twice Daily (Midnight & Noon)' => 'To ganger daglig (midnatt og middag)',
-    'Weekly (Sunday Midnight)' => 'Ukentlig (søndag midnatt)',
     '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Ytelsesadvarsel:</strong> Med manuell cachegenerering beregnes statistikk på forespørsel når brukere viser siden. For skjemaer med 1000+ innsendinger kan dette føre til trege lastetider eller tidsavbrudd. Vurder å aktivere planlagt cachegenerering for bedre ytelse.',
     'How it works:' => 'Slik fungerer det:',
     'Statistics are calculated and cached to improve performance' => 'Statistikk beregnes og caches for å forbedre ytelsen',
@@ -154,7 +142,7 @@ return [
 
     // Statistics: Index
     'Rating Statistics' => 'Vurderingsstatistikk',
-    'Form Name' => 'Skjemanavn',
+    'Form Title' => 'Skjematittel',
     'Handle' => 'Handle',
     'Rating Fields' => 'Vurderingsfelter',
     'Submissions Count' => 'Antall innsendinger',
@@ -162,38 +150,34 @@ return [
     'View Statistics' => 'Vis statistikk',
     'View all statistics' => 'Vis all statistikk',
     'Search forms...' => 'Søk i skjemaer ...',
-    'Clear search' => 'Tøm søk',
     'No forms with rating fields found.' => 'Fant ingen skjemaer med vurderingsfelter.',
-    'no forms' => 'ingen skjemaer',
-    '{count, plural, =1{form} other{forms}}' => '{count, plural, =1{skjema} other{skjemaer}}',
-    '{start} – {end} of {total} {label}' => '{start} – {end} av {total} {label}',
-    'statistics pagination' => 'statistikk-paginering',
-    'Previous Page' => 'Forrige side',
-    'Next Page' => 'Neste side',
+    'form' => 'skjema',
+    'forms' => 'skjemaer',
 
     // Statistics: Form
     '{title} - Rating Statistics' => '{title} - Vurderingsstatistikk',
     'Refresh' => 'Oppdater',
     'Refresh statistics (clears cache)' => 'Oppdater statistikk (tømmer cache)',
     'All Fields' => 'Alle felter',
-    'All Products' => 'Alle produkter',
-    'Search products...' => 'Søk i produkter ...',
+    'Search shown groups...' => 'Søk i viste grupper...',
     'Group By' => 'Grupper etter',
     'Group by: {field}' => 'Grupper etter: {field}',
     'No Grouping' => 'Ingen gruppering',
     'NPS' => 'NPS',
     'Star Rating' => 'Stjernevurdering',
     'Emoji Rating' => 'Emoji-vurdering',
+    'Last updated: {time}' => 'Sist oppdatert: {time}',
     'Field Type' => 'Felttype',
     'Field Label' => 'Feltetikett',
     'Total Groups' => 'Totalt antall grupper',
+    'Unique {field}' => 'Unike verdier for {field}',
     'Total Responses' => 'Totalt antall svar',
     'Responses' => 'Svar',
     'Reviews' => 'Anmeldelser',
     'reviews' => 'anmeldelser',
     'Top Performer' => 'Beste ytelse',
     'Needs Attention' => 'Krever oppmerksomhet',
-    'Across all groups' => 'På tvers av alle grupper',
+    'Across shown groups' => 'På tvers av viste grupper',
     'Overall NPS' => 'Total NPS',
     'Overall Average' => 'Totalt gjennomsnitt',
     'Average Rating' => 'Gjennomsnittlig vurdering',
@@ -210,6 +194,9 @@ return [
     'Promoters' => 'Promotører',
     'Passives' => 'Passive',
     'Detractors' => 'Kritikere',
+    'Promoters ({pct}%)' => 'Promotører ({pct}%)',
+    'Passives ({pct}%)' => 'Passive ({pct}%)',
+    'Detractors ({pct}%)' => 'Kritikere ({pct}%)',
     'Promoters %' => 'Promotører %',
     'Passives %' => 'Passive %',
     'Detractors %' => 'Kritikere %',
@@ -224,12 +211,14 @@ return [
     'Reliable' => 'Pålitelig',
     'Reliability' => 'Pålitelighet',
     'Low data' => 'Lite data',
-    'Show All' => 'Vis alle',
-    'Show Top 10' => 'Vis topp 10',
+    'Showing {visible} of {total} groups' => 'Viser {visible} av {total} grupper',
 
     // Statistics: Group Detail
     '{value} - Individual Submissions' => '{value} – Individuelle innsendinger',
     'Individual Submissions for {value}' => 'Individuelle innsendinger for {value}',
+    'Showing {count} submission for this {groupBy}' => 'Viser {count} innsending for {groupBy}',
+    'Showing {count} submissions for this {groupBy}' => 'Viser {count} innsendinger for {groupBy}',
+    'No submissions found for this {groupBy}' => 'Ingen innsendinger funnet for {groupBy}',
     'Submission Date' => 'Innsendingsdato',
     'Submission ID' => 'Innsendings-ID',
 
@@ -258,6 +247,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Du har ikke tillatelse til å vise statistikk.',
+    'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistikk er ikke tilgjengelig for det lagrede nettstedvalget. Oppdater widgetinnstillingene, eller be en administrator kontrollere nettstedstilgangen.',
     '{count} Rating Fields' => '{count} vurderingsfelter',
 
     // Field schema (rating settings)

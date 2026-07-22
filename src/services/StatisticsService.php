@@ -41,6 +41,14 @@ use yii\db\Expression;
 class StatisticsService extends Component
 {
     /**
+     * Maximum number of grouped rows retained in a cached dashboard payload.
+     *
+     * The complete group count is still returned as `totalGroups`. Explicit
+     * grouped exports intentionally call the unbounded grouped-statistics API.
+     */
+    private const GROUPED_OVERVIEW_LIMIT = 100;
+
+    /**
      * Sentinel passed as `$groupByHandle` to segregate trend-chart cache cells
      * from field-stats cells. Cannot collide with a real Formie field handle
      * (handles must start with a letter).
@@ -223,10 +231,19 @@ class StatisticsService extends Component
 
         // If grouping is requested, return grouped statistics
         if ($groupByHandle) {
-            $stats = $this->getGroupedStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
+            $stats = $this->getGroupedStatistics(
+                $form,
+                $field,
+                $dateRange,
+                $groupByHandle,
+                $siteId,
+                self::GROUPED_OVERVIEW_LIMIT,
+            );
         } else {
             $stats = $this->calculateFieldStatistics($form, $field, $dateRange, $siteId);
         }
+
+        $stats['generatedAt'] = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(DATE_ATOM);
 
         // Save to cache
         $this->saveToCache($form->id, $field, $dateRange, $groupByHandle, $stats, $siteId);
@@ -339,10 +356,17 @@ class StatisticsService extends Component
      * @param string $dateRange
      * @param string $groupByHandle
      * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|null $limit Optional group-row cap; the complete count remains available as `totalGroups`
      * @return array
      */
-    public function getGroupedStatistics(Form $form, Rating $field, string $dateRange, string $groupByHandle, int|string $siteId = 'all'): array
-    {
+    public function getGroupedStatistics(
+        Form $form,
+        Rating $field,
+        string $dateRange,
+        string $groupByHandle,
+        int|string $siteId = 'all',
+        ?int $limit = null,
+    ): array {
         // Get field UIDs for JSON extraction (Formie stores data by UID, not handle)
         $groupByField = null;
         $ratingFieldUid = $field->uid;
@@ -365,11 +389,12 @@ class StatisticsService extends Component
         // Build the query using field UIDs with DB-agnostic helpers
         $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
         $groupByExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $groupByUid);
+        $normalizedGroupExpr = "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')";
         $ratingExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $ratingFieldUid);
         $ratingCast = "CAST($ratingExpr AS DECIMAL(10,2))";
 
         $select = [
-            'groupValue' => "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')",
+            'groupValue' => $normalizedGroupExpr,
             'count' => new Expression('COUNT(*)'),
             'average' => new Expression("AVG($ratingCast)"),
         ];
@@ -390,32 +415,48 @@ class StatisticsService extends Component
 
         $this->applyGroupedStatisticsFilters($query, $form->id, $ratingExpr, $submissionsTable, $dateBounds, $siteId)
             ->groupBy('groupValue')
-            ->orderBy(['count' => SORT_DESC]);
+            ->orderBy(['count' => SORT_DESC, 'groupValue' => SORT_ASC]);
+
+        $totalGroups = (int)(clone $query)->orderBy([])->count();
+        if ($limit !== null) {
+            $query->limit(max(1, $limit));
+        }
 
         $results = $query->all();
 
-        $medianValuesByGroup = [];
+        $medianValueCountsByGroup = [];
 
         if (
-            $field->ratingType === Rating::RATING_TYPE_STAR ||
-            $field->ratingType === Rating::RATING_TYPE_EMOJI
+            $results !== [] && (
+                $field->ratingType === Rating::RATING_TYPE_STAR ||
+                $field->ratingType === Rating::RATING_TYPE_EMOJI
+            )
         ) {
             $valuesQuery = (new Query())
                 ->select([
-                    'groupValue' => "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')",
+                    'groupValue' => $normalizedGroupExpr,
                     'ratingValue' => new Expression($ratingCast),
+                    'valueCount' => new Expression('COUNT(*)'),
                 ])
-                ->from('{{%formie_submissions}}');
+                ->from('{{%formie_submissions}}')
+                ->groupBy(['groupValue', 'ratingValue'])
+                ->orderBy(['groupValue' => SORT_ASC, 'ratingValue' => SORT_ASC]);
 
             $this->applyGroupedStatisticsFilters($valuesQuery, $form->id, $ratingExpr, $submissionsTable, $dateBounds, $siteId);
+            $valuesQuery->andWhere([
+                'in',
+                new Expression($normalizedGroupExpr),
+                array_column($results, 'groupValue'),
+            ]);
 
             foreach ($valuesQuery->all() as $valueRow) {
-                $groupLabel = $valueRow['groupValue'] ?? '(Not Set)';
-                $medianValuesByGroup[$groupLabel][] = (float)$valueRow['ratingValue'];
+                $groupLabel = (string)($valueRow['groupValue'] ?? '(Not Set)');
+                $ratingValue = (string)(float)$valueRow['ratingValue'];
+                $medianValueCountsByGroup[$groupLabel][$ratingValue] = (int)$valueRow['valueCount'];
             }
         }
 
-        $groupedStats = $this->buildGroupedStatsFromAggregateRows($results, $field, $medianValuesByGroup);
+        $groupedStats = $this->buildGroupedStatsFromAggregateRows($results, $field, $medianValueCountsByGroup);
 
         // Get the group field label
         $groupFieldLabel = $groupByHandle;
@@ -433,7 +474,8 @@ class StatisticsService extends Component
             'groupByHandle' => $groupByHandle,
             'groupByLabel' => $groupFieldLabel,
             'groups' => $groupedStats,
-            'totalGroups' => count($groupedStats),
+            'totalGroups' => $totalGroups,
+            'isLimited' => count($groupedStats) < $totalGroups,
         ];
     }
 
@@ -489,10 +531,10 @@ class StatisticsService extends Component
      *
      * @param array $rows
      * @param Rating $field
-     * @param array<string, float[]> $medianValuesByGroup
+     * @param array<string, array<string, int>> $medianValueCountsByGroup
      * @return array
      */
-    private function buildGroupedStatsFromAggregateRows(array $rows, Rating $field, array $medianValuesByGroup = []): array
+    private function buildGroupedStatsFromAggregateRows(array $rows, Rating $field, array $medianValueCountsByGroup = []): array
     {
         $groupedStats = [];
 
@@ -513,7 +555,7 @@ class StatisticsService extends Component
                 case Rating::RATING_TYPE_STAR:
                 case Rating::RATING_TYPE_EMOJI:
                     $stats['average'] = $count > 0 ? round((float)$row['average'], 2) : 0;
-                    $stats['median'] = $this->calculateMedian($medianValuesByGroup[$groupLabel] ?? []);
+                    $stats['median'] = $this->calculateMedianFromValueCounts($medianValueCountsByGroup[$groupLabel] ?? []);
                     break;
             }
 
@@ -1668,9 +1710,11 @@ class StatisticsService extends Component
             }
         }
 
-        // Use the first rating field to establish the group list
+        // Use the first rating field to establish the group list. Explicit
+        // exports retain the complete set rather than the dashboard's bounded
+        // overview payload.
         $firstField = $ratingFields[0];
-        $groupedStats = $this->getFieldStatistics($form, $firstField, $dateRange, $groupByHandle, $siteId);
+        $groupedStats = $this->getGroupedStatistics($form, $firstField, $dateRange, $groupByHandle, $siteId);
 
         if (empty($groupedStats['groups'])) {
             return ['headers' => $headers, 'rows' => []];
@@ -1682,7 +1726,9 @@ class StatisticsService extends Component
         // Shape: [fieldHandle => [groupLabel => groupStats]]
         $statsByField = [];
         foreach ($ratingFields as $field) {
-            $fieldStats = $this->getFieldStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
+            $fieldStats = $field === $firstField
+                ? $groupedStats
+                : $this->getGroupedStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
             $byLabel = [];
             foreach (($fieldStats['groups'] ?? []) as $g) {
                 $byLabel[$g['label']] = $g;
@@ -1868,6 +1914,39 @@ class StatisticsService extends Component
         }
 
         return $values[$middle];
+    }
+
+    /**
+     * Calculate an exact median from SQL-aggregated value frequencies.
+     *
+     * @param array<string, int> $valueCounts Rating value => occurrence count
+     * @return float
+     */
+    private function calculateMedianFromValueCounts(array $valueCounts): float
+    {
+        $total = array_sum($valueCounts);
+        if ($total === 0) {
+            return 0;
+        }
+
+        uksort($valueCounts, static fn(string|int $left, string|int $right): int => (float)$left <=> (float)$right);
+
+        $lowerPosition = intdiv($total + 1, 2);
+        $upperPosition = intdiv($total + 2, 2);
+        $seen = 0;
+        $lowerValue = null;
+
+        foreach ($valueCounts as $value => $count) {
+            $seen += $count;
+            if ($lowerValue === null && $seen >= $lowerPosition) {
+                $lowerValue = (float)$value;
+            }
+            if ($seen >= $upperPosition) {
+                return ($lowerValue + (float)$value) / 2;
+            }
+        }
+
+        return 0;
     }
 
     /**

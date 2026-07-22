@@ -153,7 +153,10 @@ final class StatisticsControllerGroupByTest extends TestCase
         self::assertStringContainsString('{{ detailSummary }}', $pageTitleSource);
         self::assertStringContainsString('class="light', $pageTitleSource);
         self::assertStringContainsString("detailHeading = 'Individual Submissions for {value}'|t", $detailTemplate);
-        self::assertStringContainsString("detailSummary = 'Showing {count} submission(s) for this {groupBy}'|t", $detailTemplate);
+        self::assertStringContainsString("? 'Showing {count} submission for this {groupBy}'", $detailTemplate);
+        self::assertStringContainsString(": 'Showing {count} submissions for this {groupBy}'", $detailTemplate);
+        self::assertSame(2, substr_count($detailTemplate, "|t('formie-rating-field', {count: totalSubmissions"));
+        self::assertStringNotContainsString('submission(s)', $detailTemplate);
 
         self::assertStringNotContainsString('{% block beforeTable %}', $detailTemplate);
         self::assertStringNotContainsString('{% block extraFooter %}', $detailTemplate);

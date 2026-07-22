@@ -119,9 +119,11 @@ class RatingStatisticsWidget extends Widget
             $effectiveSiteId = $this->effectiveSiteId();
 
             if ($effectiveSiteId === []) {
-                return Craft::$app->getView()->renderTemplate('formie-rating-field/widgets/rating-statistics/body', [
-                    'forms' => [],
-                    'siteId' => 'all',
+                return Craft::$app->getView()->renderTemplate('lindemannrock-base/_components/dashboard-widget-empty', [
+                    'title' => Craft::t(
+                        'formie-rating-field',
+                        'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.',
+                    ),
                 ]);
             }
 

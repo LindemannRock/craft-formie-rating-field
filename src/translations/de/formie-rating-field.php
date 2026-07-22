@@ -28,7 +28,6 @@ return [
     'Manage settings' => 'Einstellungen verwalten',
 
     // Common
-    'Actions' => 'Aktionen',
     'All Sites' => 'Alle Websites',
     'Average' => 'Durchschnitt',
     'Avg' => 'Ø',
@@ -37,11 +36,9 @@ return [
     'Max' => 'Max',
     'Min' => 'Min',
     'Rating' => 'Bewertung',
-    'Search' => 'Suchen',
     'Site' => 'Website',
     'Submission' => 'Einsendung',
     'Submissions' => 'Einsendungen',
-    'View' => 'Anzeigen',
 
     // Jobs
     '{pluginName}: Generating cache (batch {current} of {total})' => '{pluginName}: Cache wird erstellt (Stapel {current} von {total})',
@@ -71,7 +68,6 @@ return [
     'Statistics cache cleared' => 'Statistik-Cache geleert',
     'Statistics refreshed' => 'Statistiken aktualisiert',
     'This form does not contain any rating fields.' => 'Dieses Formular enthält keine Bewertungsfelder.',
-    'Unknown export format: {format}' => 'Unbekanntes Exportformat: {format}',
     'User does not have permission to access that site.' => 'Der Benutzer hat keine Berechtigung, auf diese Website zuzugreifen.',
 
     // Validation messages
@@ -133,14 +129,6 @@ return [
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Cache-Speicherort:</strong> Es wird der in <code>config/app.php</code> konfigurierte Redis-Cache von Craft verwendet',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis nicht konfiguriert:</strong> Um Redis-Caching zu verwenden, installieren Sie <code>yiisoft/yii2-redis</code> und konfigurieren Sie es in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Mehr erfahren</a>',
     'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Wie oft der Statistik-Cache automatisch erstellt werden soll. Vorab erstellte Caches verbessern die Leistung bei großen Datenmengen.',
-    'Manual Only' => 'Nur manuell',
-    'Every 3 Hours' => 'Alle 3 Stunden',
-    'Every 6 Hours' => 'Alle 6 Stunden',
-    'Every 12 Hours' => 'Alle 12 Stunden',
-    'Daily (Midnight)' => 'Täglich (Mitternacht)',
-    'Daily at 2am (Low Traffic)' => 'Täglich um 2 Uhr (Schwachlastzeit)',
-    'Twice Daily (Midnight & Noon)' => 'Zweimal täglich (Mitternacht & Mittag)',
-    'Weekly (Sunday Midnight)' => 'Wöchentlich (Sonntag Mitternacht)',
     '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Leistungswarnung:</strong> Bei manueller Cache-Erstellung werden Statistiken bei Seitenaufruf berechnet. Bei Formularen mit über 1000 Einsendungen kann dies zu langen Ladezeiten oder Timeouts führen. Aktivieren Sie für bessere Leistung die geplante Cache-Erstellung.',
     'How it works:' => 'So funktioniert es:',
     'Statistics are calculated and cached to improve performance' => 'Statistiken werden zur Leistungsverbesserung berechnet und im Cache gespeichert',
@@ -154,7 +142,7 @@ return [
 
     // Statistics: Index
     'Rating Statistics' => 'Bewertungsstatistiken',
-    'Form Name' => 'Formularname',
+    'Form Title' => 'Formulartitel',
     'Handle' => 'Handle',
     'Rating Fields' => 'Bewertungsfelder',
     'Submissions Count' => 'Anzahl Einsendungen',
@@ -162,38 +150,34 @@ return [
     'View Statistics' => 'Statistiken anzeigen',
     'View all statistics' => 'Alle Statistiken anzeigen',
     'Search forms...' => 'Formulare durchsuchen...',
-    'Clear search' => 'Suche zurücksetzen',
     'No forms with rating fields found.' => 'Keine Formulare mit Bewertungsfeldern gefunden.',
-    'no forms' => 'keine Formulare',
-    '{count, plural, =1{form} other{forms}}' => '{count, plural, =1{Formular} other{Formulare}}',
-    '{start} – {end} of {total} {label}' => '{start} – {end} von {total} {label}',
-    'statistics pagination' => 'Statistik-Seitennavigation',
-    'Previous Page' => 'Vorherige Seite',
-    'Next Page' => 'Nächste Seite',
+    'form' => 'Formular',
+    'forms' => 'Formulare',
 
     // Statistics: Form
     '{title} - Rating Statistics' => '{title} - Bewertungsstatistiken',
     'Refresh' => 'Aktualisieren',
     'Refresh statistics (clears cache)' => 'Statistiken aktualisieren (leert den Cache)',
     'All Fields' => 'Alle Felder',
-    'All Products' => 'Alle Produkte',
-    'Search products...' => 'Produkte durchsuchen...',
+    'Search shown groups...' => 'Angezeigte Gruppen durchsuchen...',
     'Group By' => 'Gruppieren nach',
     'Group by: {field}' => 'Gruppieren nach: {field}',
     'No Grouping' => 'Keine Gruppierung',
     'NPS' => 'NPS',
     'Star Rating' => 'Sternbewertung',
     'Emoji Rating' => 'Emoji-Bewertung',
+    'Last updated: {time}' => 'Zuletzt aktualisiert: {time}',
     'Field Type' => 'Feldtyp',
     'Field Label' => 'Feldbeschriftung',
     'Total Groups' => 'Gruppen gesamt',
+    'Unique {field}' => 'Eindeutige {field}',
     'Total Responses' => 'Antworten gesamt',
     'Responses' => 'Antworten',
     'Reviews' => 'Rezensionen',
     'reviews' => 'Rezensionen',
     'Top Performer' => 'Spitzenreiter',
     'Needs Attention' => 'Benötigt Aufmerksamkeit',
-    'Across all groups' => 'Über alle Gruppen hinweg',
+    'Across shown groups' => 'Über angezeigte Gruppen',
     'Overall NPS' => 'Gesamt-NPS',
     'Overall Average' => 'Gesamtdurchschnitt',
     'Average Rating' => 'Durchschnittliche Bewertung',
@@ -210,6 +194,9 @@ return [
     'Promoters' => 'Promotoren',
     'Passives' => 'Passive',
     'Detractors' => 'Detraktoren',
+    'Promoters ({pct}%)' => 'Promotoren ({pct}%)',
+    'Passives ({pct}%)' => 'Passive ({pct}%)',
+    'Detractors ({pct}%)' => 'Detraktoren ({pct}%)',
     'Promoters %' => 'Promotoren %',
     'Passives %' => 'Passive %',
     'Detractors %' => 'Detraktoren %',
@@ -224,12 +211,14 @@ return [
     'Reliable' => 'Zuverlässig',
     'Reliability' => 'Zuverlässigkeit',
     'Low data' => 'Wenig Daten',
-    'Show All' => 'Alle anzeigen',
-    'Show Top 10' => 'Top 10 anzeigen',
+    'Showing {visible} of {total} groups' => '{visible} von {total} Gruppen angezeigt',
 
     // Statistics: Group Detail
     '{value} - Individual Submissions' => '{value} - Einzelne Einsendungen',
     'Individual Submissions for {value}' => 'Einzelne Einsendungen für {value}',
+    'Showing {count} submission for this {groupBy}' => '{count} Einsendung für {groupBy} angezeigt',
+    'Showing {count} submissions for this {groupBy}' => '{count} Einsendungen für {groupBy} angezeigt',
+    'No submissions found for this {groupBy}' => 'Keine Einsendungen für {groupBy} gefunden',
     'Submission Date' => 'Einsendungsdatum',
     'Submission ID' => 'Einsendungs-ID',
 
@@ -258,6 +247,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Sie haben keine Berechtigung, Statistiken anzuzeigen.',
+    'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistiken sind für die gespeicherte Website-Auswahl nicht verfügbar. Aktualisieren Sie die Widget-Einstellungen oder bitten Sie einen Administrator, den Website-Zugriff zu prüfen.',
     '{count} Rating Fields' => '{count} Bewertungsfelder',
 
     // Field schema (rating settings)

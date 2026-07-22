@@ -61,7 +61,7 @@ final class WidgetSiteAccessTest extends TestCase
         }
     }
 
-    public function testRevokedSiteCannotReachStatisticsServiceOrRenderedLinks(): void
+    public function testUnavailableSiteScopeCannotReachStatisticsServiceOrRenderedLinks(): void
     {
         $this->installAuthorizedUser();
         $statistics = new CapturingSiteScopeStatisticsService();
@@ -73,7 +73,7 @@ final class WidgetSiteAccessTest extends TestCase
 
         self::assertSame([], $statistics->receivedScopes);
         self::assertIsString($html);
-        self::assertStringContainsString('No forms with rating fields found.', $html);
+        self::assertStringContainsString('Statistics are unavailable for the saved site selection.', $html);
         self::assertStringNotContainsString('Should only render when the service is called', $html);
         self::assertStringNotContainsString('formie-rating-field/statistics', $html);
         self::assertStringNotContainsString('siteId=9', $html);

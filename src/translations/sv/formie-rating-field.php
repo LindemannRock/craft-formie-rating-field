@@ -28,7 +28,6 @@ return [
     'Manage settings' => 'Hantera inställningar',
 
     // Common
-    'Actions' => 'Åtgärder',
     'All Sites' => 'Alla webbplatser',
     'Average' => 'Medel',
     'Avg' => 'Medel',
@@ -37,11 +36,9 @@ return [
     'Max' => 'Max',
     'Min' => 'Min',
     'Rating' => 'Betyg',
-    'Search' => 'Sök',
     'Site' => 'Webbplats',
     'Submission' => 'Inskickning',
     'Submissions' => 'Inskickningar',
-    'View' => 'Visa',
 
     // Jobs
     '{pluginName}: Generating cache (batch {current} of {total})' => '{pluginName}: Genererar cache (batch {current} av {total})',
@@ -71,7 +68,6 @@ return [
     'Statistics cache cleared' => 'Statistik-cache rensad',
     'Statistics refreshed' => 'Statistik uppdaterad',
     'This form does not contain any rating fields.' => 'Detta formulär innehåller inga betygsfält.',
-    'Unknown export format: {format}' => 'Okänt exportformat: {format}',
     'User does not have permission to access that site.' => 'Användaren har inte behörighet att komma åt den webbplatsen.',
 
     // Validation messages
@@ -133,14 +129,6 @@ return [
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Cacheplats:</strong> Använder Crafts konfigurerade Redis-cache från <code>config/app.php</code>',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis ej konfigurerat:</strong> För att använda Redis-cache, installera <code>yiisoft/yii2-redis</code> och konfigurera det i <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Läs mer</a>',
     'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'Hur ofta statistik-cachen ska genereras automatiskt. Förgenererad cache förbättrar prestandan för stora datamängder.',
-    'Manual Only' => 'Endast manuellt',
-    'Every 3 Hours' => 'Var 3:e timme',
-    'Every 6 Hours' => 'Var 6:e timme',
-    'Every 12 Hours' => 'Var 12:e timme',
-    'Daily (Midnight)' => 'Dagligen (midnatt)',
-    'Daily at 2am (Low Traffic)' => 'Dagligen kl. 02:00 (låg trafik)',
-    'Twice Daily (Midnight & Noon)' => 'Två gånger dagligen (midnatt och middag)',
-    'Weekly (Sunday Midnight)' => 'Veckovis (söndag midnatt)',
     '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Prestandavarning:</strong> Med manuell cachegenerering beräknas statistiken vid behov när användare visar sidan. För formulär med 1000+ inskickningar kan detta orsaka långsamma laddningstider eller timeouts. Överväg att aktivera schemalagd cachegenerering för bättre prestanda.',
     'How it works:' => 'Så fungerar det:',
     'Statistics are calculated and cached to improve performance' => 'Statistik beräknas och cachas för att förbättra prestandan',
@@ -154,7 +142,7 @@ return [
 
     // Statistics: Index
     'Rating Statistics' => 'Betygsstatistik',
-    'Form Name' => 'Formulärnamn',
+    'Form Title' => 'Formulärtitel',
     'Handle' => 'Handle',
     'Rating Fields' => 'Betygsfält',
     'Submissions Count' => 'Antal inskickningar',
@@ -162,38 +150,34 @@ return [
     'View Statistics' => 'Visa statistik',
     'View all statistics' => 'Visa all statistik',
     'Search forms...' => 'Sök formulär...',
-    'Clear search' => 'Rensa sökning',
     'No forms with rating fields found.' => 'Inga formulär med betygsfält hittades.',
-    'no forms' => 'inga formulär',
-    '{count, plural, =1{form} other{forms}}' => '{count, plural, =1{formulär} other{formulär}}',
-    '{start} – {end} of {total} {label}' => '{start} – {end} av {total} {label}',
-    'statistics pagination' => 'statistik-paginering',
-    'Previous Page' => 'Föregående sida',
-    'Next Page' => 'Nästa sida',
+    'form' => 'formulär',
+    'forms' => 'formulär',
 
     // Statistics: Form
     '{title} - Rating Statistics' => '{title} - Betygsstatistik',
     'Refresh' => 'Uppdatera',
     'Refresh statistics (clears cache)' => 'Uppdatera statistik (rensar cache)',
     'All Fields' => 'Alla fält',
-    'All Products' => 'Alla produkter',
-    'Search products...' => 'Sök produkter...',
+    'Search shown groups...' => 'Sök bland visade grupper...',
     'Group By' => 'Gruppera efter',
     'Group by: {field}' => 'Gruppera efter: {field}',
     'No Grouping' => 'Ingen gruppering',
     'NPS' => 'NPS',
     'Star Rating' => 'Stjärnbetyg',
     'Emoji Rating' => 'Emoji-betyg',
+    'Last updated: {time}' => 'Senast uppdaterad: {time}',
     'Field Type' => 'Fälttyp',
     'Field Label' => 'Fältetikett',
     'Total Groups' => 'Totalt antal grupper',
+    'Unique {field}' => 'Unika värden för {field}',
     'Total Responses' => 'Totalt antal svar',
     'Responses' => 'Svar',
     'Reviews' => 'Recensioner',
     'reviews' => 'recensioner',
     'Top Performer' => 'Bäst presterande',
     'Needs Attention' => 'Behöver uppmärksamhet',
-    'Across all groups' => 'Över alla grupper',
+    'Across shown groups' => 'För visade grupper',
     'Overall NPS' => 'Totalt NPS',
     'Overall Average' => 'Totalt medelvärde',
     'Average Rating' => 'Medelbetyg',
@@ -210,6 +194,9 @@ return [
     'Promoters' => 'Förespråkare',
     'Passives' => 'Passiva',
     'Detractors' => 'Kritiker',
+    'Promoters ({pct}%)' => 'Förespråkare ({pct}%)',
+    'Passives ({pct}%)' => 'Passiva ({pct}%)',
+    'Detractors ({pct}%)' => 'Kritiker ({pct}%)',
     'Promoters %' => 'Förespråkare %',
     'Passives %' => 'Passiva %',
     'Detractors %' => 'Kritiker %',
@@ -224,12 +211,14 @@ return [
     'Reliable' => 'Tillförlitligt',
     'Reliability' => 'Tillförlitlighet',
     'Low data' => 'Lite data',
-    'Show All' => 'Visa alla',
-    'Show Top 10' => 'Visa topp 10',
+    'Showing {visible} of {total} groups' => 'Visar {visible} av {total} grupper',
 
     // Statistics: Group Detail
     '{value} - Individual Submissions' => '{value} - Enskilda inskickningar',
     'Individual Submissions for {value}' => 'Enskilda inskickningar för {value}',
+    'Showing {count} submission for this {groupBy}' => 'Visar {count} inskickning för {groupBy}',
+    'Showing {count} submissions for this {groupBy}' => 'Visar {count} inskickningar för {groupBy}',
+    'No submissions found for this {groupBy}' => 'Inga inskickningar hittades för {groupBy}',
     'Submission Date' => 'Inskickningsdatum',
     'Submission ID' => 'Inskicknings-ID',
 
@@ -258,6 +247,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'Du har inte behörighet att visa statistik.',
+    'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistik är inte tillgänglig för det sparade webbplatsvalet. Uppdatera widgetinställningarna eller be en administratör att granska webbplatsåtkomsten.',
     '{count} Rating Fields' => '{count} betygsfält',
 
     // Field schema (rating settings)

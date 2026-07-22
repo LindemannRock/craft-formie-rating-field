@@ -106,6 +106,18 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 
 **Why:** The cap is applied after the group, date-range, and site filters, so submissions from other groups do not consume it. A group with more matching submissions than the configured limit is still truncated to protect the server from an out-of-memory failure.
 
+## A group does not appear in the grouped dashboard search
+
+**Quick checks:**
+
+1. Compare the **Showing _n_ of _total_ groups** line below the table.
+2. If the total is greater than the shown count, remember that the search box filters only the displayed rows.
+3. Use **By Group** export when you need the complete group list.
+
+**Fix:** Export the full grouped result, or narrow the date/site filters so the group moves into the 100 highest-volume rows shown on the dashboard.
+
+**Why:** The interactive overview is deliberately bounded to 100 groups to prevent high-cardinality text or hidden fields from exhausting PHP memory or producing an impractically large page. The complete count remains visible, and grouped exports are not limited to those overview rows.
+
 ## The Google Review button doesn't appear
 
 **Quick checks:**

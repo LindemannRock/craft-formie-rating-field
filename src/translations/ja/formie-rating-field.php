@@ -28,7 +28,6 @@ return [
     'Manage settings' => '設定を管理する',
 
     // Common
-    'Actions' => 'アクション',
     'All Sites' => 'すべてのサイト',
     'Average' => '平均',
     'Avg' => '平均',
@@ -37,11 +36,9 @@ return [
     'Max' => '最大',
     'Min' => '最小',
     'Rating' => '評価',
-    'Search' => '検索',
     'Site' => 'サイト',
     'Submission' => '送信',
     'Submissions' => '送信',
-    'View' => '表示',
 
     // Jobs
     '{pluginName}: Generating cache (batch {current} of {total})' => '{pluginName} : キャッシュを生成中（バッチ {current} / {total} ）',
@@ -71,7 +68,6 @@ return [
     'Statistics cache cleared' => '統計キャッシュを削除しました',
     'Statistics refreshed' => '統計を更新しました',
     'This form does not contain any rating fields.' => 'このフォームには評価フィールドが含まれていません。',
-    'Unknown export format: {format}' => '不明なエクスポート形式 : {format}',
     'User does not have permission to access that site.' => 'ユーザーにそのサイトへアクセスする権限がありません。',
 
     // Validation messages
@@ -133,14 +129,6 @@ return [
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>キャッシュの場所 :</strong> <code>config/app.php</code> で設定された Craft の Redis キャッシュを使用しています',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis が未設定 :</strong> Redis キャッシュを使用するには、<code>yiisoft/yii2-redis</code> をインストールし、<code>config/app.php</code> で設定してください。<a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">詳細はこちら</a>',
     'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => '統計キャッシュを自動生成する頻度です。キャッシュを事前に生成することで、大規模なデータセットでのパフォーマンスが向上します。',
-    'Manual Only' => '手動のみ',
-    'Every 3 Hours' => '3 時間ごと',
-    'Every 6 Hours' => '6 時間ごと',
-    'Every 12 Hours' => '12 時間ごと',
-    'Daily (Midnight)' => '毎日（深夜 0 時）',
-    'Daily at 2am (Low Traffic)' => '毎日午前 2 時（低トラフィック）',
-    'Twice Daily (Midnight & Noon)' => '1 日 2 回（深夜 0 時と正午）',
-    'Weekly (Sunday Midnight)' => '毎週（日曜日の深夜 0 時）',
     '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>パフォーマンス警告 :</strong> 手動キャッシュ生成では、ユーザーがページを表示した際に統計がオンデマンドで計算されます。送信数が 1000 件を超えるフォームでは、読み込みが遅くなったりタイムアウトが発生したりする可能性があります。パフォーマンス向上のため、スケジュールされたキャッシュ生成の有効化をご検討ください。',
     'How it works:' => '仕組み :',
     'Statistics are calculated and cached to improve performance' => 'パフォーマンス向上のため、統計が計算されキャッシュされます',
@@ -154,7 +142,7 @@ return [
 
     // Statistics: Index
     'Rating Statistics' => '評価統計',
-    'Form Name' => 'フォーム名',
+    'Form Title' => 'フォームタイトル',
     'Handle' => 'ハンドル',
     'Rating Fields' => '評価フィールド',
     'Submissions Count' => '送信数',
@@ -162,38 +150,34 @@ return [
     'View Statistics' => '統計を表示',
     'View all statistics' => 'すべての統計を表示',
     'Search forms...' => 'フォームを検索...',
-    'Clear search' => '検索をクリア',
     'No forms with rating fields found.' => '評価フィールドを持つフォームが見つかりません。',
-    'no forms' => 'フォームなし',
-    '{count, plural, =1{form} other{forms}}' => '{count, plural, =1{フォーム} other{フォーム}}',
-    '{start} – {end} of {total} {label}' => '{total} {label} のうち {start} – {end}',
-    'statistics pagination' => '統計のページネーション',
-    'Previous Page' => '前のページ',
-    'Next Page' => '次のページ',
+    'form' => 'フォーム',
+    'forms' => 'フォーム',
 
     // Statistics: Form
     '{title} - Rating Statistics' => '{title} - 評価統計',
     'Refresh' => '更新',
     'Refresh statistics (clears cache)' => '統計を更新（キャッシュを削除）',
     'All Fields' => 'すべてのフィールド',
-    'All Products' => 'すべての製品',
-    'Search products...' => '製品を検索...',
+    'Search shown groups...' => '表示中のグループを検索...',
     'Group By' => 'グループ化',
     'Group by: {field}' => '{field} でグループ化',
     'No Grouping' => 'グループ化なし',
     'NPS' => 'NPS',
     'Star Rating' => 'スター評価',
     'Emoji Rating' => '絵文字評価',
+    'Last updated: {time}' => '最終更新: {time}',
     'Field Type' => 'フィールドタイプ',
     'Field Label' => 'フィールドラベル',
     'Total Groups' => 'グループ合計',
+    'Unique {field}' => '{field} の一意の値',
     'Total Responses' => '回答合計',
     'Responses' => '回答',
     'Reviews' => 'レビュー',
     'reviews' => 'レビュー',
     'Top Performer' => 'トップパフォーマー',
     'Needs Attention' => '要注意',
-    'Across all groups' => 'すべてのグループ全体',
+    'Across shown groups' => '表示中のグループ全体',
     'Overall NPS' => '全体 NPS',
     'Overall Average' => '全体平均',
     'Average Rating' => '平均評価',
@@ -210,6 +194,9 @@ return [
     'Promoters' => '推奨者',
     'Passives' => '中立者',
     'Detractors' => '批判者',
+    'Promoters ({pct}%)' => '推奨者（{pct}%）',
+    'Passives ({pct}%)' => '中立者（{pct}%）',
+    'Detractors ({pct}%)' => '批判者（{pct}%）',
     'Promoters %' => '推奨者 %',
     'Passives %' => '中立者 %',
     'Detractors %' => '批判者 %',
@@ -224,12 +211,14 @@ return [
     'Reliable' => '信頼性あり',
     'Reliability' => '信頼性',
     'Low data' => 'データ不足',
-    'Show All' => 'すべて表示',
-    'Show Top 10' => 'トップ 10 を表示',
+    'Showing {visible} of {total} groups' => '{total} グループ中 {visible} グループを表示',
 
     // Statistics: Group Detail
     '{value} - Individual Submissions' => '{value} - 個別の送信',
     'Individual Submissions for {value}' => '{value} の個別送信',
+    'Showing {count} submission for this {groupBy}' => 'この {groupBy} について {count} 件の送信を表示',
+    'Showing {count} submissions for this {groupBy}' => 'この {groupBy} について {count} 件の送信を表示',
+    'No submissions found for this {groupBy}' => 'この {groupBy} の送信が見つかりません',
     'Submission Date' => '送信日',
     'Submission ID' => '送信 ID',
 
@@ -258,6 +247,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => '統計を表示する権限がありません。',
+    'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => '保存されたサイト選択では統計を利用できません。ウィジェット設定を更新するか、管理者にサイトへのアクセス権の確認を依頼してください。',
     '{count} Rating Fields' => '{count} 件の評価フィールド',
 
     // Field schema (rating settings)

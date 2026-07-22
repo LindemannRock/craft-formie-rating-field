@@ -28,7 +28,6 @@ return [
     'Manage settings' => 'Manage settings',
 
     // Common
-    'Actions' => 'Actions',
     'All Sites' => 'All Sites',
     'Average' => 'Average',
     'Avg' => 'Avg',
@@ -37,11 +36,9 @@ return [
     'Max' => 'Max',
     'Min' => 'Min',
     'Rating' => 'Rating',
-    'Search' => 'Search',
     'Site' => 'Site',
     'Submission' => 'Submission',
     'Submissions' => 'Submissions',
-    'View' => 'View',
 
     // Jobs
     '{pluginName}: Generating cache (batch {current} of {total})' => '{pluginName}: Generating cache (batch {current} of {total})',
@@ -71,7 +68,6 @@ return [
     'Statistics cache cleared' => 'Statistics cache cleared',
     'Statistics refreshed' => 'Statistics refreshed',
     'This form does not contain any rating fields.' => 'This form does not contain any rating fields.',
-    'Unknown export format: {format}' => 'Unknown export format: {format}',
     'User does not have permission to access that site.' => 'User does not have permission to access that site.',
 
     // Validation messages
@@ -133,14 +129,6 @@ return [
     '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>' => '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>',
     '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>' => '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>',
     'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.' => 'How often to automatically generate statistics cache. Pre-generating cache improves performance for large datasets.',
-    'Manual Only' => 'Manual Only',
-    'Every 3 Hours' => 'Every 3 Hours',
-    'Every 6 Hours' => 'Every 6 Hours',
-    'Every 12 Hours' => 'Every 12 Hours',
-    'Daily (Midnight)' => 'Daily (Midnight)',
-    'Daily at 2am (Low Traffic)' => 'Daily at 2am (Low Traffic)',
-    'Twice Daily (Midnight & Noon)' => 'Twice Daily (Midnight & Noon)',
-    'Weekly (Sunday Midnight)' => 'Weekly (Sunday Midnight)',
     '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.' => '<strong>Performance Warning:</strong> With manual cache generation, statistics will be calculated on-demand when users view the page. For forms with 1000+ submissions, this may cause slow load times or timeouts. Consider enabling scheduled cache generation for better performance.',
     'How it works:' => 'How it works:',
     'Statistics are calculated and cached to improve performance' => 'Statistics are calculated and cached to improve performance',
@@ -154,7 +142,7 @@ return [
 
     // Statistics: Index
     'Rating Statistics' => 'Rating Statistics',
-    'Form Name' => 'Form Name',
+    'Form Title' => 'Form Title',
     'Handle' => 'Handle',
     'Rating Fields' => 'Rating Fields',
     'Submissions Count' => 'Submissions Count',
@@ -162,38 +150,34 @@ return [
     'View Statistics' => 'View Statistics',
     'View all statistics' => 'View all statistics',
     'Search forms...' => 'Search forms...',
-    'Clear search' => 'Clear search',
     'No forms with rating fields found.' => 'No forms with rating fields found.',
-    'no forms' => 'no forms',
-    '{count, plural, =1{form} other{forms}}' => '{count, plural, =1{form} other{forms}}',
-    '{start} – {end} of {total} {label}' => '{start} – {end} of {total} {label}',
-    'statistics pagination' => 'statistics pagination',
-    'Previous Page' => 'Previous Page',
-    'Next Page' => 'Next Page',
+    'form' => 'form',
+    'forms' => 'forms',
 
     // Statistics: Form
     '{title} - Rating Statistics' => '{title} - Rating Statistics',
     'Refresh' => 'Refresh',
     'Refresh statistics (clears cache)' => 'Refresh statistics (clears cache)',
     'All Fields' => 'All Fields',
-    'All Products' => 'All Products',
-    'Search products...' => 'Search products...',
+    'Search shown groups...' => 'Search shown groups...',
     'Group By' => 'Group By',
     'Group by: {field}' => 'Group by: {field}',
     'No Grouping' => 'No Grouping',
     'NPS' => 'NPS',
     'Star Rating' => 'Star Rating',
     'Emoji Rating' => 'Emoji Rating',
+    'Last updated: {time}' => 'Last updated: {time}',
     'Field Type' => 'Field Type',
     'Field Label' => 'Field Label',
     'Total Groups' => 'Total Groups',
+    'Unique {field}' => 'Unique {field}',
     'Total Responses' => 'Total Responses',
     'Responses' => 'Responses',
     'Reviews' => 'Reviews',
     'reviews' => 'reviews',
     'Top Performer' => 'Top Performer',
     'Needs Attention' => 'Needs Attention',
-    'Across all groups' => 'Across all groups',
+    'Across shown groups' => 'Across shown groups',
     'Overall NPS' => 'Overall NPS',
     'Overall Average' => 'Overall Average',
     'Average Rating' => 'Average Rating',
@@ -210,6 +194,9 @@ return [
     'Promoters' => 'Promoters',
     'Passives' => 'Passives',
     'Detractors' => 'Detractors',
+    'Promoters ({pct}%)' => 'Promoters ({pct}%)',
+    'Passives ({pct}%)' => 'Passives ({pct}%)',
+    'Detractors ({pct}%)' => 'Detractors ({pct}%)',
     'Promoters %' => 'Promoters %',
     'Passives %' => 'Passives %',
     'Detractors %' => 'Detractors %',
@@ -224,12 +211,14 @@ return [
     'Reliable' => 'Reliable',
     'Reliability' => 'Reliability',
     'Low data' => 'Low data',
-    'Show All' => 'Show All',
-    'Show Top 10' => 'Show Top 10',
+    'Showing {visible} of {total} groups' => 'Showing {visible} of {total} groups',
 
     // Statistics: Group Detail
     '{value} - Individual Submissions' => '{value} - Individual Submissions',
     'Individual Submissions for {value}' => 'Individual Submissions for {value}',
+    'Showing {count} submission for this {groupBy}' => 'Showing {count} submission for this {groupBy}',
+    'Showing {count} submissions for this {groupBy}' => 'Showing {count} submissions for this {groupBy}',
+    'No submissions found for this {groupBy}' => 'No submissions found for this {groupBy}',
     'Submission Date' => 'Submission Date',
     'Submission ID' => 'Submission ID',
 
@@ -258,6 +247,7 @@ return [
 
     // Dashboard
     'You do not have permission to view statistics.' => 'You do not have permission to view statistics.',
+    'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.' => 'Statistics are unavailable for the saved site selection. Update the widget settings or ask an administrator to review site access.',
     '{count} Rating Fields' => '{count} Rating Fields',
 
     // Field schema (rating settings)
