@@ -602,7 +602,7 @@ class StatisticsService extends Component
      * @param int $limit
      * @param int $offset
      * @return array{submissions: list<Submission>, totalCount: int}
-     * @since 3.23.0
+     * @since 3.22.0
      */
     public function getPaginatedGroupSubmissions(
         Form $form,
@@ -812,6 +812,7 @@ class StatisticsService extends Component
             'ratingType' => (string)$field->ratingType,
             'minValue' => (int)$field->minValue,
             'maxValue' => (int)$field->maxValue,
+            'allowHalfRatings' => (bool)$field->allowHalfRatings,
         ]));
     }
 

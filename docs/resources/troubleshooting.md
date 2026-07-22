@@ -40,6 +40,18 @@ Common issues and how to resolve them. If something here doesn't cover your case
 
 **Why:** Stats are cached for speed and invalidated when submissions change. A manual refresh forces a recompute if a cache entry is stale for any other reason.
 
+## The statistics index redirects to the dashboard
+
+**Quick checks:**
+
+1. Check the Formie Rating Field logs for the complete underlying error.
+2. Confirm the database is reachable and Formie's forms and submissions can be loaded normally.
+3. Retry the statistics page after resolving the logged service or database failure.
+
+**Fix:** Resolve the exception recorded in the logs, then reopen **Formie Rating Field → Statistics**. In development mode, the Control Panel flash also includes the original exception message.
+
+**Why:** Request and access checks still return their normal HTTP responses. Once those checks pass, an unexpected loading or rendering failure is isolated so it cannot replace the entire Control Panel with a generic error page.
+
 ## A form is missing from statistics or a direct URL returns 403
 
 **Quick checks:**

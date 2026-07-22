@@ -12,7 +12,6 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\helpers\Template;
 use GraphQL\Type\Definition\Type;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\web\assets\field\RatingFieldAsset;

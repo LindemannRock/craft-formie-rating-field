@@ -65,7 +65,7 @@ $grouped = $statistics->getGroupedStatistics($form, $field, $dateRange, $groupBy
 // The submissions behind one group value.
 $submissions = $statistics->getGroupSubmissions($form, $groupByHandle, $groupValue, $dateRange = 'all', $siteId = 'all', $limit = null);
 
-// @since 3.23.0 — one database-filtered page plus the complete matching count.
+// @since 3.22.0 — one database-filtered page plus the complete matching count.
 $page = $statistics->getPaginatedGroupSubmissions(
     $form,
     $groupByHandle,

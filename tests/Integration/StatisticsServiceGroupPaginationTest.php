@@ -29,7 +29,7 @@ use verbb\formie\models\FieldLayout;
 /**
  * Covers bounded database pagination for grouped submission detail pages.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class StatisticsServiceGroupPaginationTest extends TestCase
 {

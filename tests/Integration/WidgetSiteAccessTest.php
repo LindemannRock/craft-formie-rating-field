@@ -20,7 +20,7 @@ use lindemannrock\formieratingfield\widgets\SiteFilterTrait;
 /**
  * Covers render-time dashboard-widget site authorization.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class WidgetSiteAccessTest extends TestCase
 {

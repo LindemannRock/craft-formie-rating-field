@@ -54,6 +54,7 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
             'minimum' => [['minValue' => 0]],
             'maximum' => [['maxValue' => 8]],
             'label' => [['label' => 'Recommendation']],
+            'half ratings' => [['allowHalfRatings' => true]],
         ];
     }
 
@@ -202,6 +203,7 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
             'ratingType' => Rating::RATING_TYPE_STAR,
             'minValue' => 1,
             'maxValue' => 5,
+            'allowHalfRatings' => false,
         ], $overrides);
 
         return new Rating($config);

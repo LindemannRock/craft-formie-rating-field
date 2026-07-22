@@ -134,6 +134,49 @@ final class StatisticsFailureHandlingTest extends TestCase
         self::assertStringNotContainsString('An error occurred. Please check the logs for details.', $html);
     }
 
+    public function testIndexServiceFailureIsLoggedFlashedAndRedirected(): void
+    {
+        $this->installWebHarness();
+        $this->installUser(['formieRatingField:viewStatistics']);
+        $this->setDevMode(false);
+        $this->swapPluginComponent(
+            'formie-rating-field',
+            'statistics',
+            new ThrowingStatisticsService(['throwOn' => 'forms', 'message' => 'index-raw-secret']),
+        );
+        $logOffset = count(Craft::getLogger()->messages);
+
+        $controller = $this->controller();
+        $response = $controller->actionIndex();
+
+        self::assertSame(302, $response->getStatusCode());
+        self::assertStringContainsString('dashboard', (string) $response->getHeaders()->get('Location'));
+        self::assertSame('An error occurred. Please check the logs for details.', $controller->errorMessage);
+        self::assertStringNotContainsString('index-raw-secret', (string) $controller->errorMessage);
+        $this->assertExceptionLogged(
+            $logOffset,
+            StatisticsController::class . '::actionIndex',
+            'index-raw-secret',
+        );
+    }
+
+    public function testIndexServiceFailureShowsRawMessageInDevMode(): void
+    {
+        $this->installWebHarness();
+        $this->installUser(['formieRatingField:viewStatistics']);
+        $this->setDevMode(true);
+        $this->swapPluginComponent(
+            'formie-rating-field',
+            'statistics',
+            new ThrowingStatisticsService(['throwOn' => 'forms', 'message' => 'index-dev-detail']),
+        );
+
+        $controller = $this->controller();
+        $controller->actionIndex();
+
+        self::assertSame('index-dev-detail', $controller->errorMessage);
+    }
+
     #[DataProvider('controllerFailureProvider')]
     public function testControllerServiceFailuresAreLoggedFlashedAndRedirected(
         string $action,
@@ -266,6 +309,31 @@ final class StatisticsFailureHandlingTest extends TestCase
 
     public function testControllerAndWidgetTryBoundariesPreserveAllAccessGates(): void
     {
+        $indexSource = $this->methodSource(StatisticsController::class, 'actionIndex');
+        $indexTry = strpos($indexSource, 'try {');
+        self::assertIsInt($indexTry);
+        foreach ([
+            '$this->requireCpRequest();',
+            "checkPermission('formieRatingField:viewStatistics')",
+            '$this->_resolveSiteId(',
+        ] as $needle) {
+            $gate = strpos($indexSource, $needle);
+            self::assertIsInt($gate, "actionIndex must keep the {$needle} gate.");
+            self::assertLessThan($indexTry, $gate, "actionIndex must run {$needle} before its try block.");
+        }
+        foreach ([
+            'getFormsWithRatingFields($siteId)',
+            'filterFormsByFormieSubmissionAccess($formsWithRatings)',
+            'usort($formsWithRatings',
+            'array_slice($formsWithRatings',
+            "renderTemplate('formie-rating-field/statistics/index'",
+        ] as $needle) {
+            $operation = strpos($indexSource, $needle);
+            self::assertIsInt($operation);
+            self::assertGreaterThan($indexTry, $operation);
+        }
+        self::assertStringContainsString("return \$this->redirect('dashboard');", $indexSource);
+
         foreach (['actionForm', 'actionGroupDetail'] as $method) {
             $source = $this->methodSource(StatisticsController::class, $method);
             $try = strpos($source, 'try {');

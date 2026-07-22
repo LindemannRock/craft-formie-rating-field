@@ -184,59 +184,70 @@ class StatisticsController extends Controller
         // no second guard is needed here.
         $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
 
-        // ---- Load + filter ------------------------------------------------
-        // Get all forms that have rating fields (totalSubmissions count respects site filter).
-        $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteId);
-        $formsWithRatings = $this->filterFormsByFormieSubmissionAccess($formsWithRatings);
+        try {
+            // ---- Load + filter --------------------------------------------
+            // Get all forms that have rating fields (totalSubmissions count respects site filter).
+            $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteId);
+            $formsWithRatings = $this->filterFormsByFormieSubmissionAccess($formsWithRatings);
 
-        if ($search !== '') {
-            $needle = mb_strtolower($search);
-            $formsWithRatings = array_values(array_filter($formsWithRatings, fn($item): bool =>
-                stripos((string) $item['form']->title, $needle) !== false ||
-                stripos((string) $item['form']->handle, $needle) !== false
-            ));
-        }
-
-        // ---- Sort ---------------------------------------------------------
-        $multiplier = $dir === 'desc' ? -1 : 1;
-        usort($formsWithRatings, function($a, $b) use ($sort, $multiplier): int {
-            $cmp = match ($sort) {
-                'title' => strcasecmp((string) $a['form']->title, (string) $b['form']->title),
-                'handle' => strcasecmp((string) $a['form']->handle, (string) $b['form']->handle),
-                'ratingFieldCount' => $a['ratingFieldCount'] <=> $b['ratingFieldCount'],
-                default => $a['totalSubmissions'] <=> $b['totalSubmissions'],
-            };
-
-            // Stable tie-break by form title so equal primary keys don't
-            // shuffle between requests — keeps pagination predictable.
-            if ($cmp === 0 && $sort !== 'title') {
-                $cmp = strcasecmp((string) $a['form']->title, (string) $b['form']->title);
+            if ($search !== '') {
+                $needle = mb_strtolower($search);
+                $formsWithRatings = array_values(array_filter($formsWithRatings, fn($item): bool =>
+                    stripos((string) $item['form']->title, $needle) !== false ||
+                    stripos((string) $item['form']->handle, $needle) !== false
+                ));
             }
 
-            return $cmp * $multiplier;
-        });
+            // ---- Sort -----------------------------------------------------
+            $multiplier = $dir === 'desc' ? -1 : 1;
+            usort($formsWithRatings, function($a, $b) use ($sort, $multiplier): int {
+                $cmp = match ($sort) {
+                    'title' => strcasecmp((string) $a['form']->title, (string) $b['form']->title),
+                    'handle' => strcasecmp((string) $a['form']->handle, (string) $b['form']->handle),
+                    'ratingFieldCount' => $a['ratingFieldCount'] <=> $b['ratingFieldCount'],
+                    default => $a['totalSubmissions'] <=> $b['totalSubmissions'],
+                };
 
-        // Calculate pagination
-        $totalItems = count($formsWithRatings);
-        $totalPages = ceil($totalItems / $limit);
-        $offset = ($page - 1) * $limit;
+                // Stable tie-break by form title so equal primary keys don't
+                // shuffle between requests — keeps pagination predictable.
+                if ($cmp === 0 && $sort !== 'title') {
+                    $cmp = strcasecmp((string) $a['form']->title, (string) $b['form']->title);
+                }
 
-        // Get paginated results
-        $paginatedForms = array_slice($formsWithRatings, $offset, $limit);
+                return $cmp * $multiplier;
+            });
 
-        return $this->renderTemplate('formie-rating-field/statistics/index', [
-            'forms' => $paginatedForms,
-            'search' => $search,
-            'sort' => $sort,
-            'dir' => $dir,
-            'page' => $page,
-            'limit' => $limit,
-            'offset' => $offset,
-            'totalPages' => $totalPages,
-            'totalItems' => $totalItems,
-            'siteId' => $siteId,
-            'editableSites' => Craft::$app->getSites()->getEditableSites(),
-        ]);
+            // Calculate pagination
+            $totalItems = count($formsWithRatings);
+            $totalPages = ceil($totalItems / $limit);
+            $offset = ($page - 1) * $limit;
+
+            // Get paginated results
+            $paginatedForms = array_slice($formsWithRatings, $offset, $limit);
+
+            return $this->renderTemplate('formie-rating-field/statistics/index', [
+                'forms' => $paginatedForms,
+                'search' => $search,
+                'sort' => $sort,
+                'dir' => $dir,
+                'page' => $page,
+                'limit' => $limit,
+                'offset' => $offset,
+                'totalPages' => $totalPages,
+                'totalItems' => $totalItems,
+                'siteId' => $siteId,
+                'editableSites' => Craft::$app->getSites()->getEditableSites(),
+            ]);
+        } catch (\Exception $exception) {
+            Craft::error('Failed to render statistics index: ' . (string) $exception, __METHOD__);
+            $this->setStatisticsError(
+                Craft::$app->getConfig()->getGeneral()->devMode
+                    ? $exception->getMessage()
+                    : Craft::t('formie-rating-field', 'An error occurred. Please check the logs for details.'),
+            );
+
+            return $this->redirect('dashboard');
+        }
     }
 
     /**
