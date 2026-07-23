@@ -102,6 +102,8 @@ $raw     = $statistics->buildRawResponsesExportRows($form, $dateRange = 'all', $
 $byGroup = $statistics->buildGroupedExportRows($form, $dateRange = 'all', $groupByHandle = null, $siteId = 'all');
 ```
 
+`buildGroupedExportRows()` emits every group represented by at least one Rating field. Its `Submissions Count` is field-independent and counts all valid submissions in that emitted group; metrics stay blank for Rating fields without a response in that group.
+
 ## Cache control
 
 ```php

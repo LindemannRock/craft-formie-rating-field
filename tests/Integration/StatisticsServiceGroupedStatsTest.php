@@ -190,6 +190,89 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
         self::assertStringNotContainsString('SUM(CASE', $sql);
     }
 
+    public function testGroupedExportUsesEveryRatingFieldAndFieldIndependentSubmissionCounts(): void
+    {
+        $form = $this->seedMultiRatingGroupedForm();
+
+        try {
+            $oldRated = $this->seedMultiRatingSubmission($form, 'First Only', 4, null);
+            $oldUnrated = $this->seedMultiRatingSubmission($form, 'First Only', null, null);
+            $this->updateSubmissionDate($oldRated, '2000-01-01 00:00:00');
+            $this->updateSubmissionDate($oldUnrated, '2000-01-01 00:00:00');
+
+            $this->seedMultiRatingSubmission($form, 'Second Only', null, 10);
+            $this->seedMultiRatingSubmission($form, 'Second Only', null, null);
+            $this->seedMultiRatingSubmission($form, 'Second Only', null, null);
+            $this->seedMultiRatingSubmission($form, null, null, 9);
+            $this->seedMultiRatingSubmission($form, '', null, 7);
+            $this->seedMultiRatingSubmission($form, null, null, null);
+            $this->seedMultiRatingSubmission($form, 'Tie B', null, 8);
+            $this->seedMultiRatingSubmission($form, 'Tie A', null, 8);
+            $this->seedMultiRatingSubmission($form, 'No Ratings', null, null);
+
+            $spam = $this->seedMultiRatingSubmission($form, 'Spam', null, 10);
+            $incomplete = $this->seedMultiRatingSubmission($form, 'Incomplete', null, 10);
+            $this->updateSubmissionFlags($spam, false, true);
+            $this->updateSubmissionFlags($incomplete, true, false);
+
+            $siteId = (int)Craft::$app->getSites()->getPrimarySite()->id;
+            $recent = $this->statistics->buildGroupedExportRows($form, 'last7days', 'branch', $siteId);
+            $allTime = $this->statistics->buildGroupedExportRows($form, 'all', 'branch', $siteId);
+            $missingSite = $this->statistics->buildGroupedExportRows($form, 'last7days', 'branch', 999999999);
+
+            self::assertSame(
+                ['(Not Set)', 'Second Only', 'Tie A', 'Tie B'],
+                array_column($recent['rows'], 0),
+            );
+            self::assertSame([3, 3, 1, 1], array_column($recent['rows'], 1));
+            self::assertSame(
+                [
+                    ['(Not Set)', 3, '', '', 50.0, '1 (50%)', '1 (50%)', '0 (0%)'],
+                    ['Second Only', 3, '', '', 100.0, '1 (100%)', '0 (0%)', '0 (0%)'],
+                    ['Tie A', 1, '', '', 0.0, '0 (0%)', '1 (100%)', '0 (0%)'],
+                    ['Tie B', 1, '', '', 0.0, '0 (0%)', '1 (100%)', '0 (0%)'],
+                ],
+                $recent['rows'],
+            );
+
+            self::assertSame(
+                ['(Not Set)', 'Second Only', 'First Only', 'Tie A', 'Tie B'],
+                array_column($allTime['rows'], 0),
+            );
+            self::assertSame([3, 3, 2, 1, 1], array_column($allTime['rows'], 1));
+            self::assertSame(['First Only', 2, 4.0, 4.0, '', '', '', ''], $allTime['rows'][2]);
+            self::assertNotContains('No Ratings', array_column($allTime['rows'], 0));
+            self::assertNotContains('Spam', array_column($allTime['rows'], 0));
+            self::assertNotContains('Incomplete', array_column($allTime['rows'], 0));
+            self::assertSame([], $missingSite['rows']);
+        } finally {
+            $this->statistics->clearCacheForForm((int)$form->id);
+        }
+    }
+
+    public function testGroupedExportUsesOneAggregateQueryForSubmissionCounts(): void
+    {
+        $exportSource = $this->methodSource('buildGroupedExportRows');
+        $countQuerySource = $this->methodSource('buildGroupedSubmissionCountsQuery');
+        $metricFilterSource = $this->methodSource('applyGroupedStatisticsFilters');
+        $submissionFilterSource = $this->methodSource('applyGroupedSubmissionFilters');
+
+        self::assertSame(1, substr_count($exportSource, 'buildGroupedSubmissionCountsQuery('));
+        self::assertStringContainsString(')->all();', $exportSource);
+        self::assertStringContainsString("COALESCE(NULLIF(\$groupByExpr, ''), '(Not Set)')", $exportSource);
+        self::assertStringContainsString('->groupBy(\'groupValue\')', $countQuerySource);
+        self::assertStringContainsString("'submissionCount' => new Expression('COUNT(*)')", $countQuerySource);
+        self::assertStringContainsString("->orderBy(['submissionCount' => SORT_DESC, 'groupValue' => SORT_ASC])", $countQuerySource);
+        self::assertStringContainsString('applyGroupedSubmissionFilters(', $countQuerySource);
+        self::assertStringContainsString('applyGroupedSubmissionFilters(', $metricFilterSource);
+        self::assertStringNotContainsString('$ratingExpr', $countQuerySource);
+        self::assertStringContainsString("'{{%formie_submissions}}.isIncomplete' => false", $submissionFilterSource);
+        self::assertStringContainsString("'{{%formie_submissions}}.isSpam' => false", $submissionFilterSource);
+        self::assertStringContainsString("'{{%elements_sites}} es_site_filter'", $submissionFilterSource);
+        self::assertStringContainsString('$dateBounds[\'start\']', $submissionFilterSource);
+        self::assertStringContainsString('$dateBounds[\'end\']', $submissionFilterSource);
+    }
+
     /**
      * @param array $rows
      * @param Rating $field
@@ -254,12 +337,70 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
         return $form;
     }
 
+    private function seedMultiRatingGroupedForm(): Form
+    {
+        $form = new Form();
+        $form->title = $this->nextTestMarker('Rating grouped export test ', 'form');
+        $form->handle = $this->nextTestMarker('ratingGroupedExportTest', 'form');
+
+        $layout = new FieldLayout();
+        $layout->setPages([
+            [
+                'label' => 'Page 1',
+                'rows' => [
+                    [
+                        'fields' => [
+                            [
+                                'type' => Rating::class,
+                                'handle' => 'primaryRating',
+                                'label' => 'Primary Rating',
+                                'ratingType' => Rating::RATING_TYPE_STAR,
+                                'minValue' => 1,
+                                'maxValue' => 5,
+                            ],
+                            [
+                                'type' => Rating::class,
+                                'handle' => 'secondaryRating',
+                                'label' => 'Secondary Rating',
+                                'ratingType' => Rating::RATING_TYPE_NPS,
+                                'minValue' => 0,
+                                'maxValue' => 10,
+                            ],
+                            [
+                                'type' => SingleLineText::class,
+                                'handle' => 'branch',
+                                'label' => 'Branch',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+        $form->setFormLayout($layout);
+        $this->saveTestElement($form);
+
+        return $form;
+    }
+
     private function seedGroupedSubmission(Form $form, ?string $branch, ?int $rating): Submission
     {
         $submission = new Submission();
         $submission->setForm($form);
         $submission->title = $this->nextTestMarker('ratingGroupedStatsTest', 'submission');
         $submission->setFieldValue('satisfaction', $rating);
+        $submission->setFieldValue('branch', $branch);
+        $this->saveTestElement($submission, false, false, false);
+
+        return $submission;
+    }
+
+    private function seedMultiRatingSubmission(Form $form, ?string $branch, ?int $primaryRating, ?int $secondaryRating): Submission
+    {
+        $submission = new Submission();
+        $submission->setForm($form);
+        $submission->title = $this->nextTestMarker('ratingGroupedExportTest', 'submission');
+        $submission->setFieldValue('primaryRating', $primaryRating);
+        $submission->setFieldValue('secondaryRating', $secondaryRating);
         $submission->setFieldValue('branch', $branch);
         $this->saveTestElement($submission, false, false, false);
 
@@ -282,5 +423,20 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
             ['dateCreated' => $dateCreated],
             ['id' => $submission->id],
         )->execute();
+    }
+
+    private function methodSource(string $method): string
+    {
+        $reflection = new ReflectionMethod(StatisticsService::class, $method);
+        $filename = $reflection->getFileName();
+        self::assertIsString($filename);
+        $lines = file($filename);
+        self::assertIsArray($lines);
+
+        return implode('', array_slice(
+            $lines,
+            $reflection->getStartLine() - 1,
+            $reflection->getEndLine() - $reflection->getStartLine() + 1,
+        ));
     }
 }

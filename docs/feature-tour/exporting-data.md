@@ -17,7 +17,7 @@ On a form's [statistics page](statistics.md), open the **Export** menu. You need
 |---------|--------------|----------|
 | **Summary** | rating field | Total responses, NPS score with promoter/passive/detractor counts and percentages, average, median, most common — whichever apply to the field's type (inapplicable cells show `—`). |
 | **Raw Responses** | submission | Submission date, submission ID, site, then a column for each rating field. |
-| **By Group** | group value | Submission count and the per-field metrics for that group. Only included when a **Group By** field is selected. |
+| **By Group** | group value represented by any Rating field | A field-independent **Submissions Count** for every valid submission in the group, plus each Rating field's metrics where that field has responses. Missing field/group metrics stay blank. Only included when a **Group By** field is selected. |
 
 ![The Export menu on a form's statistics page](../images/exporting-export-menu.webp)
 

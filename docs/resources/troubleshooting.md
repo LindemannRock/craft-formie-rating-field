@@ -118,6 +118,18 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 
 **Why:** The interactive overview is deliberately bounded to 100 groups to prevent high-cardinality text or hidden fields from exhausting PHP memory or producing an impractically large page. The complete count remains visible, and grouped exports are not limited to those overview rows.
 
+## A By Group export is missing a group or its count looks too low
+
+**Quick checks:**
+
+1. Update Formie Rating Field to the current version, then generate the export again.
+2. Confirm at least one Rating field has a response in the missing group; groups with no ratings anywhere are intentionally omitted.
+3. Confirm the active date-range and site filters include the submissions you expect.
+
+**Fix:** Upgrade, keep the intended date and site filters selected, and rerun the **By Group** export.
+
+**Why:** By Group rows come from the union of groups represented by every Rating field. **Submissions Count** is independent of any one Rating field and includes all valid submissions in that included group, even when some or all Rating fields are blank on an individual submission. Spam, incomplete, and submissions outside the selected date range or site remain excluded.
+
 ## The Google Review button doesn't appear
 
 **Quick checks:**

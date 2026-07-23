@@ -492,6 +492,14 @@ class StatisticsService extends Component
      * Counting the normalized expression keeps null and empty group values in
      * the shared `(Not Set)` bucket without repeating the aggregate result
      * query's averages, NPS breakdown, grouping, or ordering.
+     *
+     * @param int $formId
+     * @param string $normalizedGroupExpr
+     * @param string $ratingExpr
+     * @param string $submissionsTable
+     * @param array $dateBounds
+     * @param int|string $siteId
+     * @return Query
      */
     private function buildGroupedStatisticsTotalQuery(
         int $formId,
@@ -530,14 +538,70 @@ class StatisticsService extends Component
      */
     private function applyGroupedStatisticsFilters(Query $query, int $formId, string $ratingExpr, string $submissionsTable, array $dateBounds, int|string $siteId): Query
     {
+        return $this->applyGroupedSubmissionFilters(
+            $query,
+            $formId,
+            $submissionsTable,
+            $dateBounds,
+            $siteId,
+        )
+            ->andWhere(['not', [$ratingExpr => null]])
+            ->andWhere(['!=', $ratingExpr, '']);
+    }
+
+    /**
+     * Build the field-independent submission-count query for grouped exports.
+     *
+     * @param int $formId
+     * @param string $normalizedGroupExpr
+     * @param string $submissionsTable
+     * @param array $dateBounds
+     * @param int|string $siteId
+     * @return Query
+     */
+    private function buildGroupedSubmissionCountsQuery(
+        int $formId,
+        string $normalizedGroupExpr,
+        string $submissionsTable,
+        array $dateBounds,
+        int|string $siteId,
+    ): Query {
+        $query = (new Query())
+            ->select([
+                'groupValue' => $normalizedGroupExpr,
+                'submissionCount' => new Expression('COUNT(*)'),
+            ])
+            ->from('{{%formie_submissions}}');
+
+        return $this->applyGroupedSubmissionFilters(
+            $query,
+            $formId,
+            $submissionsTable,
+            $dateBounds,
+            $siteId,
+        )
+            ->groupBy('groupValue')
+            ->orderBy(['submissionCount' => SORT_DESC, 'groupValue' => SORT_ASC]);
+    }
+
+    /**
+     * Apply field-independent filters shared by grouped metric and count queries.
+     *
+     * @param Query $query
+     * @param int $formId
+     * @param string $submissionsTable
+     * @param array $dateBounds
+     * @param int|string $siteId
+     * @return Query
+     */
+    private function applyGroupedSubmissionFilters(Query $query, int $formId, string $submissionsTable, array $dateBounds, int|string $siteId): Query
+    {
         $query
             ->where([
                 '{{%formie_submissions}}.formId' => $formId,
                 '{{%formie_submissions}}.isIncomplete' => false,
                 '{{%formie_submissions}}.isSpam' => false,
-            ])
-            ->andWhere(['not', [$ratingExpr => null]])
-            ->andWhere(['!=', $ratingExpr, '']);
+            ]);
 
         // Filter by site when a specific site is requested.
         // formie_submissions has no siteId column; site association lives in elements_sites.
@@ -1723,13 +1787,19 @@ class StatisticsService extends Component
             return ['headers' => [], 'rows' => []];
         }
 
-        // Resolve group-by field label
+        // Resolve the group-by field once for the label and normalized SQL value.
         $groupByFieldLabel = $groupByHandle;
+        $groupByFieldUid = null;
         foreach ($form->getFields() as $field) {
             if ($field->handle === $groupByHandle) {
                 $groupByFieldLabel = $field->label;
+                $groupByFieldUid = $field->uid;
                 break;
             }
+        }
+
+        if ($groupByFieldUid === null) {
+            throw new \Exception("Group by field '{$groupByHandle}' not found in form.");
         }
 
         $headers = [
@@ -1749,39 +1819,52 @@ class StatisticsService extends Component
             }
         }
 
-        // Use the first rating field to establish the group list. Explicit
-        // exports retain the complete set rather than the dashboard's bounded
-        // overview payload.
-        $firstField = $ratingFields[0];
-        $groupedStats = $this->getGroupedStatistics($form, $firstField, $dateRange, $groupByHandle, $siteId);
-
-        if (empty($groupedStats['groups'])) {
-            return ['headers' => $headers, 'rows' => []];
-        }
-
-        // Pre-fetch each field's grouped stats once, indexed by group label for O(1)
-        // lookup. Replaces the prior pattern of calling getFieldStatistics() and walking
-        // its groups array once per (group, field) pair (same cache hit, repeated work).
+        // Build every field's complete grouped metrics exactly once, indexed by
+        // normalized group label for O(1) export-row lookup.
         // Shape: [fieldHandle => [groupLabel => groupStats]]
         $statsByField = [];
+        $metricGroupLabels = [];
         foreach ($ratingFields as $field) {
-            $fieldStats = $field === $firstField
-                ? $groupedStats
-                : $this->getGroupedStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
+            $fieldStats = $this->getGroupedStatistics($form, $field, $dateRange, $groupByHandle, $siteId);
             $byLabel = [];
             foreach (($fieldStats['groups'] ?? []) as $g) {
-                $byLabel[$g['label']] = $g;
+                $groupLabel = (string)$g['label'];
+                $byLabel[$groupLabel] = $g;
+                $metricGroupLabels[$groupLabel] = true;
             }
             $statsByField[$field->handle] = $byLabel;
         }
 
+        if ($metricGroupLabels === []) {
+            return ['headers' => $headers, 'rows' => []];
+        }
+
+        // One field-independent grouped aggregate supplies honest submission
+        // counts and deterministic ordering. Groups without a Rating response in
+        // any field are filtered out by the metric-label union below.
+        $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
+        $groupByExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $groupByFieldUid);
+        $normalizedGroupExpr = "COALESCE(NULLIF($groupByExpr, ''), '(Not Set)')";
+        $groupCounts = $this->buildGroupedSubmissionCountsQuery(
+            $form->id,
+            $normalizedGroupExpr,
+            $submissionsTable,
+            DateRangeHelper::getBounds($dateRange),
+            $siteId,
+        )->all();
+
         $rows = [];
 
-        foreach ($groupedStats['groups'] as $group) {
-            $row = [$group['label'], $group['count']];
+        foreach ($groupCounts as $groupCount) {
+            $groupLabel = (string)($groupCount['groupValue'] ?? '(Not Set)');
+            if (!isset($metricGroupLabels[$groupLabel])) {
+                continue;
+            }
+
+            $row = [$groupLabel, (int)$groupCount['submissionCount']];
 
             foreach ($ratingFields as $field) {
-                $groupStats = $statsByField[$field->handle][$group['label']] ?? null;
+                $groupStats = $statsByField[$field->handle][$groupLabel] ?? null;
 
                 if ($groupStats) {
                     if ($field->ratingType === Rating::RATING_TYPE_NPS) {
