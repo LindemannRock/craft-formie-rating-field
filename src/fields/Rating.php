@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\fields;
@@ -311,13 +311,29 @@ class Rating extends Field implements FieldInterface
     /**
      * @inheritdoc
      */
-    public function normalizeValue($value, ElementInterface $element = null): mixed
+    public function normalizeValue(mixed $value, ?ElementInterface $element = null): mixed
     {
         if ($value === null || $value === '') {
             return null;
         }
 
-        return (float)$value;
+        if (is_int($value) || is_float($value) || (is_string($value) && is_numeric($value))) {
+            return (float)$value;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getElementValidationRules(): array
+    {
+        $rules = parent::getElementValidationRules();
+        $rules[] = ['number', 'min' => $this->minValue, 'max' => $this->maxValue];
+        $rules[] = ['in', 'range' => array_column($this->getRatingOptions(), 'value')];
+
+        return $rules;
     }
 
     /**

@@ -60,6 +60,8 @@ All of these live in the field's **Settings** tab. Options appear only when they
 > [!NOTE]
 > **Emoji Render Mode** (in the **General** tab, shown only for emoji) controls how the emoji are drawn: **System Emojis** (native, fully local), **Noto Color Emoji**, or **Noto Emoji**. The two Noto modes load fonts from the Google Fonts CDN at render time — see the GDPR note in [Configuration](../get-started/configuration.md#field-defaults-general-tab).
 
+Submitted ratings are checked again on the server against the field's configured range and exact options. Whole-star and emoji fields accept only whole steps, half-star fields accept only `.5` steps, and NPS accepts only whole values from 0 through 10. A modified browser request cannot save a value outside those choices.
+
 ## How a rating shows up afterwards
 
 - **In submissions (Control Panel):** stars render as gold/grey stars with `(value/max)`; emoji show the matching face with `(value/max)`; NPS shows the number in a coloured box.
