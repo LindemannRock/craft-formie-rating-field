@@ -14,6 +14,7 @@ use lindemannrock\formieratingfield\controllers\SettingsController;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use ReflectionMethod;
 
 /**
  * @since 3.21.0
@@ -67,6 +68,37 @@ final class SettingsControllerSectionScopeTest extends TestCase
         self::assertContains('defaultSingleEmojiSelection', $expected['general']);
         self::assertNotContains('defaultSingleEmojiSelection', $expected['interface']);
         self::assertNotContains('defaultSingleEmojiSelection', $expected['cache']);
+    }
+
+    public function testMixedSectionInputUsesGeneralDefaultAndActionDelegatesToNormalizer(): void
+    {
+        $controller = new SettingsController('settings', FormieRatingField::$plugin);
+        $method = new ReflectionMethod($controller, 'validSection');
+
+        self::assertSame('general', $method->invoke($controller, ['interface']));
+        self::assertSame('general', $method->invoke($controller, null));
+        self::assertSame('general', $method->invoke($controller, 'unknown'));
+        self::assertSame('interface', $method->invoke($controller, 'interface'));
+
+        $action = new ReflectionMethod(SettingsController::class, 'actionSave');
+        $filename = $action->getFileName();
+        self::assertIsString($filename);
+        $lines = file($filename);
+        self::assertIsArray($lines);
+        $source = implode('', array_slice(
+            $lines,
+            $action->getStartLine() - 1,
+            $action->getEndLine() - $action->getStartLine() + 1,
+        ));
+
+        self::assertStringContainsString(
+            "\$section = \$this->validSection(Craft::\$app->getRequest()->getBodyParam('section', 'general'));",
+            $source,
+        );
+        self::assertStringNotContainsString(
+            "(string) Craft::\$app->getRequest()->getBodyParam('section'",
+            $source,
+        );
     }
 
     public function testGeneralTemplatePostsDefaultSingleEmojiSelectionWithConfigOverrideHandling(): void

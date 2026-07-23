@@ -35,14 +35,14 @@ class StatisticsController extends Controller
     use FormieSubmissionPermissionTrait;
 
     /**
-     * Resolve a raw siteId query/body param to a validated int or 'all'.
+     * Resolve raw site input to an editable site ID or the all-sites sentinel.
      *
      * - null / empty / 'all' / non-string → 'all' (cross-site)
      * - numeric string → cast to int and verify it is an editable site; throws ForbiddenHttpException if not
      *
-     * @param mixed $rawSiteId
+     * @param mixed $rawSiteId Raw request value
      * @return int|string int for a specific site, 'all' for cross-site
-     * @throws ForbiddenHttpException
+     * @throws ForbiddenHttpException If the requested site is not editable
      */
     private function _resolveSiteId(mixed $rawSiteId): int|string
     {
@@ -61,8 +61,11 @@ class StatisticsController extends Controller
     }
 
     /**
-     * @param mixed $rawGroupBy
-     * @param array $groupableFields
+     * Normalize a group-by handle against the form's current groupable fields.
+     *
+     * @param mixed $rawGroupBy Raw request value
+     * @param array $groupableFields Current groupable field metadata
+     * @return string|null Valid groupable field handle, or null
      */
     private function _normalizeGroupByHandle(mixed $rawGroupBy, array $groupableFields): ?string
     {
@@ -80,8 +83,11 @@ class StatisticsController extends Controller
     }
 
     /**
-     * @param mixed $rawFieldHandle
-     * @param array $ratingFields
+     * Normalize a rating field handle against the form's current Rating fields.
+     *
+     * @param mixed $rawFieldHandle Raw request value
+     * @param array $ratingFields Current form fields
+     * @return string|null Valid Rating field handle, or null
      */
     private function _normalizeRatingFieldHandle(mixed $rawFieldHandle, array $ratingFields): ?string
     {
@@ -98,11 +104,24 @@ class StatisticsController extends Controller
         return null;
     }
 
+    /**
+     * Normalize a grouped value to a safe request string.
+     *
+     * @param mixed $rawGroupValue Raw request value
+     * @return string Group value, or an empty string for invalid input
+     */
     private function _normalizeGroupValue(mixed $rawGroupValue): string
     {
         return is_string($rawGroupValue) ? $rawGroupValue : '';
     }
 
+    /**
+     * Normalize a date-range value against the supported range allowlist.
+     *
+     * @param mixed $rawDateRange Raw request value
+     * @param mixed $fallback Preferred fallback range
+     * @return string Canonical supported date range
+     */
     private function _normalizeDateRange(mixed $rawDateRange, mixed $fallback = 'all'): string
     {
         $validDateRanges = array_keys(DateRangeHelper::getOptions('assoc', false));
@@ -121,6 +140,17 @@ class StatisticsController extends Controller
         }
 
         return in_array($rawDateRange, $validDateRanges, true) ? $rawDateRange : $normalizedFallback;
+    }
+
+    /**
+     * Normalize mixed export-format input to a string for ExportHelper.
+     *
+     * @param mixed $rawFormat Raw request value
+     * @return string Request format, or an empty string for invalid input
+     */
+    private function _normalizeFormat(mixed $rawFormat): string
+    {
+        return is_string($rawFormat) ? $rawFormat : '';
     }
 
     protected function setStatisticsError(string $message): void
@@ -163,17 +193,21 @@ class StatisticsController extends Controller
 
         // 64-char defensive clamp on free-text search. Keeps a runaway payload
         // (URL of any length) from reaching the filter loop.
-        $search = trim((string) $request->getQueryParam('search', ''));
+        $rawSearch = $request->getQueryParam('search', '');
+        $search = is_string($rawSearch) ? trim($rawSearch) : '';
         if (mb_strlen($search) > 64) {
             $search = mb_substr($search, 0, 64);
         }
 
         $validSortFields = ['title', 'handle', 'ratingFieldCount', 'totalSubmissions'];
-        $sort = (string) $request->getQueryParam('sort', 'totalSubmissions');
-        if (!in_array($sort, $validSortFields, true)) {
+        $rawSort = $request->getQueryParam('sort', 'totalSubmissions');
+        if (!is_string($rawSort) || !in_array($rawSort, $validSortFields, true)) {
             $sort = 'totalSubmissions';
+        } else {
+            $sort = $rawSort;
         }
-        $dir = strtolower((string) $request->getQueryParam('dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $rawDir = $request->getQueryParam('dir', 'desc');
+        $dir = is_string($rawDir) && strtolower($rawDir) === 'asc' ? 'asc' : 'desc';
 
         $page = max(1, (int) $request->getQueryParam('page', 1));
         $limit = max(1, (int) $settings->itemsPerPage);
@@ -447,7 +481,8 @@ class StatisticsController extends Controller
 
         $request = Craft::$app->getRequest();
         $formId = (int) $request->getBodyParam('formId');
-        $fieldHandle = $request->getBodyParam('fieldHandle');
+        $rawFieldHandle = $request->getBodyParam('fieldHandle');
+        $fieldHandle = is_string($rawFieldHandle) ? $rawFieldHandle : '';
         $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
         $type = $request->getBodyParam('type', 'summary');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
@@ -493,11 +528,19 @@ class StatisticsController extends Controller
 
                 case 'trend':
                     // Get trend data for a specific field
-                    if (!$fieldHandle) {
+                    if ($fieldHandle === '') {
                         return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field handle is required')]);
                     }
 
-                    $field = $statisticsService->getRatingFieldByHandle($form, $fieldHandle);
+                    $fieldHandle = $this->_normalizeRatingFieldHandle(
+                        $fieldHandle,
+                        $statisticsService->getRatingFieldsForForm($form),
+                    );
+                    $field = null;
+                    if ($fieldHandle !== null) {
+                        $field = $statisticsService->getRatingFieldByHandle($form, $fieldHandle);
+                    }
+
                     if (!$field) {
                         return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field not found')]);
                     }
@@ -507,11 +550,19 @@ class StatisticsController extends Controller
 
                 case 'distribution':
                     // Get distribution data for a specific field
-                    if (!$fieldHandle) {
+                    if ($fieldHandle === '') {
                         return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field handle is required')]);
                     }
 
-                    $field = $statisticsService->getRatingFieldByHandle($form, $fieldHandle);
+                    $fieldHandle = $this->_normalizeRatingFieldHandle(
+                        $fieldHandle,
+                        $statisticsService->getRatingFieldsForForm($form),
+                    );
+                    $field = null;
+                    if ($fieldHandle !== null) {
+                        $field = $statisticsService->getRatingFieldByHandle($form, $fieldHandle);
+                    }
+
                     if (!$field) {
                         return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field not found')]);
                     }
@@ -592,7 +643,7 @@ class StatisticsController extends Controller
         $rawGroupValue = $request->getBodyParam('groupValue', '');
         $groupValue = $this->_normalizeGroupValue($rawGroupValue);
         $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
-        $format = $request->getBodyParam('format', 'csv');
+        $format = $this->_normalizeFormat($request->getBodyParam('format', 'csv'));
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
         if ($formId <= 0 || !$groupValue) {
@@ -762,7 +813,7 @@ class StatisticsController extends Controller
 
         $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
         $groupBy = $request->getBodyParam('groupBy', null);
-        $format = $request->getBodyParam('format', 'csv');
+        $format = $this->_normalizeFormat($request->getBodyParam('format', 'csv'));
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
 
         // Gate by enabled export formats from config/formie-rating-field.php (or base default)

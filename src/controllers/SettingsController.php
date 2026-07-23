@@ -109,7 +109,7 @@ class SettingsController extends Controller
         }
 
         $params = (array)Craft::$app->getRequest()->getBodyParam('settings', []);
-        $section = $this->validSection((string) Craft::$app->getRequest()->getBodyParam('section', 'general'));
+        $section = $this->validSection(Craft::$app->getRequest()->getBodyParam('section', 'general'));
         $plugin = FormieRatingField::$plugin;
         $settings = $plugin->getSettings();
         $oldCacheGenerationSchedule = $settings->cacheGenerationSchedule;
@@ -151,10 +151,16 @@ class SettingsController extends Controller
         return $this->redirectToPostedUrl();
     }
 
-    private function validSection(string $section): string
+    /**
+     * Normalize mixed section input to a supported settings section.
+     *
+     * @param mixed $section Raw request value
+     * @return string Supported settings section
+     */
+    private function validSection(mixed $section): string
     {
         $allowed = ['general', 'interface', 'cache'];
-        return in_array($section, $allowed, true) ? $section : 'general';
+        return is_string($section) && in_array($section, $allowed, true) ? $section : 'general';
     }
 
     /**
