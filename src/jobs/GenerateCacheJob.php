@@ -281,7 +281,7 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
             ])
         );
 
-        // Clear this specific cache first to force regeneration (always siteId='all' for pre-warming)
+        // Resolve the cache filename for generation logging (always siteId='all' for pre-warming)
         $cacheFilename = $statisticsService->getCacheFilename($form->id, $field, $this->dateRange, $this->groupBy, 'all');
         Craft::info("Generating cache for: {$cacheFilename}", __METHOD__);
 

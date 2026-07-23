@@ -37,16 +37,16 @@ class StatisticsController extends Controller
     /**
      * Resolve a raw siteId query/body param to a validated int or 'all'.
      *
-     * - null / empty / 'all' → 'all' (cross-site)
+     * - null / empty / 'all' / non-string → 'all' (cross-site)
      * - numeric string → cast to int and verify it is an editable site; throws ForbiddenHttpException if not
      *
-     * @param string|null $rawSiteId
+     * @param mixed $rawSiteId
      * @return int|string int for a specific site, 'all' for cross-site
      * @throws ForbiddenHttpException
      */
-    private function _resolveSiteId(?string $rawSiteId): int|string
+    private function _resolveSiteId(mixed $rawSiteId): int|string
     {
-        if (!$rawSiteId || $rawSiteId === 'all') {
+        if (!is_string($rawSiteId) || $rawSiteId === '' || $rawSiteId === 'all') {
             return 'all';
         }
 
