@@ -28,7 +28,7 @@ class RatingFieldAsset extends AssetBundle
     public function init(): void
     {
         // Define the path to the built assets folder
-        $this->sourcePath = __DIR__ . '/dist';
+        $this->sourcePath = '@lindemannrock/formieratingfield/web/assets/field/dist';
 
         // Define which files to include
         $this->css = [

@@ -967,7 +967,7 @@ class Rating extends Field implements FieldInterface
     public function getFrontEndJsModules(): ?array
     {
         // Register the asset bundle to ensure CSS is also loaded
-        Craft::$app->getView()->registerAssetBundle(RatingFieldAsset::class);
+        $bundle = Craft::$app->getView()->registerAssetBundle(RatingFieldAsset::class);
 
         // Register front-end JS translation strings under our category. Consumed by
         // rating.js via Craft.t('formie-rating-field', '...'). Add new strings to
@@ -977,12 +977,8 @@ class Rating extends Field implements FieldInterface
             '{value} stars',
         ]);
 
-        // Get the published URL using the asset bundle's source path
-        $assetPath = dirname((new \ReflectionClass(RatingFieldAsset::class))->getFileName());
-        $publishedUrl = Craft::$app->getAssetManager()->getPublishedUrl($assetPath, true);
-
         $modules = [
-            'src' => $publishedUrl . '/dist/js/rating.js',
+            'src' => $bundle->baseUrl . '/js/rating.js',
             'module' => 'FormieRating',
             'settings' => [
                 'ratingType' => $this->ratingType,
