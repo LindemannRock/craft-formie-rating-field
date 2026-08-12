@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\web\assets\field;
@@ -26,8 +26,8 @@ class RatingFieldAsset extends AssetBundle
      */
     public function init(): void
     {
-        // Define the path to the built assets folder
-        $this->sourcePath = __DIR__ . '/dist';
+        // Define the path to the built assets folder through the Composer alias
+        $this->sourcePath = '@lindemannrock/formieratingfield/web/assets/field/dist';
 
         // Define which files to include
         $this->css = [
