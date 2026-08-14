@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\models;
@@ -116,7 +116,7 @@ class Settings extends Model
     public int $maxExportRows = 50000;
 
     /**
-     * @var string Cache storage method (file or redis)
+     * @var string Cache storage method (file, redis legacy token, or craft)
      */
     public string $cacheStorageMethod = 'file';
 
@@ -141,7 +141,7 @@ class Settings extends Model
             [['defaultMinRating'], 'in', 'range' => [0, 1]],
             [['defaultMaxRating'], 'in', 'range' => [3, 4, 5, 6, 7, 8, 9, 10]],
             [['defaultEmojiRenderMode'], 'in', 'range' => ['system', 'noto-color', 'noto-simple', 'webfont']], // 'webfont' for backward compatibility
-            [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis']],
+            [['cacheStorageMethod'], 'in', 'range' => ['file', 'redis', 'craft']],
             [['cacheGenerationSchedule'], 'in', 'range' => array_merge(self::CACHE_GENERATION_SCHEDULE_OPTIONS, ['manual', 'twicedaily'])],
         ], $this->pluginNameSettingsRules(), $this->dateFormatSettingsRules(), $this->dateRangeSettingsRules(), $this->exportFormatSettingsRules(), $this->itemsPerPageSettingsRules());
     }

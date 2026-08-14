@@ -11,9 +11,13 @@ namespace lindemannrock\formieratingfield\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use craft\helpers\App;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
+use lindemannrock\base\cache\CacheBackendStatus;
+use lindemannrock\base\cache\ScopedCache;
+use lindemannrock\base\cache\ScopedCacheResult;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\DbHelper;
@@ -40,6 +44,18 @@ use yii\db\Expression;
  */
 class StatisticsService extends Component
 {
+    private const CACHE_PLUGIN_HANDLE = 'formie-rating-field';
+    private const CACHE_FAMILY = 'statistics';
+    private const CACHE_STORAGE_APPLICATION = 'application';
+    private const CACHE_STORAGE_DISABLED = 'disabled';
+
+    /**
+     * Craft's default general cache duration. Used only when the configured
+     * duration is zero, invalid, or otherwise unavailable because scoped cache
+     * items must always have a finite positive TTL.
+     */
+    private const APPLICATION_CACHE_TTL_FALLBACK = 86400;
+
     /**
      * Maximum number of grouped rows retained in a cached dashboard payload.
      *
@@ -54,6 +70,9 @@ class StatisticsService extends Component
      * (handles must start with a letter).
      */
     private const TREND_CACHE_VARIANT = '__trend__';
+
+    /** @var array<string, true> */
+    private array $cacheDiagnostics = [];
 
     /**
      * Get all forms that have at least one rating field
@@ -225,8 +244,14 @@ class StatisticsService extends Component
         // Try to get from cache
         $cachedData = $this->getFromCache($form->id, $field, $dateRange, $groupByHandle, $siteId);
 
-        if ($cachedData !== null) {
-            return $cachedData;
+        if ($cachedData->isHit() && is_array($cachedData->value)) {
+            return $cachedData->value;
+        }
+        if ($cachedData->isHit()) {
+            $this->logCacheDiagnosticOnce(
+                'invalid-payload',
+                'Statistics cache returned an invalid payload; recomputing.',
+            );
         }
 
         // If grouping is requested, return grouped statistics
@@ -961,26 +986,11 @@ class StatisticsService extends Component
     }
 
     /**
-     * Generate cache key for Redis/database storage
-     *
-     * @param int $formId
-     * @param Rating|string $fieldHandle
-     * @param string $dateRange
-     * @param string|null $groupByHandle
-     * @param int|string $siteId
-     * @return string
-     */
-    private function getCacheKey(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
-    {
-        return 'formie-rating-stats-' . $this->buildCacheIdentity($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
-    }
-
-    /**
      * Get cache directory path
      *
      * @return string
      */
-    private function getCachePath(): string
+    protected function getCachePath(): string
     {
         return PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics');
     }
@@ -1010,44 +1020,65 @@ class StatisticsService extends Component
      * @param string $dateRange
      * @param string|null $groupByHandle
      * @param int|string $siteId
-     * @return array|null
+     * @return ScopedCacheResult
      */
-    private function getFromCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): ?array
+    private function getFromCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): ScopedCacheResult
     {
-        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
-
-        // Use Redis/database cache if configured
-        if ($settings->cacheStorageMethod === 'redis') {
-            // Fail-closed on misconfig (setting=redis but cache component isn't Redis):
-            // treat as a miss so the caller recomputes, matching the clear paths' no-op.
-            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+        $storage = $this->getEffectiveCacheStorage();
+        if ($storage === self::CACHE_STORAGE_APPLICATION) {
+            $cache = $this->getApplicationScopedCache();
             if ($cache === null) {
-                return null;
+                return ScopedCacheResult::failure();
             }
 
-            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
-            $cached = $cache->get($cacheKey);
-            return $cached !== false ? $cached : null;
+            $result = $cache->get(
+                $this->buildCacheIdentity($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId),
+                (string)$formId,
+            );
+            if ($result->isFailure()) {
+                $this->logCacheDiagnosticOnce(
+                    'application-read-failure',
+                    'Application statistics cache read failed; recomputing.',
+                );
+            }
+
+            return $result;
+        }
+        if ($storage === self::CACHE_STORAGE_DISABLED) {
+            return ScopedCacheResult::miss();
         }
 
-        // Use file-based cache (default)
-        $cachePath = $this->getCachePath();
-        $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
-        $filepath = $cachePath . $filename;
+        try {
+            $cachePath = $this->getCachePath();
+            $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
+            $filepath = $cachePath . $filename;
 
-        if (!file_exists($filepath)) {
-            return null;
+            if (!@is_file($filepath)) {
+                return ScopedCacheResult::miss();
+            }
+
+            // JSON preserves the established durable-host file payload and
+            // avoids unserializing runtime file contents.
+            $data = @file_get_contents($filepath);
+            if ($data === false) {
+                $this->logCacheDiagnosticOnce('file-read-failure', 'Statistics file cache read failed; recomputing.');
+                return ScopedCacheResult::failure();
+            }
+
+            $decoded = json_decode($data, true);
+            if (!is_array($decoded)) {
+                $this->logCacheDiagnosticOnce('file-decode-failure', 'Statistics file cache payload is invalid; recomputing.');
+                return ScopedCacheResult::failure();
+            }
+
+            return ScopedCacheResult::hit($decoded);
+        } catch (\Throwable $e) {
+            $this->logCacheDiagnosticOnce(
+                'file-read-exception',
+                sprintf('Statistics file cache read failed (%s); recomputing.', $e::class),
+            );
+            return ScopedCacheResult::failure();
         }
-
-        // Read and decode cache (JSON — never unserialize untrusted file contents)
-        $data = file_get_contents($filepath);
-        if ($data === false) {
-            return null;
-        }
-
-        $decoded = json_decode($data, true);
-
-        return is_array($decoded) ? $decoded : null;
     }
 
     /**
@@ -1063,58 +1094,61 @@ class StatisticsService extends Component
      */
     private function saveToCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats, int|string $siteId = 'all'): bool
     {
-        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
-
-        // Use Redis/database cache if configured
-        if ($settings->cacheStorageMethod === 'redis') {
-            // Fail-closed on misconfig (setting=redis but cache component isn't Redis):
-            // skip the write so nothing lands in an unclearable store, matching the clear paths' no-op.
-            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+        $storage = $this->getEffectiveCacheStorage();
+        if ($storage === self::CACHE_STORAGE_APPLICATION) {
+            $cache = $this->getApplicationScopedCache();
             if ($cache === null) {
                 return false;
             }
 
-            $cacheKey = $this->getCacheKey($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
-
-            $result = $cache->set($cacheKey, $stats);
-
-            if ($result) {
-                // Track the key in our Redis index so we can scoped-flush later
-                // (Yii's $cache->flush() would wipe every other plugin's keys too)
-                $this->trackRedisCacheKey($cacheKey);
-            } else {
-                Craft::error("Failed to save cache: {$cacheKey}", __METHOD__);
+            $result = $cache->set(
+                $this->buildCacheIdentity($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId),
+                $stats,
+                $this->getApplicationCacheTtl(),
+                (string)$formId,
+            );
+            if (!$result) {
+                $this->logCacheDiagnosticOnce(
+                    'application-write-failure',
+                    'Application statistics cache write failed; continuing without cached data.',
+                );
             }
 
             return $result;
         }
-
-        // Use file-based cache (default)
-        $cachePath = $this->getCachePath();
-
-        // Create cache directory if it doesn't exist
-        if (!is_dir($cachePath)) {
-            FileHelper::createDirectory($cachePath);
-        }
-
-        $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
-        $filepath = $cachePath . $filename;
-
-        // Encode as JSON (avoids unsafe unserialize on read)
-        $data = json_encode($stats);
-
-        if ($data === false) {
-            Craft::error("Failed to JSON-encode cache for file: {$filename}", __METHOD__);
+        if ($storage === self::CACHE_STORAGE_DISABLED) {
             return false;
         }
 
-        $result = file_put_contents($filepath, $data) !== false;
+        try {
+            $cachePath = $this->getCachePath();
 
-        if (!$result) {
-            Craft::error("Failed to save cache to file: {$filename}", __METHOD__);
+            if (!@is_dir($cachePath)) {
+                FileHelper::createDirectory($cachePath);
+            }
+
+            $filename = $this->getCacheFilename($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
+            $filepath = $cachePath . $filename;
+            $data = json_encode($stats);
+
+            if ($data === false) {
+                $this->logCacheDiagnosticOnce('file-encode-failure', 'Statistics file cache payload could not be encoded.');
+                return false;
+            }
+
+            $result = @file_put_contents($filepath, $data) !== false;
+            if (!$result) {
+                $this->logCacheDiagnosticOnce('file-write-failure', 'Statistics file cache write failed; continuing without cached data.');
+            }
+
+            return $result;
+        } catch (\Throwable $e) {
+            $this->logCacheDiagnosticOnce(
+                'file-write-exception',
+                sprintf('Statistics file cache write failed (%s); continuing without cached data.', $e::class),
+            );
+            return false;
         }
-
-        return $result;
     }
 
     /**
@@ -1125,59 +1159,28 @@ class StatisticsService extends Component
      */
     public function clearCacheForForm(int $formId): bool
     {
-        $settings = FormieRatingField::$plugin->getSettings();
-
-        // Redis storage — filter the SADD index by form-id prefix and delete matching keys.
-        // (Without this branch, Redis users got silent no-ops on submission save/delete.)
-        if ($settings->cacheStorageMethod === 'redis') {
-            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
+        $storage = $this->getEffectiveCacheStorage();
+        if ($storage === self::CACHE_STORAGE_APPLICATION) {
+            $cache = $this->getApplicationScopedCache();
             if ($cache === null) {
-                return true; // misconfig already logged
-            }
-
-            $tracked = $cache->redis->executeCommand('SMEMBERS', [$this->getRedisKeyIndex()]);
-            if (!is_array($tracked)) {
                 return true;
             }
 
-            // All cache keys for this form start with "formie-rating-stats-{$formId}-"
-            // (see getCacheKey() — formId always follows the static prefix).
-            $prefix = "formie-rating-stats-{$formId}-";
-            $cleared = true;
-            foreach ($tracked as $key) {
-                if (!str_starts_with((string)$key, $prefix)) {
-                    continue;
-                }
-                if (!$cache->delete($key)) {
-                    $cleared = false;
-                }
-                $cache->redis->executeCommand('SREM', [$this->getRedisKeyIndex(), $key]);
+            $result = $cache->invalidateScope((string)$formId);
+            if (!$result) {
+                $this->logCacheDiagnosticOnce(
+                    'application-scope-invalidation-failure',
+                    'Application statistics cache scope invalidation failed.',
+                );
             }
 
-            return $cleared;
+            return $result;
         }
-
-        $cachePath = $this->getCachePath();
-
-        if (!is_dir($cachePath)) {
+        if ($storage === self::CACHE_STORAGE_DISABLED) {
             return true;
         }
 
-        // Cache filenames are prefixed with "{formId}-" (see getCacheFilename)
-        $files = glob($cachePath . $formId . '-*.cache');
-
-        if ($files === false) {
-            return false;
-        }
-
-        $cleared = true;
-        foreach ($files as $file) {
-            if (!@unlink($file)) {
-                $cleared = false;
-            }
-        }
-
-        return $cleared;
+        return $this->clearFileCache($formId . '-*.cache');
     }
 
     /**
@@ -1187,105 +1190,162 @@ class StatisticsService extends Component
      */
     public function clearAllCache(): bool
     {
-        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
-
-        // Clear Redis/database cache if configured
-        if ($settings->cacheStorageMethod === 'redis') {
-            // Delete only the keys this plugin owns — never call $cache->flush(),
-            // which would wipe every other plugin's cache keys too.
-            $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
-            if ($cache !== null) {
-                $tracked = $cache->redis->executeCommand('SMEMBERS', [$this->getRedisKeyIndex()]);
-                if (is_array($tracked)) {
-                    foreach ($tracked as $key) {
-                        $cache->delete($key);
-                    }
-                }
-                $cache->redis->executeCommand('DEL', [$this->getRedisKeyIndex()]);
-                // Sweep the legacy counter key (replaced by SCARD on the index set)
-                $cache->redis->executeCommand('DEL', ['formie-rating-cache-count']);
+        $storage = $this->getEffectiveCacheStorage();
+        if ($storage === self::CACHE_STORAGE_APPLICATION) {
+            $cache = $this->getApplicationScopedCache();
+            if ($cache === null) {
+                return true;
             }
 
+            $result = $cache->invalidateFamily();
+            if (!$result) {
+                $this->logCacheDiagnosticOnce(
+                    'application-family-invalidation-failure',
+                    'Application statistics cache family invalidation failed.',
+                );
+            }
+
+            return $result;
+        }
+        if ($storage === self::CACHE_STORAGE_DISABLED) {
             return true;
         }
 
-        // Clear file-based cache (default)
-        $cachePath = $this->getCachePath();
-
-        if (!is_dir($cachePath)) {
-            return true;
-        }
-
-        $files = glob($cachePath . '*.cache');
-
-        if ($files === false) {
-            return false;
-        }
-
-        $cleared = true;
-        foreach ($files as $file) {
-            if (!@unlink($file)) {
-                $cleared = false;
-            }
-        }
-
-        return $cleared;
+        return $this->clearFileCache('*.cache');
     }
 
     /**
-     * Track a cache key in our Redis index so we can scope-delete it later
-     * without flushing the whole shared Craft cache.
-     */
-    private function trackRedisCacheKey(string $cacheKey): void
-    {
-        $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
-        if ($cache !== null) {
-            $cache->redis->executeCommand('SADD', [$this->getRedisKeyIndex(), $cacheKey]);
-        }
-    }
-
-    /**
-     * Get count of cache entries
+     * Count durable file-cache entries only.
      *
-     * @return int
+     * Application caches use generation invalidation and cannot be enumerated.
      */
     public function getCacheFileCount(): int
     {
-        $settings = \lindemannrock\formieratingfield\FormieRatingField::$plugin->getSettings();
-
-        // For Redis, count members of our key-index set
-        if ($settings->cacheStorageMethod === 'redis') {
-            try {
-                $cache = PluginHelper::getRedisCacheOrLog('formie-rating-field');
-                if ($cache === null) {
-                    return 0; // misconfig already logged
-                }
-                $count = $cache->redis->executeCommand('SCARD', [$this->getRedisKeyIndex()]);
-                return (int)($count ?: 0);
-            } catch (\Exception $e) {
-                Craft::error('Failed to get Redis cache count: ' . $e->getMessage(), __METHOD__);
-                return 0;
-            }
-        }
-
-        // Count file-based cache
-        $cachePath = $this->getCachePath();
-
-        if (!is_dir($cachePath)) {
+        if ($this->isEphemeralHost()) {
             return 0;
         }
 
-        $files = glob($cachePath . '*.cache');
+        try {
+            $cachePath = $this->getCachePath();
+            if (!@is_dir($cachePath)) {
+                return 0;
+            }
 
-        return $files !== false ? count($files) : 0;
+            $files = @glob($cachePath . '*.cache');
+            if ($files === false) {
+                $this->logCacheDiagnosticOnce('file-count-failure', 'Statistics file cache count failed.');
+                return 0;
+            }
+
+            return count($files);
+        } catch (\Throwable $e) {
+            $this->logCacheDiagnosticOnce(
+                'file-count-exception',
+                sprintf('Statistics file cache count failed (%s).', $e::class),
+            );
+            return 0;
+        }
     }
 
-    /**
-     * Redis SET key holding every cache key this plugin owns.
-     */
-    private function getRedisKeyIndex(): string
+    private function getEffectiveCacheStorage(): string
     {
-        return PluginHelper::getCacheKeySet(FormieRatingField::$plugin->id, 'stats');
+        $configured = FormieRatingField::$plugin->getSettings()->cacheStorageMethod;
+
+        return match ($configured) {
+            'redis', 'craft' => self::CACHE_STORAGE_APPLICATION,
+            'file' => $this->isEphemeralHost() ? self::CACHE_STORAGE_APPLICATION : 'file',
+            default => self::CACHE_STORAGE_DISABLED,
+        };
+    }
+
+    private function getApplicationScopedCache(): ?ScopedCache
+    {
+        $cache = PluginHelper::getApplicationCacheOrLog(self::CACHE_PLUGIN_HANDLE . ':statistics');
+        $status = CacheBackendStatus::fromCache($cache);
+
+        if ($cache === null || !$status->supportsCrossRequest($this->isEphemeralHost())) {
+            $this->logCacheDiagnosticOnce(
+                'application-cache-unsuitable-' . $status->backend,
+                sprintf(
+                    'Craft application cache backend "%s" is unavailable or unsuitable for statistics; recomputing.',
+                    $status->backend,
+                ),
+            );
+            return null;
+        }
+
+        try {
+            return new ScopedCache($cache, self::CACHE_PLUGIN_HANDLE, self::CACHE_FAMILY);
+        } catch (\Throwable $e) {
+            $this->logCacheDiagnosticOnce(
+                'application-cache-initialization',
+                sprintf('Application statistics cache initialization failed (%s); recomputing.', $e::class),
+            );
+            return null;
+        }
+    }
+
+    private function getApplicationCacheTtl(): int
+    {
+        try {
+            $duration = Craft::$app->getConfig()->getGeneral()->cacheDuration;
+        } catch (\Throwable) {
+            return self::APPLICATION_CACHE_TTL_FALLBACK;
+        }
+
+        return is_int($duration) && $duration > 0
+            ? $duration
+            : self::APPLICATION_CACHE_TTL_FALLBACK;
+    }
+
+    private function clearFileCache(string $pattern): bool
+    {
+        try {
+            $cachePath = $this->getCachePath();
+            if (!@is_dir($cachePath)) {
+                return true;
+            }
+
+            $files = @glob($cachePath . $pattern);
+            if ($files === false) {
+                $this->logCacheDiagnosticOnce('file-clear-enumeration-failure', 'Statistics file cache enumeration failed.');
+                return false;
+            }
+
+            $cleared = true;
+            foreach ($files as $file) {
+                if (!@unlink($file)) {
+                    $cleared = false;
+                }
+            }
+
+            if (!$cleared) {
+                $this->logCacheDiagnosticOnce('file-clear-failure', 'One or more statistics file cache entries could not be deleted.');
+            }
+
+            return $cleared;
+        } catch (\Throwable $e) {
+            $this->logCacheDiagnosticOnce(
+                'file-clear-exception',
+                sprintf('Statistics file cache clear failed (%s).', $e::class),
+            );
+            return false;
+        }
+    }
+
+    protected function isEphemeralHost(): bool
+    {
+        return App::isEphemeral();
+    }
+
+    private function logCacheDiagnosticOnce(string $key, string $message): void
+    {
+        if (isset($this->cacheDiagnostics[$key])) {
+            return;
+        }
+
+        $this->cacheDiagnostics[$key] = true;
+        Craft::warning($message, self::CACHE_PLUGIN_HANDLE);
     }
 
     /**
@@ -1383,8 +1443,14 @@ class StatisticsService extends Component
         // Try cache. The sentinel groupByHandle '__trend__' segregates trend data from
         // field-stats and from any real groupBy (Formie field handles must start with a letter).
         $cached = $this->getFromCache($form->id, $field, $dateRange, self::TREND_CACHE_VARIANT, $siteId);
-        if ($cached !== null) {
-            return $cached;
+        if ($cached->isHit() && is_array($cached->value)) {
+            return $cached->value;
+        }
+        if ($cached->isHit()) {
+            $this->logCacheDiagnosticOnce(
+                'invalid-payload',
+                'Statistics cache returned an invalid payload; recomputing.',
+            );
         }
 
         // SQL-aggregate per bucket — replaces the prior approach of materialising every

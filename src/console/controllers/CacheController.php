@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\console\controllers;
@@ -54,21 +54,13 @@ class CacheController extends Controller
         $this->stdout("Clearing rating field statistics cache...\n");
 
         $statisticsService = FormieRatingField::$plugin->statistics;
-        $cacheCount = $statisticsService->getCacheFileCount();
-
-        if ($cacheCount === 0) {
-            $this->stdout("No cache files to clear.\n");
-            return ExitCode::OK;
-        }
-
-        $this->stdout("Found {$cacheCount} cache file(s).\n");
 
         if ($statisticsService->clearAllCache()) {
-            $this->stdout("Successfully cleared all statistics cache files.\n");
+            $this->stdout("Successfully cleared statistics cache.\n");
             return ExitCode::OK;
         }
 
-        $this->stderr("Error: Failed to clear cache files.\n");
+        $this->stderr("Error: Failed to clear statistics cache.\n");
         return ExitCode::UNSPECIFIED_ERROR;
     }
 
@@ -107,8 +99,9 @@ class CacheController extends Controller
 
         $this->stdout("Rating Field Statistics Cache Info:\n");
         $this->stdout("-----------------------------------\n");
-        $this->stdout("Cache path: {$cachePath}\n");
-        $this->stdout("Cache files: {$cacheCount}\n");
+        $this->stdout("Configured storage: {$settings->cacheStorageMethod}\n");
+        $this->stdout("File cache path: {$cachePath}\n");
+        $this->stdout("File cache entries: {$cacheCount}\n");
         $this->stdout("Generation schedule: {$settings->getEffectiveCacheGenerationSchedule()}\n");
         $this->stdout("Manual clear: php craft formie-rating-field/cache/clear\n");
         $this->stdout("Manual generate: php craft formie-rating-field/cache/generate\n");

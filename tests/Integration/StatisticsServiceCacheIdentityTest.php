@@ -36,13 +36,13 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
     }
 
     #[DataProvider('fieldConfigurationMutationProvider')]
-    public function testFieldConfigurationChangesInvalidateFileAndRedisIdentities(array $overrides): void
+    public function testFieldConfigurationChangesInvalidateFileAndApplicationCacheIdentities(array $overrides): void
     {
         $baseline = $this->cacheIdentities($this->ratingField());
         $changed = $this->cacheIdentities($this->ratingField($overrides));
 
         self::assertNotSame($baseline['file'], $changed['file']);
-        self::assertNotSame($baseline['redis'], $changed['redis']);
+        self::assertNotSame($baseline['application'], $changed['application']);
     }
 
     public static function fieldConfigurationMutationProvider(): array
@@ -73,20 +73,20 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
             $trend['file'],
         ]));
         self::assertCount(4, array_unique([
-            $summary['redis'],
-            $site['redis'],
-            $group['redis'],
-            $trend['redis'],
+            $summary['application'],
+            $site['application'],
+            $group['application'],
+            $trend['application'],
         ]));
     }
 
-    public function testFileAndRedisKeysDeriveFromTheSameIdentity(): void
+    public function testFileAndApplicationCacheDeriveFromTheSameIdentity(): void
     {
         $field = $this->ratingField();
         $identity = $this->buildCacheIdentity($field, 'last90days', 'region', 3);
         $identities = $this->cacheIdentities($field, 'last90days', 'region', 3);
 
-        self::assertSame('formie-rating-stats-' . $identity, $identities['redis']);
+        self::assertSame($identity, $identities['application']);
         self::assertSame(self::TEST_FORM_ID . '-' . md5($identity) . '.cache', $identities['file']);
     }
 
@@ -210,7 +210,7 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
     }
 
     /**
-     * @return array{file: string, redis: string}
+     * @return array{file: string, application: string}
      */
     private function cacheIdentities(
         Rating $field,
@@ -218,14 +218,11 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
         ?string $groupBy = null,
         int|string $siteId = 'all',
     ): array {
-        $getCacheKey = new ReflectionMethod(StatisticsService::class, 'getCacheKey');
-        $redis = $getCacheKey->invoke($this->statistics, self::TEST_FORM_ID, $field, $dateRange, $groupBy, $siteId);
-
-        self::assertIsString($redis);
+        $application = $this->buildCacheIdentity($field, $dateRange, $groupBy, $siteId);
 
         return [
             'file' => $this->statistics->getCacheFilename(self::TEST_FORM_ID, $field, $dateRange, $groupBy, $siteId),
-            'redis' => $redis,
+            'application' => $application,
         ];
     }
 

@@ -120,9 +120,9 @@ final class StatisticsControllerDateRangeTest extends TestCase
             $this->statistics->getCacheFilename(self::TEST_FORM_ID, $field, 'invalid-two'),
         );
 
-        $getCacheKey = new ReflectionMethod(StatisticsService::class, 'getCacheKey');
-        $firstKey = $getCacheKey->invoke($this->statistics, self::TEST_FORM_ID, $field, 'invalid-one');
-        $secondKey = $getCacheKey->invoke($this->statistics, self::TEST_FORM_ID, $field, 'invalid-two');
+        $buildIdentity = new ReflectionMethod(StatisticsService::class, 'buildCacheIdentity');
+        $firstKey = $buildIdentity->invoke($this->statistics, self::TEST_FORM_ID, $field, 'invalid-one');
+        $secondKey = $buildIdentity->invoke($this->statistics, self::TEST_FORM_ID, $field, 'invalid-two');
 
         self::assertSame($firstKey, $secondKey);
         self::assertSame(
