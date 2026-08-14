@@ -13,8 +13,8 @@ use craft\web\AssetBundle;
 /**
  * Rating Field Asset Bundle
  *
- * This asset bundle provides the CSS and JavaScript needed for the rating field
- * to function properly on the front-end of the site.
+ * This asset bundle publishes the rating field assets and registers its CSS.
+ * Formie owns loading the JavaScript URL returned by getFrontEndJsModules().
  *
  * @author LindemannRock
  * @since 1.0.0
@@ -32,10 +32,6 @@ class RatingFieldAsset extends AssetBundle
         // Define which files to include
         $this->css = [
             'css/rating.css',
-        ];
-
-        $this->js = [
-            'js/rating.js',
         ];
 
         parent::init();
