@@ -15,13 +15,14 @@ use craft\helpers\App;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
-use lindemannrock\base\cache\CacheBackendStatus;
 use lindemannrock\base\cache\ScopedCache;
 use lindemannrock\base\cache\ScopedCacheResult;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\formieratingfield\cache\StatisticsCacheStorageDecision;
+use lindemannrock\formieratingfield\cache\StatisticsCacheStorageResolver;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\FormieRatingField;
 use verbb\formie\elements\Form;
@@ -46,9 +47,6 @@ class StatisticsService extends Component
 {
     private const CACHE_PLUGIN_HANDLE = 'formie-rating-field';
     private const CACHE_FAMILY = 'statistics';
-    private const CACHE_STORAGE_APPLICATION = 'application';
-    private const CACHE_STORAGE_DISABLED = 'disabled';
-
     /**
      * Craft's default general cache duration. Used only when the configured
      * duration is zero, invalid, or otherwise unavailable because scoped cache
@@ -1024,9 +1022,9 @@ class StatisticsService extends Component
      */
     private function getFromCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): ScopedCacheResult
     {
-        $storage = $this->getEffectiveCacheStorage();
-        if ($storage === self::CACHE_STORAGE_APPLICATION) {
-            $cache = $this->getApplicationScopedCache();
+        $storage = $this->getCacheStorageDecision();
+        if ($storage->usesApplicationCache()) {
+            $cache = $this->getApplicationScopedCache($storage);
             if ($cache === null) {
                 return ScopedCacheResult::failure();
             }
@@ -1044,7 +1042,8 @@ class StatisticsService extends Component
 
             return $result;
         }
-        if ($storage === self::CACHE_STORAGE_DISABLED) {
+        if ($storage->isDisabled()) {
+            $this->logDisabledCacheDecision($storage);
             return ScopedCacheResult::miss();
         }
 
@@ -1094,9 +1093,9 @@ class StatisticsService extends Component
      */
     private function saveToCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats, int|string $siteId = 'all'): bool
     {
-        $storage = $this->getEffectiveCacheStorage();
-        if ($storage === self::CACHE_STORAGE_APPLICATION) {
-            $cache = $this->getApplicationScopedCache();
+        $storage = $this->getCacheStorageDecision();
+        if ($storage->usesApplicationCache()) {
+            $cache = $this->getApplicationScopedCache($storage);
             if ($cache === null) {
                 return false;
             }
@@ -1116,7 +1115,8 @@ class StatisticsService extends Component
 
             return $result;
         }
-        if ($storage === self::CACHE_STORAGE_DISABLED) {
+        if ($storage->isDisabled()) {
+            $this->logDisabledCacheDecision($storage);
             return false;
         }
 
@@ -1159,9 +1159,9 @@ class StatisticsService extends Component
      */
     public function clearCacheForForm(int $formId): bool
     {
-        $storage = $this->getEffectiveCacheStorage();
-        if ($storage === self::CACHE_STORAGE_APPLICATION) {
-            $cache = $this->getApplicationScopedCache();
+        $storage = $this->getCacheStorageDecision();
+        if ($storage->usesApplicationCache()) {
+            $cache = $this->getApplicationScopedCache($storage);
             if ($cache === null) {
                 return true;
             }
@@ -1176,7 +1176,7 @@ class StatisticsService extends Component
 
             return $result;
         }
-        if ($storage === self::CACHE_STORAGE_DISABLED) {
+        if ($storage->isDisabled()) {
             return true;
         }
 
@@ -1190,9 +1190,9 @@ class StatisticsService extends Component
      */
     public function clearAllCache(): bool
     {
-        $storage = $this->getEffectiveCacheStorage();
-        if ($storage === self::CACHE_STORAGE_APPLICATION) {
-            $cache = $this->getApplicationScopedCache();
+        $storage = $this->getCacheStorageDecision();
+        if ($storage->usesApplicationCache()) {
+            $cache = $this->getApplicationScopedCache($storage);
             if ($cache === null) {
                 return true;
             }
@@ -1207,7 +1207,7 @@ class StatisticsService extends Component
 
             return $result;
         }
-        if ($storage === self::CACHE_STORAGE_DISABLED) {
+        if ($storage->isDisabled()) {
             return true;
         }
 
@@ -1247,23 +1247,27 @@ class StatisticsService extends Component
         }
     }
 
-    private function getEffectiveCacheStorage(): string
+    /**
+     * Resolve configured statistics storage for the current host.
+     *
+     * Passing a storage token is used by settings previews; omitting it uses
+     * the persisted runtime setting.
+     *
+     * @since 3.23.0
+     */
+    public function getCacheStorageDecision(?string $configuredStorage = null): StatisticsCacheStorageDecision
     {
-        $configured = FormieRatingField::$plugin->getSettings()->cacheStorageMethod;
+        $configuredStorage ??= FormieRatingField::$plugin->getSettings()->cacheStorageMethod;
 
-        return match ($configured) {
-            'redis', 'craft' => self::CACHE_STORAGE_APPLICATION,
-            'file' => $this->isEphemeralHost() ? self::CACHE_STORAGE_APPLICATION : 'file',
-            default => self::CACHE_STORAGE_DISABLED,
-        };
+        return (new StatisticsCacheStorageResolver())->resolve($configuredStorage, $this->isEphemeralHost());
     }
 
-    private function getApplicationScopedCache(): ?ScopedCache
+    private function getApplicationScopedCache(StatisticsCacheStorageDecision $storage): ?ScopedCache
     {
-        $cache = PluginHelper::getApplicationCacheOrLog(self::CACHE_PLUGIN_HANDLE . ':statistics');
-        $status = CacheBackendStatus::fromCache($cache);
+        $cache = $storage->applicationCache;
+        $status = $storage->backendStatus;
 
-        if ($cache === null || !$status->supportsCrossRequest($this->isEphemeralHost())) {
+        if ($cache === null || !$storage->usesApplicationCache()) {
             $this->logCacheDiagnosticOnce(
                 'application-cache-unsuitable-' . $status->backend,
                 sprintf(
@@ -1283,6 +1287,17 @@ class StatisticsService extends Component
             );
             return null;
         }
+    }
+
+    private function logDisabledCacheDecision(StatisticsCacheStorageDecision $storage): void
+    {
+        $this->logCacheDiagnosticOnce(
+            'application-cache-unsuitable-' . $storage->backendStatus->backend,
+            sprintf(
+                'Craft application cache backend "%s" is unavailable or unsuitable for statistics; recomputing.',
+                $storage->backendStatus->backend,
+            ),
+        );
     }
 
     private function getApplicationCacheTtl(): int

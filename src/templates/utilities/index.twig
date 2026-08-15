@@ -1,9 +1,6 @@
 {% extends 'lindemannrock-base/_layouts/cp-utilities' %}
 
 {% set plugin = craft.app.plugins.getPlugin('formie-rating-field') %}
-{% set settings = plugin.settings %}
-{% set cacheCount = plugin.statistics.getCacheFileCount() %}
-{% set storageMethod = settings.cacheStorageMethod %}
 
 {# Permission checks #}
 {% set canViewStatistics = currentUser.can('formieRatingField:viewStatistics') %}
@@ -27,20 +24,18 @@
 {% block overview %}
     {# Cache Status Card - only show if user can manage cache #}
     {% if canManageCache %}
-        {% if storageMethod == 'redis' %}
-            {% include 'lindemannrock-base/_components/unified-card' with {
-                title: 'Cache Status (Redis)'|t('formie-rating-field'),
-                color: lrPaletteColor('emerald').color,
-                value: 'Active'|t('formie-rating-field'),
-            } only %}
-        {% else %}
-            {% include 'lindemannrock-base/_components/unified-card' with {
-                title: 'Cache Status (File)'|t('formie-rating-field'),
-                color: lrPaletteColor('emerald').color,
-                value: cacheCount,
-                description: 'Cached statistics'|t('formie-rating-field'),
-            } only %}
-        {% endif %}
+        {% set cacheColor = cacheStorage.statusType == 'warning'
+            ? lrPaletteColor('amber').color
+            : (cacheStorage.statusType == 'info' ? lrPaletteColor('sky').color : lrPaletteColor('emerald').color) %}
+        {% set cacheDescription = cacheStorage.usesFile
+            ? 'Cached statistics files: {count}'|t('formie-rating-field', {count: cacheCount|number})
+            : cacheStorage.backendLabel|t('formie-rating-field') %}
+        {% include 'lindemannrock-base/_components/unified-card' with {
+            title: 'Statistics Cache'|t('formie-rating-field'),
+            color: cacheColor,
+            value: cacheStorage.effectiveLabel|t('formie-rating-field'),
+            description: cacheDescription,
+        } only %}
     {% endif %}
 {% endblock %}
 

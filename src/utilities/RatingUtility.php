@@ -10,6 +10,7 @@ namespace lindemannrock\formieratingfield\utilities;
 
 use Craft;
 use craft\base\Utility;
+use lindemannrock\formieratingfield\cache\StatisticsCacheStoragePresenter;
 use lindemannrock\formieratingfield\FormieRatingField;
 
 /**
@@ -50,10 +51,12 @@ class RatingUtility extends Utility
     public static function contentHtml(): string
     {
         $statisticsService = FormieRatingField::$plugin->statistics;
-        $cacheCount = $statisticsService->getCacheFileCount();
+        $decision = $statisticsService->getCacheStorageDecision();
+        $cacheCount = $decision->usesFileCache() ? $statisticsService->getCacheFileCount() : 0;
 
         return Craft::$app->getView()->renderTemplate('formie-rating-field/utilities/index', [
             'cacheCount' => $cacheCount,
+            'cacheStorage' => (new StatisticsCacheStoragePresenter())->present($decision),
         ]);
     }
 }

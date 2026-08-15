@@ -149,6 +149,17 @@ final class TranslationCallSiteCoverageTest extends TestCase
             'Across all groups',
             'Show All',
             'Show Top 10',
+            'How to store cache data. Use Redis/Database for load-balanced or multi-server environments.',
+            'File System (default, single server)',
+            'Redis/Database (load-balanced, multi-server, cloud hosting)',
+            'Cache Location:',
+            '<strong>{label}</strong> <code>{path}</code>',
+            '<strong>Cache Location:</strong> Using Craft\'s configured Redis cache from <code>config/app.php</code>',
+            '<strong>Redis Not Configured:</strong> To use Redis caching, install <code>yiisoft/yii2-redis</code> and configure it in <code>config/app.php</code>. <a href="https://craftcms.com/docs/5.x/reference/config/app.html#cache" target="_blank" rel="noopener">Learn more</a>',
+            'Active',
+            'Cache Status (File)',
+            'Cache Status (Redis)',
+            'Cached statistics',
         ];
 
         foreach (glob(dirname(__DIR__, 2) . '/src/translations/*/formie-rating-field.php') ?: [] as $path) {

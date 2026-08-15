@@ -10,8 +10,11 @@ namespace lindemannrock\formieratingfield\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\helpers\SettingsPostHelper;
+use lindemannrock\formieratingfield\cache\StatisticsCacheStoragePresenter;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\models\Settings;
 use yii\web\Response;
 
 /**
@@ -88,10 +91,10 @@ class SettingsController extends Controller
 
         $settings = FormieRatingField::$plugin->getSettings();
 
-        return $this->renderTemplate('formie-rating-field/settings/cache', [
+        return $this->renderTemplate('formie-rating-field/settings/cache', array_merge([
             'settings' => $settings,
             'readOnly' => $this->readOnly,
-        ]);
+        ], $this->cacheTemplateVariables($settings)));
     }
 
     /**
@@ -127,10 +130,15 @@ class SettingsController extends Controller
         // Validate
         if ($result->hasErrors || !$settings->validate($attributesToValidate)) {
             Craft::$app->getSession()->setError(Craft::t('formie-rating-field', 'Could not save settings.'));
-            return $this->renderTemplate("formie-rating-field/settings/{$section}", [
+            $variables = [
                 'settings' => $settings,
                 'readOnly' => $this->readOnly,
-            ]);
+            ];
+            if ($section === 'cache') {
+                $variables = array_merge($variables, $this->cacheTemplateVariables($settings));
+            }
+
+            return $this->renderTemplate("formie-rating-field/settings/{$section}", $variables);
         }
 
         // Save the settings
@@ -161,6 +169,37 @@ class SettingsController extends Controller
     {
         $allowed = ['general', 'interface', 'cache'];
         return is_string($section) && in_array($section, $allowed, true) ? $section : 'general';
+    }
+
+    /**
+     * Build storage previews from the same resolver used by statistics requests.
+     *
+     * @return array{cacheStorage: array{
+     *     applicationToken: string,
+     *     selectedPanel: string,
+     *     file: array<string, bool|string|null>,
+     *     application: array<string, bool|string|null>
+     * }}
+     */
+    private function cacheTemplateVariables(Settings $settings): array
+    {
+        $statistics = FormieRatingField::$plugin->statistics;
+        $presenter = new StatisticsCacheStoragePresenter();
+        $applicationToken = $presenter->applicationOptionToken($settings->cacheStorageMethod);
+        $fileDecision = $statistics->getCacheStorageDecision('file');
+        $applicationDecision = $statistics->getCacheStorageDecision($applicationToken);
+        $filePath = $fileDecision->usesFileCache()
+            ? PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics')
+            : null;
+
+        return [
+            'cacheStorage' => [
+                'applicationToken' => $applicationToken,
+                'selectedPanel' => $settings->cacheStorageMethod === 'file' ? 'file' : 'application',
+                'file' => $presenter->present($fileDecision, $filePath),
+                'application' => $presenter->present($applicationDecision),
+            ],
+        ];
     }
 
     /**

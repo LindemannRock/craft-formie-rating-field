@@ -12,7 +12,9 @@ namespace lindemannrock\formieratingfield\tests\Integration;
 
 use lindemannrock\formieratingfield\controllers\SettingsController;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\tests\TestCase;
+use lindemannrock\base\helpers\SettingsPostHelper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use ReflectionMethod;
 
@@ -134,5 +136,31 @@ final class SettingsControllerSectionScopeTest extends TestCase
             $ratingRange < $halfRatings,
             'Unexpected Default Field Settings order.',
         );
+    }
+
+    public function testUnrelatedSectionInputPreservesPersistedApplicationToken(): void
+    {
+        $controller = new SettingsController('settings', FormieRatingField::$plugin);
+        $attributes = new ReflectionMethod($controller, 'validationAttributesForSection');
+        $generalAttributes = $attributes->invoke($controller, 'general');
+        self::assertIsArray($generalAttributes);
+        self::assertNotContains('cacheStorageMethod', $generalAttributes);
+
+        foreach (['redis', 'craft'] as $token) {
+            $settings = new Settings([
+                'cacheStorageMethod' => $token,
+                'defaultRatingSize' => 'medium',
+            ]);
+            $result = SettingsPostHelper::apply(
+                model: $settings,
+                postedValues: ['defaultRatingSize' => 'large'],
+                allowedAttributes: $generalAttributes,
+            );
+
+            self::assertFalse($result->hasErrors);
+            self::assertSame('large', $settings->defaultRatingSize);
+            self::assertSame($token, $settings->cacheStorageMethod);
+            self::assertNotContains('cacheStorageMethod', $result->assignedAttributes);
+        }
     }
 }

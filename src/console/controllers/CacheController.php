@@ -11,6 +11,7 @@ namespace lindemannrock\formieratingfield\console\controllers;
 use Craft;
 use craft\console\Controller;
 use lindemannrock\base\helpers\PluginHelper;
+use lindemannrock\formieratingfield\cache\StatisticsCacheStoragePresenter;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use verbb\formie\elements\Form;
@@ -92,16 +93,22 @@ class CacheController extends Controller
     public function actionInfo(): int
     {
         $statisticsService = FormieRatingField::$plugin->statistics;
-        $cacheCount = $statisticsService->getCacheFileCount();
-        // Use the same helper StatisticsService::getCachePath() uses (single source of truth)
-        $cachePath = PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics');
+        $decision = $statisticsService->getCacheStorageDecision();
+        $presentation = (new StatisticsCacheStoragePresenter())->present($decision);
         $settings = FormieRatingField::$plugin->getSettings();
 
         $this->stdout("Rating Field Statistics Cache Info:\n");
         $this->stdout("-----------------------------------\n");
-        $this->stdout("Configured storage: {$settings->cacheStorageMethod}\n");
-        $this->stdout("File cache path: {$cachePath}\n");
-        $this->stdout("File cache entries: {$cacheCount}\n");
+        $this->stdout("Configured storage: {$presentation['configuredLabel']} ({$settings->cacheStorageMethod})\n");
+        $this->stdout("Effective storage: {$presentation['effectiveLabel']}\n");
+        if ($decision->usesFileCache()) {
+            // Use the same helper StatisticsService::getCachePath() uses.
+            $cachePath = PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics');
+            $this->stdout("File cache path: {$cachePath}\n");
+            $this->stdout("File cache entries: {$statisticsService->getCacheFileCount()}\n");
+        } else {
+            $this->stdout("Application cache backend: {$presentation['backendLabel']}\n");
+        }
         $this->stdout("Generation schedule: {$settings->getEffectiveCacheGenerationSchedule()}\n");
         $this->stdout("Manual clear: php craft formie-rating-field/cache/clear\n");
         $this->stdout("Manual generate: php craft formie-rating-field/cache/generate\n");
