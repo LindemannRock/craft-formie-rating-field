@@ -15,7 +15,7 @@ use lindemannrock\base\cache\CacheBackendStatus;
 /**
  * Maps a statistics storage decision to safe, translatable presentation data.
  *
- * @since 3.22.0
+ * @since 3.23.0
  */
 final class StatisticsCacheStoragePresenter
 {

@@ -17,7 +17,7 @@ use yii\caching\CacheInterface;
 /**
  * Resolves configured statistics storage to the storage usable on this host.
  *
- * @since 3.22.0
+ * @since 3.23.0
  */
 final class StatisticsCacheStorageResolver
 {

@@ -38,7 +38,7 @@ require_once dirname(__DIR__) . '/Fixtures/CascadeCache.php';
 /**
  * Covers configured and effective statistics-cache presentation.
  *
- * @since 3.22.0
+ * @since 3.23.0
  */
 final class StatisticsCacheStoragePresentationTest extends TestCase
 {
@@ -280,7 +280,7 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
 /**
  * Test seam for host and filesystem observations.
  *
- * @since 3.22.0
+ * @since 3.23.0
  */
 final class PresentationStatisticsService extends StatisticsService
 {
@@ -314,7 +314,7 @@ final class PresentationStatisticsService extends StatisticsService
 /**
  * Unknown application-cache double with no persistence claim.
  *
- * @since 3.22.0
+ * @since 3.23.0
  */
 final class PresentationUnknownCache extends Cache
 {
@@ -371,7 +371,7 @@ final class PresentationUnknownCache extends Cache
 /**
  * Captures console output for cache presentation assertions.
  *
- * @since 3.22.0
+ * @since 3.23.0
  */
 final class PresentationCacheController extends CacheController
 {
