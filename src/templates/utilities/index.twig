@@ -27,14 +27,11 @@
         {% set cacheColor = cacheStorage.statusType == 'warning'
             ? lrPaletteColor('amber').color
             : (cacheStorage.statusType == 'info' ? lrPaletteColor('sky').color : lrPaletteColor('emerald').color) %}
-        {% set cacheDescription = cacheStorage.usesFile
-            ? 'Cached statistics files: {count}'|t('formie-rating-field', {count: cacheCount|number})
-            : cacheStorage.backendLabel|t('formie-rating-field') %}
         {% include 'lindemannrock-base/_components/unified-card' with {
             title: 'Statistics Cache'|t('formie-rating-field'),
             color: cacheColor,
-            value: cacheStorage.effectiveLabel|t('formie-rating-field'),
-            description: cacheDescription,
+            value: cacheStorage.utilityValue|t('formie-rating-field'),
+            description: cacheStorage.utilityDescription|t('formie-rating-field', {count: cacheCount|number}),
         } only %}
     {% endif %}
 {% endblock %}

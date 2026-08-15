@@ -37,13 +37,13 @@
 
 {{ forms.selectField({
     label: 'Cache Storage Method'|t('formie-rating-field'),
-    instructions: 'Choose local file caching or Craft\'s application cache. The effective storage may differ on ephemeral hosts.'|t('formie-rating-field'),
+    instructions: 'Choose where disposable cache data is stored. File caching automatically uses the application cache on ephemeral hosts.'|t('formie-rating-field'),
     id: 'cacheStorageMethod',
     name: 'settings[cacheStorageMethod]',
     value: settings.cacheStorageMethod ?? 'file',
     options: [
-        { value: 'file', label: 'Local File Cache (durable hosts)'|t('formie-rating-field') },
-        { value: cacheStorage.applicationToken, label: 'Craft Application Cache (cloud and multi-server hosting)'|t('formie-rating-field') },
+        { value: 'file', label: 'File cache'|t('formie-rating-field') },
+        { value: cacheStorage.applicationToken, label: 'Application cache'|t('formie-rating-field') },
     ],
     disabled: settings.isOverriddenByConfig('cacheStorageMethod'),
     warning: settings.isOverriddenByConfig('cacheStorageMethod') ?
@@ -54,19 +54,13 @@
 {% for panel, presentation in {file: cacheStorage.file, application: cacheStorage.application} %}
     <div data-cache-storage-panel="{{ panel }}" class="{{ cacheStorage.selectedPanel != panel ? 'hidden' }}">
         {% set storageMessage %}
-            <strong>{{ 'Configured choice'|t('formie-rating-field') }}:</strong>
-            {{ presentation.configuredLabel|t('formie-rating-field') }}<br>
-            <strong>{{ 'Effective storage'|t('formie-rating-field') }}:</strong>
-            {{ presentation.effectiveLabel|t('formie-rating-field') }}
-            {% if presentation.showBackend %}
-                <br><strong>{{ 'Application cache backend'|t('formie-rating-field') }}:</strong>
-                {{ presentation.backendLabel|t('formie-rating-field') }}
+            <strong>{{ presentation.heading|t('formie-rating-field') }}</strong>
+            {% if presentation.explanation %}
+                <br>{{ presentation.explanation|t('formie-rating-field') }}
             {% endif %}
             {% if presentation.filePath %}
-                <br><strong>{{ 'Cache directory'|t('formie-rating-field') }}:</strong>
-                <code>{{ presentation.filePath }}</code>
+                <br><code>{{ presentation.filePath }}</code>
             {% endif %}
-            <br>{{ presentation.explanation|t('formie-rating-field') }}
         {% endset %}
         {% include 'lindemannrock-base/_components/info-box' with {
             type: presentation.statusType,

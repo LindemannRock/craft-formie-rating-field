@@ -78,44 +78,54 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
         }
     }
 
-    public function testKnownApplicationBackendsHaveAccurateLabelsAndStatusTypes(): void
+    public function testKnownApplicationBackendsHaveCompactPersistentPresentation(): void
     {
         $redis = (new ReflectionClass(RedisCache::class))->newInstanceWithoutConstructor();
         self::assertInstanceOf(RedisCache::class, $redis);
 
         $cases = [
-            [$redis, 'Redis application cache', 'success'],
-            [new CascadeCache(), 'Managed application cache', 'success'],
-            [new DbCache(), 'Database application cache', 'success'],
-            [new FileCache(), 'Filesystem application cache', 'info'],
+            [$redis, 'Using Redis cache', 'Redis cache'],
+            [new CascadeCache(), 'Using managed cache', 'Managed cache'],
+            [new DbCache(), 'Using database cache', 'Database cache'],
+            [new FileCache(), 'Using filesystem cache', 'Filesystem cache'],
         ];
 
-        foreach ($cases as [$cache, $backendLabel, $statusType]) {
+        $managedHeadingCount = 0;
+        foreach ($cases as [$cache, $heading, $utilityDescription]) {
             self::assertInstanceOf(CacheInterface::class, $cache);
             $presentation = $this->presentation($cache, 'craft', false);
 
-            self::assertSame('Craft Application Cache', $presentation['configuredLabel']);
-            self::assertSame('Craft Application Cache', $presentation['effectiveLabel']);
-            self::assertSame($backendLabel, $presentation['backendLabel']);
-            self::assertSame($statusType, $presentation['statusType']);
-            self::assertFalse($presentation['differs']);
+            self::assertSame($heading, $presentation['heading']);
+            self::assertNull($presentation['explanation']);
+            self::assertSame('success', $presentation['statusType']);
             self::assertNull($presentation['filePath']);
+            self::assertFalse($presentation['usesFile']);
+            self::assertSame('Active', $presentation['utilityValue']);
+            self::assertSame($utilityDescription, $presentation['utilityDescription']);
+            $managedHeadingCount += str_contains($presentation['heading'], 'managed') ? 1 : 0;
         }
+
+        self::assertSame(1, $managedHeadingCount);
     }
 
     public function testMemoryUnknownAndUnavailableBackendsAvoidFalsePersistenceClaims(): void
     {
         $memory = $this->presentation(new ArrayCache(), 'craft', false);
-        self::assertSame('Disabled', $memory['effectiveLabel']);
-        self::assertSame('Request-local memory cache', $memory['backendLabel']);
+        self::assertSame('Caching disabled', $memory['heading']);
         self::assertSame('warning', $memory['statusType']);
+        self::assertSame('Disabled', $memory['utilityValue']);
+        self::assertSame('Recomputed as needed', $memory['utilityDescription']);
+        self::assertSame(
+            'No suitable cross-request cache is available. Statistics are recomputed as needed.',
+            $memory['explanation'],
+        );
 
         $unknown = $this->presentation(new PresentationUnknownCache(), 'craft', true);
-        self::assertSame('Craft Application Cache', $unknown['effectiveLabel']);
-        self::assertSame('Unknown application cache', $unknown['backendLabel']);
+        self::assertSame('Using application cache', $unknown['heading']);
         self::assertSame('info', $unknown['statusType']);
-        self::assertStringContainsString('best-effort', $unknown['explanation']);
-        self::assertStringContainsString('could not be confirmed', $unknown['explanation']);
+        self::assertSame('Cross-request persistence could not be confirmed.', $unknown['explanation']);
+        self::assertSame('Best effort', $unknown['utilityValue']);
+        self::assertSame('Application cache', $unknown['utilityDescription']);
 
         Craft::$app->set('cache', static function(): never {
             throw new \RuntimeException('Injected cache resolution failure.');
@@ -125,8 +135,10 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
         $unavailable = (new StatisticsCacheStoragePresenter())->present($decision);
 
         self::assertTrue($decision->isDisabled());
-        self::assertSame('Unavailable cache', $unavailable['backendLabel']);
+        self::assertSame('Caching disabled', $unavailable['heading']);
         self::assertSame('warning', $unavailable['statusType']);
+        self::assertSame('Disabled', $unavailable['utilityValue']);
+        self::assertSame('Recomputed as needed', $unavailable['utilityDescription']);
     }
 
     public function testBothPersistedApplicationTokensUseTheSamePortableDecision(): void
@@ -134,10 +146,9 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
         foreach (['redis', 'craft'] as $token) {
             $presentation = $this->presentation(new CascadeCache(), $token, true);
 
-            self::assertSame('Craft Application Cache', $presentation['configuredLabel']);
-            self::assertSame('Craft Application Cache', $presentation['effectiveLabel']);
-            self::assertSame('Managed application cache', $presentation['backendLabel']);
+            self::assertSame('Using managed cache', $presentation['heading']);
             self::assertSame('success', $presentation['statusType']);
+            self::assertNull($presentation['explanation']);
         }
 
         $presenter = new StatisticsCacheStoragePresenter();
@@ -149,27 +160,31 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
     public function testFileModeReflectsDurableAndEphemeralHostPolicy(): void
     {
         $durable = $this->presentation(new ArrayCache(), 'file', false, '/safe/runtime/statistics/');
-        self::assertSame('Local File Cache', $durable['configuredLabel']);
-        self::assertSame('Local File Cache', $durable['effectiveLabel']);
-        self::assertSame('info', $durable['statusType']);
-        self::assertFalse($durable['differs']);
+        self::assertSame('Using file cache', $durable['heading']);
+        self::assertNull($durable['explanation']);
+        self::assertSame('success', $durable['statusType']);
         self::assertSame('/safe/runtime/statistics/', $durable['filePath']);
-        self::assertFalse($durable['showBackend']);
+        self::assertTrue($durable['usesFile']);
+        self::assertSame('Active', $durable['utilityValue']);
+        self::assertSame('File cache · {count} entries', $durable['utilityDescription']);
 
         $ephemeralManaged = $this->presentation(new CascadeCache(), 'file', true, '/must/not/render/');
-        self::assertSame('Craft Application Cache', $ephemeralManaged['effectiveLabel']);
-        self::assertSame('Managed application cache', $ephemeralManaged['backendLabel']);
+        self::assertSame('Using managed cache', $ephemeralManaged['heading']);
         self::assertSame('success', $ephemeralManaged['statusType']);
-        self::assertTrue($ephemeralManaged['differs']);
         self::assertNull($ephemeralManaged['filePath']);
-        self::assertStringContainsString('ephemeral filesystem', $ephemeralManaged['explanation']);
+        self::assertSame(
+            'This host has an ephemeral filesystem, so the application cache is used automatically.',
+            $ephemeralManaged['explanation'],
+        );
+        self::assertSame('Active', $ephemeralManaged['utilityValue']);
+        self::assertSame('Managed cache', $ephemeralManaged['utilityDescription']);
 
         $ephemeralFile = $this->presentation(new FileCache(), 'file', true, '/must/not/render/');
-        self::assertSame('Disabled', $ephemeralFile['effectiveLabel']);
-        self::assertSame('Filesystem application cache', $ephemeralFile['backendLabel']);
+        self::assertSame('Caching disabled', $ephemeralFile['heading']);
         self::assertSame('warning', $ephemeralFile['statusType']);
         self::assertNull($ephemeralFile['filePath']);
-        self::assertStringContainsString('recomputed', $ephemeralFile['explanation']);
+        self::assertSame('Disabled', $ephemeralFile['utilityValue']);
+        self::assertSame('Recomputed as needed', $ephemeralFile['utilityDescription']);
     }
 
     public function testSettingsVariablesDoNotResolveRuntimePathOnEphemeralHosts(): void
@@ -186,7 +201,11 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
         $variables = $method->invoke($controller, $settings);
 
         self::assertIsArray($variables);
-        self::assertSame('Craft Application Cache', $variables['cacheStorage']['file']['effectiveLabel']);
+        self::assertSame('Using managed cache', $variables['cacheStorage']['file']['heading']);
+        self::assertSame(
+            'This host has an ephemeral filesystem, so the application cache is used automatically.',
+            $variables['cacheStorage']['file']['explanation'],
+        );
         self::assertNull($variables['cacheStorage']['file']['filePath']);
         self::assertSame(0, $service->cachePathAccesses);
     }
@@ -198,8 +217,17 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
 
         self::assertStringContainsString("value: cacheStorage.applicationToken", $template);
         self::assertStringContainsString("value === 'file' ? 'file' : 'application'", $template);
-        self::assertStringContainsString("'Configured choice'|t('formie-rating-field')", $template);
-        self::assertStringContainsString("'Effective storage'|t('formie-rating-field')", $template);
+        self::assertStringContainsString(
+            'Choose where disposable cache data is stored. File caching automatically uses the application cache on ephemeral hosts.',
+            $template,
+        );
+        self::assertStringContainsString("label: 'File cache'|t('formie-rating-field')", $template);
+        self::assertStringContainsString("label: 'Application cache'|t('formie-rating-field')", $template);
+        self::assertStringContainsString('presentation.heading', $template);
+        self::assertStringContainsString('presentation.explanation', $template);
+        self::assertStringNotContainsString('Configured choice', $template);
+        self::assertStringNotContainsString('Effective storage', $template);
+        self::assertStringNotContainsString('Application cache backend', $template);
         self::assertStringNotContainsString('yii\\redis\\Cache', $template);
         self::assertStringNotContainsString('className', $template);
         self::assertStringNotContainsString('Redis Not Configured', $template);
@@ -233,10 +261,24 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
         $english = require dirname(__DIR__, 2) . '/src/translations/en/formie-rating-field.php';
         self::assertIsArray($english);
         foreach ($presentations as $presentation) {
-            foreach (['configuredLabel', 'effectiveLabel', 'backendLabel', 'explanation'] as $field) {
-                self::assertArrayHasKey($presentation[$field], $english, "Missing dynamic presentation key: {$presentation[$field]}");
+            foreach (['heading', 'explanation', 'utilityValue', 'utilityDescription'] as $field) {
+                if ($presentation[$field] !== null) {
+                    self::assertArrayHasKey($presentation[$field], $english, "Missing dynamic presentation key: {$presentation[$field]}");
+                }
             }
         }
+    }
+
+    public function testUtilityTemplateUsesCompactPresenterValues(): void
+    {
+        $template = file_get_contents(dirname(__DIR__, 2) . '/src/templates/utilities/index.twig');
+        self::assertIsString($template);
+
+        self::assertStringContainsString('cacheStorage.utilityValue', $template);
+        self::assertStringContainsString('cacheStorage.utilityDescription', $template);
+        self::assertStringContainsString('{count: cacheCount|number}', $template);
+        self::assertStringNotContainsString('Craft Application Cache', $template);
+        self::assertStringNotContainsString('Cached statistics files:', $template);
     }
 
     public function testConsoleInfoDoesNotEnumerateFilesForApplicationOrDisabledStorage(): void
@@ -249,8 +291,8 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
 
         self::assertSame(ExitCode::OK, $controller->actionInfo());
         self::assertSame(0, $service->fileCountCalls);
-        self::assertStringContainsString('Effective storage: Disabled', implode('', $controller->output));
-        self::assertStringContainsString('Application cache backend: Request-local memory cache', implode('', $controller->output));
+        self::assertStringContainsString('Status: Caching disabled', implode('', $controller->output));
+        self::assertStringContainsString('Statistics are recomputed as needed.', implode('', $controller->output));
         self::assertStringNotContainsString('File cache path:', implode('', $controller->output));
     }
 

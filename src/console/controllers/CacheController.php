@@ -99,15 +99,16 @@ class CacheController extends Controller
 
         $this->stdout("Rating Field Statistics Cache Info:\n");
         $this->stdout("-----------------------------------\n");
-        $this->stdout("Configured storage: {$presentation['configuredLabel']} ({$settings->cacheStorageMethod})\n");
-        $this->stdout("Effective storage: {$presentation['effectiveLabel']}\n");
+        $this->stdout("Configured storage: {$settings->cacheStorageMethod}\n");
+        $this->stdout("Status: {$presentation['heading']}\n");
+        if ($presentation['explanation'] !== null) {
+            $this->stdout("Explanation: {$presentation['explanation']}\n");
+        }
         if ($decision->usesFileCache()) {
             // Use the same helper StatisticsService::getCachePath() uses.
             $cachePath = PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics');
             $this->stdout("File cache path: {$cachePath}\n");
             $this->stdout("File cache entries: {$statisticsService->getCacheFileCount()}\n");
-        } else {
-            $this->stdout("Application cache backend: {$presentation['backendLabel']}\n");
         }
         $this->stdout("Generation schedule: {$settings->getEffectiveCacheGenerationSchedule()}\n");
         $this->stdout("Manual clear: php craft formie-rating-field/cache/clear\n");
