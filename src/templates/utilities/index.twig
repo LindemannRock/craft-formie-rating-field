@@ -24,14 +24,16 @@
 {% block overview %}
     {# Cache Status Card - only show if user can manage cache #}
     {% if canManageCache %}
-        {% set cacheColor = cacheStorage.statusType == 'warning'
+        {% set cacheColor = cacheStorage.utilitySeverity == 'warning'
             ? lrPaletteColor('amber').color
-            : (cacheStorage.statusType == 'info' ? lrPaletteColor('sky').color : lrPaletteColor('emerald').color) %}
+            : (cacheStorage.utilitySeverity == 'info' ? lrPaletteColor('sky').color : lrPaletteColor('emerald').color) %}
         {% include 'lindemannrock-base/_components/unified-card' with {
             title: 'Statistics Cache'|t('formie-rating-field'),
             color: cacheColor,
-            value: cacheStorage.utilityValue|t('formie-rating-field'),
-            description: cacheStorage.utilityDescription|t('formie-rating-field', {count: cacheCount|number}),
+            value: cacheStorage.utilityValueKey|t('lindemannrock-base'),
+            description: cacheStorage.filePathEligible
+                ? 'File cache · {count} entries'|t('formie-rating-field', {count: cacheCount|number})
+                : cacheStorage.utilityDescriptionKey|t('lindemannrock-base'),
         } only %}
     {% endif %}
 {% endblock %}

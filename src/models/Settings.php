@@ -191,7 +191,7 @@ class Settings extends Model
             'defaultEmojiRenderMode' => Craft::t('formie-rating-field', 'Default Emoji Render Mode'),
             'defaultSingleEmojiSelection' => Craft::t('formie-rating-field', 'Single Emoji Selection by Default'),
             'maxExportRows' => Craft::t('formie-rating-field', 'Max Export Rows'),
-            'cacheStorageMethod' => Craft::t('formie-rating-field', 'Cache Storage Method'),
+            'cacheStorageMethod' => Craft::t('lindemannrock-base', 'Cache Storage Method'),
             'cacheGenerationSchedule' => Craft::t('formie-rating-field', 'Cache Generation Schedule'),
         ], $this->pluginNameSettingsLabel(), $this->dateFormatSettingsLabels(), $this->dateRangeSettingsLabel(), $this->exportFormatSettingsLabels(), $this->itemsPerPageSettingsLabel());
     }

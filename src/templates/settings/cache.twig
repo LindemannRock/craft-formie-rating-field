@@ -35,39 +35,15 @@
 
 <h2 class="first">{{ "Statistics Cache Settings"|t('formie-rating-field') }}</h2>
 
-{{ forms.selectField({
-    label: 'Cache Storage Method'|t('formie-rating-field'),
-    instructions: 'Choose where disposable cache data is stored. File caching automatically uses the application cache on ephemeral hosts.'|t('formie-rating-field'),
-    id: 'cacheStorageMethod',
-    name: 'settings[cacheStorageMethod]',
-    value: settings.cacheStorageMethod ?? 'file',
-    options: [
-        { value: 'file', label: 'File cache'|t('formie-rating-field') },
-        { value: cacheStorage.applicationToken, label: 'Application cache'|t('formie-rating-field') },
-    ],
-    disabled: settings.isOverriddenByConfig('cacheStorageMethod'),
-    warning: settings.isOverriddenByConfig('cacheStorageMethod') ?
-        "This is being overridden by the <code>cacheStorageMethod</code> setting in <code>config/formie-rating-field.php</code>."|t('formie-rating-field')|raw : null,
-    errors: settings.getErrors('cacheStorageMethod')
-}) }}
-
-{% for panel, presentation in {file: cacheStorage.file, application: cacheStorage.application} %}
-    <div data-cache-storage-panel="{{ panel }}" class="{{ cacheStorage.selectedPanel != panel ? 'hidden' }}">
-        {% set storageMessage %}
-            <strong>{{ presentation.heading|t('formie-rating-field') }}</strong>
-            {% if presentation.explanation %}
-                <br>{{ presentation.explanation|t('formie-rating-field') }}
-            {% endif %}
-            {% if presentation.filePath %}
-                <br><code>{{ presentation.filePath }}</code>
-            {% endif %}
-        {% endset %}
-        {% include 'lindemannrock-base/_components/info-box' with {
-            type: presentation.statusType,
-            message: storageMessage,
-        } %}
-    </div>
-{% endfor %}
+{% include 'lindemannrock-base/_partials/field-cache-storage' with {
+    settings: settings,
+    pluginHandle: 'formie-rating-field',
+    configuredStorageToken: settings.cacheStorageMethod ?? 'file',
+    applicationOptionToken: cacheStorage.applicationToken,
+    filePresentation: cacheStorage.file,
+    applicationPresentation: cacheStorage.application,
+    filePath: cacheStorage.filePath,
+} only %}
 
 {{ forms.selectField({
     label: 'Cache Generation Schedule'|t('formie-rating-field'),
@@ -105,13 +81,3 @@
 
 {% include 'lindemannrock-base/_components/plugin-credit' %}
 {% endblock %}
-
-{% js %}
-// Toggle effective storage details for both compatible application-cache tokens.
-$('#cacheStorageMethod').on('change', function() {
-    const value = $(this).val();
-    const panel = value === 'file' ? 'file' : 'application';
-    $('[data-cache-storage-panel]').addClass('hidden');
-    $('[data-cache-storage-panel="' + panel + '"]').removeClass('hidden');
-});
-{% endjs %}

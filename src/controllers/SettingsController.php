@@ -10,9 +10,10 @@ namespace lindemannrock\formieratingfield\controllers;
 
 use Craft;
 use craft\web\Controller;
+use lindemannrock\base\cache\DisposableCacheStoragePresenter;
+use lindemannrock\base\cache\DisposableCacheStorageResolver;
 use lindemannrock\base\helpers\PluginHelper;
 use lindemannrock\base\helpers\SettingsPostHelper;
-use lindemannrock\formieratingfield\cache\StatisticsCacheStoragePresenter;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\models\Settings;
 use yii\web\Response;
@@ -176,16 +177,16 @@ class SettingsController extends Controller
      *
      * @return array{cacheStorage: array{
      *     applicationToken: string,
-     *     selectedPanel: string,
-     *     file: array<string, bool|string|null>,
-     *     application: array<string, bool|string|null>
+     *     file: \lindemannrock\base\cache\DisposableCacheStoragePresentation,
+     *     application: \lindemannrock\base\cache\DisposableCacheStoragePresentation,
+     *     filePath: string|null
      * }}
      */
     private function cacheTemplateVariables(Settings $settings): array
     {
         $statistics = FormieRatingField::$plugin->statistics;
-        $presenter = new StatisticsCacheStoragePresenter();
-        $applicationToken = $presenter->applicationOptionToken($settings->cacheStorageMethod);
+        $presenter = new DisposableCacheStoragePresenter();
+        $applicationToken = DisposableCacheStorageResolver::applicationOptionToken($settings->cacheStorageMethod);
         $fileDecision = $statistics->getCacheStorageDecision('file');
         $applicationDecision = $statistics->getCacheStorageDecision($applicationToken);
         $filePath = $fileDecision->usesFileCache()
@@ -195,9 +196,9 @@ class SettingsController extends Controller
         return [
             'cacheStorage' => [
                 'applicationToken' => $applicationToken,
-                'selectedPanel' => $settings->cacheStorageMethod === 'file' ? 'file' : 'application',
-                'file' => $presenter->present($fileDecision, $filePath),
+                'file' => $presenter->present($fileDecision),
                 'application' => $presenter->present($applicationDecision),
+                'filePath' => $filePath,
             ],
         ];
     }

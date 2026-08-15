@@ -10,8 +10,8 @@ namespace lindemannrock\formieratingfield\console\controllers;
 
 use Craft;
 use craft\console\Controller;
+use lindemannrock\base\cache\DisposableCacheStoragePresenter;
 use lindemannrock\base\helpers\PluginHelper;
-use lindemannrock\formieratingfield\cache\StatisticsCacheStoragePresenter;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use verbb\formie\elements\Form;
@@ -94,15 +94,17 @@ class CacheController extends Controller
     {
         $statisticsService = FormieRatingField::$plugin->statistics;
         $decision = $statisticsService->getCacheStorageDecision();
-        $presentation = (new StatisticsCacheStoragePresenter())->present($decision);
+        $presentation = (new DisposableCacheStoragePresenter())->present($decision);
         $settings = FormieRatingField::$plugin->getSettings();
 
         $this->stdout("Rating Field Statistics Cache Info:\n");
         $this->stdout("-----------------------------------\n");
         $this->stdout("Configured storage: {$settings->cacheStorageMethod}\n");
-        $this->stdout("Status: {$presentation['heading']}\n");
-        if ($presentation['explanation'] !== null) {
-            $this->stdout("Explanation: {$presentation['explanation']}\n");
+        $heading = Craft::t('lindemannrock-base', $presentation->headingKey);
+        $this->stdout("Status: {$heading}\n");
+        foreach ($presentation->explanationKeys as $explanationKey) {
+            $explanation = Craft::t('lindemannrock-base', $explanationKey);
+            $this->stdout("Explanation: {$explanation}\n");
         }
         if ($decision->usesFileCache()) {
             // Use the same helper StatisticsService::getCachePath() uses.

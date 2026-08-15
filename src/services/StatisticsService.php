@@ -15,14 +15,14 @@ use craft\helpers\App;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
+use lindemannrock\base\cache\DisposableCacheStorageDecision;
+use lindemannrock\base\cache\DisposableCacheStorageResolver;
 use lindemannrock\base\cache\ScopedCache;
 use lindemannrock\base\cache\ScopedCacheResult;
 use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\DateRangeHelper;
 use lindemannrock\base\helpers\DbHelper;
 use lindemannrock\base\helpers\PluginHelper;
-use lindemannrock\formieratingfield\cache\StatisticsCacheStorageDecision;
-use lindemannrock\formieratingfield\cache\StatisticsCacheStorageResolver;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\FormieRatingField;
 use verbb\formie\elements\Form;
@@ -1255,14 +1255,18 @@ class StatisticsService extends Component
      *
      * @since 3.23.0
      */
-    public function getCacheStorageDecision(?string $configuredStorage = null): StatisticsCacheStorageDecision
+    public function getCacheStorageDecision(?string $configuredStorage = null): DisposableCacheStorageDecision
     {
         $configuredStorage ??= FormieRatingField::$plugin->getSettings()->cacheStorageMethod;
 
-        return (new StatisticsCacheStorageResolver())->resolve($configuredStorage, $this->isEphemeralHost());
+        return (new DisposableCacheStorageResolver())->resolve(
+            configuredStorageToken: $configuredStorage,
+            diagnosticContext: 'formie-rating-field:statistics',
+            ephemeralHost: $this->isEphemeralHost(),
+        );
     }
 
-    private function getApplicationScopedCache(StatisticsCacheStorageDecision $storage): ?ScopedCache
+    private function getApplicationScopedCache(DisposableCacheStorageDecision $storage): ?ScopedCache
     {
         $cache = $storage->applicationCache;
         $status = $storage->backendStatus;
@@ -1289,7 +1293,7 @@ class StatisticsService extends Component
         }
     }
 
-    private function logDisabledCacheDecision(StatisticsCacheStorageDecision $storage): void
+    private function logDisabledCacheDecision(DisposableCacheStorageDecision $storage): void
     {
         $this->logCacheDiagnosticOnce(
             'application-cache-unsuitable-' . $storage->backendStatus->backend,
