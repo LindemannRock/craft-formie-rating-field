@@ -67,4 +67,45 @@ abstract class TestCase extends IntegrationTestCase
     {
         return PluginHelper::getCachePath(FormieRatingField::$plugin, 'statistics');
     }
+
+    /**
+     * Run file-cache assertions independently of the owner's saved storage token.
+     *
+     * @param callable(StatisticsService): void $assertions
+     */
+    protected function withForcedDurableFileCache(string $savedStorageMethod, callable $assertions): void
+    {
+        $settings = FormieRatingField::$plugin->getSettings();
+        $ownerStorageMethod = $settings->cacheStorageMethod;
+
+        try {
+            $settings->cacheStorageMethod = $savedStorageMethod;
+            $originalSavedStorageMethod = $settings->cacheStorageMethod;
+
+            try {
+                $settings->cacheStorageMethod = 'file';
+                $statistics = new class extends StatisticsService {
+                    protected function isEphemeralHost(): bool
+                    {
+                        return false;
+                    }
+                };
+                $decision = $statistics->getCacheStorageDecision();
+
+                self::assertSame('file', $decision->configuredStorageToken);
+                self::assertFalse($decision->ephemeralHost);
+                self::assertTrue($decision->usesFileCache());
+
+                $assertions($statistics);
+            } finally {
+                $settings->cacheStorageMethod = $originalSavedStorageMethod;
+            }
+
+            self::assertSame($savedStorageMethod, $settings->cacheStorageMethod);
+        } finally {
+            $settings->cacheStorageMethod = $ownerStorageMethod;
+        }
+
+        self::assertSame($ownerStorageMethod, $settings->cacheStorageMethod);
+    }
 }

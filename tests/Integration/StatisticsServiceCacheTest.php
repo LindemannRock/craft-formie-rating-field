@@ -11,7 +11,9 @@ declare(strict_types=1);
 namespace lindemannrock\formieratingfield\tests\Integration;
 
 use craft\helpers\FileHelper;
+use lindemannrock\formieratingfield\services\StatisticsService;
 use lindemannrock\formieratingfield\tests\TestCase;
+use PHPUnit\Framework\Attributes\TestWith;
 
 /**
  * Pins the file-cache half of {@see StatisticsService}.
@@ -61,35 +63,42 @@ final class StatisticsServiceCacheTest extends TestCase
         self::assertNotSame($a, $bySite);
     }
 
-    public function testClearCacheForFormDeletesOnlyMatchingFormFiles(): void
+    #[TestWith(['craft'], 'owner saved Craft application cache')]
+    #[TestWith(['redis'], 'owner saved legacy Redis application cache')]
+    public function testClearCacheForFormDeletesOnlyMatchingFormFiles(string $savedStorageMethod): void
     {
-        $cachePath = $this->statisticsCachePath();
-        FileHelper::createDirectory($cachePath);
+        $this->withForcedDurableFileCache(
+            $savedStorageMethod,
+            function(StatisticsService $statistics): void {
+                $cachePath = $this->statisticsCachePath();
+                FileHelper::createDirectory($cachePath);
 
-        // Seed 2 files for our target form + 1 for a neighbour form (sentinel + 1).
-        // Filenames go through getCacheFilename() so this test fails the way it
-        // should if the prefix contract drifts.
-        $targetA = $cachePath . $this->statistics->getCacheFilename(self::TEST_FORM_ID, 'rating', 'all');
-        $targetB = $cachePath . $this->statistics->getCacheFilename(self::TEST_FORM_ID, 'rating', 'last7days');
-        $neighbour = $cachePath . $this->statistics->getCacheFilename(self::TEST_FORM_ID + 1, 'rating', 'all');
+                // Seed 2 files for our target form + 1 for a neighbour form (sentinel + 1).
+                // Filenames go through getCacheFilename() so this test fails the way it
+                // should if the prefix contract drifts.
+                $targetA = $cachePath . $statistics->getCacheFilename(self::TEST_FORM_ID, 'rating', 'all');
+                $targetB = $cachePath . $statistics->getCacheFilename(self::TEST_FORM_ID, 'rating', 'last7days');
+                $neighbour = $cachePath . $statistics->getCacheFilename(self::TEST_FORM_ID + 1, 'rating', 'all');
 
-        try {
-            self::assertNotFalse(file_put_contents($targetA, '{"totalResponses":1}'));
-            self::assertNotFalse(file_put_contents($targetB, '{"totalResponses":2}'));
-            self::assertNotFalse(file_put_contents($neighbour, '{"totalResponses":3}'));
+                try {
+                    self::assertNotFalse(file_put_contents($targetA, '{"totalResponses":1}'));
+                    self::assertNotFalse(file_put_contents($targetB, '{"totalResponses":2}'));
+                    self::assertNotFalse(file_put_contents($neighbour, '{"totalResponses":3}'));
 
-            self::assertTrue($this->statistics->clearCacheForForm(self::TEST_FORM_ID));
+                    self::assertTrue($statistics->clearCacheForForm(self::TEST_FORM_ID));
 
-            // Audit #2.1 — the OLD bug was `glob("*.cache")` which wiped every
-            // form. After the fix, only the target form's files disappear and
-            // the neighbour's cache survives.
-            self::assertFileDoesNotExist($targetA);
-            self::assertFileDoesNotExist($targetB);
-            self::assertFileExists($neighbour);
-        } finally {
-            // Belt-and-braces — cleanupExternalState() handles the sentinel form,
-            // but the neighbour file uses formId + 1 so we drop it explicitly.
-            @unlink($neighbour);
-        }
+                    // Audit #2.1 — the OLD bug was `glob("*.cache")` which wiped every
+                    // form. After the fix, only the target form's files disappear and
+                    // the neighbour's cache survives.
+                    self::assertFileDoesNotExist($targetA);
+                    self::assertFileDoesNotExist($targetB);
+                    self::assertFileExists($neighbour);
+                } finally {
+                    // Belt-and-braces — cleanupExternalState() handles the sentinel form,
+                    // but the neighbour file uses formId + 1 so we drop it explicitly.
+                    @unlink($neighbour);
+                }
+            },
+        );
     }
 }

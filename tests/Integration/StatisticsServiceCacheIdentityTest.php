@@ -17,6 +17,7 @@ use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\services\StatisticsService;
 use lindemannrock\formieratingfield\tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use ReflectionMethod;
 use yii\db\Expression;
 
@@ -90,26 +91,33 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
         self::assertSame(self::TEST_FORM_ID . '-' . md5($identity) . '.cache', $identities['file']);
     }
 
-    public function testFingerprintFilenamePreservesFormScopedClearingPrefix(): void
+    #[TestWith(['craft'], 'owner saved Craft application cache')]
+    #[TestWith(['redis'], 'owner saved legacy Redis application cache')]
+    public function testFingerprintFilenamePreservesFormScopedClearingPrefix(string $savedStorageMethod): void
     {
-        $cachePath = $this->statisticsCachePath();
-        FileHelper::createDirectory($cachePath);
+        $this->withForcedDurableFileCache(
+            $savedStorageMethod,
+            function(StatisticsService $statistics): void {
+                $cachePath = $this->statisticsCachePath();
+                FileHelper::createDirectory($cachePath);
 
-        $field = $this->ratingField();
-        $target = $cachePath . $this->statistics->getCacheFilename(self::TEST_FORM_ID, $field, 'all');
-        $neighbour = $cachePath . $this->statistics->getCacheFilename(self::TEST_FORM_ID + 1, $field, 'all');
+                $field = $this->ratingField();
+                $target = $cachePath . $statistics->getCacheFilename(self::TEST_FORM_ID, $field, 'all');
+                $neighbour = $cachePath . $statistics->getCacheFilename(self::TEST_FORM_ID + 1, $field, 'all');
 
-        try {
-            self::assertStringStartsWith(self::TEST_FORM_ID . '-', basename($target));
-            self::assertNotFalse(file_put_contents($target, '{"totalResponses":1}'));
-            self::assertNotFalse(file_put_contents($neighbour, '{"totalResponses":2}'));
+                try {
+                    self::assertStringStartsWith(self::TEST_FORM_ID . '-', basename($target));
+                    self::assertNotFalse(file_put_contents($target, '{"totalResponses":1}'));
+                    self::assertNotFalse(file_put_contents($neighbour, '{"totalResponses":2}'));
 
-            self::assertTrue($this->statistics->clearCacheForForm(self::TEST_FORM_ID));
-            self::assertFileDoesNotExist($target);
-            self::assertFileExists($neighbour);
-        } finally {
-            @unlink($neighbour);
-        }
+                    self::assertTrue($statistics->clearCacheForForm(self::TEST_FORM_ID));
+                    self::assertFileDoesNotExist($target);
+                    self::assertFileExists($neighbour);
+                } finally {
+                    @unlink($neighbour);
+                }
+            },
+        );
     }
 
     public function testCachedStatisticsAndJobLoggingPassTheRatingConfiguration(): void
