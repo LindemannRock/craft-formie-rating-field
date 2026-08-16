@@ -3,7 +3,7 @@
  * Formie Rating Field plugin for Craft CMS 5.x
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield\jobs;
@@ -15,6 +15,7 @@ use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\base\traits\QueueTtrTrait;
 use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\services\StatisticsCacheScheduler;
 use lindemannrock\formieratingfield\services\StatisticsService;
 use verbb\formie\elements\Form;
 use yii\queue\RetryableJobInterface;
@@ -50,6 +51,13 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
      * @since 3.20.0
      */
     public bool $scheduledMaster = false;
+
+    /**
+     * @var string Stable ownership token for the portable recurring chain
+     *
+     * @since 3.23.0
+     */
+    public string $recurringOwner = '';
 
     /**
      * @var string|null Next run time display string
@@ -363,30 +371,10 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
      */
     private function scheduleNext(): void
     {
-        // Mutex prevents parallel master jobs from pushing the same next row.
-        // Non-blocking acquire: if another job is currently scheduling, skip.
-        $mutex = Craft::$app->getMutex();
-        $lockName = 'formie-rating-field:schedule-cache-job';
+        $result = (new StatisticsCacheScheduler())->ensurePending(FormieRatingField::$plugin->getSettings());
 
-        if (!$mutex->acquire($lockName)) {
-            return;
-        }
-
-        try {
-            $nextRun = $this->calculateNextRun();
-            $delay = $this->calculateNextRunDelay();
-
-            if ($nextRun !== null && $delay > 0) {
-                Craft::$app->getQueue()->delay($delay)->push(new self([
-                    'reschedule' => true,
-                    'scheduledMaster' => true,
-                    'nextRunTime' => $this->formatNextRunTime($nextRun),
-                ]));
-
-                Craft::info('Scheduled next cache generation', __METHOD__);
-            }
-        } finally {
-            $mutex->release($lockName);
+        if ($result->wasCreated()) {
+            Craft::info('Scheduled next cache generation', __METHOD__);
         }
     }
 }

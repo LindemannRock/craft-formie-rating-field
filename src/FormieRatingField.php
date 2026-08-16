@@ -5,7 +5,7 @@
  * Rating field for Formie - Provides star rating, emoji rating, and numeric rating field types
  *
  * @link      https://lindemannrock.com
- * @copyright Copyright (c) 2025 LindemannRock
+ * @copyright Copyright (c) 2025-2026 LindemannRock
  */
 
 namespace lindemannrock\formieratingfield;
@@ -14,7 +14,6 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
-use craft\db\Query;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterTemplateRootsEvent;
@@ -29,13 +28,11 @@ use craft\utilities\ClearCaches;
 use craft\web\UrlManager;
 use craft\web\View;
 use lindemannrock\base\helpers\CpNavHelper;
-use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\PluginHelper;
-use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\integrations\feedme\fields\Rating as FeedMeRatingField;
-use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\models\Settings;
+use lindemannrock\formieratingfield\services\StatisticsCacheScheduler;
 use lindemannrock\formieratingfield\services\StatisticsService;
 use lindemannrock\formieratingfield\widgets\RatingStatisticsWidget;
 use verbb\formie\elements\Submission;
@@ -288,47 +285,10 @@ class FormieRatingField extends Plugin
      */
     private function scheduleInitialCacheGeneration(): void
     {
-        // Mutex makes the check-then-push atomic across concurrent requests.
-        // Without it, two simultaneous web requests can both pass the existsCheck()
-        // and each push a duplicate job. Non-blocking acquire — if another request
-        // is currently scheduling, this one skips silently.
-        $mutex = Craft::$app->getMutex();
-        $lockName = 'formie-rating-field:schedule-cache-job';
+        $result = (new StatisticsCacheScheduler())->ensurePending($this->getSettings());
 
-        if (!$mutex->acquire($lockName)) {
-            return;
-        }
-
-        try {
-            $settings = $this->getSettings();
-            $schedule = $settings->getEffectiveCacheGenerationSchedule();
-            $nextRun = ScheduleHelper::calculateNext($schedule);
-            $delay = ScheduleHelper::calculateDelaySeconds($schedule);
-            $existingJobIds = $this->findPendingScheduledCacheGenerationJobIds();
-            if (!empty($existingJobIds)) {
-                $this->collapseDuplicateScheduledCacheGenerationJobs($existingJobIds);
-                return;
-            }
-
-            if ($nextRun !== null && $delay > 0) {
-                $job = new GenerateCacheJob([
-                    'reschedule' => true,
-                    'scheduledMaster' => true,
-                    'nextRunTime' => DateFormatHelper::formatCompactDatetimeFromSettings(
-                        $nextRun,
-                        $settings,
-                        null,
-                        false,
-                        pluginHandle: 'formie-rating-field',
-                    ),
-                ]);
-
-                Craft::$app->getQueue()->delay($delay)->push($job);
-
-                Craft::info('Scheduled initial cache generation job', __METHOD__);
-            }
-        } finally {
-            $mutex->release($lockName);
+        if ($result->wasCreated()) {
+            Craft::info('Scheduled initial cache generation job', __METHOD__);
         }
     }
 
@@ -343,90 +303,14 @@ class FormieRatingField extends Plugin
             return;
         }
 
-        $this->cancelScheduledCacheGenerationJobs();
+        $result = (new StatisticsCacheScheduler())->replace($newSettings);
 
-        if ($newSettings->getEffectiveCacheGenerationSchedule() === 'disabled') {
+        if ($result->wasSkipped()) {
             Craft::info('Automatic cache generation disabled', __METHOD__);
             return;
         }
 
-        $this->scheduleInitialCacheGeneration();
-
         Craft::info('Automatic cache generation schedule updated', __METHOD__);
-    }
-
-    /**
-     * Find pending recurring cache-generation master queue rows.
-     *
-     * @return int[]
-     */
-    private function findPendingScheduledCacheGenerationJobIds(): array
-    {
-        return array_map('intval', (new Query())
-            ->select(['id'])
-            ->from('{{%queue}}')
-            ->where($this->scheduledCacheGenerationJobCondition(true))
-            ->orderBy(['id' => SORT_ASC])
-            ->column());
-    }
-
-    /**
-     * @param int[] $jobIds
-     */
-    private function collapseDuplicateScheduledCacheGenerationJobs(array $jobIds): void
-    {
-        $duplicateIds = array_slice($jobIds, 1);
-
-        if (empty($duplicateIds)) {
-            return;
-        }
-
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%queue}}', ['id' => $duplicateIds])
-            ->execute();
-    }
-
-    /**
-     * Cancel pending recurring cache-generation master jobs.
-     */
-    private function cancelScheduledCacheGenerationJobs(): void
-    {
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%queue}}', $this->scheduledCacheGenerationJobCondition(false))
-            ->execute();
-    }
-
-    /**
-     * @return array<int, mixed>
-     */
-    private function scheduledCacheGenerationJobCondition(bool $pendingOnly): array
-    {
-        $condition = [
-            'and',
-            ['like', 'job', 'formieratingfield'],
-            ['like', 'job', 'GenerateCacheJob'],
-            [
-                'or',
-                ['like', 'job', '"scheduledMaster";b:1'],
-                ['like', 'job', '"scheduledMaster":true'],
-                [
-                    'and',
-                    ['not like', 'job', 'scheduledMaster'],
-                    [
-                        'or',
-                        ['like', 'job', '"reschedule";b:1'],
-                        ['like', 'job', '"reschedule":true'],
-                    ],
-                ],
-            ],
-        ];
-
-        if ($pendingOnly) {
-            $condition[] = ['fail' => false];
-            $condition[] = ['timeUpdated' => null];
-        }
-
-        return $condition;
     }
 
     /**
