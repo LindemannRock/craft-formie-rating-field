@@ -19,11 +19,12 @@ use lindemannrock\base\helpers\DateFormatHelper;
 use lindemannrock\base\helpers\RecurringQueueHelper;
 use lindemannrock\base\helpers\ScheduleHelper;
 use lindemannrock\base\queue\DeferredQueueJob;
-use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\fields\Rating;
+use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\services\StatisticsCacheScheduler;
+use lindemannrock\formieratingfield\tests\Support\IsolatedQueue;
 use lindemannrock\formieratingfield\tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
@@ -44,6 +45,7 @@ final class SchedulerPatternTest extends TestCase
     private ?string $originalSchedule = null;
     private ?Queue $originalQueue = null;
     private ?SchedulerRecordingSqsQueue $proxyQueue = null;
+    private ?IsolatedQueue $isolatedQueue = null;
     private bool $timePaused = false;
 
     protected function setUp(): void
@@ -51,30 +53,37 @@ final class SchedulerPatternTest extends TestCase
         parent::setUp();
 
         $this->originalSchedule = FormieRatingField::$plugin->getSettings()->cacheGenerationSchedule;
-        $this->deleteCacheGenerationQueueRows();
+        $queue = Craft::$app->getQueue();
+        self::assertInstanceOf(IsolatedQueue::class, $queue);
+        $this->isolatedQueue = $queue;
+        $this->isolatedQueue->clearShadowRows();
     }
 
     protected function cleanupExternalState(): void
     {
-        $this->deleteCacheGenerationQueueRows();
+        try {
+            $this->isolatedQueue?->clearShadowRows();
+        } finally {
+            $this->isolatedQueue = null;
 
-        if ($this->timePaused) {
-            DateTimeHelper::resume();
-            $this->timePaused = false;
+            if ($this->timePaused) {
+                DateTimeHelper::resume();
+                $this->timePaused = false;
+            }
+
+            if ($this->originalQueue !== null) {
+                Craft::$app->set('queue', $this->originalQueue);
+                $this->originalQueue = null;
+            }
+
+            $this->proxyQueue = null;
+
+            if ($this->originalSchedule !== null) {
+                FormieRatingField::$plugin->getSettings()->cacheGenerationSchedule = $this->originalSchedule;
+            }
+
+            parent::cleanupExternalState();
         }
-
-        if ($this->originalQueue !== null) {
-            Craft::$app->set('queue', $this->originalQueue);
-            $this->originalQueue = null;
-        }
-
-        $this->proxyQueue = null;
-
-        if ($this->originalSchedule !== null) {
-            FormieRatingField::$plugin->getSettings()->cacheGenerationSchedule = $this->originalSchedule;
-        }
-
-        parent::cleanupExternalState();
     }
 
     public function testApprovedBasePortableQueueApiLoadsFromTheLocalCandidate(): void
@@ -628,17 +637,6 @@ final class SchedulerPatternTest extends TestCase
 
         Craft::$app->getDb()->createCommand()
             ->update('{{%queue}}', ['job' => $job], ['id' => (int) $row['id']])
-            ->execute();
-    }
-
-    private function deleteCacheGenerationQueueRows(): void
-    {
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%queue}}', [
-                'and',
-                ['like', 'job', 'formieratingfield'],
-                ['like', 'job', 'GenerateCacheJob'],
-            ])
             ->execute();
     }
 
