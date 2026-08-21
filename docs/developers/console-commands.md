@@ -1,6 +1,6 @@
 # Console commands
 
-Formie Rating Field ships console commands for inspecting and managing the [statistics cache](../feature-tour/caching.md) — handy for cron jobs, deploys, or debugging — plus a help command. Examples use `ddev craft`; drop the `ddev` prefix for a non-DDEV environment (`php craft …`).
+Formie Rating Field ships console commands for inspecting and managing the [statistics cache](../feature-tour/caching.md) — handy for cron jobs, deploys, or debugging — plus a help command. Each example includes DDEV and direct PHP variants.
 
 ## `formie-rating-field/help`
 
@@ -10,14 +10,32 @@ Lists the available commands with examples and notes.
 ddev craft formie-rating-field/help
 ```
 
-For one command: `ddev craft formie-rating-field/help cache/generate`. Craft's native signature help also works: `ddev craft help formie-rating-field/cache/generate`.
+```bash title="PHP"
+php craft formie-rating-field/help
+```
+
+Pass a command path for focused notes:
+
+```bash title="DDEV"
+ddev craft formie-rating-field/help [command]
+```
+
+```bash title="PHP"
+php craft formie-rating-field/help [command]
+```
+
+For example, use `cache/generate`. Craft's native `help formie-rating-field/cache/generate` command also shows the action signature.
 
 ## `cache/info`
 
-Print the cache location, the number of cached files, and the effective generation schedule. A safe, read-only first stop when stats look stale.
+Print the configured storage preference, the effective runtime status and explanation, and the effective generation schedule. When the plugin is effectively using its own file cache, the output also includes the file path and entry count. Craft application-cache entries are not enumerated as plugin files.
 
 ```bash title="DDEV"
 ddev craft formie-rating-field/cache/info
+```
+
+```bash title="PHP"
+php craft formie-rating-field/cache/info
 ```
 
 ## `cache/generate`
@@ -26,14 +44,28 @@ Queue a job that rebuilds the statistics cache. With no argument it rebuilds eve
 
 ```bash title="DDEV"
 ddev craft formie-rating-field/cache/generate
+```
+
+```bash title="PHP"
+php craft formie-rating-field/cache/generate
+```
+
+To target one form:
+
+```bash title="DDEV"
 ddev craft formie-rating-field/cache/generate --form-id=34
+```
+
+```bash title="PHP"
+php craft formie-rating-field/cache/generate --form-id=34
 ```
 
 | Option | Type | Description |
 |--------|------|-------------|
 | `--form-id` | `int` | Optional. Rebuild the cache for a single form only. |
 
-> The actual work runs through Craft's queue, so make sure your queue is running (or run `ddev craft queue/run`) to see the cache populate.
+> [!NOTE]
+> The actual work runs through Craft's queue, so make sure your queue runner is active to see the cache populate.
 
 ## `cache/clear-form`
 
@@ -43,16 +75,24 @@ Clear the cached statistics for one form. The next dashboard view recomputes the
 ddev craft formie-rating-field/cache/clear-form 34
 ```
 
+```bash title="PHP"
+php craft formie-rating-field/cache/clear-form 34
+```
+
 | Argument | Type | Description |
 |----------|------|-------------|
 | `formId` | `int` | Required. The form's ID. |
 
 ## `cache/clear`
 
-Clear **all** cached statistics for every form. Reports how many entries were removed.
+Invalidate **all** cached statistics for every form. This clears the plugin's statistics-cache family without flushing unrelated Craft application-cache data.
 
 ```bash title="DDEV"
 ddev craft formie-rating-field/cache/clear
+```
+
+```bash title="PHP"
+php craft formie-rating-field/cache/clear
 ```
 
 ## See also

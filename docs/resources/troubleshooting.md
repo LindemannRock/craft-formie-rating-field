@@ -72,16 +72,17 @@ During bootstrap, the plugin collapses duplicate pending scheduled-master rows a
 
 Craft stores queue job descriptions when rows are queued, so date/time format changes apply to newly queued rows. Existing delayed rows keep their old label until they run or are requeued. Queue labels stay compact: numeric months render numerically, while short and long month settings both render as short month names.
 
-## "Redis Not Configured" on the Cache settings page
+## Cache status says "Best effort" or "Caching disabled"
 
 **Quick checks:**
 
-1. Have you set Craft's cache component to `yii\redis\Cache`?
-2. Confirm Redis is actually reachable from your environment.
+1. Open **Settings → Formie Rating → Cache** and read the effective status below **Cache Storage Method**.
+2. Confirm Craft's application cache is available and appropriate for reuse across requests in this environment.
+3. On an ephemeral host, remember that a saved **File cache** preference automatically bypasses plugin runtime files and tries the application cache.
 
-**Fix:** Configure Craft to use Redis (its cache component), or set **Cache Storage Method** back to **File System**.
+**Fix:** Provide a suitable Craft application cache for the environment, or choose **File cache** on a durable host. Craft may expose a managed, Redis, database, or suitable filesystem application cache; Formie Rating does not require Redis specifically.
 
-**Why:** The plugin's Redis mode reuses *Craft's* configured Redis cache rather than connecting on its own. If Craft isn't using Redis, the plugin warns you and falls back to recomputing on demand instead of caching incorrectly.
+**Why:** The saved setting is a preference; the plugin resolves effective storage for the current host. An unknown backend is presented as **Best effort** because cross-request persistence cannot be confirmed. An unavailable, memory-only, or otherwise unsuitable backend is presented as **Caching disabled**, and statistics are recomputed safely when needed.
 
 ## A Raw Responses export is missing rows
 

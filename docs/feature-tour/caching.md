@@ -6,7 +6,7 @@ Computing averages, NPS scores, and distributions across thousands of submission
 
 - Keeping the Statistics dashboard fast on high-volume forms
 - Pre-generating stats overnight so the first morning view is instant
-- Sharing a cache across load-balanced servers with Redis
+- Using Craft's application cache across load-balanced or ephemeral hosts
 - Clearing stale numbers by hand when you need to
 
 ## How it stays current
@@ -15,15 +15,24 @@ You rarely have to think about this. When a submission is **saved or deleted**, 
 
 ## Where the cache lives
 
-Set the store in **Settings → Formie Rating → Cache** under **Cache Storage Method**:
+Set your storage preference in **Settings → Formie Rating → Cache** under **Cache Storage Method**. The status shown below the field is the effective storage for the current host, which can differ from the saved preference:
 
-| Method | When to use |
-|--------|-------------|
-| **File System** (default) | Single-server setups. Needs nothing extra. |
-| **Redis** | Load-balanced or multi-server hosting (Servd, AWS, Platform.sh). Uses Craft's configured Redis cache. |
+| Preference | Effective behavior |
+|------------|--------------------|
+| **File cache** (default) | On a durable host, statistics use plugin-owned runtime files. On an ephemeral host, those files are bypassed automatically and the plugin tries Craft's application cache instead. |
+| **Application cache** | Statistics use Craft's configured application cache when it is suitable for reuse across requests. This does not require Redis when Craft already provides another suitable backend. |
+
+The Cache settings page, **Utilities → Formie Rating**, and `cache/info` describe the effective result without guessing through managed cache layers:
+
+| Status | What it means |
+|--------|---------------|
+| **Managed cache**, **Redis cache**, or **Database cache** | Craft exposed a suitable application-cache backend. Statistics caching is active. |
+| **Filesystem cache** | Craft's application cache is filesystem-backed and is suitable for the current host. It is still application-cache storage, not the plugin's file store. |
+| **Application cache — Best effort** | The backend is available, but cross-request persistence could not be confirmed. |
+| **Caching disabled — Recomputed as needed** | The application cache is unavailable or unsuitable. Statistics continue to work and are recomputed when requested. |
 
 > [!NOTE]
-> Redis mode uses **Craft's existing Redis cache component**. If you select Redis but Craft isn't configured to use it, the Cache settings page shows a warning and the plugin falls back to recomputing on demand rather than caching incorrectly. The cache page links to setup instructions.
+> An ephemeral host never writes statistics to the plugin's runtime cache directory. If its application cache is also unsuitable, caching is disabled for that host and requests recompute safely.
 
 ![The Cache settings tab](../images/caching-settings.webp)
 
@@ -44,21 +53,14 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 
 ### Utilities page
 
-**Utilities → Formie Rating** shows the current cache status (file count, or *Active* for Redis) and gives you two buttons (with the *Manage cache* permission):
+**Utilities → Formie Rating** shows the effective cache status and gives you two buttons (with the *Manage cache* permission). When effective storage is the plugin's file cache, the card includes its entry count. Application-cache entries are scoped and invalidated through Craft; they are not enumerated as plugin files.
 
 - **Generate Cache Now** — queue a full rebuild
-- **Clear All Cache** — drop every cached statistic
+- **Clear All Cache** — invalidate every Formie Rating statistics entry without flushing unrelated Craft cache data
 
 ### Console commands
 
-For automation or cron, the same actions exist on the command line — see [Console commands](../developers/console-commands.md):
-
-```bash
-ddev craft formie-rating-field/cache/info          # path, file count, schedule
-ddev craft formie-rating-field/cache/generate      # rebuild all (queues a job)
-ddev craft formie-rating-field/cache/clear-form 34  # clear one form
-ddev craft formie-rating-field/cache/clear         # clear everything
-```
+For automation or cron, the same actions exist on the command line: inspect the effective storage with `formie-rating-field/cache/info`, queue a rebuild with `cache/generate`, invalidate one form with `cache/clear-form`, or invalidate the whole statistics-cache family with `cache/clear`. See [Console commands](../developers/console-commands.md) for copy-ready PHP and DDEV examples.
 
 ## Next steps
 

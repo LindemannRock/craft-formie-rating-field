@@ -4,7 +4,7 @@ Every setting on this page has a home in the Control Panel under **Formie Rating
 
 The field defaults below answer one question: *what should a brand-new Rating field look like before anyone touches it?* They don't change fields that already exist — each Rating field stores its own copy of these settings once created.
 
-> Copy the sample config to start: `cp vendor/lindemannrock/craft-formie-rating-field/src/config.php config/formie-rating-field.php`. Anything set in `config/formie-rating-field.php` overrides the Control Panel value and locks that field in the UI.
+Copy the sample config to start: `cp vendor/lindemannrock/craft-formie-rating-field/src/config.php config/formie-rating-field.php`. Anything set in `config/formie-rating-field.php` overrides the Control Panel value and locks that field in the UI.
 
 ## Field defaults (General tab)
 
@@ -39,12 +39,14 @@ The General tab includes **Single Emoji Selection by Default**. It sets the init
 
 ## Cache (Cache tab)
 
+**Cache Storage Method** is a preference, not a promise that every host uses the same physical storage. A durable host can use the plugin's file cache. An ephemeral host automatically bypasses plugin runtime files and uses a suitable Craft application cache; if no suitable cross-request cache is available, statistics are recomputed safely when needed.
+
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `cacheStorageMethod` | `string` | `'file'` | Where computed statistics are cached: `file` (single server) or `redis` (load-balanced / multi-server). |
+| `cacheStorageMethod` | `string` | `'file'` | Storage preference: `file` for plugin-owned files on durable hosts, or `craft` for Craft's application cache. The legacy `redis` value remains accepted and follows the same application-cache path; the detected backend may be managed, Redis, database, filesystem, or unknown/best-effort. |
 | `cacheGenerationSchedule` | `string` | `'disabled'` | Pre-generate statistics on a schedule: `disabled`, `every3hours`, `every6hours`, `every12hours`, `daily`, `daily2am`, `weekly`. |
 
-See [Caching](../feature-tour/caching.md) for how the cache is built, invalidated, and pre-warmed.
+The Cache tab shows the effective backend for each choice. Paths are shown only when the current host will actually use the plugin's file cache. See [Caching](../feature-tour/caching.md) for backend statuses, invalidation, failure-safe recomputation, and pre-warming.
 
 ## Base display and export overrides
 
@@ -108,9 +110,9 @@ return [
         // ],
     ],
 
-    // Production: pre-generate stats overnight and use Redis on a load-balanced host
+    // Production: pre-generate stats overnight and use Craft's application cache
     'production' => [
-        'cacheStorageMethod' => 'redis',
+        'cacheStorageMethod' => 'craft',
         'cacheGenerationSchedule' => 'daily2am',
     ],
 ];
