@@ -50,7 +50,7 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
             [
                 // Deliberately does not average to 4.75. This guards the regression
                 // where grouped averages were derived from transported raw values.
-                'Branch A' => ['1' => 200],
+                'Branch A' => [1 => 200],
             ],
         );
 
@@ -97,8 +97,8 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
 
     public function testMedianFromValueCountsIsExactForOddEvenAndHalfRatings(): void
     {
-        self::assertSame(2.0, $this->calculateMedianFromValueCounts(['1' => 1, '2' => 1, '5' => 1]));
-        self::assertSame(2.5, $this->calculateMedianFromValueCounts(['1' => 1, '2' => 1, '3' => 1, '5' => 1]));
+        self::assertSame(2.0, $this->calculateMedianFromValueCounts([1 => 1, 2 => 1, 5 => 1]));
+        self::assertSame(2.5, $this->calculateMedianFromValueCounts([1 => 1, 2 => 1, 3 => 1, 5 => 1]));
         self::assertSame(3.5, $this->calculateMedianFromValueCounts(['2.5' => 2, '3.5' => 3, '4.5' => 1]));
         self::assertSame(0.0, $this->calculateMedianFromValueCounts([]));
     }
@@ -268,7 +268,7 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
         self::assertStringNotContainsString('$ratingExpr', $countQuerySource);
         self::assertStringContainsString("'{{%formie_submissions}}.isIncomplete' => false", $submissionFilterSource);
         self::assertStringContainsString("'{{%formie_submissions}}.isSpam' => false", $submissionFilterSource);
-        self::assertStringContainsString("'{{%elements_sites}} es_site_filter'", $submissionFilterSource);
+        self::assertStringContainsString("applySiteScope(\$query, \$submissionsTable, \$siteId, 'es_grouped_scope')", $submissionFilterSource);
         self::assertStringContainsString('$dateBounds[\'start\']', $submissionFilterSource);
         self::assertStringContainsString('$dateBounds[\'end\']', $submissionFilterSource);
     }
@@ -276,7 +276,7 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
     /**
      * @param array $rows
      * @param Rating $field
-     * @param array<string, array<string, int>> $medianValueCountsByGroup
+     * @param array<string, array<int|string, int>> $medianValueCountsByGroup
      * @return array
      */
     private function buildGroupedStatsFromAggregateRows(array $rows, Rating $field, array $medianValueCountsByGroup = []): array
@@ -289,7 +289,7 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
         return $result;
     }
 
-    /** @param array<string, int> $valueCounts */
+    /** @param array<int|string, int> $valueCounts */
     private function calculateMedianFromValueCounts(array $valueCounts): float
     {
         $method = new ReflectionMethod(StatisticsService::class, 'calculateMedianFromValueCounts');
@@ -332,7 +332,7 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
             ],
         ]);
         $form->setFormLayout($layout);
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         return $form;
     }
@@ -377,7 +377,7 @@ final class StatisticsServiceGroupedStatsTest extends TestCase
             ],
         ]);
         $form->setFormLayout($layout);
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         return $form;
     }

@@ -322,7 +322,7 @@ final class StatisticsFailureHandlingTest extends TestCase
             self::assertLessThan($indexTry, $gate, "actionIndex must run {$needle} before its try block.");
         }
         foreach ([
-            'getFormsWithRatingFields($siteId)',
+            'getFormsWithRatingFields($siteScope)',
             'filterFormsByFormieSubmissionAccess($formsWithRatings)',
             'usort($formsWithRatings',
             'array_slice($formsWithRatings',
@@ -353,7 +353,7 @@ final class StatisticsFailureHandlingTest extends TestCase
             ];
             $gateNeedles[] = $method === 'actionForm'
                 ? 'if (!$formId)'
-                : 'if (!$formId || !$groupValue)';
+                : "if (!\$formId || \$groupValue === null || \$groupValue === '')";
 
             foreach ($gateNeedles as $needle) {
                 $gate = strpos($source, $needle);
@@ -394,7 +394,7 @@ final class StatisticsFailureHandlingTest extends TestCase
         $form = new Form();
         $form->title = $this->nextTestMarker('Rating failure test ', 'form');
         $form->handle = $this->nextTestMarker('ratingFailureTest', 'form');
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         return $form;
     }
@@ -423,9 +423,7 @@ final class StatisticsFailureHandlingTest extends TestCase
 
     private function widget(): RatingStatisticsWidget
     {
-        return new class([
-            'siteId' => (string) Craft::$app->getSites()->getPrimarySite()->id,
-        ]) extends RatingStatisticsWidget {
+        return new class([ 'siteId' => (string) Craft::$app->getSites()->getPrimarySite()->id, ]) extends RatingStatisticsWidget {
             protected function editableSiteIds(): array
             {
                 return [(int)Craft::$app->getSites()->getPrimarySite()->id];
@@ -503,6 +501,11 @@ final class StatisticsTestRequest extends ConsoleRequest
     public function getIsAjax(): bool
     {
         return false;
+    }
+
+    public function getHostInfo()
+    {
+        return 'https://formie-rating-field-fixture.example.test';
     }
 }
 

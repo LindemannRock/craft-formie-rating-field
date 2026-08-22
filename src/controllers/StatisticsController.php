@@ -61,6 +61,25 @@ class StatisticsController extends Controller
     }
 
     /**
+     * Resolve the request sentinel to the current user's live editable-site scope.
+     *
+     * @param int|string $siteId Resolved request site ID or the `all` UI sentinel
+     * @return int|array<int> Specific site ID or sorted editable-site IDs
+     */
+    private function _effectiveSiteScope(int|string $siteId): int|array
+    {
+        if (is_int($siteId)) {
+            return $siteId;
+        }
+
+        $editableSiteIds = array_map('intval', Craft::$app->getSites()->getEditableSiteIds());
+        $editableSiteIds = array_values(array_unique($editableSiteIds));
+        sort($editableSiteIds, SORT_NUMERIC);
+
+        return $editableSiteIds;
+    }
+
+    /**
      * Normalize a group-by handle against the form's current groupable fields.
      *
      * @param mixed $rawGroupBy Raw request value
@@ -217,11 +236,12 @@ class StatisticsController extends Controller
         // allowlist (driven by the user's editable-sites permission set), so
         // no second guard is needed here.
         $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
+        $siteScope = $this->_effectiveSiteScope($siteId);
 
         try {
             // ---- Load + filter --------------------------------------------
             // Get all forms that have rating fields (totalSubmissions count respects site filter).
-            $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteId);
+            $formsWithRatings = $statisticsService->getFormsWithRatingFields($siteScope);
             $formsWithRatings = $this->filterFormsByFormieSubmissionAccess($formsWithRatings);
 
             if ($search !== '') {
@@ -305,6 +325,7 @@ class StatisticsController extends Controller
         $this->requireFormieSubmissionAccess($form);
 
         $siteId = $this->_resolveSiteId(Craft::$app->getRequest()->getQueryParam('siteId'));
+        $siteScope = $this->_effectiveSiteScope($siteId);
 
         try {
             $statisticsService = FormieRatingField::$plugin->statistics;
@@ -337,7 +358,7 @@ class StatisticsController extends Controller
             // Get statistics for each rating field to display
             $fieldStats = [];
             foreach ($fieldsToDisplay as $field) {
-                $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, $groupBy, $siteId);
+                $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, $groupBy, $siteScope);
             }
 
             return $this->renderTemplate('formie-rating-field/statistics/form', [
@@ -372,7 +393,7 @@ class StatisticsController extends Controller
         $this->requireCpRequest();
         $this->requirePermission('formieRatingField:viewStatistics');
 
-        if (!$formId || !$groupValue) {
+        if (!$formId || $groupValue === null || $groupValue === '') {
             throw new \yii\web\BadRequestHttpException(Craft::t('formie-rating-field', 'Form ID and group value are required'));
         }
 
@@ -389,6 +410,7 @@ class StatisticsController extends Controller
         $groupBy = $request->getQueryParam('groupBy');
         $fieldHandle = $request->getQueryParam('fieldHandle');
         $siteId = $this->_resolveSiteId($request->getQueryParam('siteId'));
+        $siteScope = $this->_effectiveSiteScope($siteId);
         $page = max(1, (int)$request->getQueryParam('page', 1));
 
         if (!is_string($groupBy) || $groupBy === '') {
@@ -413,7 +435,7 @@ class StatisticsController extends Controller
                 $groupBy,
                 $groupValue,
                 $dateRange,
-                $siteId,
+                $siteScope,
                 $limit,
                 $offset,
             );
@@ -486,6 +508,7 @@ class StatisticsController extends Controller
         $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
         $type = $request->getBodyParam('type', 'summary');
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
+        $siteScope = $this->_effectiveSiteScope($siteId);
 
         if ($formId <= 0) {
             return $this->asJson([
@@ -517,12 +540,12 @@ class StatisticsController extends Controller
                     $fieldStats = [];
 
                     foreach ($ratingFields as $field) {
-                        $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, null, $siteId);
+                        $fieldStats[$field->handle] = $statisticsService->getFieldStatistics($form, $field, $dateRange, null, $siteScope);
                     }
 
                     $data = [
                         'fieldStats' => $fieldStats,
-                        'totalSubmissions' => $statisticsService->getTotalSubmissions($form, $dateRange, $siteId),
+                        'totalSubmissions' => $statisticsService->getTotalSubmissions($form, $dateRange, $siteScope),
                     ];
                     break;
 
@@ -545,7 +568,7 @@ class StatisticsController extends Controller
                         return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field not found')]);
                     }
 
-                    $data = $statisticsService->getTrendData($form, $field, $dateRange, $siteId);
+                    $data = $statisticsService->getTrendData($form, $field, $dateRange, $siteScope);
                     break;
 
                 case 'distribution':
@@ -567,7 +590,7 @@ class StatisticsController extends Controller
                         return $this->asJson(['success' => false, 'error' => Craft::t('formie-rating-field', 'Field not found')]);
                     }
 
-                    $data = $statisticsService->getDistributionData($form, $field, $dateRange, $siteId);
+                    $data = $statisticsService->getDistributionData($form, $field, $dateRange, $siteScope);
                     break;
             }
 
@@ -645,8 +668,9 @@ class StatisticsController extends Controller
         $dateRange = $this->_normalizeDateRange($request->getBodyParam('dateRange'));
         $format = $this->_normalizeFormat($request->getBodyParam('format', 'csv'));
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
+        $siteScope = $this->_effectiveSiteScope($siteId);
 
-        if ($formId <= 0 || !$groupValue) {
+        if ($formId <= 0 || $groupValue === '') {
             throw new BadRequestHttpException(Craft::t('formie-rating-field', 'Missing required parameters'));
         }
 
@@ -680,7 +704,7 @@ class StatisticsController extends Controller
             // the group predicate so unrelated submissions cannot consume it.
             $maxRows = (int)$settings->maxExportRows;
             $limit = $maxRows > 0 ? $maxRows : null;
-            $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId, $limit);
+            $submissions = $statisticsService->getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteScope, $limit);
 
             if ($limit !== null && count($submissions) >= $limit) {
                 Craft::warning(
@@ -815,6 +839,7 @@ class StatisticsController extends Controller
         $groupBy = $request->getBodyParam('groupBy', null);
         $format = $this->_normalizeFormat($request->getBodyParam('format', 'csv'));
         $siteId = $this->_resolveSiteId($request->getBodyParam('siteId'));
+        $siteScope = $this->_effectiveSiteScope($siteId);
 
         // Gate by enabled export formats from config/formie-rating-field.php (or base default)
         if (!ExportHelper::isFormatEnabled($format, 'formie-rating-field')) {
@@ -833,9 +858,9 @@ class StatisticsController extends Controller
             $groupBy = $this->_normalizeGroupByHandle($groupBy, $statisticsService->getGroupableFieldsForForm($form));
 
             // Build all sections
-            $summary = $statisticsService->buildSummaryExportRows($form, $dateRange, $siteId);
-            $raw = $statisticsService->buildRawResponsesExportRows($form, $dateRange, $siteId);
-            $byGroup = $groupBy ? $statisticsService->buildGroupedExportRows($form, $dateRange, $groupBy, $siteId) : null;
+            $summary = $statisticsService->buildSummaryExportRows($form, $dateRange, $siteScope);
+            $raw = $statisticsService->buildRawResponsesExportRows($form, $dateRange, $siteScope);
+            $byGroup = $groupBy ? $statisticsService->buildGroupedExportRows($form, $dateRange, $groupBy, $siteScope) : null;
 
             $extension = ExportHelper::normalizeFormat($format) === 'csv'
                 ? 'zip'

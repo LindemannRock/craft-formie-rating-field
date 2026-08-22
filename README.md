@@ -5,6 +5,7 @@
 [![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-formie-rating-field.svg)](https://packagist.org/packages/lindemannrock/craft-formie-rating-field)
 [![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.0+-orange.svg)](https://craftcms.com/)
 [![Formie](https://img.shields.io/badge/Formie-3.0+-purple.svg)](https://verbb.io/craft-plugins/formie)
+[![Plugin Base](https://img.shields.io/badge/Plugin%20Base-5.38%2B-4c6ef5.svg)](https://github.com/LindemannRock/craft-plugin-base)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net/)
 [![License](https://img.shields.io/packagist/l/lindemannrock/craft-formie-rating-field.svg)](LICENSE.md)
 
@@ -36,6 +37,7 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - Craft CMS 5.0 or greater
 - PHP 8.2 or greater
 - Formie 3.0 or greater
+- [LindemannRock Plugin Base](https://github.com/LindemannRock/craft-plugin-base) 5.38+ (required by Composer)
 
 ## Installation
 

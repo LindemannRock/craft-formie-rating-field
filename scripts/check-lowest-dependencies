@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+WORKSPACE_ROOT="$(CDPATH= cd -- "$PACKAGE_ROOT/../.." 2>/dev/null && pwd -P)"
+TMP_ROOT="${TMPDIR:-/tmp}"
+LOWEST_ROOT="$(mktemp -d "$TMP_ROOT/formie-rating-field-lowest-dependencies.XXXXXX")"
+
+cleanup_lowest_root() {
+    case "$LOWEST_ROOT" in
+        "$TMP_ROOT"/formie-rating-field-lowest-dependencies.*)
+            rm -rf -- "$LOWEST_ROOT"
+            ;;
+        *)
+            echo "Refusing to remove unexpected dependency-floor path: $LOWEST_ROOT" >&2
+            return 1
+            ;;
+    esac
+}
+trap cleanup_lowest_root EXIT
+
+cd "$PACKAGE_ROOT"
+cp composer.json phpstan.neon ecs.php "$LOWEST_ROOT/"
+cp -R src tests "$LOWEST_ROOT/"
+
+LOCAL_BASE="$WORKSPACE_ROOT/plugins/base"
+if [ "$PACKAGE_ROOT" = "$WORKSPACE_ROOT/plugins/formie-rating-field" ] \
+    && [ -f "$LOCAL_BASE/composer.json" ]; then
+    local_base_version="$(php -r '$data = json_decode(file_get_contents($argv[1]), true, flags: JSON_THROW_ON_ERROR); echo $data["version"] ?? "";' "$LOCAL_BASE/composer.json")"
+    if [ "$local_base_version" != "5.38.0" ]; then
+        echo "Workspace Base version is $local_base_version; expected the approved 5.38.0 floor." >&2
+        exit 1
+    fi
+    local_repository="$(printf '{"type":"path","url":"%s","options":{"symlink":false}}' "$LOCAL_BASE")"
+    composer config --working-dir="$LOWEST_ROOT" repositories.local-base "$local_repository"
+fi
+
+# These Yii extensions share Composer installer metadata and can collide when
+# their dist archives are moved in parallel. Source installs keep the isolated
+# vendor tree deterministic while every other package remains dist-first.
+for source_package in \
+    yiisoft/yii2-symfonymailer \
+    yiisoft/yii2-queue \
+    yiisoft/yii2-debug \
+    samdark/yii2-psr-log-target \
+    creocoder/yii2-nested-sets \
+    yiisoft/yii2-redis; do
+    composer config --working-dir="$LOWEST_ROOT" "preferred-install.$source_package" source
+done
+composer config --working-dir="$LOWEST_ROOT" 'preferred-install.*' dist
+
+COMPOSER_MAX_PARALLEL_HTTP=1 COMPOSER_MAX_PARALLEL_PROCESSES=1 composer update \
+    --working-dir="$LOWEST_ROOT" \
+    --prefer-lowest \
+    --no-scripts \
+    --no-interaction
+
+if [ "${FORMIE_RATING_FIELD_LOWEST_FAIL_STAGE:-}" = "after-update" ]; then
+    echo "Injected dependency-floor failure after isolated resolution." >&2
+    exit 77
+fi
+
+base_version="$(composer show --working-dir="$LOWEST_ROOT" lindemannrock/craft-plugin-base --format=json \
+    | php -r '$data = json_decode(stream_get_contents(STDIN), true, flags: JSON_THROW_ON_ERROR); echo $data["versions"][0] ?? "";')"
+if [ "$base_version" != "5.38.0" ]; then
+    echo "Lowest-compatible resolution selected Base $base_version; expected 5.38.0." >&2
+    exit 1
+fi
+
+composer --working-dir="$LOWEST_ROOT" ci
+echo "Lowest-compatible dependency verification passed with lindemannrock/craft-plugin-base $base_version."

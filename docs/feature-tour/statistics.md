@@ -53,9 +53,11 @@ NPS uses the standard bands: **promoters** score 9–10, **passives** 7–8, **d
 Across the top of a form's page:
 
 - **Date Range** — today, last 7/30/90 days, this month, this year, all time, and more
-- **Site** — per-site or aggregated across all sites (multi-site only; defaults to all sites)
+- **Site** — one editable site or **All Sites**, which aggregates only the sites the signed-in user can currently edit (multi-site only; defaults to all editable sites)
 - **Field** — when the form has more than one Rating field
 - **Group By** — break the numbers down by another field (see below)
+
+The editable-site boundary applies consistently to the form list, cards, charts, grouped rows and drill-downs, raw responses, and exports. A direct request for a site the user cannot edit is rejected; if the user has no editable sites, **All Sites** returns an empty result instead of widening access.
 
 ## Group by another field
 

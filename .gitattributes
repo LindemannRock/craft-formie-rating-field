@@ -6,6 +6,7 @@ tests/ export-ignore
 
 # Field assets: only dist/ is needed
 src/web/assets/field/src/ export-ignore
+src/web/assets/field/tests/ export-ignore
 src/web/assets/field/node_modules/ export-ignore
 src/web/assets/field/package.json export-ignore
 src/web/assets/field/package-lock.json export-ignore

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+ASSET_ROOT="$PACKAGE_ROOT/src/web/assets/field"
+TMP_ROOT="${TMPDIR:-/tmp}"
+BUILD_ROOT="$(mktemp -d "$TMP_ROOT/formie-rating-field-frontend-build.XXXXXX")"
+
+cleanup_build_root() {
+    case "$BUILD_ROOT" in
+        "$TMP_ROOT"/formie-rating-field-frontend-build.*)
+            rm -rf -- "$BUILD_ROOT"
+            ;;
+        *)
+            echo "Refusing to remove unexpected frontend-build path: $BUILD_ROOT" >&2
+            return 1
+            ;;
+    esac
+}
+trap cleanup_build_root EXIT
+
+if [ ! -d "$ASSET_ROOT/node_modules" ]; then
+    echo "Frontend dependencies are unavailable. Run npm ci in src/web/assets/field first." >&2
+    exit 2
+fi
+
+mkdir -p "$BUILD_ROOT/src/css" "$BUILD_ROOT/src/js"
+cp "$ASSET_ROOT/package.json" "$BUILD_ROOT/package.json"
+cp "$ASSET_ROOT/src/css/rating.css" "$BUILD_ROOT/src/css/rating.css"
+cp "$ASSET_ROOT/src/js/rating.js" "$BUILD_ROOT/src/js/rating.js"
+ln -s "$ASSET_ROOT/node_modules" "$BUILD_ROOT/node_modules"
+npm --prefix "$BUILD_ROOT" run build
+
+if [ "${FORMIE_RATING_FIELD_FRONTEND_BUILD_FAIL_STAGE:-}" = "after-build" ]; then
+    echo "Injected frontend-build failure after temporary generation." >&2
+    exit 76
+fi
+
+cmp "$BUILD_ROOT/dist/css/rating.css" "$ASSET_ROOT/dist/css/rating.css"
+cmp "$BUILD_ROOT/dist/js/rating.js" "$ASSET_ROOT/dist/js/rating.js"
+echo "Frontend source-to-distribution parity passed for rating.css and rating.js."

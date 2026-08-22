@@ -13,6 +13,8 @@ Take the ratings out of the Control Panel and into a report or spreadsheet. From
 
 On a form's [statistics page](statistics.md), open the **Export** menu. You need the Formie Rating **Export statistics** permission and either Formie's global submission-view permission or submission access to that particular form. The export honors your current **date range**, **site**, and **group by** selections, and includes these sections:
 
+On a multi-site install, **All Sites** means all sites the signed-in user can currently edit. The same live site boundary applies to Summary, Raw Responses, By Group, and single-group exports; it never expands a limited user's export to non-editable sites.
+
 | Section | One row per… | Contains |
 |---------|--------------|----------|
 | **Summary** | rating field | Total responses, NPS score with promoter/passive/detractor counts and percentages, average, median, most common — whichever apply to the field's type (inapplicable cells show `—`). |
@@ -34,6 +36,8 @@ Which formats appear in the menu is controlled by the `exports` config key — s
 ## Export a single group
 
 When you drill into one group's submissions (from the grouped view), that page has its own **Export** that downloads just those submissions. The group, date-range, and site filters are applied before the row cap, including for Entries and Categories groups. CSV and Excel use Formie's field-aware export text, while JSON keeps Formie's structured representation for fields that provide one.
+
+The literal group value `0` is a valid group. Its drill-down and every enabled export format preserve it as data rather than treating it as a missing value.
 
 The same two permission layers apply; a direct export request for an unauthorized form returns HTTP 403. If file generation fails, the download is stopped, the failure is logged, and the Control Panel shows an error instead of an incomplete file.
 

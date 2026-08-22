@@ -125,79 +125,97 @@ window.FormieRating = class FormieRating {
             visualContainer.className = 'fui-rating-visual';
             
             // Get options from select
-            const options = Array.from(selectElement.options).filter(opt => opt.value);
+            const options = Array.from(selectElement.options).filter(opt => opt.value !== '');
             
             // Handle star ratings separately
             if (ratingType === 'star') {
-                // Check if we have half values
-                const hasHalfValues = options.some(opt => opt.value.includes('.5'));
-                
-                if (hasHalfValues) {
-                    // Get the max integer value
-                    const maxValue = Math.max(...options.map(opt => Math.ceil(parseFloat(opt.value))));
-                    const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
-                    
-                    // Create one star for each integer value
-                    const starIndices = [];
-                    for (let i = 1; i <= maxValue; i++) {
-                        starIndices.push(i);
-                    }
-                    
-                    // Reverse order for RTL
-                    if (isRTL) {
-                        starIndices.reverse();
-                    }
-                    
-                    starIndices.forEach((i) => {
-                        const starItem = this.createStarItem(i);
-                        
-                        // Add click handler that detects half clicks
-                        starItem.addEventListener('click', (e) => {
-                            const rect = starItem.getBoundingClientRect();
-                            const x = e.clientX - rect.left;
-                            const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
-                            // In RTL, the half detection is reversed
-                            const isLeftHalf = isRTL ? x > rect.width / 2 : x < rect.width / 2;
-                            
-                            // Determine the value based on click position
-                            let value = i;
-                            if (isLeftHalf && options.some(opt => opt.value === (i - 0.5).toString())) {
-                                value = i - 0.5;
-                            }
-                            
-                            this.selectRating(selectElement, value, container, starItem);
-                        });
-                        
-                        // Add hover handler for visual feedback
-                        starItem.addEventListener('mousemove', (e) => {
-                            const rect = starItem.getBoundingClientRect();
-                            const x = e.clientX - rect.left;
-                            const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
-                            // In RTL, the half detection is reversed
-                            const isLeftHalf = isRTL ? x > rect.width / 2 : x < rect.width / 2;
-                            const hoverValue = isLeftHalf && options.some(opt => opt.value === (i - 0.5).toString()) ? i - 0.5 : i;
-                            
-                            this.updateVisualState(container, hoverValue);
-                        });
-                        
-                        visualContainer.appendChild(starItem);
+                const numericOptions = options
+                    .map(option => ({ option, value: this.normalizeRatingValue(option.value) }))
+                    .filter(item => item.value !== null);
+                const zeroOption = numericOptions.find(item => item.value === 0);
+                const positiveOptions = numericOptions.filter(item => item.value > 0);
+                const configuredValues = new Set(numericOptions.map(item => item.value));
+
+                // Zero is a real configured choice, but it must not look like a
+                // filled star. Render it as a distinct numeric control.
+                if (zeroOption) {
+                    const zeroItem = this.createZeroStarItem(zeroOption.option.text);
+                    zeroItem.disabled = selectElement.disabled;
+                    zeroItem.addEventListener('click', () => {
+                        this.selectRating(selectElement, zeroOption.value, container, zeroItem);
                     });
-                } else {
-                    // No half values - create one star per option
-                    const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
-                    const orderedOptions = isRTL ? [...options].reverse() : options;
-                    
-                    orderedOptions.forEach((option) => {
-                        const value = parseFloat(option.value);
-                        const starItem = this.createStarItem(value);
-                        
-                        starItem.addEventListener('click', () => {
-                            this.selectRating(selectElement, option.value, container, starItem);
-                        });
-                        
-                        visualContainer.appendChild(starItem);
-                    });
+                    visualContainer.appendChild(zeroItem);
                 }
+
+                // Keep absolute star positions even when the configured minimum
+                // is above one. The select options remain the authority for which
+                // of those positions can actually be chosen.
+                const hasHalfValues = positiveOptions.some(item => !Number.isInteger(item.value));
+                const maximumValue = positiveOptions.reduce(
+                    (maximum, item) => Math.max(maximum, item.value),
+                    0
+                );
+                const starIndices = Array.from(
+                    { length: Math.ceil(maximumValue) },
+                    (_, index) => index + 1
+                );
+                const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
+
+                if (isRTL) {
+                    starIndices.reverse();
+                }
+
+                starIndices.forEach((i) => {
+                    const starItem = this.createStarItem(i);
+                    const halfValue = i - 0.5;
+                    const hasHalfValue = hasHalfValues && configuredValues.has(halfValue);
+                    const hasWholeValue = configuredValues.has(i);
+                    const isSelectable = hasHalfValue || hasWholeValue;
+
+                    starItem.disabled = selectElement.disabled;
+
+                    if (!isSelectable) {
+                        starItem.classList.add('fui-rating-unavailable');
+                        starItem.setAttribute('aria-disabled', 'true');
+                        starItem.setAttribute('tabindex', '-1');
+                    } else if (hasHalfValues) {
+                        // Add click handler that detects half clicks.
+                        starItem.addEventListener('click', (e) => {
+                            const value = this.getStarPointerValue(
+                                e,
+                                starItem,
+                                i,
+                                hasHalfValue,
+                                hasWholeValue
+                            );
+
+                            if (value !== null) {
+                                this.selectRating(selectElement, value, container, starItem);
+                            }
+                        });
+
+                        // Add hover handler for visual feedback.
+                        starItem.addEventListener('mousemove', (e) => {
+                            const hoverValue = this.getStarPointerValue(
+                                e,
+                                starItem,
+                                i,
+                                hasHalfValue,
+                                hasWholeValue
+                            );
+
+                            if (hoverValue !== null) {
+                                this.updateVisualState(container, hoverValue);
+                            }
+                        });
+                    } else {
+                        starItem.addEventListener('click', () => {
+                            this.selectRating(selectElement, i, container, starItem);
+                        });
+                    }
+
+                    visualContainer.appendChild(starItem);
+                });
             } else {
                 // For emoji and NPS rating types, create one item per option
                 const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
@@ -209,6 +227,7 @@ window.FormieRating = class FormieRating {
                     // Use the original index for emoji selection
                     const originalIndex = options.indexOf(option);
                     const ratingItem = this.createRatingItem(ratingType, option.value, option.text, originalIndex, options);
+                    ratingItem.disabled = selectElement.disabled;
                     ratingItem.addEventListener('click', () => {
                         this.selectRating(selectElement, option.value, container, ratingItem);
                     });
@@ -220,7 +239,7 @@ window.FormieRating = class FormieRating {
             
             // Remove hover on mouse leave
             container.addEventListener('mouseleave', () => {
-                const currentValue = selectElement.value ? parseFloat(selectElement.value) : null;
+                const currentValue = this.normalizeRatingValue(selectElement.value);
                 this.updateVisualState(container, currentValue);
             });
             
@@ -273,8 +292,21 @@ window.FormieRating = class FormieRating {
             container.setAttribute('aria-label', selectElement.getAttribute('aria-label') || _t('Rating'));
             
             container.addEventListener('keydown', (e) => {
+                if (selectElement.disabled) {
+                    return;
+                }
                 this.handleKeyboardNavigation(e, selectElement, options, container);
             });
+        }
+
+        normalizeRatingValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return null;
+            }
+
+            const normalizedValue = parseFloat(value);
+
+            return Number.isFinite(normalizedValue) ? normalizedValue : null;
         }
 
         createStarItem(value) {
@@ -302,6 +334,35 @@ window.FormieRating = class FormieRating {
             `;
             
             return item;
+        }
+
+        createZeroStarItem(label) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'fui-rating-item fui-rating-zero-item';
+            item.setAttribute('data-value', '0');
+            item.setAttribute('role', 'radio');
+            item.setAttribute('aria-label', label || '0');
+            item.textContent = '0';
+
+            return item;
+        }
+
+        getStarPointerValue(event, starItem, wholeValue, hasHalfValue, hasWholeValue) {
+            const rect = starItem.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
+            const isHalfPointer = isRTL ? x > rect.width / 2 : x < rect.width / 2;
+
+            if (isHalfPointer && hasHalfValue) {
+                return wholeValue - 0.5;
+            }
+
+            if (hasWholeValue) {
+                return wholeValue;
+            }
+
+            return hasHalfValue ? wholeValue - 0.5 : null;
         }
 
         createRatingItem(type, value, label, index, options) {
@@ -360,30 +421,46 @@ window.FormieRating = class FormieRating {
         }
 
         selectRating(selectElement, value, container, clickedItem) {
+            const normalizedValue = this.normalizeRatingValue(value);
+            const selectedOption = Array.from(selectElement.options)
+                .find(option => this.normalizeRatingValue(option.value) === normalizedValue);
+
+            // Visual positions below the configured minimum are intentionally
+            // present for absolute display, but they are never valid choices.
+            if (normalizedValue !== null && !selectedOption) {
+                return;
+            }
+
             // Update select value
-            selectElement.value = value;
+            selectElement.value = normalizedValue === null ? '' : String(normalizedValue);
 
             // Trigger change event
             const event = new Event('change', { bubbles: true });
             selectElement.dispatchEvent(event);
 
             // Update visual state
-            this.updateVisualState(container, value);
+            this.updateVisualState(container, normalizedValue);
 
             // Update selected label
             const selectedLabel = container.querySelector('.fui-rating-selected-label');
             if (selectedLabel) {
-                const selectedOption = selectElement.querySelector(`option[value="${value}"]`);
                 selectedLabel.textContent = selectedOption ? selectedOption.text : '';
             }
         }
         
         updateVisualState(container, value) {
+            const normalizedValue = this.normalizeRatingValue(value);
             const ratingType = container.classList.contains('fui-rating-emoji') ? 'emoji' : 
                               container.classList.contains('fui-rating-nps') ? 'nps' : 'star';
+
+            container.querySelectorAll('.fui-rating-zero-item').forEach(item => {
+                const isSelected = normalizedValue === 0;
+                item.classList.toggle('fui-rating-selected', isSelected);
+                item.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+            });
             
             // If no value is selected, don't highlight anything
-            if (value === null || value === undefined || value === '') {
+            if (normalizedValue === null) {
                 if (ratingType === 'star') {
                     container.querySelectorAll('.star-fill').forEach(fill => {
                         fill.style.opacity = '0';
@@ -408,12 +485,12 @@ window.FormieRating = class FormieRating {
                     // Remove selected class first
                     star.classList.remove('fui-rating-selected');
 
-                    if (starValue <= Math.floor(value)) {
+                    if (normalizedValue > 0 && starValue <= Math.floor(normalizedValue)) {
                         // Full star
                         fillElement.style.clipPath = 'none';
                         fillElement.style.opacity = '1';
                         star.classList.add('fui-rating-selected');
-                    } else if (starValue - 0.5 === value) {
+                    } else if (normalizedValue > 0 && Math.abs((starValue - 0.5) - normalizedValue) < 0.001) {
                         // Half star - clip from right in RTL
                         const isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
                         fillElement.style.clipPath = isRTL ? 'inset(0 0 0 50%)' : 'inset(0 50% 0 0)';
@@ -437,23 +514,23 @@ window.FormieRating = class FormieRating {
 
                     if (singleSelection) {
                         // Single selection: only highlight the exact match
-                        if (itemValue === value) {
+                        if (itemValue === normalizedValue) {
                             item.classList.add('fui-rating-selected');
                         }
                     } else {
                         // Cumulative selection: highlight all up to and including value
-                        if (itemValue <= value) {
+                        if (itemValue <= normalizedValue) {
                             item.classList.add('fui-rating-selected');
                         }
                     }
 
-                    item.setAttribute('aria-checked', itemValue === value ? 'true' : 'false');
+                    item.setAttribute('aria-checked', itemValue === normalizedValue ? 'true' : 'false');
                 });
             }
         }
 
         handleKeyboardNavigation(e, selectElement, options, container) {
-            const currentValue = parseFloat(selectElement.value);
+            const currentValue = this.normalizeRatingValue(selectElement.value);
             let newIndex = -1;
             
             const currentIndex = options.findIndex(opt => parseFloat(opt.value) === currentValue);

@@ -182,6 +182,24 @@ select[data-rating] + .fui-rating-loading {
 	color: var(--fui-rating-star-color, #f59e0b);
 }
 
+.fui-rating-star .fui-rating-zero-item {
+	align-items: center;
+	justify-content: center;
+	min-width: 1.75rem;
+	height: 1.75rem;
+	padding: 0 0.375rem;
+	border: 1px solid var(--fui-rating-star-empty-color, #e5e7eb);
+	border-radius: var(--fui-rating-border-radius, 0.25rem);
+	color: var(--fui-rating-label-color, #6b7280);
+	font: inherit;
+	line-height: 1;
+}
+
+.fui-rating-star .fui-rating-zero-item.fui-rating-selected {
+	border-color: var(--fui-rating-star-color, #f59e0b);
+	color: var(--fui-rating-star-color, #f59e0b);
+}
+
 /* .fui-rating-star .fui-rating-item:hover .star-container {
 	transform: scale(var(--fui-rating-star-hover-scale, 1.05));
 }

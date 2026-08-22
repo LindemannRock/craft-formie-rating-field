@@ -80,6 +80,10 @@ class StatisticsService extends Component
      */
     public function getFormsWithRatingFields(int|string|array $siteId = 'all'): array
     {
+        if (is_array($siteId) && $this->normaliseSiteIds($siteId) === []) {
+            return [];
+        }
+
         // 1) Aggregate query — which forms contain rating fields, and how many?
         // Replaces the prior O(N forms) loop that called $form->getFields() per form.
         $ratingCountRows = (new Query())
@@ -101,7 +105,7 @@ class StatisticsService extends Component
         // not N count() calls). Joined through elements to skip trashed/draft/revision rows.
         // formie_submissions has no siteId column — site association lives in elements_sites.
         $submissionCountQuery = (new Query())
-            ->select(['formId' => 's.formId', 'cnt' => new Expression(is_array($siteId) ? 'COUNT(DISTINCT [[s.id]])' : 'COUNT(*)')])
+            ->select(['formId' => 's.formId', 'cnt' => new Expression('COUNT(*)')])
             ->from(['s' => '{{%formie_submissions}}'])
             ->innerJoin(['e' => '{{%elements}}'], '[[e.id]] = [[s.id]]')
             ->where(['s.formId' => $formIds])
@@ -112,21 +116,9 @@ class StatisticsService extends Component
             ->andWhere(['e.revisionId' => null])
             ->groupBy('s.formId');
 
-        // Site scoping: when a specific siteId or list is selected, count only
-        // submissions that exist in those sites via elements_sites.
-        if (is_int($siteId)) {
-            $submissionCountQuery
-                ->innerJoin(['es' => '{{%elements_sites}}'], '[[es.elementId]] = [[s.id]]')
-                ->andWhere(['es.siteId' => $siteId]);
-        } elseif (is_array($siteId)) {
-            if ($siteId === []) {
-                $submissionCountQuery->andWhere('0=1');
-            } else {
-                $submissionCountQuery
-                    ->innerJoin(['es' => '{{%elements_sites}}'], '[[es.elementId]] = [[s.id]]')
-                    ->andWhere(['es.siteId' => $siteId]);
-            }
-        }
+        // EXISTS keeps one aggregate row per submission even when an element is
+        // present in more than one selected site.
+        $this->applySiteScope($submissionCountQuery, 's', $siteId, 'es_forms_scope');
 
         $submissionCountRows = $submissionCountQuery->all();
 
@@ -232,10 +224,10 @@ class StatisticsService extends Component
      * @param Rating $field
      * @param string $dateRange
      * @param string|null $groupByHandle
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array
      */
-    public function getFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', ?string $groupByHandle = null, int|string $siteId = 'all'): array
+    public function getFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', ?string $groupByHandle = null, int|string|array $siteId = 'all'): array
     {
         $dateRange = $this->normaliseDateRange($dateRange);
 
@@ -280,10 +272,10 @@ class StatisticsService extends Component
      * @param Form $form
      * @param Rating $field
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array
      */
-    private function calculateFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
+    private function calculateFieldStatistics(Form $form, Rating $field, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         // Pull just the rating values via SQL — avoids hydrating the full submission
         // element graph for what's just a list of floats. Per-form path is the hot path
@@ -378,7 +370,7 @@ class StatisticsService extends Component
      * @param Rating $field
      * @param string $dateRange
      * @param string $groupByHandle
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @param int|null $limit Optional group-row cap; the complete count remains available as `totalGroups`
      * @return array
      */
@@ -387,7 +379,7 @@ class StatisticsService extends Component
         Rating $field,
         string $dateRange,
         string $groupByHandle,
-        int|string $siteId = 'all',
+        int|string|array $siteId = 'all',
         ?int $limit = null,
     ): array {
         // Get field UIDs for JSON extraction (Formie stores data by UID, not handle)
@@ -521,7 +513,7 @@ class StatisticsService extends Component
      * @param string $ratingExpr
      * @param string $submissionsTable
      * @param array $dateBounds
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return Query
      */
     private function buildGroupedStatisticsTotalQuery(
@@ -530,7 +522,7 @@ class StatisticsService extends Component
         string $ratingExpr,
         string $submissionsTable,
         array $dateBounds,
-        int|string $siteId,
+        int|string|array $siteId,
     ): Query {
         $query = (new Query())
             ->select([
@@ -556,10 +548,10 @@ class StatisticsService extends Component
      * @param string $ratingExpr
      * @param string $submissionsTable
      * @param array $dateBounds
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return Query
      */
-    private function applyGroupedStatisticsFilters(Query $query, int $formId, string $ratingExpr, string $submissionsTable, array $dateBounds, int|string $siteId): Query
+    private function applyGroupedStatisticsFilters(Query $query, int $formId, string $ratingExpr, string $submissionsTable, array $dateBounds, int|string|array $siteId): Query
     {
         return $this->applyGroupedSubmissionFilters(
             $query,
@@ -579,7 +571,7 @@ class StatisticsService extends Component
      * @param string $normalizedGroupExpr
      * @param string $submissionsTable
      * @param array $dateBounds
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return Query
      */
     private function buildGroupedSubmissionCountsQuery(
@@ -587,7 +579,7 @@ class StatisticsService extends Component
         string $normalizedGroupExpr,
         string $submissionsTable,
         array $dateBounds,
-        int|string $siteId,
+        int|string|array $siteId,
     ): Query {
         $query = (new Query())
             ->select([
@@ -614,10 +606,10 @@ class StatisticsService extends Component
      * @param int $formId
      * @param string $submissionsTable
      * @param array $dateBounds
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return Query
      */
-    private function applyGroupedSubmissionFilters(Query $query, int $formId, string $submissionsTable, array $dateBounds, int|string $siteId): Query
+    private function applyGroupedSubmissionFilters(Query $query, int $formId, string $submissionsTable, array $dateBounds, int|string|array $siteId): Query
     {
         $query
             ->where([
@@ -626,20 +618,10 @@ class StatisticsService extends Component
                 '{{%formie_submissions}}.isSpam' => false,
             ]);
 
-        // Filter by site when a specific site is requested.
-        // formie_submissions has no siteId column; site association lives in elements_sites.
-        if ($siteId !== 'all') {
-            // Use the resolved table name inside [[...]] — Yii's {{%table}} expansion
-            // doesn't nest cleanly inside [[col]] brackets (corrupts the column parser).
-            $query->innerJoin(
-                '{{%elements_sites}} es_site_filter',
-                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
-                [':filterSiteId' => (int)$siteId]
-            );
-        }
+        $this->applySiteScope($query, $submissionsTable, $siteId, 'es_grouped_scope');
 
-        // Qualify the column — when the site filter joins elements_sites
-        // (which also has dateCreated), an unqualified column is ambiguous
+        // Keep the date column tied to the submissions table so this query stays
+        // unambiguous if additional relations are introduced later.
         // and errors on PostgreSQL.
         if ($dateBounds['start']) {
             $query->andWhere(['>=', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($dateBounds['start'])]);
@@ -733,13 +715,13 @@ class StatisticsService extends Component
      * @param string $groupByHandle
      * @param string $groupValue
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @param int|null $limit Optional row cap applied after the group predicate. Used by
      *                       the export path to prevent OOM without dropping matching rows
      *                       behind unrelated submissions.
      * @return list<Submission>
      */
-    public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all', int|string $siteId = 'all', ?int $limit = null): array
+    public function getGroupSubmissions(Form $form, string $groupByHandle, string $groupValue, string $dateRange = 'all', int|string|array $siteId = 'all', ?int $limit = null): array
     {
         $query = $this->buildGroupSubmissionIdQuery($form, $groupByHandle, $groupValue, $dateRange, $siteId)
             ->orderBy($this->groupSubmissionOrder());
@@ -765,7 +747,7 @@ class StatisticsService extends Component
      * @param string $groupByHandle
      * @param string $groupValue
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @param int $limit
      * @param int $offset
      * @return array{submissions: list<Submission>, totalCount: int}
@@ -776,7 +758,7 @@ class StatisticsService extends Component
         string $groupByHandle,
         string $groupValue,
         string $dateRange = 'all',
-        int|string $siteId = 'all',
+        int|string|array $siteId = 'all',
         int $limit = 100,
         int $offset = 0,
     ): array {
@@ -812,7 +794,7 @@ class StatisticsService extends Component
         string $groupByHandle,
         string $groupValue,
         string $dateRange,
-        int|string $siteId,
+        int|string|array $siteId,
     ): Query {
         $groupField = null;
         foreach ($form->getFields() as $field) {
@@ -839,13 +821,7 @@ class StatisticsService extends Component
             ])
             ->andWhere(['=', $normalizedGroupExpression, $groupValue]);
 
-        if ($siteId !== 'all') {
-            $query->innerJoin(
-                '{{%elements_sites}} es_group_submission_site',
-                "[[es_group_submission_site.elementId]] = [[{$submissionsTable}.id]] AND [[es_group_submission_site.siteId]] = :groupSubmissionSiteId",
-                [':groupSubmissionSiteId' => (int)$siteId],
-            );
-        }
+        $this->applySiteScope($query, $submissionsTable, $siteId, 'es_group_submission_scope');
 
         $bounds = DateRangeHelper::getBounds($dateRange);
         if ($bounds['start']) {
@@ -873,7 +849,7 @@ class StatisticsService extends Component
      * @param list<int> $submissionIds
      * @return list<Submission>
      */
-    private function hydrateGroupSubmissions(array $submissionIds, int|string $siteId): array
+    private function hydrateGroupSubmissions(array $submissionIds, int|string|array $siteId): array
     {
         if ($submissionIds === []) {
             return [];
@@ -888,6 +864,12 @@ class StatisticsService extends Component
 
         if ($siteId === 'all') {
             $submissionQuery->siteId('*')->unique();
+        } elseif (is_array($siteId)) {
+            $siteIds = $this->normaliseSiteIds($siteId);
+            if ($siteIds === []) {
+                return [];
+            }
+            $submissionQuery->siteId($siteIds)->unique();
         } else {
             $submissionQuery->siteId((int)$siteId);
         }
@@ -911,15 +893,71 @@ class StatisticsService extends Component
     }
 
     /**
+     * Apply a site scope without multiplying submissions that exist in several sites.
+     *
+     * @param Query $query
+     * @param string $submissionsTable Outer query table name or alias
+     * @param int|string|array<int> $siteId Specific site ID, list of IDs, or `all`
+     * @param string $siteTableAlias Unique elements-sites alias for this query
+     * @return Query
+     */
+    private function applySiteScope(
+        Query $query,
+        string $submissionsTable,
+        int|string|array $siteId,
+        string $siteTableAlias,
+    ): Query {
+        if ($siteId === 'all') {
+            return $query;
+        }
+
+        $siteIds = $this->normaliseSiteIds(is_array($siteId) ? $siteId : [(int)$siteId]);
+        if ($siteIds === []) {
+            return $query->andWhere('0=1');
+        }
+
+        $siteExistsQuery = (new Query())
+            ->select(new Expression('1'))
+            ->from([$siteTableAlias => '{{%elements_sites}}'])
+            ->where(new Expression("[[{$siteTableAlias}.elementId]] = [[{$submissionsTable}.id]]"))
+            ->andWhere(["{$siteTableAlias}.siteId" => $siteIds]);
+
+        return $query->andWhere(['exists', $siteExistsQuery]);
+    }
+
+    /**
+     * Canonicalize a site-ID list for query and cache identity use.
+     *
+     * @param array<int> $siteIds
+     * @return list<int>
+     */
+    private function normaliseSiteIds(array $siteIds): array
+    {
+        $siteIds = array_map('intval', $siteIds);
+        $siteIds = array_values(array_unique($siteIds));
+        sort($siteIds, SORT_NUMERIC);
+
+        return $siteIds;
+    }
+
+    /**
      * Normalise a siteId value to a cache-safe string segment.
      *
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return string
      */
-    private function normaliseSiteIdForKey(int|string $siteId): string
+    private function normaliseSiteIdForKey(int|string|array $siteId): string
     {
         if ($siteId === 'all') {
             return 'all';
+        }
+
+        if (is_array($siteId)) {
+            $siteIds = $this->normaliseSiteIds($siteId);
+
+            return $siteIds === []
+                ? 'sites-none'
+                : 'sites-' . hash('sha256', implode(',', $siteIds));
         }
 
         return (string)(int)$siteId;
@@ -951,7 +989,7 @@ class StatisticsService extends Component
         Rating|string $fieldHandle,
         string $dateRange,
         ?string $groupByHandle = null,
-        int|string $siteId = 'all',
+        int|string|array $siteId = 'all',
     ): string {
         $siteSegment = $this->normaliseSiteIdForKey($siteId);
         $dateRange = $this->normaliseDateRange($dateRange);
@@ -1000,10 +1038,10 @@ class StatisticsService extends Component
      * @param Rating|string $fieldHandle Rating instance for fingerprinted identities; string handle for legacy callers
      * @param string $dateRange
      * @param string|null $groupByHandle
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return string
      */
-    public function getCacheFilename(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): string
+    public function getCacheFilename(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string|array $siteId = 'all'): string
     {
         $identity = $this->buildCacheIdentity($formId, $fieldHandle, $dateRange, $groupByHandle, $siteId);
 
@@ -1017,10 +1055,10 @@ class StatisticsService extends Component
      * @param Rating|string $fieldHandle
      * @param string $dateRange
      * @param string|null $groupByHandle
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return ScopedCacheResult
      */
-    private function getFromCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string $siteId = 'all'): ScopedCacheResult
+    private function getFromCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle = null, int|string|array $siteId = 'all'): ScopedCacheResult
     {
         $storage = $this->getCacheStorageDecision();
         if ($storage->usesApplicationCache()) {
@@ -1088,10 +1126,10 @@ class StatisticsService extends Component
      * @param string $dateRange
      * @param string|null $groupByHandle
      * @param array $stats
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return bool
      */
-    private function saveToCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats, int|string $siteId = 'all'): bool
+    private function saveToCache(int $formId, Rating|string $fieldHandle, string $dateRange, ?string $groupByHandle, array $stats, int|string|array $siteId = 'all'): bool
     {
         $storage = $this->getCacheStorageDecision();
         if ($storage->usesApplicationCache()) {
@@ -1452,10 +1490,10 @@ class StatisticsService extends Component
      * @param Form $form
      * @param Rating $field
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array
      */
-    public function getTrendData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
+    public function getTrendData(Form $form, Rating $field, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         $dateRange = $this->normaliseDateRange($dateRange);
 
@@ -1509,15 +1547,7 @@ class StatisticsService extends Component
             $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['end'])]);
         }
 
-        // Site filter — uses the resolved table name inside [[...]] (Yii's {{%table}} expansion
-        // doesn't nest cleanly inside [[col]] brackets; corrupts the column-reference parser).
-        if ($siteId !== 'all') {
-            $query->innerJoin(
-                '{{%elements_sites}} es_site_filter',
-                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
-                [':filterSiteId' => (int)$siteId]
-            );
-        }
+        $this->applySiteScope($query, $submissionsTable, $siteId, 'es_trend_scope');
 
         $rows = $query->all();
 
@@ -1634,10 +1664,10 @@ class StatisticsService extends Component
      * @param Form $form
      * @param Rating $field
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array
      */
-    public function getDistributionData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
+    public function getDistributionData(Form $form, Rating $field, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         $stats = $this->getFieldStatistics($form, $field, $dateRange, null, $siteId);
 
@@ -1661,10 +1691,10 @@ class StatisticsService extends Component
      *
      * @param Form $form
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return int
      */
-    public function getTotalSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): int
+    public function getTotalSubmissions(Form $form, string $dateRange = 'all', int|string|array $siteId = 'all'): int
     {
         // SQL count — avoids hydrating every submission element just to call count() on the result.
         $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
@@ -1685,13 +1715,7 @@ class StatisticsService extends Component
             $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['end'])]);
         }
 
-        if ($siteId !== 'all') {
-            $query->innerJoin(
-                '{{%elements_sites}} es_site_filter',
-                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
-                [':filterSiteId' => (int)$siteId]
-            );
-        }
+        $this->applySiteScope($query, $submissionsTable, $siteId, 'es_total_scope');
 
         return (int)$query->count();
     }
@@ -1705,11 +1729,11 @@ class StatisticsService extends Component
      *
      * @param Form $form
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array{headers: string[], rows: array[]}
      * @since 3.16.0
      */
-    public function buildSummaryExportRows(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): array
+    public function buildSummaryExportRows(Form $form, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
@@ -1782,11 +1806,11 @@ class StatisticsService extends Component
      *
      * @param Form $form
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array{headers: string[], rows: array[]}
      * @since 3.16.0
      */
-    public function buildRawResponsesExportRows(Form $form, string $dateRange = 'all', int|string $siteId = 'all'): array
+    public function buildRawResponsesExportRows(Form $form, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         $ratingFields = $this->getRatingFieldsForForm($form);
 
@@ -1856,11 +1880,11 @@ class StatisticsService extends Component
      * @param Form $form
      * @param string $dateRange
      * @param string|null $groupByHandle
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @return array{headers: string[], rows: array[]}
      * @since 3.16.0
      */
-    public function buildGroupedExportRows(Form $form, string $dateRange = 'all', ?string $groupByHandle = null, int|string $siteId = 'all'): array
+    public function buildGroupedExportRows(Form $form, string $dateRange = 'all', ?string $groupByHandle = null, int|string|array $siteId = 'all'): array
     {
         if (!$groupByHandle) {
             return ['headers' => [], 'rows' => []];
@@ -1985,15 +2009,16 @@ class StatisticsService extends Component
      *
      * When $siteId is 'all', submissions are fetched cross-site via siteId('*').
      * When $siteId is an int, the query is scoped to that specific site.
+     * When it is a list, duplicate IDs are normalized and elements are unique.
      *
      * @param Form $form
      * @param string $dateRange
-     * @param int|string $siteId Specific site ID (int) or 'all' for cross-site aggregate
+     * @param int|string|array<int> $siteId Specific site ID, list of site IDs, or 'all' for cross-site aggregate
      * @param int|null $limit Optional row cap. Applied at the SQL layer via `->limit()`.
      *                       Used by export paths to prevent OOM on huge result sets.
      * @return array
      */
-    private function getSubmissions(Form $form, string $dateRange = 'all', int|string $siteId = 'all', ?int $limit = null): array
+    private function getSubmissions(Form $form, string $dateRange = 'all', int|string|array $siteId = 'all', ?int $limit = null): array
     {
         // Exclude incomplete and spam submissions to match Formie's default UI semantics
         // (those submissions live in the spam folder and aren't counted in standard views).
@@ -2006,6 +2031,12 @@ class StatisticsService extends Component
         if ($siteId === 'all') {
             // Explicitly request all sites to override Craft's current-site default
             $query->siteId('*');
+        } elseif (is_array($siteId)) {
+            $siteIds = $this->normaliseSiteIds($siteId);
+            if ($siteIds === []) {
+                return [];
+            }
+            $query->siteId($siteIds)->unique();
         } else {
             $query->siteId((int)$siteId);
         }
@@ -2055,17 +2086,17 @@ class StatisticsService extends Component
      * Filter semantics match the original `getSubmissions()`:
      *  - formId match
      *  - DateRangeHelper bounds
-     *  - 'all' = no site filter; specific = INNER JOIN elements_sites
+     *  - 'all' = no site filter; specific/list = correlated elements_sites scope
      *  - rating value extracted from JSON content; NULL/empty rows skipped (matches the
      *    `$value !== null && $value !== ''` filter in the PHP version).
      *
      * @param Form $form
      * @param Rating $field
      * @param string $dateRange
-     * @param int|string $siteId
+     * @param int|string|array<int> $siteId
      * @return float[]
      */
-    private function extractFieldValuesViaSql(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
+    private function extractFieldValuesViaSql(Form $form, Rating $field, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         $submissionsTable = Craft::$app->getDb()->getSchema()->getRawTableName('{{%formie_submissions}}');
         $valueExpr = DbHelper::jsonExtract('{{%formie_submissions}}.content', $field->uid);
@@ -2089,13 +2120,7 @@ class StatisticsService extends Component
             $query->andWhere(['<', "{$submissionsTable}.dateCreated", Db::prepareDateForDb($bounds['end'])]);
         }
 
-        if ($siteId !== 'all') {
-            $query->innerJoin(
-                '{{%elements_sites}} es_site_filter',
-                "[[es_site_filter.elementId]] = [[{$submissionsTable}.id]] AND [[es_site_filter.siteId]] = :filterSiteId",
-                [':filterSiteId' => (int)$siteId]
-            );
-        }
+        $this->applySiteScope($query, $submissionsTable, $siteId, 'es_values_scope');
 
         return array_map('floatval', $query->column());
     }

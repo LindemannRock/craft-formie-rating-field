@@ -6,10 +6,12 @@
   "scripts": {
     "build": "npm run build:css && npm run build:js",
     "build:css": "mkdir -p dist/css && cleancss -o dist/css/rating.css src/css/rating.css",
-    "build:js": "mkdir -p dist/js && terser src/js/rating.js -o dist/js/rating.js -c -m"
+    "build:js": "mkdir -p dist/js && terser src/js/rating.js -o dist/js/rating.js -c -m",
+    "test": "node --test tests/*.test.js"
   },
   "devDependencies": {
     "clean-css-cli": "^5.6.3",
+    "jsdom": "^24.0.0",
     "terser": "^5.46.1"
   },
   "author": {

@@ -1045,7 +1045,7 @@ class Rating extends Field implements FieldInterface
         // JSON-encode every PHP→JS string. Output is a fully-quoted JS literal with all
         // escapes handled (backslashes, U+2028/U+2029, </script>, backticks). Replaces
         // the prior addslashes() approach which was unsafe inside template literals.
-        $jsFieldHandle = Json::encode($this->handle);
+        $jsFieldUid = Json::encode($this->uid);
         $jsPlaceIdField = Json::encode($this->googlePlaceIdField);
         $jsMessageHigh = Json::encode($messageHigh);
         $jsMessageMedium = Json::encode($messageMedium);
@@ -1058,21 +1058,31 @@ class Rating extends Field implements FieldInterface
 (function() {
     document.addEventListener('onFormieInit', function(event) {
         const \$form = event.detail.\$form;
+        const ratingSelect = Array.from(
+            \$form.querySelectorAll('select[data-formie-rating-google-review]')
+        ).find((select) => select.dataset.formieRatingGoogleReview === {$jsFieldUid});
+
+        // Formie initializes every form on the page. Only the form that owns
+        // this exact configured Rating field may capture or replace its result.
+        if (!ratingSelect) {
+            return;
+        }
 
         let capturedRating = 0;
         let capturedPlaceId = '';
 
         \$form.addEventListener('onBeforeFormieSubmit', function() {
-            const ratingSelect = \$form.querySelector('select[name="fields[' + {$jsFieldHandle} + ']"]');
             const placeIdInput = \$form.querySelector('input[name="fields[' + {$jsPlaceIdField} + ']"]');
 
-            capturedRating = ratingSelect ? parseFloat(ratingSelect.value) : 0;
+            capturedRating = parseFloat(ratingSelect.value);
             capturedPlaceId = placeIdInput ? placeIdInput.value : '';
         });
 
         \$form.addEventListener('onAfterFormieSubmit', function() {
             setTimeout(function() {
-                const successMessage = document.querySelector('[data-fui-alert-success]');
+                const successMessage = \$form.parentNode
+                    ? \$form.parentNode.querySelector('[data-fui-alert-success]')
+                    : null;
 
                 if (!successMessage) {
                     return;

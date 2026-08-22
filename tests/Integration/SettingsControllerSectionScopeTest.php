@@ -10,11 +10,11 @@ declare(strict_types=1);
 
 namespace lindemannrock\formieratingfield\tests\Integration;
 
+use lindemannrock\base\helpers\SettingsPostHelper;
 use lindemannrock\formieratingfield\controllers\SettingsController;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\tests\TestCase;
-use lindemannrock\base\helpers\SettingsPostHelper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use ReflectionMethod;
 

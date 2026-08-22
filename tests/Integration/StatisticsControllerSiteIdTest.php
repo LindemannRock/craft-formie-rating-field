@@ -68,6 +68,27 @@ final class StatisticsControllerSiteIdTest extends TestCase
         self::assertSame($siteId, $this->resolveSiteId((string)$siteId));
     }
 
+    public function testAllSitesUsesOnlyTheLiveEditableSiteIds(): void
+    {
+        $sites = Craft::$app->getSites()->getAllSites();
+        self::assertGreaterThanOrEqual(2, count($sites));
+        $editableSite = $sites[0];
+
+        Craft::$app->set('user', new StatisticsSiteIdUser([(string)$editableSite->uid]));
+        Craft::$app->getSites()->refreshSites();
+
+        self::assertSame([(int)$editableSite->id], $this->effectiveSiteScope('all'));
+        self::assertSame((int)$editableSite->id, $this->effectiveSiteScope((int)$editableSite->id));
+    }
+
+    public function testAllSitesFailsClosedWhenNoSiteIsEditable(): void
+    {
+        Craft::$app->set('user', new StatisticsSiteIdUser([]));
+        Craft::$app->getSites()->refreshSites();
+
+        self::assertSame([], $this->effectiveSiteScope('all'));
+    }
+
     public function testForbiddenNumericSiteIdStillThrows(): void
     {
         $forbiddenSiteId = '2147483647';
@@ -77,7 +98,7 @@ final class StatisticsControllerSiteIdTest extends TestCase
         $this->resolveSiteId($forbiddenSiteId);
     }
 
-    public function testAllSixActionCallSitesDelegateRawSiteInputToResolver(): void
+    public function testAllSixActionCallSitesResolveTheUiValueAndEffectiveQueryScope(): void
     {
         $calls = [
             'actionIndex' => "\$this->_resolveSiteId(\$request->getQueryParam('siteId'))",
@@ -89,7 +110,10 @@ final class StatisticsControllerSiteIdTest extends TestCase
         ];
 
         foreach ($calls as $action => $call) {
-            self::assertStringContainsString($call, $this->methodSource($action));
+            $source = $this->methodSource($action);
+            self::assertStringContainsString($call, $source);
+            self::assertStringContainsString('$siteScope = $this->_effectiveSiteScope($siteId);', $source);
+            self::assertStringContainsString('$siteScope', $source);
         }
     }
 
@@ -99,6 +123,16 @@ final class StatisticsControllerSiteIdTest extends TestCase
         $method = new ReflectionMethod($controller, '_resolveSiteId');
         $result = $method->invoke($controller, $rawSiteId);
         self::assertTrue(is_int($result) || $result === 'all');
+
+        return $result;
+    }
+
+    private function effectiveSiteScope(int|string $siteId): int|array
+    {
+        $controller = new StatisticsController('statistics', Craft::$app);
+        $method = new ReflectionMethod($controller, '_effectiveSiteScope');
+        $result = $method->invoke($controller, $siteId);
+        self::assertTrue(is_int($result) || is_array($result));
 
         return $result;
     }
@@ -127,9 +161,19 @@ final class StatisticsControllerSiteIdTest extends TestCase
  */
 final class StatisticsSiteIdUser extends ConsoleUser
 {
+    /** @param list<string>|null $editableSiteUids */
+    public function __construct(private readonly ?array $editableSiteUids = null)
+    {
+        parent::__construct();
+    }
+
     public function checkPermission(string $permissionName): bool
     {
-        return str_starts_with($permissionName, 'editSite:');
+        if (!str_starts_with($permissionName, 'editSite:')) {
+            return false;
+        }
+
+        return $this->editableSiteUids === null || in_array(substr($permissionName, 9), $this->editableSiteUids, true);
     }
 
     public function getId(): ?int

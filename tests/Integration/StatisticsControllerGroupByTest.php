@@ -112,6 +112,10 @@ final class StatisticsControllerGroupByTest extends TestCase
         self::assertStringContainsString('getPaginatedGroupSubmissions(', $detailBody);
         self::assertStringContainsString('$groupValue = $this->_normalizeGroupValue($rawGroupValue);', $exportBody);
         self::assertStringContainsString('getGroupSubmissions($form, $groupBy, $groupValue,', $exportBody);
+        self::assertStringContainsString("if (!\$formId || \$groupValue === null || \$groupValue === '')", $detailBody);
+        self::assertStringContainsString("if (\$formId <= 0 || \$groupValue === '')", $exportBody);
+        self::assertStringNotContainsString('|| !$groupValue', $detailBody);
+        self::assertStringNotContainsString('|| !$groupValue', $exportBody);
     }
 
     public function testStatisticsLinksUseStructuredQueryParameters(): void
@@ -208,7 +212,7 @@ final class StatisticsControllerGroupByTest extends TestCase
         self::assertStringContainsString('$settings = FormieRatingField::$plugin->getSettings();', $body);
         self::assertStringContainsString('$maxRows = (int)$settings->maxExportRows;', $body);
         self::assertStringContainsString('$limit = $maxRows > 0 ? $maxRows : null;', $body);
-        self::assertStringContainsString('getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteId, $limit)', $body);
+        self::assertStringContainsString('getGroupSubmissions($form, $groupBy, $groupValue, $dateRange, $siteScope, $limit)', $body);
         self::assertStringNotContainsString('getPaginatedGroupSubmissions(', $body);
     }
 

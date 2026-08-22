@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+TMP_ROOT="${TMPDIR:-/tmp}"
+ARCHIVE_ROOT="$(mktemp -d "$TMP_ROOT/formie-rating-field-package-boundary.XXXXXX")"
+ARCHIVE_PATH="$ARCHIVE_ROOT/package.tar"
+MANIFEST_PATH="$ARCHIVE_ROOT/manifest.txt"
+
+cleanup_archive() {
+    case "$ARCHIVE_ROOT" in
+        "$TMP_ROOT"/formie-rating-field-package-boundary.*)
+            rm -rf -- "$ARCHIVE_ROOT"
+            ;;
+        *)
+            echo "Refusing to remove unexpected archive path: $ARCHIVE_ROOT" >&2
+            return 1
+            ;;
+    esac
+}
+trap cleanup_archive EXIT
+
+cd "$PACKAGE_ROOT"
+
+for path in \
+    tests/ \
+    docs/ \
+    scripts/ \
+    .github/ \
+    .githooks/ \
+    ecs.php \
+    phpstan.neon \
+    phpunit.xml.dist \
+    release-please-config.json \
+    .release-please-manifest.json \
+    src/web/assets/field/src/ \
+    src/web/assets/field/tests/ \
+    src/web/assets/field/node_modules/ \
+    src/web/assets/field/package.json \
+    src/web/assets/field/package-lock.json; do
+    if ! awk -v path="$path" '$1 == path && $2 == "export-ignore" && NF == 2 { found = 1 } END { exit found ? 0 : 1 }' .gitattributes; then
+        echo "Current package attributes do not declare export-ignore for: $path" >&2
+        exit 1
+    fi
+done
+
+git archive --format=tar --output="$ARCHIVE_PATH" HEAD
+tar -tf "$ARCHIVE_PATH" > "$MANIFEST_PATH"
+
+if [ "${FORMIE_RATING_FIELD_PACKAGE_BOUNDARY_FAIL_STAGE:-}" = "after-archive" ]; then
+    echo "Injected package-boundary failure after archive creation." >&2
+    exit 78
+fi
+
+assert_absent() {
+    local path="$1"
+    if awk -v path="$path" '$0 == path || $0 == path "/" || index($0, path "/") == 1 { found = 1 } END { exit found ? 0 : 1 }' "$MANIFEST_PATH"; then
+        echo "Customer archive unexpectedly contains: $path" >&2
+        exit 1
+    fi
+    printf 'excluded: %s\n' "$path"
+}
+
+assert_present() {
+    local path="$1"
+    if ! grep -Fxq "$path" "$MANIFEST_PATH"; then
+        echo "Customer archive is missing required file: $path" >&2
+        exit 1
+    fi
+    printf 'present: %s\n' "$path"
+}
+
+for path in tests docs scripts .github .githooks ecs.php phpstan.neon phpunit.xml.dist \
+    release-please-config.json .release-please-manifest.json src/web/assets/field/src \
+    src/web/assets/field/tests src/web/assets/field/node_modules src/web/assets/field/package.json \
+    src/web/assets/field/package-lock.json; do
+    assert_absent "$path"
+done
+
+for path in composer.json README.md LICENSE.md CHANGELOG.md SECURITY.md \
+    src/FormieRatingField.php src/fields/Rating.php src/models/Settings.php \
+    src/templates/fields/rating/input.twig src/web/assets/field/dist/css/rating.css \
+    src/web/assets/field/dist/js/rating.js; do
+    assert_present "$path"
+done
+
+echo "Package boundary passed: 15 excluded paths absent; 11 required customer files present."

@@ -23,6 +23,8 @@ Only the high tier shows the review button — the idea is to invite a review wh
 > [!IMPORTANT]
 > The prompt **overrides the form's success message**. Enable it on **only one** Rating field per form, or the prompts will compete.
 
+Pages may contain several Formie forms. The prompt listens only to the form that owns the configured Rating field and replaces only that submitted form's adjacent success message; unrelated forms and their alerts are left untouched.
+
 ## Turn it on
 
 Open the Rating field's **Settings** tab in the form builder and enable **Enable Google Review Prompt**. The rest of the options appear once it's on:

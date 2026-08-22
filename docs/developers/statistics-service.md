@@ -14,7 +14,7 @@ $statistics = FormieRatingField::getInstance()->statistics;
 
 ```php
 // Forms that contain at least one Rating field (+ field count, submission count).
-// Pass a site ID to scope, or 'all' (default) for the cross-site rollup.
+// Pass a site ID, a list of site IDs, or 'all' (default) for the cross-site rollup.
 $forms = $statistics->getFormsWithRatingFields($siteId = 'all');
 
 // The Rating fields on a form.
@@ -55,6 +55,8 @@ $trend        = $statistics->getTrendData($form, $field, $dateRange = 'all', $si
 $distribution = $statistics->getDistributionData($form, $field, $dateRange = 'all', $siteId = 'all');
 $total        = $statistics->getTotalSubmissions($form, $dateRange = 'all', $siteId = 'all');
 ```
+
+Every public statistics, grouped-submission, trend, distribution, total, and export-row method accepts a specific site ID, an array of site IDs, or the literal `'all'`. Site-ID arrays are normalized for deterministic cache identity, an empty array returns no matching submissions, and a submission present in more than one selected site is counted once. The literal `'all'` retains its trusted-caller cross-site meaning; Control Panel requests convert their **All Sites** selection to the current user's live editable-site ID list before calling the service.
 
 `getTrendData()` returns `labels`, `values`, `counts`, `scaleMin`, `scaleMax`, and the UTC ISO 8601 `generatedAt` timestamp. Both field-statistics and trend payloads are stamped before they are cached. Cache hits preserve the original timestamp instead of replacing it with the current request time.
 

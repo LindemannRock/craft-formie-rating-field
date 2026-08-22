@@ -128,7 +128,7 @@ final class StatisticsServiceCacheMetadataTest extends TestCase
             ],
         ]);
         $form->setFormLayout($layout);
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         $submission = new Submission();
         $submission->setForm($form);

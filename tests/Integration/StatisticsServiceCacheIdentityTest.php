@@ -81,6 +81,20 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
         ]));
     }
 
+    public function testEditableSiteListsHaveDeterministicOrderIndependentIdentities(): void
+    {
+        $field = $this->ratingField();
+        $ordered = $this->cacheIdentities($field, 'last30days', null, [2, 5]);
+        $reorderedWithDuplicate = $this->cacheIdentities($field, 'last30days', null, [5, 2, 5]);
+        $different = $this->cacheIdentities($field, 'last30days', null, [2]);
+        $empty = $this->cacheIdentities($field, 'last30days', null, []);
+
+        self::assertSame($ordered, $reorderedWithDuplicate);
+        self::assertNotSame($ordered, $different);
+        self::assertNotSame($ordered, $empty);
+        self::assertNotSame($empty, $this->cacheIdentities($field, 'last30days', null, 'all'));
+    }
+
     public function testFileAndApplicationCacheDeriveFromTheSameIdentity(): void
     {
         $field = $this->ratingField();
@@ -224,7 +238,7 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
         Rating $field,
         string $dateRange = 'last30days',
         ?string $groupBy = null,
-        int|string $siteId = 'all',
+        int|string|array $siteId = 'all',
     ): array {
         $application = $this->buildCacheIdentity($field, $dateRange, $groupBy, $siteId);
 
@@ -238,7 +252,7 @@ final class StatisticsServiceCacheIdentityTest extends TestCase
         Rating $field,
         string $dateRange,
         ?string $groupBy,
-        int|string $siteId,
+        int|string|array $siteId,
     ): string {
         $method = new ReflectionMethod(StatisticsService::class, 'buildCacheIdentity');
         $identity = $method->invoke($this->statistics, self::TEST_FORM_ID, $field, $dateRange, $groupBy, $siteId);

@@ -35,14 +35,27 @@ if (!function_exists('craft_modify_app_config')) {
     }
 }
 
-$baseBootstrap = dirname(__DIR__, 3) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php';
+$baseBootstrapCandidates = [
+    dirname(__DIR__) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php',
+    dirname(__DIR__, 3) . '/vendor/lindemannrock/craft-plugin-base/src/testing/bootstrap.php',
+];
+$baseBootstrap = null;
+foreach ($baseBootstrapCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $baseBootstrap = $candidate;
+        break;
+    }
+}
 
-if (!file_exists($baseBootstrap)) {
-    fwrite(STDERR, "Base plugin testing bootstrap not found at {$baseBootstrap}\n");
-    fwrite(STDERR, "Run `composer install` and ensure lindemannrock/craft-plugin-base ^5.0 is present.\n");
+if ($baseBootstrap === null) {
+    fwrite(STDERR, "Base plugin testing bootstrap not found in the package or workspace vendor tree.\n");
+    fwrite(STDERR, "Run `composer install` and ensure lindemannrock/craft-plugin-base ^5.38 is present.\n");
     exit(1);
 }
 
 require_once $baseBootstrap;
 
-\lindemannrock\base\testing\bootstrap();
+$projectRoot = $_SERVER['FORMIE_RATING_FIELD_TEST_PROJECT_ROOT']
+    ?? $_ENV['FORMIE_RATING_FIELD_TEST_PROJECT_ROOT']
+    ?? null;
+\lindemannrock\base\testing\bootstrap(is_string($projectRoot) ? $projectRoot : null);

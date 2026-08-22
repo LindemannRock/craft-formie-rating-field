@@ -219,7 +219,7 @@ final class StatisticsServiceGroupPaginationTest extends TestCase
             ['label' => 'Page 1', 'rows' => [['fields' => $fieldConfigs]]],
         ]);
         $form->setFormLayout($layout);
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         return $form;
     }

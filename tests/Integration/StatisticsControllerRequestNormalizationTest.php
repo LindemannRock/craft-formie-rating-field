@@ -240,6 +240,7 @@ final class StatisticsControllerRequestNormalizationTest extends TestCase
     {
         $parameterCounts = [
             '_resolveSiteId' => 1,
+            '_effectiveSiteScope' => 1,
             '_normalizeGroupByHandle' => 2,
             '_normalizeRatingFieldHandle' => 2,
             '_normalizeGroupValue' => 1,
@@ -261,7 +262,7 @@ final class StatisticsControllerRequestNormalizationTest extends TestCase
         $form = new Form();
         $form->title = $this->nextTestMarker('Request normalization ', 'form');
         $form->handle = $this->nextTestMarker('requestNormalization', 'form');
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         return $form;
     }
@@ -417,12 +418,12 @@ final class RequestNormalizationStatisticsService extends StatisticsService
         return $handle === $this->ratingField->handle ? $this->ratingField : null;
     }
 
-    public function getTrendData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
+    public function getTrendData(Form $form, Rating $field, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         return ['safe' => true];
     }
 
-    public function getDistributionData(Form $form, Rating $field, string $dateRange = 'all', int|string $siteId = 'all'): array
+    public function getDistributionData(Form $form, Rating $field, string $dateRange = 'all', int|string|array $siteId = 'all'): array
     {
         return ['safe' => true];
     }

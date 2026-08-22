@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+WORKSPACE_ROOT="$(CDPATH= cd -- "$PACKAGE_ROOT/../.." 2>/dev/null && pwd -P)"
+cd "$PACKAGE_ROOT"
+
+if [ "${FORMIE_RATING_FIELD_COMPOSER_AUDIT_FORCE_TEMP:-}" != "1" ] \
+    && { [ -f composer.lock ] || [ -f vendor/composer/installed.json ]; }; then
+    exec composer audit --abandoned=report
+fi
+
+AUDIT_TMP_ROOT="${TMPDIR:-/tmp}"
+AUDIT_WORKTREE="$(mktemp -d "$AUDIT_TMP_ROOT/formie-rating-field-composer-audit.XXXXXX")"
+
+cleanup_audit_worktree() {
+    case "$AUDIT_WORKTREE" in
+        "$AUDIT_TMP_ROOT"/formie-rating-field-composer-audit.*)
+            rm -rf -- "$AUDIT_WORKTREE"
+            ;;
+        *)
+            echo "Refusing to remove unexpected Composer audit path: $AUDIT_WORKTREE" >&2
+            return 1
+            ;;
+    esac
+}
+trap cleanup_audit_worktree EXIT
+
+cp composer.json "$AUDIT_WORKTREE/composer.json"
+LOCAL_BASE="$WORKSPACE_ROOT/plugins/base"
+if [ "$PACKAGE_ROOT" = "$WORKSPACE_ROOT/plugins/formie-rating-field" ] \
+    && [ -f "$LOCAL_BASE/composer.json" ]; then
+    local_base_version="$(php -r '$data = json_decode(file_get_contents($argv[1]), true, flags: JSON_THROW_ON_ERROR); echo $data["version"] ?? "";' "$LOCAL_BASE/composer.json")"
+    if [ "$local_base_version" != "5.38.0" ]; then
+        echo "Workspace Base version is $local_base_version; expected the approved 5.38.0 floor." >&2
+        exit 1
+    fi
+    local_repository="$(printf '{"type":"path","url":"%s","options":{"symlink":false}}' "$LOCAL_BASE")"
+    composer config --working-dir="$AUDIT_WORKTREE" repositories.local-base "$local_repository"
+fi
+composer update --no-install --no-scripts --no-interaction --prefer-dist --working-dir="$AUDIT_WORKTREE"
+
+if [ "${FORMIE_RATING_FIELD_COMPOSER_AUDIT_FAIL_STAGE:-}" = "after-update" ]; then
+    echo "Injected Composer audit failure after temporary lock creation." >&2
+    exit 79
+fi
+
+composer audit --abandoned=report --locked --working-dir="$AUDIT_WORKTREE"

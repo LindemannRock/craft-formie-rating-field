@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
+WORKFLOW="${FORMIE_RATING_FIELD_ACT_WORKFLOW:-$PACKAGE_ROOT/.github/workflows/ci.yml}"
+
+cd "$PACKAGE_ROOT"
+bash scripts/check-ci-workflow "$WORKFLOW"
+
+set +e
 act push \
-    -W .github/workflows/ci.yml \
+    -W "$WORKFLOW" \
     -j quality-gates \
     -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest \
     --container-architecture linux/amd64 \
-    "$@"
+    "$@" \
+    --rm
+status=$?
+set -e
+
+exit "$status"

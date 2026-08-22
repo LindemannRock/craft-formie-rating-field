@@ -204,7 +204,7 @@ final class RatingSubmissionValidationTest extends TestCase
             ],
         ]);
         $form->setFormLayout($layout);
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         return $form;
     }

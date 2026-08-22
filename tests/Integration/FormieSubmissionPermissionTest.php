@@ -143,13 +143,16 @@ final class FormieSubmissionPermissionTest extends TestCase
     public function testIndexAndWidgetFilterBeforeSearchSortOrSlice(): void
     {
         $indexBody = $this->methodSource(StatisticsController::class, 'actionIndex');
-        $indexLoad = strpos($indexBody, 'getFormsWithRatingFields($siteId)');
+        $indexScope = strpos($indexBody, '$siteScope = $this->_effectiveSiteScope($siteId)');
+        $indexLoad = strpos($indexBody, 'getFormsWithRatingFields($siteScope)');
         $indexAcl = strpos($indexBody, 'filterFormsByFormieSubmissionAccess($formsWithRatings)');
         $indexSearch = strpos($indexBody, "if (\$search !== '')");
 
+        self::assertIsInt($indexScope);
         self::assertIsInt($indexLoad);
         self::assertIsInt($indexAcl);
         self::assertIsInt($indexSearch);
+        self::assertLessThan($indexLoad, $indexScope);
         self::assertLessThan($indexAcl, $indexLoad);
         self::assertLessThan($indexSearch, $indexAcl);
         self::assertStringContainsString(

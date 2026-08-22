@@ -414,7 +414,7 @@ final class StatisticsServicePortableCacheTest extends TestCase
             ],
         ]);
         $form->setFormLayout($layout);
-        $this->saveTestElement($form);
+        $this->saveTestForm($form);
 
         return $form;
     }

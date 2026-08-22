@@ -62,6 +62,8 @@ All of these live in the field's **Settings** tab. Options appear only when they
 
 Submitted ratings are checked again on the server against the field's configured range and exact options. Whole-star and emoji fields accept only whole steps, half-star fields accept only `.5` steps, and NPS accepts only whole values from 0 through 10. A modified browser request cannot save a value outside those choices.
 
+For a star field whose configured minimum is `0`, zero appears as its own numeric choice so selecting it never looks like one filled star. Half-star fields restore saved or rejected values such as `3.5` before the visitor interacts, and the visual controls always follow the options currently configured on the field.
+
 ## How a rating shows up afterwards
 
 - **In submissions (Control Panel):** stars render as gold/grey stars with `(value/max)`; emoji show the matching face with `(value/max)`; NPS shows the number in a coloured box.

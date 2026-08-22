@@ -64,6 +64,18 @@ Common issues and how to resolve them. If something here doesn't cover your case
 
 **Why:** Formie Rating permissions add capabilities but do not bypass Formie's submission ACL. The index and dashboard widget hide forms the user cannot access; form-specific statistics, chart-data, export, group-detail, and refresh requests return HTTP 403.
 
+## All Sites shows statistics from a site the user cannot edit
+
+**Quick checks:**
+
+1. Update Formie Rating Field to the current version.
+2. Sign in as the affected user and confirm their editable sites in Craft's user or user-group permissions.
+3. Reload the Statistics page and regenerate any affected export.
+
+**Fix:** Upgrade, then rerun the dashboard view or export as the limited-site user. **All Sites** will aggregate only that user's current editable sites; a user with no editable sites receives an empty result.
+
+**Why:** Older versions could pass the UI's `all` sentinel into cross-site service queries. Current Control Panel requests resolve that selection to a live, permission-bounded site list before counts, charts, grouped detail, raw responses, caches, or exports are loaded.
+
 ## Scheduled cache generation appears more than once
 
 Formie Rating Field keeps one recurring scheduled cache-generation master job in Craft's queue. Manual cache-generation jobs and per-batch jobs can appear separately while a cache rebuild is running.
@@ -107,6 +119,18 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 
 **Why:** The cap is applied after the group, date-range, and site filters, so submissions from other groups do not consume it. A group with more matching submissions than the configured limit is still truncated to protect the server from an out-of-memory failure.
 
+## A group named 0 cannot be opened or exported
+
+**Quick checks:**
+
+1. Confirm the grouped row's stored value is the literal `0`, not an empty value.
+2. Update Formie Rating Field to the current version.
+3. Reopen the grouped row and try each enabled export format again.
+
+**Fix:** Upgrade and repeat the drill-down or export. The literal string `0` is accepted as a real group value in paginated detail and grouped exports.
+
+**Why:** Older request validation could mistake PHP's string `"0"` for a missing value. Empty values and arrays remain invalid, but `0` now follows the normal group-query and export path.
+
 ## A group does not appear in the grouped dashboard search
 
 **Quick checks:**
@@ -143,6 +167,18 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 
 **Why:** The button shows only for the high tier and only when a Place ID is present to build the review URL. Multiple enabled fields compete to override the success message. See [Google Review prompt](../feature-tour/google-review-prompt.md).
 
+## A Google Review message changes the wrong form
+
+**Quick checks:**
+
+1. Confirm the page contains more than one Formie form.
+2. Confirm the submitted form owns the Rating field with the Google Review prompt enabled.
+3. Update Formie Rating Field and submit the forms in both orders.
+
+**Fix:** Upgrade to the current version. Each generated prompt now binds only to the form that owns its configured Rating field and updates only that form's adjacent success alert.
+
+**Why:** Formie initializes every form on the page. Older prompt code could attach during an unrelated form's initialization and select the first success alert in the document instead of the submitted form's own alert.
+
 ## I can't change the min/max on an NPS field
 
 **Fix:** This is intentional — NPS is always 0–10, so the Minimum/Maximum options are hidden for the NPS type.
@@ -154,3 +190,15 @@ Craft stores queue job descriptions when rows are queued, so date/time format ch
 **Fix:** Half ratings apply to the **star** type only. Switch the field to Star Rating.
 
 **Why:** Half values only make sense for stars; emoji and NPS are whole-number scales.
+
+## Zero or a saved half-star value displays incorrectly
+
+**Quick checks:**
+
+1. For zero, confirm the star field's **Minimum Value** is `0`.
+2. For halves, confirm **Allow Half Ratings** is enabled and the stored or rejected value is an allowed `.5` step such as `3.5`.
+3. Update Formie Rating Field, clear any frontend asset cache, and reload the form.
+
+**Fix:** Upgrade and reload the rebuilt field assets. Zero renders as a separate numeric choice without filling a star, while saved or rejected half values render at their actual half-star position before interaction.
+
+**Why:** Older field JavaScript dropped the falsy `0` option and compared initial half values in inconsistent string/number forms. The controls now derive from the configured options and use one normalized numeric value for display and interaction.

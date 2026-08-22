@@ -253,14 +253,14 @@ final class TranslationCallSiteCoverageTest extends TestCase
         self::assertIsString($source);
         preg_match_all('/^\s*\/\/\s+(.+)$/m', $source, $matches);
 
-        return array_values($matches[1] ?? []);
+        return array_values($matches[1]);
     }
 
     /** @return list<string> */
     private function placeholders(string $value): array
     {
         preg_match_all('/\{[A-Za-z][A-Za-z0-9]*\}/', $value, $matches);
-        $placeholders = $matches[0] ?? [];
+        $placeholders = $matches[0];
         sort($placeholders);
 
         return array_values($placeholders);
@@ -294,7 +294,7 @@ final class TranslationCallSiteCoverageTest extends TestCase
 
             foreach ($patterns as $pattern) {
                 preg_match_all($pattern, $source, $matches);
-                foreach ($matches[1] ?? [] as $key) {
+                foreach ($matches[1] as $key) {
                     $callSites[stripcslashes($key)][] = $path;
                 }
             }
@@ -349,7 +349,7 @@ final class TranslationCallSiteCoverageTest extends TestCase
         );
 
         $keys = [];
-        foreach ($registrationMatches[1] ?? [] as $registrationBody) {
+        foreach ($registrationMatches[1] as $registrationBody) {
             preg_match_all(
                 "/'((?:\\\\'|[^'])*)'|\"((?:\\\\\"|[^\"])*)\"/s",
                 $registrationBody,
