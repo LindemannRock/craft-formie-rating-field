@@ -1,6 +1,6 @@
-# Twig Globals
+# Twig globals
 
-Formie Rating Field provides the following global variables in your Twig templates.
+Use the `ratingHelper` global when a template needs the plugin's configured display name rather than a hard-coded label.
 
 ## `ratingHelper`
 
@@ -25,4 +25,3 @@ Formie Rating Field provides the following global variables in your Twig templat
 ```
 
 ---
-

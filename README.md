@@ -28,7 +28,7 @@ This plugin is in active development and not yet available on the Craft Plugin S
 - **Statistics dashboard** — type-aware averages, NPS scoring, value distributions, trend charts, grouping by another form field, and date-range / per-site filtering
 - **Craft dashboard widget** — optional, site-scoped rating statistics widget for quick access to active rating forms
 - **Exports** — Excel (multi-sheet), CSV (zipped per section), or JSON
-- **Caching** — file system or Redis, automatic invalidation on new submissions, optional scheduled pre-generation, and CLI management
+- **Caching** — plugin-owned files or a suitable Craft application cache, automatic invalidation on new submissions, optional scheduled pre-generation, and CLI management
 - **Feed Me import** — map a feed column onto a Rating field when Feed Me is installed
 - **12 languages** — translated out of the box
 

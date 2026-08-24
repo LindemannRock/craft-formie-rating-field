@@ -30,7 +30,7 @@ Nothing about your submission data changes. The plugin reads Formie's submission
 
 - **[Exporting data](exporting-data.md)** — Download a summary, every raw response, or a by-group breakdown as Excel (multi-sheet), CSV (zipped per section), or JSON.
 
-- **[Caching](caching.md)** — Computed statistics are cached to the file system or Redis, invalidated automatically when submissions change, and optionally pre-generated on a schedule.
+- **[Caching](caching.md)** — Computed statistics use plugin-owned files or a suitable Craft application cache, are invalidated automatically when submissions change, and can be pre-generated on a schedule. If the host has no suitable persistent cache, the plugin safely recomputes them when needed.
 
 - **[Feed Me import](../integrations/feed-me.md)** — Import Rating values from a feed when Feed Me is installed.
 

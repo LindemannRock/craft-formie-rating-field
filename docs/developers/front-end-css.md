@@ -40,6 +40,7 @@ The classes are stable hooks if you need to go beyond variables:
 | `.fui-rating-star`, `.fui-rating-emoji`, `.fui-rating-nps` | Type modifier on the widget |
 | `.fui-rating-size-{small\|medium\|large\|xlarge}` | Size modifier |
 | `.fui-rating-selected` | The selected item(s) |
+| `.fui-rating-zero-item` | The distinct numeric zero choice on star fields whose minimum is 0 |
 | `.fui-rating-emoji-noto-color`, `.fui-rating-emoji-noto-simple`, `.fui-rating-emoji-webfont` | Emoji render mode |
 | `.fui-rating-endpoints`, `.fui-rating-start-label`, `.fui-rating-end-label` | Endpoint labels |
 | `.fui-rating-selected-label` | The selected-value label |

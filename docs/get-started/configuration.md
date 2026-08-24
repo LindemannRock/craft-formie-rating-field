@@ -4,7 +4,13 @@ Every setting on this page has a home in the Control Panel under **Formie Rating
 
 The field defaults below answer one question: *what should a brand-new Rating field look like before anyone touches it?* They don't change fields that already exist — each Rating field stores its own copy of these settings once created.
 
-Copy the sample config to start: `cp vendor/lindemannrock/craft-formie-rating-field/src/config.php config/formie-rating-field.php`. Anything set in `config/formie-rating-field.php` overrides the Control Panel value and locks that field in the UI.
+Copy the sample config to start:
+
+```bash
+cp vendor/lindemannrock/craft-formie-rating-field/src/config.php config/formie-rating-field.php
+```
+
+Anything set in `config/formie-rating-field.php` overrides the Control Panel value and locks that field in the UI. Craft stores Control Panel selections in the plugin's native settings; the plugin does not use a dedicated settings table.
 
 ## Field defaults (General tab)
 
@@ -74,6 +80,9 @@ When the Control Panel value is **Use global default**, the setting cascades fro
 return [
     // Applies to every environment
     '*' => [
+        // Control Panel display name
+        'pluginName' => 'Formie Rating',
+
         // Field defaults for new Rating fields
         'defaultRatingType' => 'star',
         'defaultEmojiRenderMode' => 'system',

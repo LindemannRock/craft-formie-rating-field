@@ -29,6 +29,7 @@ Open the form on your site front-end (or use Formie's preview). Pick a rating an
 
 In the Control Panel, open **Formie Rating → Statistics**. Your form appears in the list with a rating-field count and submission count. Click the form title to see its average (or NPS score), the value distribution, and a trend chart.
 
+> [!NOTE]
 > New submissions invalidate that form's cached statistics automatically, so the numbers stay current between page loads.
 
 ## What's next

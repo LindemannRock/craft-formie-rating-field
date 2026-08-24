@@ -22,4 +22,4 @@ Composer pulls these packages automatically. Formie must also be installed and e
 | Package | Purpose |
 |---------|---------|
 | [craftcms/feed-me](https://github.com/craftcms/feed-me) | Import Rating field values from a feed — see [Feed Me](../integrations/feed-me.md). Only needed if you import submissions. |
-| [Redis](https://redis.io/) | Alternative statistics cache store for load-balanced or multi-server setups — see [Caching](../feature-tour/caching.md). The default file cache needs nothing extra. |
+| [Redis](https://redis.io/) | One possible backend for Craft's application cache on load-balanced or multi-server setups — see [Caching](../feature-tour/caching.md). Redis is not required: the plugin can use durable plugin-owned files, another suitable Craft cache backend, or safe recomputation when no persistent cache is available. |

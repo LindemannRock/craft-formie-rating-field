@@ -106,6 +106,40 @@ $byGroup = $statistics->buildGroupedExportRows($form, $dateRange = 'all', $group
 
 `buildGroupedExportRows()` emits every group represented by at least one Rating field. Its `Submissions Count` is field-independent and counts all valid submissions in that emitted group; metrics stay blank for Rating fields without a response in that group.
 
+## Cache identity
+
+`getCacheFilename()` creates the storage-independent filename used to identify one statistics payload. It returns a filename such as `42-3dd2c1….cache`, not a full filesystem path.
+
+```php
+$filename = $statistics->getCacheFilename(
+    $formId,
+    $field,                 // Rating instance or field handle
+    $dateRange = 'all',
+    $groupByHandle = null,
+    $siteId = 'all',
+);
+```
+
+Passing the `Rating` instance includes the field's statistics-relevant configuration in the identity. The site scope is normalized in the same way as the statistics reads described above.
+
+## Effective cache storage @since(3.23.0)
+
+`getCacheStorageDecision()` resolves the configured preference into the storage this host can actually use. Omit the argument to inspect the persisted runtime setting, or pass `file`, `craft`, or the legacy `redis` token when building a settings preview.
+
+```php
+$decision = $statistics->getCacheStorageDecision();
+
+if ($decision->usesFileCache()) {
+    // This host uses plugin-owned cache files.
+} elseif ($decision->usesApplicationCache()) {
+    // This host uses a suitable Craft application-cache backend.
+} elseif ($decision->isDisabled()) {
+    // No suitable persistent store is available; statistics recompute safely.
+}
+```
+
+The returned `DisposableCacheStorageDecision` also exposes the configured token, effective storage, backend status, persistence confidence, and whether a file path is eligible for display. See [Caching](../feature-tour/caching.md) for the operator-facing behavior.
+
 ## Cache control
 
 ```php
