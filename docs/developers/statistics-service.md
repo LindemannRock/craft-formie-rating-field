@@ -122,7 +122,7 @@ $filename = $statistics->getCacheFilename(
 
 Passing the `Rating` instance includes the field's statistics-relevant configuration in the identity. The site scope is normalized in the same way as the statistics reads described above.
 
-## Effective cache storage @since(3.23.0)
+## Effective cache storage @since(3.22.0)
 
 `getCacheStorageDecision()` resolves the configured preference into the storage this host can actually use. Omit the argument to inspect the persisted runtime setting, or pass `file`, `craft`, or the legacy `redis` token when building a settings preview.
 

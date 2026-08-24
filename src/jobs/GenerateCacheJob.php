@@ -55,7 +55,7 @@ class GenerateCacheJob extends BaseJob implements RetryableJobInterface
     /**
      * @var string Stable ownership token for the portable recurring chain
      *
-     * @since 3.23.0
+     * @since 3.22.0
      */
     public string $recurringOwner = '';
 

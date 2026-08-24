@@ -1291,7 +1291,7 @@ class StatisticsService extends Component
      * Passing a storage token is used by settings previews; omitting it uses
      * the persisted runtime setting.
      *
-     * @since 3.23.0
+     * @since 3.22.0
      */
     public function getCacheStorageDecision(?string $configuredStorage = null): DisposableCacheStorageDecision
     {

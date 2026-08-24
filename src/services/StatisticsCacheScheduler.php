@@ -24,7 +24,7 @@ use yii\db\Expression;
 /**
  * Owns the recurring statistics-cache generation schedule.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 class StatisticsCacheScheduler
 {
