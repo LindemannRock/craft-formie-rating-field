@@ -24,10 +24,10 @@ use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\services\StatisticsCacheScheduler;
+use lindemannrock\formieratingfield\tests\Support\InstalledBasePackage;
 use lindemannrock\formieratingfield\tests\Support\IsolatedQueue;
 use lindemannrock\formieratingfield\tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 use verbb\formie\elements\Form;
@@ -86,15 +86,20 @@ final class SchedulerPatternTest extends TestCase
         }
     }
 
-    public function testApprovedBasePortableQueueApiLoadsFromTheLocalCandidate(): void
+    public function testApprovedBasePortableQueueApiLoadsFromTheInstalledPackage(): void
     {
-        $expectedBasePath = realpath(dirname(__DIR__, 3) . '/base/src');
-        self::assertIsString($expectedBasePath);
+        self::assertSame('lindemannrock/craft-plugin-base', InstalledBasePackage::name());
 
-        foreach ([RecurringQueueHelper::class, DeferredQueueJob::class] as $class) {
-            $filename = (new ReflectionClass($class))->getFileName();
-            self::assertIsString($filename);
-            self::assertStringStartsWith($expectedBasePath . DIRECTORY_SEPARATOR, (string) realpath($filename));
+        foreach ([
+            RecurringQueueHelper::class => 'helpers/RecurringQueueHelper.php',
+            DeferredQueueJob::class => 'queue/DeferredQueueJob.php',
+        ] as $class => $relativePath) {
+            $expectedSource = InstalledBasePackage::sourceFile($relativePath);
+            self::assertFileExists($expectedSource);
+            self::assertSame(
+                $expectedSource,
+                InstalledBasePackage::reflectedClassFile($class),
+            );
         }
 
         self::assertTrue(method_exists(RecurringQueueHelper::class, 'ensurePending'));
@@ -776,7 +781,7 @@ final class SchedulerPatternTest extends TestCase
 /**
  * Provides deterministic next-run boundaries for portable queue behavior.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class FixedStatisticsCacheScheduler extends StatisticsCacheScheduler
 {
@@ -800,7 +805,7 @@ final class FixedStatisticsCacheScheduler extends StatisticsCacheScheduler
 /**
  * Records proxy delays without contacting SQS.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class SchedulerRecordingSqsQueue extends SqsQueue
 {

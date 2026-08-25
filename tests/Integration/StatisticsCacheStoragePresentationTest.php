@@ -22,6 +22,7 @@ use lindemannrock\formieratingfield\controllers\SettingsController;
 use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\services\StatisticsService;
+use lindemannrock\formieratingfield\tests\Support\InstalledBasePackage;
 use lindemannrock\formieratingfield\tests\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
@@ -39,7 +40,7 @@ require_once dirname(__DIR__) . '/Fixtures/CascadeCache.php';
 /**
  * Covers configured and effective statistics-cache presentation.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class StatisticsCacheStoragePresentationTest extends TestCase
 {
@@ -67,21 +68,23 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
         parent::cleanupExternalState();
     }
 
-    public function testApprovedBaseClassifierLoadsFromTheLocalCandidate(): void
+    public function testApprovedBaseClassifierLoadsFromTheInstalledPackage(): void
     {
-        $expectedBasePath = realpath(dirname(__DIR__, 3) . '/base/src');
-        self::assertIsString($expectedBasePath);
+        self::assertSame('lindemannrock/craft-plugin-base', InstalledBasePackage::name());
 
         foreach ([
-            CacheBackendStatus::class,
-            DisposableCacheStoragePresentation::class,
-            DisposableCacheStoragePresenter::class,
-            DisposableCacheStorageResolver::class,
-            PluginHelper::class,
-        ] as $class) {
-            $filename = (new ReflectionClass($class))->getFileName();
-            self::assertIsString($filename);
-            self::assertStringStartsWith($expectedBasePath . DIRECTORY_SEPARATOR, (string)realpath($filename));
+            CacheBackendStatus::class => 'cache/CacheBackendStatus.php',
+            DisposableCacheStoragePresentation::class => 'cache/DisposableCacheStoragePresentation.php',
+            DisposableCacheStoragePresenter::class => 'cache/DisposableCacheStoragePresenter.php',
+            DisposableCacheStorageResolver::class => 'cache/DisposableCacheStorageResolver.php',
+            PluginHelper::class => 'helpers/PluginHelper.php',
+        ] as $class => $relativePath) {
+            $expectedSource = InstalledBasePackage::sourceFile($relativePath);
+            self::assertFileExists($expectedSource);
+            self::assertSame(
+                $expectedSource,
+                InstalledBasePackage::reflectedClassFile($class),
+            );
         }
     }
 
@@ -237,7 +240,7 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
     {
         $template = file_get_contents(dirname(__DIR__, 2) . '/src/templates/settings/cache.twig');
         self::assertIsString($template);
-        $baseTemplate = file_get_contents(dirname(__DIR__, 3) . '/base/src/templates/_partials/field-cache-storage.twig');
+        $baseTemplate = file_get_contents(InstalledBasePackage::sourceFile('templates/_partials/field-cache-storage.twig'));
         self::assertIsString($baseTemplate);
 
         self::assertStringContainsString("'lindemannrock-base/_partials/field-cache-storage'", $template);
@@ -279,7 +282,7 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
             (new PresentationStatisticsService())->getCacheStorageDecision('craft'),
         );
 
-        $english = require dirname(__DIR__, 3) . '/base/src/translations/en/lindemannrock-base.php';
+        $english = require InstalledBasePackage::sourceFile('translations/en/lindemannrock-base.php');
         self::assertIsArray($english);
         foreach ($presentations as $presentation) {
             foreach ([$presentation->headingKey, $presentation->utilityValueKey, $presentation->utilityDescriptionKey] as $key) {
@@ -343,7 +346,7 @@ final class StatisticsCacheStoragePresentationTest extends TestCase
 /**
  * Test seam for host and filesystem observations.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class PresentationStatisticsService extends StatisticsService
 {
@@ -377,7 +380,7 @@ final class PresentationStatisticsService extends StatisticsService
 /**
  * Unknown application-cache double with no persistence claim.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class PresentationUnknownCache extends Cache
 {
@@ -434,7 +437,7 @@ final class PresentationUnknownCache extends Cache
 /**
  * Captures console output for cache presentation assertions.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class PresentationCacheController extends CacheController
 {

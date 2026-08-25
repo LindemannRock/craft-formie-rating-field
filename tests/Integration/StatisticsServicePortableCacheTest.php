@@ -23,8 +23,8 @@ use lindemannrock\formieratingfield\FormieRatingField;
 use lindemannrock\formieratingfield\jobs\GenerateCacheJob;
 use lindemannrock\formieratingfield\models\Settings;
 use lindemannrock\formieratingfield\services\StatisticsService;
+use lindemannrock\formieratingfield\tests\Support\InstalledBasePackage;
 use lindemannrock\formieratingfield\tests\TestCase;
-use ReflectionClass;
 use ReflectionMethod;
 use verbb\formie\elements\Form;
 use verbb\formie\elements\Submission;
@@ -68,15 +68,22 @@ final class StatisticsServicePortableCacheTest extends TestCase
         parent::cleanupExternalState();
     }
 
-    public function testApprovedBaseCacheApiLoadsFromTheLocalCandidate(): void
+    public function testApprovedBaseCacheApiLoadsFromTheInstalledPackage(): void
     {
-        $expectedBasePath = realpath(dirname(__DIR__, 3) . '/base/src');
-        self::assertIsString($expectedBasePath);
+        self::assertSame('lindemannrock/craft-plugin-base', InstalledBasePackage::name());
 
-        foreach ([PluginHelper::class, CacheBackendStatus::class, ScopedCache::class, ScopedCacheResult::class] as $class) {
-            $filename = (new ReflectionClass($class))->getFileName();
-            self::assertIsString($filename);
-            self::assertStringStartsWith($expectedBasePath . DIRECTORY_SEPARATOR, (string)realpath($filename));
+        foreach ([
+            PluginHelper::class => 'helpers/PluginHelper.php',
+            CacheBackendStatus::class => 'cache/CacheBackendStatus.php',
+            ScopedCache::class => 'cache/ScopedCache.php',
+            ScopedCacheResult::class => 'cache/ScopedCacheResult.php',
+        ] as $class => $relativePath) {
+            $expectedSource = InstalledBasePackage::sourceFile($relativePath);
+            self::assertFileExists($expectedSource);
+            self::assertSame(
+                $expectedSource,
+                InstalledBasePackage::reflectedClassFile($class),
+            );
         }
 
         self::assertTrue(method_exists(PluginHelper::class, 'getApplicationCacheOrLog'));
