@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+php craft plugin/list
+
+php craft exec '
+use lindemannrock\formieratingfield\fields\Rating;
+use lindemannrock\formieratingfield\FormieRatingField;
+use lindemannrock\formieratingfield\models\Settings;
+use lindemannrock\formieratingfield\services\StatisticsService;
+use verbb\formie\Formie;
+
+$plugins = \Craft::$app->getPlugins();
+$plugin = $plugins->getPlugin("formie-rating-field");
+
+if (!$plugin instanceof FormieRatingField) {
+    throw new RuntimeException("Formie Rating Field plugin class was not loaded.");
+}
+
+foreach (["formie", "formie-rating-field"] as $handle) {
+    if (!$plugins->isPluginInstalled($handle) || !$plugins->isPluginEnabled($handle)) {
+        throw new RuntimeException("Required Craft plugin is not installed and enabled: {$handle}");
+    }
+}
+
+if (!$plugins->getPlugin("formie") instanceof Formie) {
+    throw new RuntimeException("Formie dependency was not loaded.");
+}
+
+$baseModule = \Craft::$app->getModule("lindemannrock-base");
+if (!$baseModule instanceof \yii\base\Module) {
+    throw new RuntimeException("Base module was not registered.");
+}
+
+$settings = $plugin->getSettings();
+if (!$settings instanceof Settings) {
+    throw new RuntimeException("Formie Rating Field settings model was not loaded.");
+}
+
+if ($settings->defaultRatingType !== Rating::RATING_TYPE_STAR || $settings->defaultMinRating !== 1 || $settings->defaultMaxRating !== 5) {
+    throw new RuntimeException("Fresh-install Rating defaults are not intact.");
+}
+
+if (!$plugin->has("statistics") || !$plugin->get("statistics") instanceof StatisticsService) {
+    throw new RuntimeException("Statistics service component was not registered.");
+}
+
+$rating = new Rating([
+    "ratingType" => Rating::RATING_TYPE_NPS,
+    "minValue" => 3,
+    "maxValue" => 7,
+]);
+
+if ($rating->minValue !== 0 || $rating->maxValue !== 10) {
+    throw new RuntimeException("NPS Rating runtime normalization did not enforce the 0-10 scale.");
+}
+
+echo "Formie Rating Field smoke test passed.\n";
+'

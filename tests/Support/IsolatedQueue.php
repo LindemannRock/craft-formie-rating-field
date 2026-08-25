@@ -16,7 +16,7 @@ use Throwable;
 /**
  * Hides the permanent Craft queue before enabled plugins bootstrap.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class IsolatedQueue extends Queue
 {

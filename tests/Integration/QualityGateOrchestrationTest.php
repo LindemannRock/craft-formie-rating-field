@@ -17,7 +17,7 @@ use Symfony\Component\Process\Process;
 /**
  * Protects aggregate ordering, CI delegation, Act cleanup, and runner cleanup.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class QualityGateOrchestrationTest extends TestCase
 {
@@ -102,6 +102,15 @@ final class QualityGateOrchestrationTest extends TestCase
 
         self::assertSame(2, substr_count($runner, 'tests/Fixtures/Project/run.php --lifecycle-probe'));
         self::assertStringContainsString('FORMIE_RATING_FIELD_FIXTURE_SOURCE_VENDOR_ROOT', $runner);
+    }
+
+    public function testCraftExecUsesGlobalCraftClassWithoutImportWarning(): void
+    {
+        $smoke = (string)file_get_contents($this->packageRoot() . '/scripts/smoke-test');
+
+        self::assertStringNotContainsString('use Craft;', $smoke);
+        self::assertStringContainsString('\Craft::$app->getPlugins()', $smoke);
+        self::assertStringContainsString('\Craft::$app->getModule("lindemannrock-base")', $smoke);
     }
 
     public function testWorkflowValidatorRejectsPartialDuplicateCommands(): void

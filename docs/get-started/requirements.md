@@ -4,7 +4,7 @@
 
 | Requirement | Version |
 |-------------|---------|
-| [Craft CMS](https://craftcms.com/) | 5.0+ |
+| [Craft CMS](https://craftcms.com/) | 5.10+ |
 | [PHP](https://php.net/) | 8.2+ |
 | [Formie](https://verbb.io/craft-plugins/formie) | 3.0+ |
 

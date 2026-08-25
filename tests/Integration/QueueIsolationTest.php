@@ -25,7 +25,7 @@ use lindemannrock\formieratingfield\tests\TestCase;
 /**
  * Verifies that scheduler tests cannot mutate the permanent Craft queue.
  *
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class QueueIsolationTest extends TestCase
 {

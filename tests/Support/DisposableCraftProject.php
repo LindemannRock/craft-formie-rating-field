@@ -16,7 +16,7 @@ use PDO;
  * Owns one disposable Craft/Formie project and database for standalone tests.
  *
  * @internal
- * @since 3.23.0
+ * @since 3.22.0
  */
 final class DisposableCraftProject
 {

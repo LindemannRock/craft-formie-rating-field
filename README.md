@@ -3,21 +3,13 @@
 # Formie Rating Field for Craft CMS
 
 [![Latest Version](https://img.shields.io/packagist/v/lindemannrock/craft-formie-rating-field.svg)](https://packagist.org/packages/lindemannrock/craft-formie-rating-field)
-[![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.0+-orange.svg)](https://craftcms.com/)
+[![Craft CMS](https://img.shields.io/badge/Craft%20CMS-5.10+-orange.svg)](https://craftcms.com/)
 [![Formie](https://img.shields.io/badge/Formie-3.0+-purple.svg)](https://verbb.io/craft-plugins/formie)
 [![Plugin Base](https://img.shields.io/badge/Plugin%20Base-5.38%2B-4c6ef5.svg)](https://github.com/LindemannRock/craft-plugin-base)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net/)
 [![License](https://img.shields.io/packagist/l/lindemannrock/craft-formie-rating-field.svg)](LICENSE.md)
 
 A Craft CMS plugin that adds star, emoji, and NPS (Net Promoter Score) rating field types to Verbb's Formie, plus a statistics dashboard that turns submissions into averages, NPS scores, distributions, and trends.
-
-## License
-
-This is a commercial plugin licensed under the [Craft License](https://craftcms.github.io/license/). It will be available on the [Craft Plugin Store](https://plugins.craftcms.com) soon. See [LICENSE.md](LICENSE.md) for details.
-
-## ⚠️ Pre-Release
-
-This plugin is in active development and not yet available on the Craft Plugin Store. Features and APIs may change before the initial public release.
 
 ## Features
 
@@ -34,9 +26,9 @@ This plugin is in active development and not yet available on the Craft Plugin S
 
 ## Requirements
 
-- Craft CMS 5.0 or greater
+- Craft CMS 5.10 or greater
 - PHP 8.2 or greater
-- Formie 3.0 or greater
+- [Formie](https://verbb.io/craft-plugins/formie) 3.0+ (required by Composer; install in CP)
 - [LindemannRock Plugin Base](https://github.com/LindemannRock/craft-plugin-base) 5.38+ (required by Composer)
 
 ## Installation
@@ -44,21 +36,13 @@ This plugin is in active development and not yet available on the Craft Plugin S
 ### Via Composer
 
 ```bash
-composer require lindemannrock/craft-formie-rating-field
-```
-
-```bash
-php craft plugin/install formie-rating-field
+composer require lindemannrock/craft-formie-rating-field && php craft plugin/install formie-rating-field
 ```
 
 ### Using DDEV
 
 ```bash
-ddev composer require lindemannrock/craft-formie-rating-field
-```
-
-```bash
-ddev craft plugin/install formie-rating-field
+ddev composer require lindemannrock/craft-formie-rating-field && ddev craft plugin/install formie-rating-field
 ```
 
 ## Documentation

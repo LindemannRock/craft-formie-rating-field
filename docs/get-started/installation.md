@@ -1,8 +1,5 @@
 # Installation & Setup
 
-> [!NOTE]
-> Formie Rating Field is in active development and not yet available on the Craft Plugin Store. Install via Composer for now.
-
 > [!IMPORTANT]
 > Formie Rating Field needs [Formie](https://verbb.io/craft-plugins/formie) installed and enabled. Composer pulls it in automatically; install it in the Control Panel under **Settings → Plugins**. The Rating field type only appears in Formie's field list once Formie is enabled.
 
