@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.22.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.0...v3.22.1) - 2026-08-25
+
+
+### Fixed
+
+* **fields:** preserve legacy setting hydration ([df17d1d](https://github.com/LindemannRock/craft-formie-rating-field/commit/df17d1db1f34395c3815523c0687aa54eebe3868))
+
 ## [3.22.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.21.0...v3.22.0) - 2026-08-25
 
 
