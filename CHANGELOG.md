@@ -1,5 +1,55 @@
 # Changelog
 
+## [3.22.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.21.0...v3.22.0) - 2026-08-25
+
+
+### Added
+
+* **statistics:** paginate and harden grouped exports ([6535ffc](https://github.com/LindemannRock/craft-formie-rating-field/commit/6535ffcd12e76b24a6f577bbaf08d7298c041425))
+
+
+### Fixed
+
+* **cache:** correct presentation since tags ([eee76d6](https://github.com/LindemannRock/craft-formie-rating-field/commit/eee76d612864e6792217f0c7dc7e06da0e053a20))
+* **cache:** generate form-scoped statistics batches ([e5ef683](https://github.com/LindemannRock/craft-formie-rating-field/commit/e5ef683379e3132114b9a790385bf0c6d5304b2d))
+* **cache:** report effective cache storage ([e2a9e47](https://github.com/LindemannRock/craft-formie-rating-field/commit/e2a9e4717cc6b49e87e2fb3d2c113e8dbf26be4f))
+* **cache:** simplify storage presentation ([aa3b061](https://github.com/LindemannRock/craft-formie-rating-field/commit/aa3b0616bdc8b1981ac2866aee617b17b7685f37))
+* **cache:** support portable application caching ([9dda836](https://github.com/LindemannRock/craft-formie-rating-field/commit/9dda83670a6d9b21465205d684a903bd9ee2f5cb))
+* correct rating display and trend sampling ([d416d13](https://github.com/LindemannRock/craft-formie-rating-field/commit/d416d132295e54d3b2be122aaaca6f1693bf1371))
+* **deps:** align Craft Cloud compatibility floors ([d808a49](https://github.com/LindemannRock/craft-formie-rating-field/commit/d808a49debeeed6d4ca6127f848a88f3df809593))
+* **fields:** avoid duplicate frontend script ([9e11ad6](https://github.com/LindemannRock/craft-formie-rating-field/commit/9e11ad63945077f145b7be3f5948bae71619b525))
+* **fields:** decouple emoji labels from selection mode ([f8660e1](https://github.com/LindemannRock/craft-formie-rating-field/commit/f8660e162a5560d816cd6be373fc1a47216e67bb))
+* **fields:** support Craft Cloud asset delivery ([fada622](https://github.com/LindemannRock/craft-formie-rating-field/commit/fada62200306d4e7768c7ab5da09681fc9e0a809))
+* **fields:** validate submitted rating values ([99310dc](https://github.com/LindemannRock/craft-formie-rating-field/commit/99310dc15fe0b3c969e9c21dfd7fa14686afe0b9))
+* **jobs:** support portable recurring schedules ([3cdb6e9](https://github.com/LindemannRock/craft-formie-rating-field/commit/3cdb6e922bb51f5be7db6b7afddb7b2bb80c05bf))
+* localize rating output and remove dead templates ([03ef80f](https://github.com/LindemannRock/craft-formie-rating-field/commit/03ef80f12584eb8a696abdf67ba5104b5772377f))
+* **permissions:** honor Formie submission access for statistics ([2d1c232](https://github.com/LindemannRock/craft-formie-rating-field/commit/2d1c2327ca682d584793de0f847a7f7e88dc5ee3))
+* prevent statistics errors from breaking dashboard and CP pages ([3a671f3](https://github.com/LindemannRock/craft-formie-rating-field/commit/3a671f3299f0a666a8eee68205786c17154d860f))
+* **rating:** render star and zero-value edge cases ([393ce62](https://github.com/LindemannRock/craft-formie-rating-field/commit/393ce62a6f5d5400f240a3f87a4b8bfffec3d4df))
+* **settings:** clarify default export format in config ([1a601bb](https://github.com/LindemannRock/craft-formie-rating-field/commit/1a601bbdc3a0020a72d988abaa0f3f7a8356a927))
+* **settings:** expose emoji default and make review threshold scale-aware ([0f0450f](https://github.com/LindemannRock/craft-formie-rating-field/commit/0f0450f441e55ece9340c56160d56fe0bc754e7c))
+* **settings:** remove unused linkMode parameter from error summary ([5d74f4a](https://github.com/LindemannRock/craft-formie-rating-field/commit/5d74f4a9fe1a257929935888b9698ce1f2e25922))
+* **settings:** remove unused translation category from error summary ([06092a2](https://github.com/LindemannRock/craft-formie-rating-field/commit/06092a21d902228489734cda3a6c74cc783ccf4a))
+* **statistics:** align cache identity and date range handling ([bd2a9a9](https://github.com/LindemannRock/craft-formie-rating-field/commit/bd2a9a9eb034b44cf6d12e84b2730162e6f00630))
+* **statistics:** avoid grouped rating aggregation truncation ([30c2c9a](https://github.com/LindemannRock/craft-formie-rating-field/commit/30c2c9a4c8734a9665cc97de1f0cbcbee10becc5))
+* **statistics:** bound grouped overviews and restore i18n coverage ([5b892a2](https://github.com/LindemannRock/craft-formie-rating-field/commit/5b892a2c330d92253bb38019e5e43c3bd1004d7e))
+* **statistics:** complete cache and index hardening ([c127c73](https://github.com/LindemannRock/craft-formie-rating-field/commit/c127c73ce8c14cb45ff0051c772f10d9a11a9db5))
+* **statistics:** complete multi-field grouped exports ([6d636c9](https://github.com/LindemannRock/craft-formie-rating-field/commit/6d636c95ccda4e258b27df973523b8c27bc935bf))
+* **statistics:** correct grouped summaries and i18n coverage ([ec206c8](https://github.com/LindemannRock/craft-formie-rating-field/commit/ec206c82ea10aef66bd4a93640da26bdb8633aae))
+* **statistics:** enforce scoped reporting and rating controls ([58661e7](https://github.com/LindemannRock/craft-formie-rating-field/commit/58661e7e2214728632774637ad26eed3f9f55bff))
+* **statistics:** harden grouped export and detail parameters ([d87cad0](https://github.com/LindemannRock/craft-formie-rating-field/commit/d87cad0e813bcbffddff68c53336dac4e129fd0f))
+* **statistics:** harden request parameter normalization ([623c6de](https://github.com/LindemannRock/craft-formie-rating-field/commit/623c6dee0ce3185b448030bbd48c44a01db703f9))
+* **statistics:** ignore stale group filters ([3033699](https://github.com/LindemannRock/craft-formie-rating-field/commit/303369984effb3bb6f82fef8edb3a0b1f5897bfd))
+* **statistics:** load Chart.js from base analytics asset ([383a061](https://github.com/LindemannRock/craft-formie-rating-field/commit/383a061a4cc93e0a079aa0ec7208b17657a21ed8))
+* **statistics:** normalize malformed site filters ([8f6bdfd](https://github.com/LindemannRock/craft-formie-rating-field/commit/8f6bdfd88c1d9e31756b0c0ac722a9955b054381))
+* **statistics:** paginate grouped submissions and revalidate widget sites ([e2c26dd](https://github.com/LindemannRock/craft-formie-rating-field/commit/e2c26dd02c4a5deb8e5ad3762b028fecb406baec))
+* **statistics:** validate grouped detail filters ([30dcc13](https://github.com/LindemannRock/craft-formie-rating-field/commit/30dcc13ef5048a08f3a7a63cbcab8dd2e313fb84))
+
+
+### Changed
+
+* **statistics:** streamline grouped counts and cache metadata ([d44bbc9](https://github.com/LindemannRock/craft-formie-rating-field/commit/d44bbc92ed712bec352710fb190800f74866d339))
+
 ## [3.21.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.20.0...v3.21.0) - 2026-06-18
 
 
