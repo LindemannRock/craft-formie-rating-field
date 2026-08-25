@@ -139,6 +139,12 @@ class Rating extends Field implements FieldInterface
     public ?string $googleReviewButtonLabel = null;
 
     /**
+     * @var string|null Retired Google Review button CSS classes
+     * @deprecated Retained only to hydrate field settings saved before 3.22.0.
+     */
+    public ?string $googleReviewButtonClass = null;
+
+    /**
      * @var string|null Google Review URL template
      */
     public ?string $googleReviewUrl = null;
@@ -906,7 +912,12 @@ class Rating extends Field implements FieldInterface
      */
     public function settingsAttributes(): array
     {
-        $attributes = parent::settingsAttributes();
+        // Public properties are included automatically. Keep accepting the
+        // retired property during hydration, but stop serializing it again.
+        $attributes = array_values(array_diff(
+            parent::settingsAttributes(),
+            ['googleReviewButtonClass'],
+        ));
         $attributes[] = 'ratingType';
         $attributes[] = 'ratingSize';
         $attributes[] = 'minValue';

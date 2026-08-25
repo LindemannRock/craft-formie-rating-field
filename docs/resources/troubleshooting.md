@@ -14,6 +14,18 @@ Common issues and how to resolve them. If something here doesn't cover your case
 
 **Why:** The plugin adds its field via Formie's field-registration event — with Formie disabled, there's nothing to register into.
 
+## Existing Rating fields fail to load after upgrading to 3.22.0
+
+**Quick checks:**
+
+1. Confirm the failure started immediately after upgrading Formie Rating Field from 3.21.0 or an earlier build to exactly 3.22.0.
+2. Check whether the exception names `Rating::googleReviewButtonClass` as an unknown property.
+3. Back up the database before attempting any manual field-settings cleanup.
+
+**Fix:** Upgrade Formie Rating Field to a release newer than 3.22.0. If that release is not available in your deployment yet, temporarily restore 3.21.0; an experienced database administrator can alternatively remove only the retired `googleReviewButtonClass` key from the affected Formie field settings after taking a backup.
+
+**Why:** Earlier versions saved this unused key with every Rating field. Version 3.22.0 stopped defining the property but left the historical key in existing Formie field records, causing field hydration to fail. Newer releases accept the old key for compatibility and omit it when the field settings are saved again.
+
 ## Emoji look plain or different across devices
 
 **Quick checks:**
