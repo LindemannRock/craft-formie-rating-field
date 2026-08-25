@@ -230,3 +230,34 @@ test('required, disabled, and selected-label behavior remain attached to the sel
     assert.equal(required.select.value, '2.5');
     assert.equal(required.select.checkValidity(), true);
 });
+
+test('emoji labels and single-selection highlighting remain independent', () => {
+    const cumulative = createRating(starSelect({
+        value: '3',
+        half: false,
+        type: 'emoji',
+        min: 1,
+        attributes: 'data-rating-show-selected="true"',
+    }));
+    const singleWithoutLabel = createRating(starSelect({
+        value: '3',
+        half: false,
+        type: 'emoji',
+        min: 1,
+        attributes: 'data-single-selection="true"',
+    }));
+    const singleWithLabel = createRating(starSelect({
+        value: '3',
+        half: false,
+        type: 'emoji',
+        min: 1,
+        attributes: 'data-single-selection="true" data-rating-show-selected="true"',
+    }));
+
+    assert.equal(cumulative.container.querySelector('.fui-rating-selected-label').textContent, '3 label');
+    assert.equal(cumulative.container.querySelectorAll('.fui-rating-selected').length, 3);
+    assert.equal(singleWithoutLabel.container.querySelector('.fui-rating-selected-label'), null);
+    assert.equal(singleWithoutLabel.container.querySelectorAll('.fui-rating-selected').length, 1);
+    assert.equal(singleWithLabel.container.querySelector('.fui-rating-selected-label').textContent, '3 label');
+    assert.equal(singleWithLabel.container.querySelectorAll('.fui-rating-selected').length, 1);
+});

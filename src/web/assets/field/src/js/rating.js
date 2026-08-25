@@ -269,10 +269,8 @@ window.FormieRating = class FormieRating {
                 container.appendChild(endpointContainer);
             }
             
-            // Add selected label if enabled
-            // For emoji with single selection, always show label
-            // For other types, only show if showSelectedLabel is enabled
-            if (showSelectedLabel || (ratingType === 'emoji' && singleSelection)) {
+            // Add the selected label independently from the visual selection mode.
+            if (showSelectedLabel) {
                 const selectedLabel = document.createElement('div');
                 selectedLabel.className = 'fui-rating-selected-label';
                 container.appendChild(selectedLabel);

@@ -38,6 +38,19 @@ final class TemplateLocalizationRegressionTest extends TestCase
         self::assertArrayHasKey('singleEmojiSelection', $field->getFieldDefaults());
     }
 
+    public function testCustomEmojiLabelsDoNotDependOnSingleSelectionMode(): void
+    {
+        $schemaByName = [];
+        foreach ((new Rating())->defineSettingsSchema() as $setting) {
+            if (isset($setting['name'])) {
+                $schemaByName[$setting['name']] = $setting;
+            }
+        }
+
+        self::assertSame('$get(ratingType).value == emoji', $schemaByName['singleEmojiSelection']['if']);
+        self::assertSame('$get(ratingType).value == emoji', $schemaByName['customLabels']['if']);
+    }
+
     public function testLocaleAwareNumberRenderingPreservesCountAndNpsPrecision(): void
     {
         $formatter = Craft::$app->getFormatter();

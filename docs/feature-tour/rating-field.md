@@ -50,15 +50,17 @@ All of these live in the field's **Settings** tab. Options appear only when they
 | **Minimum Value** | star, emoji | Lowest value: `0` or `1`. (Hidden for NPS.) |
 | **Maximum Value** | star, emoji | Highest value: `3`–`10`. (Hidden for NPS.) |
 | **Allow Half Ratings** | star only | Let visitors pick half stars (e.g. 3.5). |
-| **Show Selected Label** | all | Display the chosen value as a text label. |
+| **Show Selected Label** | all | Display the chosen value—or its custom emoji label—as text beneath the rating. |
 | **Show Endpoint Labels** | all | Show **Start Label** / **End Label** text at the ends of the scale. |
 | **Start Label** / **End Label** | all | Worded ends, e.g. *Poor* → *Excellent*. Shown when endpoint labels are on. |
-| **Single Emoji Selection** | emoji only | Highlight only the selected emoji instead of cumulative selection. |
-| **Custom Labels** | emoji + single selection | A value→label table; the label shows beneath the selected emoji. Available when Single Emoji Selection is on. |
+| **Single Emoji Selection** | emoji only | Highlight only the selected emoji instead of cumulative selection. This does not control label text or visibility. |
+| **Custom Labels** | emoji only | Define a value→label table for any emoji field. Labels are used for accessible option names and notification emails, and appear beneath the rating when **Show Selected Label** is on. |
 | **Include in Email** | all | Include the rating in Formie notification emails. |
 
 > [!NOTE]
 > **Emoji Render Mode** (in the **General** tab, shown only for emoji) controls how the emoji are drawn: **System Emojis** (native, fully local), **Noto Color Emoji**, or **Noto Emoji**. The two Noto modes load fonts from the Google Fonts CDN at render time — see the GDPR note in [Configuration](../get-started/configuration.md#field-defaults-general-tab).
+
+For emoji fields, highlighting and labels are independent. You can keep cumulative highlighting and show a custom label, use single-emoji highlighting without any label beneath it, or enable both options together.
 
 Submitted ratings are checked again on the server against the field's configured range and exact options. Whole-star and emoji fields accept only whole steps, half-star fields accept only `.5` steps, and NPS accepts only whole values from 0 through 10. A modified browser request cannot save a value outside those choices.
 

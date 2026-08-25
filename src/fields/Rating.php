@@ -765,17 +765,17 @@ class Rating extends Field implements FieldInterface
             ]),
             SchemaHelper::lightswitchField([
                 'label' => Craft::t('formie-rating-field', 'Single Emoji Selection'),
-                'help' => Craft::t('formie-rating-field', 'Highlight only the selected emoji instead of cumulative selection. When enabled, a custom label will display beneath the selected emoji.'),
+                'help' => Craft::t('formie-rating-field', 'Highlight only the selected emoji instead of cumulative selection.'),
                 'name' => 'singleEmojiSelection',
                 'if' => '$get(ratingType).value == emoji',
             ]),
             SchemaHelper::tableField([
                 'label' => Craft::t('formie-rating-field', 'Custom Labels'),
-                'help' => Craft::t('formie-rating-field', 'Define custom labels for each rating value (e.g., Value: 1, Label: Terrible). Labels will display beneath selected emoji.'),
+                'help' => Craft::t('formie-rating-field', 'Define custom labels for each rating value (e.g., Value: 1, Label: Terrible).'),
                 'name' => 'customLabels',
                 'validation' => 'optional',
                 'generateValue' => false,
-                'if' => '$get(singleEmojiSelection).value',
+                'if' => '$get(ratingType).value == emoji',
                 'newRowDefaults' => [
                     'value' => '',
                     'label' => '',
