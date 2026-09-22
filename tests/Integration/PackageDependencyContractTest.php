@@ -45,9 +45,9 @@ final class PackageDependencyContractTest extends TestCase
         );
         $constraint = $composer['require']['lindemannrock/craft-plugin-base'];
 
-        self::assertSame('^5.38', $constraint);
-        self::assertFalse(Semver::satisfies('5.37.99', $constraint));
-        self::assertTrue(Semver::satisfies('5.38.0', $constraint));
+        self::assertSame('^5.38.2', $constraint);
+        self::assertFalse(Semver::satisfies('5.38.1', $constraint));
+        self::assertTrue(Semver::satisfies('5.38.2', $constraint));
         self::assertTrue(Semver::satisfies('5.99.0', $constraint));
         self::assertFalse(Semver::satisfies('6.0.0', $constraint));
     }

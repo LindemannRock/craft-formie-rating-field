@@ -237,11 +237,11 @@ SH);
         [$result, $commands] = $this->runDependencyScript('check-lowest-dependencies', $version);
 
         self::assertSame(0, $result->getExitCode(), $result->getErrorOutput());
-        self::assertSame($version === '5.38.0', str_contains($commands, 'repositories.local-base'));
+        self::assertSame($version === '5.38.2', str_contains($commands, 'repositories.local-base'));
         self::assertStringContainsString('--prefer-lowest', $commands);
         self::assertStringContainsString(' ci', $commands);
         self::assertStringContainsString(
-            'Lowest-compatible dependency verification passed with lindemannrock/craft-plugin-base 5.38.0.',
+            'Lowest-compatible dependency verification passed with lindemannrock/craft-plugin-base 5.38.2.',
             $result->getOutput(),
         );
     }
@@ -249,8 +249,8 @@ SH);
     public static function workspaceBaseProvider(): array
     {
         return [
-            'exact floor' => ['5.38.0'],
-            'newer patch' => ['5.38.2'],
+            'exact floor' => ['5.38.2'],
+            'older patch' => ['5.38.1'],
             'newer minor' => ['5.39.0'],
             'standalone' => [null],
         ];
@@ -266,7 +266,7 @@ SH);
         );
 
         self::assertSame(1, $result->getExitCode(), $result->getErrorOutput());
-        self::assertStringContainsString("selected Base $resolvedVersion; expected 5.38.0", $result->getErrorOutput());
+        self::assertStringContainsString("selected Base $resolvedVersion; expected 5.38.2", $result->getErrorOutput());
         self::assertStringNotContainsString(' ci', $commands);
         self::assertStringNotContainsString('verification passed', $result->getOutput());
     }
@@ -274,8 +274,8 @@ SH);
     public static function nonMinimumBaseProvider(): array
     {
         return [
-            'below floor' => ['5.37.99'],
-            'compatible newer patch' => ['5.38.2'],
+            'below floor' => ['5.38.1'],
+            'compatible newer patch' => ['5.38.3'],
             'unsupported major' => ['6.0.0'],
         ];
     }
@@ -303,7 +303,7 @@ SH);
     private function runDependencyScript(
         string $script,
         ?string $workspaceVersion,
-        string $resolvedVersion = '5.38.0',
+        string $resolvedVersion = '5.38.2',
         int $updateStatus = 0,
     ): array {
         $root = $this->createTrackedTempDirectory('formie-rating-field-dependency-runner');

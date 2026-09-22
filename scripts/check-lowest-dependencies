@@ -29,11 +29,11 @@ if [ "$PACKAGE_ROOT" = "$WORKSPACE_ROOT/plugins/formie-rating-field" ] \
     local_base_version="$(php -r '$data = json_decode(file_get_contents($argv[1]), true, flags: JSON_THROW_ON_ERROR); echo $data["version"] ?? "";' "$LOCAL_BASE/composer.json")"
     # A newer path repository would mask the published minimum. Use local Base
     # only at the exact floor; otherwise resolve the floor from Composer's repositories.
-    if [ "$local_base_version" = "5.38.0" ]; then
+    if [ "$local_base_version" = "5.38.2" ]; then
         local_repository="$(printf '{"type":"path","url":"%s","options":{"symlink":false}}' "$LOCAL_BASE")"
         composer config --working-dir="$LOWEST_ROOT" repositories.local-base "$local_repository"
     else
-        echo "Workspace Base $local_base_version is not the 5.38.0 floor; resolving minimum dependencies without the workspace Base repository."
+        echo "Workspace Base $local_base_version is not the 5.38.2 floor; resolving minimum dependencies without the workspace Base repository."
     fi
 fi
 
@@ -64,8 +64,8 @@ fi
 
 base_version="$(composer show --working-dir="$LOWEST_ROOT" lindemannrock/craft-plugin-base --format=json \
     | php -r '$data = json_decode(stream_get_contents(STDIN), true, flags: JSON_THROW_ON_ERROR); echo $data["versions"][0] ?? "";')"
-if [ "$base_version" != "5.38.0" ]; then
-    echo "Lowest-compatible resolution selected Base $base_version; expected 5.38.0." >&2
+if [ "$base_version" != "5.38.2" ]; then
+    echo "Lowest-compatible resolution selected Base $base_version; expected 5.38.2." >&2
     exit 1
 fi
 
