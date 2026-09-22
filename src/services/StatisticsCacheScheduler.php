@@ -42,7 +42,7 @@ class StatisticsCacheScheduler
         $mutex = Craft::$app->getMutex();
 
         if (!$mutex->acquire(self::SCHEDULE_MUTEX)) {
-            Craft::warning('Skipped recurring cache scheduling because the schedule mutex is already held.', __METHOD__);
+            Craft::debug('Skipped recurring cache scheduling because the schedule mutex is already held.', __METHOD__);
 
             return new RecurringQueueResult(RecurringQueueResult::STATUS_LOCK_MISSED);
         }

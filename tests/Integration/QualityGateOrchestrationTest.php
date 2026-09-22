@@ -219,6 +219,138 @@ SH);
         self::assertSame([], glob($root . '/formie-rating-field-package-boundary.*') ?: []);
     }
 
+    #[DataProvider('workspaceBaseProvider')]
+    public function testSecurityCheckAllowsComposerToResolveWorkspaceBase(?string $version): void
+    {
+        [$result, $commands] = $this->runDependencyScript('composer-audit', $version);
+
+        self::assertSame(0, $result->getExitCode(), $result->getErrorOutput());
+        self::assertSame($version !== null, str_contains($commands, 'repositories.local-base'));
+        self::assertStringContainsString('update --no-install --no-scripts', $commands);
+        self::assertStringContainsString('audit --abandoned=report --locked', $commands);
+        self::assertStringNotContainsString('Lowest-compatible dependency verification passed', $result->getOutput());
+    }
+
+    #[DataProvider('workspaceBaseProvider')]
+    public function testMinimumVerificationUsesOnlyAnExactWorkspaceFloor(?string $version): void
+    {
+        [$result, $commands] = $this->runDependencyScript('check-lowest-dependencies', $version);
+
+        self::assertSame(0, $result->getExitCode(), $result->getErrorOutput());
+        self::assertSame($version === '5.38.0', str_contains($commands, 'repositories.local-base'));
+        self::assertStringContainsString('--prefer-lowest', $commands);
+        self::assertStringContainsString(' ci', $commands);
+        self::assertStringContainsString(
+            'Lowest-compatible dependency verification passed with lindemannrock/craft-plugin-base 5.38.0.',
+            $result->getOutput(),
+        );
+    }
+
+    public static function workspaceBaseProvider(): array
+    {
+        return [
+            'exact floor' => ['5.38.0'],
+            'newer patch' => ['5.38.2'],
+            'newer minor' => ['5.39.0'],
+            'standalone' => [null],
+        ];
+    }
+
+    #[DataProvider('nonMinimumBaseProvider')]
+    public function testMinimumVerificationRejectsAnyOtherResolvedBase(string $resolvedVersion): void
+    {
+        [$result, $commands] = $this->runDependencyScript(
+            'check-lowest-dependencies',
+            '5.38.2',
+            $resolvedVersion,
+        );
+
+        self::assertSame(1, $result->getExitCode(), $result->getErrorOutput());
+        self::assertStringContainsString("selected Base $resolvedVersion; expected 5.38.0", $result->getErrorOutput());
+        self::assertStringNotContainsString(' ci', $commands);
+        self::assertStringNotContainsString('verification passed', $result->getOutput());
+    }
+
+    public static function nonMinimumBaseProvider(): array
+    {
+        return [
+            'below floor' => ['5.37.99'],
+            'compatible newer patch' => ['5.38.2'],
+            'unsupported major' => ['6.0.0'],
+        ];
+    }
+
+    #[DataProvider('dependencyScriptProvider')]
+    public function testDependencyResolutionFailurePropagatesWithoutClaimingCoverage(string $script): void
+    {
+        [$result, $commands] = $this->runDependencyScript($script, '5.38.2', updateStatus: 42);
+
+        self::assertSame(42, $result->getExitCode(), $result->getErrorOutput());
+        self::assertStringNotContainsString('audit --abandoned', $commands);
+        self::assertStringNotContainsString(' ci', $commands);
+        self::assertStringNotContainsString('verification passed', $result->getOutput());
+    }
+
+    public static function dependencyScriptProvider(): array
+    {
+        return [
+            'security' => ['composer-audit'],
+            'minimum' => ['check-lowest-dependencies'],
+        ];
+    }
+
+    /** @return array{Process, string} */
+    private function runDependencyScript(
+        string $script,
+        ?string $workspaceVersion,
+        string $resolvedVersion = '5.38.0',
+        int $updateStatus = 0,
+    ): array {
+        $root = $this->createTrackedTempDirectory('formie-rating-field-dependency-runner');
+        $package = $workspaceVersion === null ? $root . '/package' : $root . '/plugins/formie-rating-field';
+        foreach ([$package . '/scripts', $package . '/src', $package . '/tests', $root . '/bin', $root . '/tmp'] as $path) {
+            mkdir($path, recursive: true);
+        }
+        foreach (['composer.json', 'phpstan.neon', 'ecs.php', 'scripts/' . $script] as $file) {
+            copy($this->packageRoot() . '/' . $file, $package . '/' . $file);
+        }
+        if ($workspaceVersion !== null) {
+            mkdir($root . '/plugins/base');
+            file_put_contents($root . '/plugins/base/composer.json', json_encode([
+                'name' => 'lindemannrock/craft-plugin-base',
+                'version' => $workspaceVersion,
+            ], JSON_THROW_ON_ERROR));
+        }
+
+        // Exercise runner orchestration without network resolution; real package
+        // gates separately prove Composer resolution and minimum-version quality.
+        $composer = $root . '/bin/composer';
+        file_put_contents($composer, <<<'SH'
+#!/bin/sh
+printf '%s\n' "$*" >> "$FORMIE_RATING_FIELD_DEPENDENCY_COMMAND_LOG"
+case " $* " in
+    *" update "*) exit "$FORMIE_RATING_FIELD_DEPENDENCY_UPDATE_STATUS" ;;
+    *" show "*) printf '{"versions":["%s"]}\n' "$FORMIE_RATING_FIELD_DEPENDENCY_RESOLVED_BASE" ;;
+esac
+SH);
+        chmod($composer, 0700);
+        $log = $root . '/commands.log';
+        file_put_contents($log, '');
+        $process = new Process(['bash', $package . '/scripts/' . $script], $root, [
+            'PATH' => $root . '/bin:/usr/bin:/bin',
+            'TMPDIR' => $root . '/tmp',
+            'FORMIE_RATING_FIELD_COMPOSER_AUDIT_FORCE_TEMP' => '1',
+            'FORMIE_RATING_FIELD_DEPENDENCY_COMMAND_LOG' => $log,
+            'FORMIE_RATING_FIELD_DEPENDENCY_UPDATE_STATUS' => (string)$updateStatus,
+            'FORMIE_RATING_FIELD_DEPENDENCY_RESOLVED_BASE' => $resolvedVersion,
+        ]);
+        $process->setTimeout(60);
+        $process->run();
+        self::assertSame([], array_values(array_diff(scandir($root . '/tmp') ?: [], ['.', '..'])));
+
+        return [$process, (string)file_get_contents($log)];
+    }
+
     /** @return array{string, string} */
     private function createGateProbe(): array
     {

@@ -96,6 +96,12 @@ During bootstrap, the plugin collapses duplicate pending scheduled-master rows a
 
 Craft stores queue job descriptions when rows are queued, so date/time format changes apply to newly queued rows. Existing delayed rows keep their old label until they run or are requeued. Queue labels stay compact: numeric months render numerically, while short and long month settings both render as short month names.
 
+## Recurring cache scheduling is skipped because a lock is busy
+
+The message “Skipped recurring cache scheduling because the schedule mutex is already held.” means another scheduling operation owns the outer lock. This attempt leaves the queue unchanged and returns normally; a later scheduling attempt can reconcile the recurring job. The message is a debug diagnostic, visible only when Craft's debug mode and log target allow it.
+
+If scheduled generation remains missing after the other operation finishes, check that queue workers are completing normally and inspect Craft's logs for scheduling errors. A separate message about the **portable schedule mutex** still accompanies an exception and remains a warning. Investigate that failure before retrying; do not delete queue rows merely because of the nonfatal outer-lock diagnostic.
+
 ## Cache status says "Best effort" or "Caching disabled"
 
 **Quick checks:**

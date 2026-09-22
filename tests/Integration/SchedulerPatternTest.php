@@ -31,6 +31,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use ReflectionProperty;
 use verbb\formie\elements\Form;
+use yii\log\Logger;
+use yii\mutex\Mutex;
 use yii\queue\sqs\Queue as SqsQueue;
 
 /**
@@ -289,6 +291,93 @@ final class SchedulerPatternTest extends TestCase
         self::assertSame($first->jobId, $second->jobId);
         self::assertSame(1, $this->countPortableScheduledMasterJobs());
         self::assertSame([900], $this->proxyDelays());
+    }
+
+    public function testBusyScheduleLockSkipsWithoutWarningAndReconcilesLater(): void
+    {
+        $this->installTestQueue(false);
+        $this->pauseAt(self::START_TIMESTAMP);
+        $settings = $this->settingsWithSchedule('every6hours');
+        $scheduler = new FixedStatisticsCacheScheduler($this->dateAt(self::START_TIMESTAMP + 1_278), 1_278);
+        $this->pushLegacyScheduledMasterJob();
+        $this->pushLegacyScheduledMasterJob();
+        $before = (new Query())->from('{{%queue}}')->orderBy(['id' => SORT_ASC])->all();
+        $originalMutex = Craft::$app->getMutex();
+        $mutex = new RecordingStatisticsMutex();
+        $mutex->busyName = 'formie-rating-field:schedule-cache-job';
+        $logger = Craft::getLogger();
+        $originalFlushInterval = $logger->flushInterval;
+        $logger->flushInterval = PHP_INT_MAX;
+        $offset = count($logger->messages);
+        Craft::$app->set('mutex', $mutex);
+
+        try {
+            $result = $scheduler->ensurePending($settings);
+
+            self::assertTrue($result->missedLock());
+            self::assertSame($before, (new Query())->from('{{%queue}}')->orderBy(['id' => SORT_ASC])->all());
+            self::assertSame(['formie-rating-field:schedule-cache-job'], $mutex->acquisitions);
+            self::assertSame([0], $mutex->timeouts);
+            self::assertSame([], $mutex->releases);
+            $matching = array_filter(
+                array_slice($logger->messages, $offset),
+                static fn(array $message): bool => $message[0] === 'Skipped recurring cache scheduling because the schedule mutex is already held.'
+                    && $message[2] === StatisticsCacheScheduler::class . '::ensurePending',
+            );
+            self::assertSame([Logger::LEVEL_TRACE], array_values(array_column($matching, 1)));
+            self::assertNotContains(Logger::LEVEL_WARNING, array_column($matching, 1));
+
+            $mutex->busyName = null;
+            self::assertTrue($scheduler->ensurePending($settings)->hasPending());
+            self::assertSame(1, (int)$this->cacheGenerationQueueQuery()->count());
+            self::assertContains('formie-rating-field:schedule-cache-job', $mutex->releases);
+            self::assertContains('formie-rating-field:schedule-cache-job:portable', $mutex->releases);
+        } finally {
+            Craft::$app->set('mutex', $originalMutex);
+            $logger->flushInterval = $originalFlushInterval;
+        }
+    }
+
+    public function testBusyPortableLockStillWarnsAndThrowsWhileReleasingScheduleLock(): void
+    {
+        $this->installTestQueue(false);
+        $this->pauseAt(self::START_TIMESTAMP);
+        $settings = $this->settingsWithSchedule('every6hours');
+        $scheduler = new FixedStatisticsCacheScheduler($this->dateAt(self::START_TIMESTAMP + 1_278), 1_278);
+        $before = (new Query())->from('{{%queue}}')->orderBy(['id' => SORT_ASC])->all();
+        $originalMutex = Craft::$app->getMutex();
+        $mutex = new RecordingStatisticsMutex();
+        $mutex->busyName = 'formie-rating-field:schedule-cache-job:portable';
+        $logger = Craft::getLogger();
+        $originalFlushInterval = $logger->flushInterval;
+        $logger->flushInterval = PHP_INT_MAX;
+        $offset = count($logger->messages);
+        Craft::$app->set('mutex', $mutex);
+
+        try {
+            try {
+                $scheduler->ensurePending($settings);
+                self::fail('Expected the portable scheduling lock failure.');
+            } catch (\RuntimeException $exception) {
+                self::assertSame('Unable to acquire the portable recurring cache schedule lock.', $exception->getMessage());
+            }
+
+            self::assertSame($before, (new Query())->from('{{%queue}}')->orderBy(['id' => SORT_ASC])->all());
+            self::assertSame(['formie-rating-field:schedule-cache-job'], $mutex->releases);
+            $matching = array_filter(
+                array_slice($logger->messages, $offset),
+                static fn(array $message): bool => $message[0] === 'Skipped recurring cache scheduling because the portable schedule mutex could not be acquired.'
+                    && $message[2] === StatisticsCacheScheduler::class . '::ensurePendingUnlocked',
+            );
+            self::assertSame([Logger::LEVEL_WARNING], array_values(array_column($matching, 1)));
+
+            $mutex->busyName = null;
+            self::assertTrue($scheduler->ensurePending($settings)->wasCreated());
+            self::assertSame(1, $this->countPortableScheduledMasterJobs());
+        } finally {
+            Craft::$app->set('mutex', $originalMutex);
+            $logger->flushInterval = $originalFlushInterval;
+        }
     }
 
     public function testDisableCancelsPortableAndLegacyChainsWithoutDeletingManualOrConcreteJobs(): void
@@ -829,5 +918,36 @@ final class SchedulerRecordingSqsQueue extends SqsQueue
         ];
 
         return 'rating-scheduler-proxy-' . count($this->pushes);
+    }
+}
+
+/**
+ * Records schedule-lock ownership without acquiring external resources.
+ *
+ * @since 3.23.0
+ */
+final class RecordingStatisticsMutex extends Mutex
+{
+    public ?string $busyName = null;
+    /** @var list<string> */
+    public array $acquisitions = [];
+    /** @var list<int> */
+    public array $timeouts = [];
+    /** @var list<string> */
+    public array $releases = [];
+
+    protected function acquireLock($name, $timeout = 0): bool
+    {
+        $this->acquisitions[] = (string)$name;
+        $this->timeouts[] = (int)$timeout;
+
+        return $name !== $this->busyName;
+    }
+
+    protected function releaseLock($name): bool
+    {
+        $this->releases[] = (string)$name;
+
+        return true;
     }
 }

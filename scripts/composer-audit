@@ -30,11 +30,8 @@ cp composer.json "$AUDIT_WORKTREE/composer.json"
 LOCAL_BASE="$WORKSPACE_ROOT/plugins/base"
 if [ "$PACKAGE_ROOT" = "$WORKSPACE_ROOT/plugins/formie-rating-field" ] \
     && [ -f "$LOCAL_BASE/composer.json" ]; then
-    local_base_version="$(php -r '$data = json_decode(file_get_contents($argv[1]), true, flags: JSON_THROW_ON_ERROR); echo $data["version"] ?? "";' "$LOCAL_BASE/composer.json")"
-    if [ "$local_base_version" != "5.38.0" ]; then
-        echo "Workspace Base version is $local_base_version; expected the approved 5.38.0 floor." >&2
-        exit 1
-    fi
+    # Audit the workspace candidate. Composer enforces the package's declared
+    # Base constraint; this security check does not claim minimum-version coverage.
     local_repository="$(printf '{"type":"path","url":"%s","options":{"symlink":false}}' "$LOCAL_BASE")"
     composer config --working-dir="$AUDIT_WORKTREE" repositories.local-base "$local_repository"
 fi
