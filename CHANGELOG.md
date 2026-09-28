@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.22.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.1...v3.22.2) - 2026-09-28
+
+
+### Fixed
+
+* **cache:** log routine scheduling contention at debug level ([e9f9512](https://github.com/LindemannRock/craft-formie-rating-field/commit/e9f9512f9878f2acddac06f371725460813f85a8))
+
 ## [3.22.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.0...v3.22.1) - 2026-08-25
 
 
