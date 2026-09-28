@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.22.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.1...v3.22.2) (2026-09-28)
+## [3.22.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.1...v3.22.2) - 2026-09-28
 
 
 ### Fixed
