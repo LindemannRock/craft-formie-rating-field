@@ -29,9 +29,9 @@ final class PackageDependencyContractTest extends TestCase
         );
         $constraint = $composer['require']['craftcms/cms'];
 
-        self::assertSame('^5.10', $constraint);
-        self::assertFalse(Semver::satisfies('5.9.99', $constraint));
-        self::assertTrue(Semver::satisfies('5.10.0', $constraint));
+        self::assertSame('^5.11', $constraint);
+        self::assertFalse(Semver::satisfies('5.10.99', $constraint));
+        self::assertTrue(Semver::satisfies('5.11.0', $constraint));
         self::assertTrue(Semver::satisfies('5.99.0', $constraint));
         self::assertFalse(Semver::satisfies('6.0.0', $constraint));
     }
@@ -45,9 +45,9 @@ final class PackageDependencyContractTest extends TestCase
         );
         $constraint = $composer['require']['lindemannrock/craft-plugin-base'];
 
-        self::assertSame('^5.38.2', $constraint);
-        self::assertFalse(Semver::satisfies('5.38.1', $constraint));
-        self::assertTrue(Semver::satisfies('5.38.2', $constraint));
+        self::assertSame('^5.39.0', $constraint);
+        self::assertFalse(Semver::satisfies('5.38.99', $constraint));
+        self::assertTrue(Semver::satisfies('5.39.0', $constraint));
         self::assertTrue(Semver::satisfies('5.99.0', $constraint));
         self::assertFalse(Semver::satisfies('6.0.0', $constraint));
     }

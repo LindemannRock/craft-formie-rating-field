@@ -4,7 +4,7 @@
 
 | Requirement | Version |
 |-------------|---------|
-| [Craft CMS](https://craftcms.com/) | 5.10+ |
+| [Craft CMS](https://craftcms.com/) | 5.11+ |
 | [PHP](https://php.net/) | 8.2+ |
 | [Formie](https://verbb.io/craft-plugins/formie) | 3.0+ |
 
@@ -15,7 +15,7 @@ Composer pulls these packages automatically. Formie must also be installed and e
 | Package | Version | Purpose |
 |---------|---------|---------|
 | [verbb/formie](https://verbb.io/craft-plugins/formie) | 3.0+ | The forms plugin the Rating field plugs into — required, install in CP |
-| [lindemannrock/craft-plugin-base](https://github.com/LindemannRock/craft-plugin-base) | 5.38.2+ | Shared base plugin utilities (helpers, traits, layouts) |
+| [lindemannrock/craft-plugin-base](https://github.com/LindemannRock/craft-plugin-base) | 5.39.0+ | Shared base plugin utilities (helpers, traits, layouts) |
 
 ## Optional
 
