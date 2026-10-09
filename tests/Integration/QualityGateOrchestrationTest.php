@@ -61,6 +61,9 @@ final class QualityGateOrchestrationTest extends TestCase
             'Composer\\Config::disableProcessTimeout',
             'bash scripts/quality-gate',
         ], $composer['scripts']['quality-gate']);
+        self::assertSame('php tests/Fixtures/Project/run.php --no-progress', $composer['scripts']['test']);
+        self::assertSame('phpunit --colors=always', $composer['scripts']['test:direct']);
+        self::assertSame(['@ci', '@test'], $composer['scripts']['ci:full']);
     }
 
     #[DataProvider('constituentProvider')]
@@ -102,6 +105,10 @@ final class QualityGateOrchestrationTest extends TestCase
 
         self::assertSame(2, substr_count($runner, 'tests/Fixtures/Project/run.php --lifecycle-probe'));
         self::assertStringContainsString('FORMIE_RATING_FIELD_FIXTURE_SOURCE_VENDOR_ROOT', $runner);
+        self::assertLessThan(
+            strpos($runner, 'composer test'),
+            strpos($runner, 'export FORMIE_RATING_FIELD_FIXTURE_SOURCE_VENDOR_ROOT='),
+        );
     }
 
     public function testCraftExecUsesGlobalCraftClassWithoutImportWarning(): void
