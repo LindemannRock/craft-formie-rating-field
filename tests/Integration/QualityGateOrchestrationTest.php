@@ -61,7 +61,7 @@ final class QualityGateOrchestrationTest extends TestCase
             'Composer\\Config::disableProcessTimeout',
             'bash scripts/quality-gate',
         ], $composer['scripts']['quality-gate']);
-        self::assertSame('php tests/Fixtures/Project/run.php --no-progress', $composer['scripts']['test']);
+        self::assertSame('bash scripts/run-tests --no-progress', $composer['scripts']['test']);
         self::assertSame('phpunit --colors=always', $composer['scripts']['test:direct']);
         self::assertSame(['@ci', '@test'], $composer['scripts']['ci:full']);
     }
@@ -103,12 +103,64 @@ final class QualityGateOrchestrationTest extends TestCase
     {
         $runner = (string)file_get_contents($this->packageRoot() . '/scripts/run-tests');
 
-        self::assertSame(2, substr_count($runner, 'tests/Fixtures/Project/run.php --lifecycle-probe'));
+        self::assertSame(1, substr_count($runner, 'tests/Fixtures/Project/run.php --lifecycle-probe'));
         self::assertStringContainsString('FORMIE_RATING_FIELD_FIXTURE_SOURCE_VENDOR_ROOT', $runner);
-        self::assertLessThan(
-            strpos($runner, 'composer test'),
-            strpos($runner, 'export FORMIE_RATING_FIELD_FIXTURE_SOURCE_VENDOR_ROOT='),
+        self::assertStringContainsString('tests/Fixtures/Project/run.php "$@"', $runner);
+        self::assertStringNotContainsString('composer test', $runner);
+    }
+
+    #[DataProvider('runnerModeProvider')]
+    public function testPublicTestRunnerInitializesItsVendorRoot(string $mode): void
+    {
+        [$package, $vendorRoot, $bin, $phpLog, $composerLog] = $this->createTestRunnerFixture($mode, true);
+        $process = new Process(
+            ['/bin/bash', $package . '/scripts/run-tests', '--no-progress'],
+            $package,
+            [
+                'PATH' => $bin . ':/usr/bin:/bin',
+                'FORMIE_RATING_FIELD_RUNNER_PHP_LOG' => $phpLog,
+                'FORMIE_RATING_FIELD_RUNNER_COMPOSER_LOG' => $composerLog,
+            ],
         );
+        $process->run();
+
+        self::assertSame(0, $process->getExitCode(), $process->getErrorOutput());
+        self::assertSame([
+            $vendorRoot . '|tests/Fixtures/Project/run.php --no-progress',
+            $vendorRoot . '|tests/Fixtures/Project/run.php --lifecycle-probe',
+        ], array_values(array_filter(explode("\n", trim((string)file_get_contents($phpLog))))));
+        self::assertSame('', (string)file_get_contents($composerLog));
+    }
+
+    public static function runnerModeProvider(): array
+    {
+        return [
+            'workspace' => ['workspace'],
+            'standalone' => ['standalone'],
+        ];
+    }
+
+    public function testPublicTestRunnerRejectsMissingStandaloneDependencies(): void
+    {
+        [$package, , $bin, $phpLog, $composerLog] = $this->createTestRunnerFixture('standalone', false);
+        $process = new Process(
+            ['/bin/bash', $package . '/scripts/run-tests', '--no-progress'],
+            $package,
+            [
+                'PATH' => $bin . ':/usr/bin:/bin',
+                'FORMIE_RATING_FIELD_RUNNER_PHP_LOG' => $phpLog,
+                'FORMIE_RATING_FIELD_RUNNER_COMPOSER_LOG' => $composerLog,
+            ],
+        );
+        $process->run();
+
+        self::assertSame(2, $process->getExitCode());
+        self::assertStringContainsString(
+            'Standalone PHPUnit requires package dependencies. Run composer install first.',
+            $process->getErrorOutput(),
+        );
+        self::assertSame('', (string)file_get_contents($phpLog));
+        self::assertSame('', (string)file_get_contents($composerLog));
     }
 
     public function testCraftExecUsesGlobalCraftClassWithoutImportWarning(): void
@@ -356,6 +408,44 @@ SH);
         self::assertSame([], array_values(array_diff(scandir($root . '/tmp') ?: [], ['.', '..'])));
 
         return [$process, (string)file_get_contents($log)];
+    }
+
+    /** @return array{string, string, string, string, string} */
+    private function createTestRunnerFixture(string $mode, bool $withVendor): array
+    {
+        $root = $this->createTrackedTempDirectory('formie-rating-field-test-runner');
+        $package = $mode === 'workspace' ? $root . '/plugins/formie-rating-field' : $root . '/package';
+        $vendorRoot = $mode === 'workspace' ? $root . '/vendor' : $package . '/vendor';
+        $bin = $root . '/bin';
+        mkdir($package . '/scripts', recursive: true);
+        mkdir($bin);
+        copy($this->packageRoot() . '/scripts/run-tests', $package . '/scripts/run-tests');
+        if ($mode === 'workspace') {
+            file_put_contents($root . '/bootstrap.php', "<?php\n");
+        }
+        if ($withVendor) {
+            mkdir($vendorRoot, recursive: true);
+            file_put_contents($vendorRoot . '/autoload.php', "<?php\n");
+        }
+
+        $phpLog = $root . '/php.log';
+        $composerLog = $root . '/composer.log';
+        file_put_contents($phpLog, '');
+        file_put_contents($composerLog, '');
+        file_put_contents($bin . '/php', <<<'SH'
+#!/bin/sh
+printf '%s|%s\n' "$FORMIE_RATING_FIELD_FIXTURE_SOURCE_VENDOR_ROOT" "$*" >> "$FORMIE_RATING_FIELD_RUNNER_PHP_LOG"
+exit 0
+SH);
+        chmod($bin . '/php', 0700);
+        file_put_contents($bin . '/composer', <<<'SH'
+#!/bin/sh
+printf '%s\n' "$*" >> "$FORMIE_RATING_FIELD_RUNNER_COMPOSER_LOG"
+exit 86
+SH);
+        chmod($bin . '/composer', 0700);
+
+        return [$package, $vendorRoot, $bin, $phpLog, $composerLog];
     }
 
     /** @return array{string, string} */
