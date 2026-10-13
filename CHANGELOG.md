@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.23.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.2...v3.23.0) (2026-10-13)
+
+
+### Added
+
+* **deps:** require Craft 5.11 and Base 5.39 ([b97893a](https://github.com/LindemannRock/craft-formie-rating-field/commit/b97893a9c571e8d045424b49a3ee48d557073ec8))
+
 ## [3.22.2](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.1...v3.22.2) - 2026-09-28
 
 
