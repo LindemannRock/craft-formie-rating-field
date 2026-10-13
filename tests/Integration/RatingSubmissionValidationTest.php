@@ -11,8 +11,13 @@ declare(strict_types=1);
 namespace lindemannrock\formieratingfield\tests\Integration;
 
 use Craft;
+use craft\web\View;
+use DOMDocument;
+use DOMElement;
+use DOMXPath;
 use lindemannrock\formieratingfield\fields\Rating;
 use lindemannrock\formieratingfield\tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use verbb\formie\elements\Form;
 use verbb\formie\elements\Submission;
@@ -176,6 +181,120 @@ final class RatingSubmissionValidationTest extends TestCase
         self::assertSame(['in', 'range' => [1, 2, 3]], $rules[2]);
         self::assertStringNotContainsString("'message'", $source);
         self::assertStringNotContainsString('"message"', $source);
+    }
+
+    /** @param array<string, mixed> $config */
+    #[DataProvider('cpRatingValueProvider')]
+    public function testCpResavePreservesUnansweredAndSelectedRatings(array $config, mixed $value): void
+    {
+        $form = $this->createRatingForm(['handle' => 'cpRating', ...$config]);
+        $submission = $this->createSubmission($form, 'cpRating', $value);
+        $this->saveTestElement($submission, true, false, false);
+        $submission = $this->reloadSubmission($submission);
+        $expected = $value === null || $value === '' ? null : (float)$value;
+        self::assertSame($expected, $submission->getFieldValue('cpRating'));
+
+        $options = $this->cpOptions($form, $submission);
+        $selected = $options->query('//select[@name="cpRating"]/option[@selected]');
+        self::assertNotFalse($selected);
+        self::assertCount(1, $selected, 'The CP input must explicitly select the saved value, including blank.');
+        $option = $selected->item(0);
+        self::assertInstanceOf(DOMElement::class, $option);
+        self::assertSame($expected === null ? '' : (string)$expected, $option->getAttribute('value'));
+
+        $submission->setScenario(Submission::SCENARIO_LIVE);
+        $submission->setFieldValueFromRequest('cpRating', $option->getAttribute('value'));
+        $this->saveTestElement($submission, true, false, false);
+        self::assertSame($expected, $this->reloadSubmission($submission)->getFieldValue('cpRating'));
+    }
+
+    public static function cpRatingValueProvider(): array
+    {
+        $cases = [];
+        foreach ([Rating::RATING_TYPE_STAR, Rating::RATING_TYPE_EMOJI, Rating::RATING_TYPE_NPS] as $type) {
+            foreach ($type === Rating::RATING_TYPE_NPS ? [0] : [0, 1] as $min) {
+                $config = ['ratingType' => $type, 'minValue' => $min, 'maxValue' => 5];
+                foreach (['missing' => null, 'empty' => '', 'positive' => '3'] as $name => $value) {
+                    $cases["$type minimum $min $name"] = [$config, $value];
+                }
+                if ($min === 0) {
+                    $cases["$type numeric zero"] = [$config, 0];
+                    $cases["$type string zero"] = [$config, '0'];
+                    $cases["$type required zero"] = [[...$config, 'required' => true], 0];
+                }
+            }
+        }
+        $cases['half star'] = [
+            ['ratingType' => Rating::RATING_TYPE_STAR, 'minValue' => 1, 'maxValue' => 5, 'allowHalfRatings' => true],
+            '3.5',
+        ];
+
+        return $cases;
+    }
+
+    #[DataProvider('cpClearingProvider')]
+    public function testCpBlankOptionClearsOptionalRatingButRequiredRatingRejectsIt(string $type, bool $required): void
+    {
+        $form = $this->createRatingForm([
+            'handle' => 'cpRating', 'ratingType' => $type, 'required' => $required,
+        ]);
+        $submission = $this->createSubmission($form, 'cpRating', '3');
+        $this->saveTestElement($submission, true, false, false);
+        $submission = $this->reloadSubmission($submission);
+        $options = $this->cpOptions($form, $submission);
+        $blank = $options->query('//select[@name="cpRating"]/option[@value="" and not(@disabled)]');
+        self::assertNotFalse($blank);
+        self::assertCount(1, $blank, 'Editors must be able to choose an unanswered value.');
+        $option = $blank->item(0);
+        self::assertInstanceOf(DOMElement::class, $option);
+
+        $submission->setScenario(Submission::SCENARIO_LIVE);
+        $submission->setFieldValueFromRequest('cpRating', $option->getAttribute('value'));
+        if ($required) {
+            self::assertFalse(Craft::$app->getElements()->saveElement($submission, true, false, false));
+            self::assertTrue($submission->hasErrors('cpRating'));
+            self::assertSame(3.0, $this->reloadSubmission($submission)->getFieldValue('cpRating'));
+        } else {
+            $this->saveTestElement($submission, true, false, false);
+            self::assertNull($this->reloadSubmission($submission)->getFieldValue('cpRating'));
+        }
+    }
+
+    public static function cpClearingProvider(): array
+    {
+        $cases = [];
+        foreach ([Rating::RATING_TYPE_STAR, Rating::RATING_TYPE_EMOJI, Rating::RATING_TYPE_NPS] as $type) {
+            $cases["$type optional"] = [$type, false];
+            $cases["$type required"] = [$type, true];
+        }
+
+        return $cases;
+    }
+
+    private function cpOptions(Form $form, Submission $submission): DOMXPath
+    {
+        $field = $form->getFormLayout()->getFieldByHandle('cpRating');
+        self::assertInstanceOf(Rating::class, $field);
+        $view = Craft::$app->getView();
+        $originalTemplateMode = $view->getTemplateMode();
+        try {
+            $view->setTemplateMode(View::TEMPLATE_MODE_CP);
+            $html = (string)$field->getCpInputHtml($submission->getFieldValue('cpRating'), $submission);
+        } finally {
+            $view->setTemplateMode($originalTemplateMode);
+        }
+        $document = new DOMDocument();
+        self::assertTrue($document->loadHTML($html));
+
+        return new DOMXPath($document);
+    }
+
+    private function reloadSubmission(Submission $submission): Submission
+    {
+        $reloaded = Submission::find()->id($submission->id)->status(null)->isSpam(null)->isIncomplete(null)->one();
+        self::assertInstanceOf(Submission::class, $reloaded);
+
+        return $reloaded;
     }
 
     /**

@@ -72,6 +72,8 @@ For a star field whose configured minimum is `0`, zero appears as its own numeri
 - **In notification emails:** star → `value / max stars`; emoji → the custom label and value (or just the value); NPS → `value / max`. Unanswered ratings render as *Not rated*. Requires **Include in Email**.
 - **In your own templates:** see [Displaying ratings](../template-guides/displaying-ratings.md).
 
+When editing a submission in **Formie → Submissions**, the rating dropdown includes a blank option. Leaving an unanswered rating blank preserves it when you save. You can also choose the blank option to clear an optional rating; a required rating still needs an answer. Selecting `0` records a real answer when the field's range includes zero.
+
 ## Defaults vs. per-field settings
 
 The plugin's [Settings → General](../get-started/configuration.md) page sets the *starting point* for new fields — type, size, range, half-ratings, labels, emoji mode. Once a field is created it keeps its own copy of those values, so changing the defaults later doesn't rewrite existing fields. Override anything per field in the form builder.

@@ -209,6 +209,14 @@ If scheduled generation remains missing after the other operation finishes, chec
 
 **Why:** Half values only make sense for stars; emoji and NPS are whole-number scales.
 
+## An unanswered rating becomes a number after editing a submission
+
+Earlier versions of the Control Panel rating dropdown had no blank option. Saving an unanswered rating could therefore record the first available number: `0` for NPS or another range starting at zero, or `1` for a range starting at one.
+
+The corrected dropdown includes a blank option. In **Formie → Submissions**, leave that option selected to preserve an unanswered rating, or select it to clear an optional rating. Required ratings still need an answer before saving.
+
+This correction does not rewrite existing submissions. Zero is a valid answer on ranges that include it, so do not replace stored zeros with blanks in bulk. Correct an individual historical response only when you can verify what the respondent originally submitted.
+
 ## Zero or a saved half-star value displays incorrectly
 
 **Quick checks:**

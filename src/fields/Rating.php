@@ -356,8 +356,8 @@ class Rating extends Field implements FieldInterface
      */
     protected function cpInputHtml(mixed $value, ?ElementInterface $element, bool $inline): string
     {
-        // Get options for the field
-        $options = [];
+        // Preserve unanswered values instead of selecting the first numeric option.
+        $options = [['label' => '', 'value' => '']];
 
         foreach ($this->getRatingOptions() as $option) {
             $options[] = [
