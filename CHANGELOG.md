@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.23.1](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.23.0...v3.23.1) - 2026-10-14
+
+
+### Fixed
+
+* **fields:** preserve unanswered ratings in CP edits ([505618b](https://github.com/LindemannRock/craft-formie-rating-field/commit/505618b30d73f89b94ea4e93a72068a101213623))
+
 ## [3.23.0](https://github.com/LindemannRock/craft-formie-rating-field/compare/v3.22.2...v3.23.0) - 2026-10-13
 
 
